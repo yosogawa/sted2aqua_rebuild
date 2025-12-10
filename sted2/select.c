@@ -1228,7 +1228,15 @@ void	path_cut(char *fpath,char *fname)
   fpath[0]=0;
   while(1){
     j=str_search(fname,"/");if(j==0){j=str_search(fname,":");if(j==0){break;}}
-    strcpy(tmp0,fname);tmp0[j]=0;strcat(fpath,tmp0);strcpy(fname,&fname[j]);
+    strcpy(tmp0,fname);tmp0[j]=0;strcat(fpath,tmp0);
+#ifdef ALLOW_STRCPY_OVERRAP
+      strcpy(fname,&fname[j]); /* strcpy overwrapping! fail Xcode */
+#else
+      size_t len2 = strlen(&fname[j]);
+      if (len2 > PATHLEN-j) len2 = PATHLEN-j;
+      memmove(fname,&fname[j],len2 );
+      fname[len2] = 0;
+#endif
   }
 }
 
