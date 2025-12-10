@@ -8,6 +8,17 @@
 
 #include "sted.h"
 
+int XSTed_gcolor(int);
+void XSTed_gbox( int, int, int, int, unsigned int, unsigned int );
+int  XSTed_gpoint( int , int );
+void XSTed_gline( int, int, int, int, int, int );
+void XSTed_gfill( int, int, int, int, int );
+void XSTed_gputs(int, int, const char *);
+int  XSTed_ms_pos( int *, int * );
+
+void curses_gcolor(int);
+void curses_gputs(int, int, const char *);
+void curses_gfill(int, int, int, int, int);
 
 /* graphic functions */
 

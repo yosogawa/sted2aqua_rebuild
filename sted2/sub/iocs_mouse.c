@@ -10,6 +10,12 @@
 
 #include "sted.h"
 
+void XSTed_ms_curof(void);
+void XSTed_ms_curon(void);
+int  XSTed_ms_getdt(void);
+void XSTed_ms_init(void);
+int  XSTed_ms_limit(int, int, int, int);
+
 /* functions */
 
 void _iocs_ms_curof( void ) {

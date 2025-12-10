@@ -10,6 +10,19 @@
 
 #include "sted.h"
 
+int curses_keyinp(void);
+int curses_sftsns(void);
+int curses_keyin(int);
+void curses_ledmod(int, int);
+
+
+int  XSTed_keyinp(void);
+int  XSTed_sftsns(void);
+int  XSTed_bitsns(int);
+int  XSTed_keysns(void);
+void XSTed_ledmod(int, int);
+
+
 /* key input */
 
 void _iocs_ledmod( int code, int onoff ) {

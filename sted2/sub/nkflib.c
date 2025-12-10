@@ -1558,6 +1558,7 @@ s_iconv(int c2, int c1)
 }
 
 
+int
 e_oconv(int c2, int c1)
 {
     c2 = pre_convert(c1,c2); c1 = c1_return;

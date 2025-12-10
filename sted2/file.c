@@ -37,23 +37,23 @@ void	msg();
 void	msg_clr();
 void	snsclr();
 void	fnc_dis();
-void	dpl();
-void	tpl();
+void    dpl(int);
+void	tpl(int);
 void	spcut();
 char	*spadd();
 char	*jstrupr();
 int	str_val();
 int	ctc();
 int	strch();
-int	meas_no();
-int	meas_add();
-int	dat_add();
-int	meas_len();
-int	add_set();
+int	meas_no(int);
+int    meas_add(int);
+int    dat_add(int,int);
+int    meas_len(int);
+int	add_set(int, int *);
 int	size_change();
 void	trksize_c();
-char	*trk_dis();
-int	str_search();
+char    *trk_dis(int,int,int);
+int    str_search(unsigned char *,unsigned char *);
 
 int	dload();
 int	dsave();
@@ -88,17 +88,17 @@ void	tim_var_read();
 void	tim_name_read();
 void	tim_name_set();
 void	gsd_buf_trns();
-void	gsd_var_read();
+void	gsd_var_read(void);
 
 int	rcp_buf_put();
 int	rcp_buf_get();
 
-void	dclr();
+void    dclr(void);
 void	same_cluc();
 int	gomi_cut();
 void	dinit();
 
-void	all_note_off();
+void    all_note_off(int);
 void	temporary_set();
 
 void	cminit();
@@ -112,6 +112,11 @@ void	stgt_init();
 void	stgt_init2();
 void	asin_change();
 void	asin_init();
+void    memcpy_l(unsigned char *, unsigned char *, int);
+int    exe(char *);
+void    twait(int);
+int    knck(unsigned char *,int);
+void    OnGraphic(void);
 
 /* ================================================== file */
 static int smfload( char *fna ) {
@@ -1346,7 +1351,7 @@ void	gsd_buf_trns()
   rcd->fmt=2;rcd->gsd_valid=1;
 }
 
-void	gsd_var_read()
+void	gsd_var_read(void)
 {
   memcpy(gsd,rcd->gsd_adr,4096);strcpy(gsd_file,rcd->gsdname);
 }
@@ -1371,7 +1376,7 @@ int	rcp_buf_get(char *ptr,int po,int ln)
 }
 
 /* ================================================== data */
-void	dclr()
+void	dclr(void)
 {
   int	i,j;
   unsigned char	a;

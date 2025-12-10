@@ -10,6 +10,21 @@
 
 #include "sted.h"
 
+void curses_tcolor(int );
+void curses_tputs(char *);
+void curses_tlocate(int, int);
+void curses_cls_eol(void);
+void curses_cls_al(void);
+void curses_cls_ed(void);
+
+int XSTed_tcolor(int);
+void XSTed_tputs(char *);
+void XSTed_tlocate(int , int);
+void XSTed_cls_eol(void );
+void XSTed_cls_al(void);
+void XSTed_cls_ed(void);
+int  XSTed_defchr(int, int, const void *);
+
 /* local val.s */
 
 unsigned int iocs_current_console_width=96, iocs_current_console_height=32;

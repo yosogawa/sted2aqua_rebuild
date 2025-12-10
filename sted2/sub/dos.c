@@ -20,6 +20,16 @@ char fnc_key[12][6];
    UP, LEFT, RIGHT, DOWN,
    CLR, HELP, HOME, UNDO */
 
+void curses_tlocate(int, int);
+void curses_curon(void);
+void curses_curoff(void);
+int curses_keyin( int);
+
+void XSTed_tlocate(int, int);
+void XSTed_curon(void);
+void XSTed_curoff(void);
+int  XSTed_keyin(int);
+
 /* local functions */
 
 static char *name_conv( char *, const char * );

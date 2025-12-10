@@ -14,16 +14,16 @@ int	metoro_trk,metoro_sw,topmeas,recmeas,btmmeas,ecount_sw;
 void	msg();
 void	msg_clr();
 void	sdis();
-char	*fstr();
+char    *fstr(int,int);
 char	*spadd();
 char	*chstr();
 int	strch();
-int	vinput();
+int     vinput(int,int);
 void	home2();
-void	all_note_off();
+void    all_note_off(int);
 void	snsclr();
-void	g_print();
-void	twait();
+void    g_print(int, int, char *, int);
+void    twait(int);
 void	midi_clr();
 void	rec_filter();
 
@@ -46,10 +46,10 @@ void	size_ref();
 void	tai_compres();
 void	trksize();
 
-int	meas_add();
-int	meas_no();
+int    meas_add(int);
+int	meas_no(int);
 void	same_cluc();
-int	step_cluc();
+int    step_cluc(int);
 
 int	real_record();
 void	put_delta();
@@ -67,6 +67,11 @@ void	rec_conv();
 int	rec_ext();
 int	meas_adjust();
 int	meas_adj_sub();
+
+int add_set(int, int *);
+void    key_wait(void);
+void memcpy_l(unsigned char *, unsigned char *, int);
+int    dat_add(int,int);
 
 /***************************/
 int	real_record()

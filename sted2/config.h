@@ -279,11 +279,12 @@
 /* #undef USE_BSD_CURSES */
 
 /* */
-/* #define USE_CURSES 1 */
-#undef USE_CURSES
+#define USE_CURSES 1
+//#undef USE_CURSES
 
 /* */
-#define USE_NCURSES 1
+//#define USE_NCURSES 1
+#undef USE_NCURSES
 
 /* */
 /* #undef USE_SUNOS_CURSES */

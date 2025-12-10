@@ -9,33 +9,33 @@ static	char	dotp[4][3]={"÷§","÷¨","÷©","÷ª"};
 
 static unsigned char	dotpat[32][32];
 
-void	sinput();
-int	vinput();
+void    sinput(char *,int);
+int     vinput(int,int);
 int	inkey2();
 void	spcut();
 char	*sread();
-char	*fstr();
+char    *fstr(int,int);
 char	*hex_s();
 int	str_val();
 int	yn_sel();
 char	*spadd();
-int	knck();
+int    knck(unsigned char *,int);
 char	*jstrupr();
 void	home2();
 void	msg();
 void	msg_clr();
 void	sdis();
 void	tdis();
-void	tcur();
+void    tcur(int,int,int,int);
 void	fnc_dis();
 void	snsclr();
 
 int	trk_check();
 int	trk_shift();
 void	trk_delete();
+char    *trk_dis(int,int,int);
 
-
-void	all_note_off();
+void    all_note_off(int);
 void	midi_clr();
 
 void	hedset();
@@ -50,8 +50,8 @@ void	scinst_dsp();
 void	scinst_dsp();
 void	scpanel_dsp();
 
-void	cons_md();
-void	noed_cls();
+void    cons_md(int);
+void    noed_cls(void);
 int	rex_load();
 int	rex_save();
 void	user_exc_init();
@@ -75,8 +75,18 @@ void	dot_dis();
 void	dattopat();
 void	pattodat();
 
-static void exc_dis2(int ,int );
+void    key_wait(void);
+void    poplay(int,int);
+void    tg_copy(int);
+void    tg_copy2(int);
+void    noed_cls_t(void);
+void    fsel(char *,char *,int);
+void    txerase(int,int,int,int);
+void    twait(int);
+void    dpl(int);
+void    tpl(int);
 
+static void exc_dis2(int, int);
 
 /***************************/
 void	user_exc_as(int no)

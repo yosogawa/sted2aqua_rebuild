@@ -9,6 +9,13 @@
 
 #include "sted.h"
 
+/* prototype */
+void curses_key_wait(void);
+void XSTed_key_wait(void);
+void curses_midi_wait(void);
+void XSTed_midi_wait(void);
+
+
 /* global variables */
 
 int iswindowopened = 0;

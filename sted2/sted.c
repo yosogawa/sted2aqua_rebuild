@@ -43,17 +43,17 @@ char	rc_path[256];
 
 int	cmdflagold,used_u=0;
 
-void	rhy_as();
+void	rhy_as(void);
 void	user_exc_as();
 void	part_as();
-void	fsel();
-int	vinput();
-void	sinput();
+void    fsel(char *,char *,int);
+int     vinput(int,int);
+void    sinput(char *,int);
 void	spcut();
 int	klen();
-int	knck();
+int    knck(unsigned char *,int);
 void	str_change();
-int	str_search();
+int    str_search(unsigned char *,unsigned char *);
 int	str_last();
 int	str_val();
 
@@ -78,7 +78,7 @@ int	dsave();
 int	bufset();
 int	bufload();
 void	dplay();
-void	all_note_off();
+void    all_note_off(int);
 void	cminit();
 void	gsinit();
 void	asin_init();
@@ -87,9 +87,9 @@ void	stgt_init();
 void	filt_init();
 void	rec_filter();
 void	dinit();
-void	poplay();
+void    poplay(int,int);
 void	fnc_dis();
-char	*fstr();
+char    *fstr(int,int);
 char	*nstr();
 char	*chstr();
 char	strch();
@@ -100,14 +100,14 @@ void	msg_clr();
 void	vdis();
 void	vdis2();
 void	sdis();
-void	sdis2();
+void    sdis2(int,int,char *,int,int,int);
 void	tdis();
 void	home2();
-int	step_cluc2();
-void	edfield();
+int    step_cluc2(int,int,int);
+void    edfield(int);
 void	H_INIT();
 void	OnGraphic();
-void	g_print();
+void    g_print( int, int, char *, int);
 char	*jstrupr();
 int	drv_code();
 void	key_vect_set();
@@ -125,14 +125,14 @@ int	size_add();
 void	size_ref();
 
 void	com_sel();
-void	load_sub();
-void	save_sub();
+void    load_sub(int);
+void	save_sub(int);
 void	trk_set();
-void	trk_lin();
+void    trk_lin(int,int,int);
 void	beat_set();
 void	memo_ed();
-int	option();
-int	option2();
+int    option(int,int);
+int    option2(int,int,int,int);
 int	progmode();
 void	key_pause();
 int	yn_sel();
@@ -145,18 +145,28 @@ void	rcp_dat();
 void	rcp_dat2();
 void	trk_dat();
 void	trksize();
-void	tpl();
-void	dpl();
+void    tpl(int);
+void	dpl(int);
 
 void	fonload();
 void	fonread();
 void	fonset();
 int	option_read();
 
-int	exe();
+int	exe(char *);
 
 void	end_proc();
 void	ErrorTrap(void);
+
+void    cons_md(int);
+void    noed_cls(void);
+void    noed_cls_t(void);
+void    card_name_get(void);
+int    bufload_trk(int);
+int    bufset_trk(int);
+int    meas_no(int);
+
+static int   paraexe(char *,int,int,int,int);
 
 static char version_id[1024];
 
@@ -815,7 +825,7 @@ int	option(int md,int sm)
 
   /*  2015.3.27. Toshi Nagata  */
 	MacErrorBox("No optional functions are available yet.", 0);
-	return ;
+	return 0;
   /*  End Toshi Nagata  */
 
   B_CLR_AL();

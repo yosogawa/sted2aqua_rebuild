@@ -30,6 +30,6 @@ void CoreMIDISelectDeviceForPort(int index, int port);
 void CoreMIDISelectDeviceByNameForPort(const char *name, int port);
 void CoreMIDIAllSoundOff(void);
 
-#endif __OBJC__
+#endif
 
 #endif

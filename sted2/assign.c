@@ -40,8 +40,8 @@ TEMPO            :
 unsigned char	stgt_name[10][4]={
   "ë¿","ëÀ","ëÁ","ëÂ","ëÃ","ëÄ","ëÅ","ëÆ","ëÇ","ëÉ"};
 
-void	sinput();
-int	vinput();
+void    sinput(char *,int);
+int     vinput(int,int);
 int	inkey2();
 char	*fstr();
 int	str_val();
@@ -56,21 +56,21 @@ void	msg();
 void	msg_clr();
 void	sdis();
 void	tdis();
-void	tcur();
+void    tcur(int,int,int,int);
 void	fnc_dis();
 void	rhinit();
 void	rhinit2();
 void	stgt_init();
 void	stgt_init2();
 int	ctc();
-int	spc_code();
+int    spc_code(char *,int *);
 int	meas_no();
-int	meas_add();
-int	meas_len();
+int    meas_add(int);
+int    meas_len(int);
 int	real_cy();
 void	snsclr();
-void	twait();
-void	txerase();
+void	twait(int);
+void    txerase(int,int,int,int);
 
 int	strch();
 char	*chstr();
@@ -85,15 +85,15 @@ int	ras_load();
 
 void	path_cut();
 int	str_last();
-int	str_search();
-int	knck();
+int    str_search(unsigned char *,unsigned char *);
+int    knck(unsigned char *,int);
 char	*jstrupr();
-void	cons_md();
-void	noed_cls();
+void	cons_md(int);
+void	noed_cls(void);
 
 
 int	timsel();
-int	fsel();
+void    fsel(char *,char *,int);
 int	varia();
 void	s_test();
 void	asin_init();
@@ -104,7 +104,7 @@ int	part_sel();
 void	filt_init();
 
 /***************************/
-void	rhy_as()
+void	rhy_as(void)
 {
   int	a,i,j,xx,x=0,y=0,f,gy,sh;
   char	tmp1[256];

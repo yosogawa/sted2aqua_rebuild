@@ -30,6 +30,9 @@ unsigned char	keycode[44]={
 void	msg();
 void	msg_clr();
 void	snsclr();
+int    str_search(unsigned char *,unsigned char *);
+void    all_note_off(int);
+void    twait(int);
 
 /***************************/
 void	m_keyb(int ch,int bank,int prg,int velo)

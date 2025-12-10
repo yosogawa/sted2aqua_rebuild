@@ -11,6 +11,17 @@
 
 #include "sted.h"
 
+void curses_tfill( unsigned short, short, short, short, short, unsigned short);
+void curses_trascpy( int, int, int, int);
+
+void XSTed_txxline( unsigned short, short, short, short, unsigned short );
+void XSTed_txyline( unsigned short, short, short, short, unsigned short );
+void XSTed_txbox( short, short, short, short, unsigned short );
+int XSTed_tpalet( int, int);
+void XSTed_tfill( unsigned short, short, short, short, short, unsigned short );
+void XSTed_trascpy( int, int, int, int );
+
+
 int _iocs_tpalet( int no, int code ) {
 
   int ret=0;

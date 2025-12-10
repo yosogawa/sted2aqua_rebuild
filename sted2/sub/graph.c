@@ -11,6 +11,24 @@
 
 #include "sted.h"
 
+int XSTed_gcolor(int);
+void XSTed_gputs(int, int, const char *);
+void XSTed_rev_area(int, int, int);
+void XSTed_tg_copy(int);
+void XSTed_tg_copy2(int);
+void XSTed_t_scrw( int, int, int, int, int, int );
+void XSTed_trev( int, int, int, int);
+
+
+void curses_gcolor(int);
+void curses_gputs( int, int, const char *);
+void curses_tg_copy(int);
+void curses_tg_copy2(int);
+void curses_t_scrw(int, int, int, int, int, int);
+void curses_trev(int, int, int, int);
+
+
+
 void g_print( int x, int y, char *str, int col ) {
 
   if ( isconsole ) {

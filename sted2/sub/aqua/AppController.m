@@ -11,6 +11,10 @@
 
 #include <stdlib.h>
 
+// prototype added
+void  XSTed_init_window(void);
+void  XSTed_start_main(int (*)(int, char **), int, char **);
+
 @implementation AppController
 
 - (void)applicationWillFinishLaunching:(NSNotification *)notification

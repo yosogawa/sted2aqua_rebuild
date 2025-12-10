@@ -117,44 +117,44 @@ extern void XSTed_rwindow( void );
 
 /* xwin_misc.c */
 
-extern void XSTed_curon( void );
-extern void XSTed_curoff( void );
+/*extern*/ void XSTed_curon( void );
+/*extern*/ void XSTed_curoff( void );
 
 /* xwin_col.c */
 
 extern int XSTed_gpalet( int , int );
-extern int XSTed_tpalet( int , int );
+/*extern*/ int XSTed_tpalet( int , int );
 extern int XSTed_tcolor( int );
-extern int XSTed_gcolor( int );
+/*extern*/ int XSTed_gcolor( int );
 
 extern int XSTed_SetTCol( int );
 extern int XSTed_SetGCol( int );
 
 /* xwin_print.c */
 
-extern void XSTed_tlocate( int , int );
-extern void XSTed_tputs( char * );
-extern void XSTed_gputs( int , int , const char * );
-extern void XSTed_cls_eol( void );
-extern void XSTed_cls_ed( void );
+/*extern*/ void XSTed_tlocate( int , int );
+/*extern*/ void XSTed_tputs( char * );
+/*extern*/ void XSTed_gputs( int , int , const char * );
+/*extern*/ void XSTed_cls_eol( void );
+/*extern*/ void XSTed_cls_ed( void );
 
 /* xwin_graph.c */
 
-extern void XSTed_txbox( short, short, short, short, unsigned short );
-extern void XSTed_txxline( unsigned short, short, short, short, unsigned short );
-extern void XSTed_txyline( unsigned short, short, short, short, unsigned short );
+/*extern*/ void XSTed_txbox( short, short, short, short, unsigned short );
+/*extern*/ void XSTed_txxline( unsigned short, short, short, short, unsigned short );
+/*extern*/ void XSTed_txyline( unsigned short, short, short, short, unsigned short );
 extern void XSTed_trev( int, int, int, int );
-extern void XSTed_rev_area( int, int, int );
-extern void XSTed_tfill( unsigned short, short, short, short, short, unsigned short );
-extern void XSTed_trascpy( int, int, int, int );
-extern void XSTed_t_scrw( int, int, int, int, int, int );
+/*extern*/ void XSTed_rev_area( int, int, int );
+/*extern*/ void XSTed_tfill( unsigned short, short, short, short, short, unsigned short );
+/*extern*/ void XSTed_trascpy( int, int, int, int );
+/*extern*/ void XSTed_t_scrw( int, int, int, int, int, int );
 
-extern void XSTed_gbox( int, int, int, int, unsigned int, unsigned int );
-extern int  XSTed_gpoint( int , int );
-extern void XSTed_gline( int, int, int, int, int, int );
-extern void XSTed_gfill( int, int, int, int, int );
+/*extern*/ void XSTed_gbox( int, int, int, int, unsigned int, unsigned int );
+/*extern*/ int  XSTed_gpoint( int , int );
+/*extern*/ void XSTed_gline( int, int, int, int, int, int );
+/*extern*/ void XSTed_gfill( int, int, int, int, int );
 
-extern void XSTed_tg_copy( int );
+/*extern*/ void XSTed_tg_copy( int )/;
 extern void XSTed_tg_copy2( int );
 
 extern void XSTed_ghome( int );
@@ -166,21 +166,21 @@ extern void XSTed_overlap( void );
 /* xwin_key.c */
 
 extern int  XSTed_key_init( void );
-extern int  XSTed_keyin( int );
+/*extern*/ int  XSTed_keyin( int );
 extern int  XSTed_keyinp( void );
 extern int  XSTed_sftsns( void );
 extern int  XSTed_bitsns( int );
 extern int  XSTed_keysns( void );
-extern void XSTed_key_wait( void );
-extern void XSTed_ledmod( int, int );
+/*extern*/ void XSTed_key_wait( void );
+/*extern*/ void XSTed_ledmod( int, int );
 
 /* xwin_mouse.c */
 
-extern void XSTed_ms_curof( void );
-extern void XSTed_ms_curon( void );
-extern int  XSTed_ms_getdt( void );
-extern void XSTed_ms_init( void );
-extern int  XSTed_ms_limit( int, int, int, int );
-extern int  XSTed_ms_pos( int *, int * ); 
+/*extern*/ void XSTed_ms_curof( void );
+/*extern*/ void XSTed_ms_curon( void );
+/*extern*/ int  XSTed_ms_getdt( void );
+/*extern*/ void XSTed_ms_init( void );
+/*extern*/ int  XSTed_ms_limit( int, int, int, int );
+/*extern*/ int  XSTed_ms_pos( int *, int * );
 
 #endif /* _XWIN_H_ */

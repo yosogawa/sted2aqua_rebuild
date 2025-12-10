@@ -14,7 +14,7 @@ unsigned char	fnc_dat[9*10][9]={
   N_(" NOTES  "),N_(" OPTIM. "),N_(" S.DEL  "),N_(" F.BACK "),N_(" F.PREV "),
   N_("SET UNDO"),N_("DO UNDO "),N_("MIX PST."),N_("REV.PST."),N_("        "),
 
-  /*one touch st/gt*//*
+  /*one touch st/gt*/
   N_("  192   "),N_("  144   "),N_("   96   "),N_("   72   "),N_("   48   "),
   N_("   36   "),N_("   24   "),N_("   18   "),N_("   12   "),N_("    6   "),
 
@@ -44,45 +44,49 @@ unsigned char	fnc_dat[9*10][9]={
 
 char	hex_code[16]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 
-int	meas_add();
+int    meas_add(int);
 int	meas_no();
-void	all_note_off();
+void    all_note_off(int);
 void	trk_cluc();
 int	trk_shift();
 void	trk_delete();
 void	trksize();
 void	trk_no_dis();
-void	poplay();
-void	undobuf();
+void    poplay(int,int);
+void	undobuf(int);
 
 void	fnc_dis();
-int	vinput();
-void	sinput();
+int     vinput(int,int);
+void    sinput(char *,int);
 void	spcut();
 int	inkey2();
-int	knck();
+int    knck(unsigned char *,int);
 void	home2();
-char	*fstr();
+char	*fstr(int,int);
 char	*hex_s();
 unsigned char	*jstrupr();
 char	*chstr();
-int	str_search();
+int    str_search(unsigned char *,unsigned char *);
 int	str_last();
 int	str_val();
-void	g_print();
-void	g_print2();
+void    g_print(int, int, char *, int);
+void    g_print2(int,int,char *,int);
 void	vdis();
 void	vdis2();
 void	vdis3();
 void	sdis();
-void	sdis2();
+void    sdis2(int,int,char *,int,int,int);
 void	sdis3();
 void	tdis();
 void	msg();
 void	msg_clr();
 void	trk_free();
 void	snsclr();
-void	trk_no();
+int    channele_no(int);
+void	trk_no(void);
+void    key_wait(void);
+void    txerase(int,int,int,int);
+
 
 int isinputmode=0;
 
@@ -494,14 +498,14 @@ void	edfield(int m)
 }
 
 /***************************/
-void	noed_cls()
+void	noed_cls(void)
 {
   if(edit_scr!=0){fill(0,544,454,1001,0);}else{fill(313,544,767,1001,0);}
 }
 
-void	noed_cls_t()
+void	noed_cls_t(void)
 {
-  if(edit_scr!=0){txerase(0,32,454,489-32,0);}else{txerase(313,32,767-313,489-32,0);}
+  if(edit_scr!=0){txerase(0,32,454,489-32/*,0*/);}else{txerase(313,32,767-313,489-32/*,0*/);} /*!*/
 }
 
 /***************************/
@@ -533,7 +537,7 @@ void	trk_free(int ad)
 }
 
 /***************************/
-void	trk_no()
+void	trk_no(void)
 {
   int	xx=31-8;
 

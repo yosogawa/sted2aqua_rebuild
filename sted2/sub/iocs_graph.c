@@ -10,6 +10,19 @@
 
 #include "sted.h"
 
+void  XSTed_init_window(void);
+void  XSTed_close_window(void);
+void  XSTed_gclr(void);
+void  XSTed_cls_al(void);
+int   XSTed_gpalet(int, int);
+void  XSTed_ghome(int);
+
+void curses_init_window(void);
+void curses_close_window(void);
+void curses_gclr(void);
+void curses_cls_al(void);
+void curses_ghome(int);
+
 /* variables */
 
 int iocs_graph_home;

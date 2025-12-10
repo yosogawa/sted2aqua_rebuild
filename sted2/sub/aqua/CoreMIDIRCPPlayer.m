@@ -16,6 +16,8 @@
 #include <AudioUnit/MusicDevice.h>
 #include <unistd.h>
 
+///#define USE_INTERNALSYNTH    (ogawa)
+
 #define kMaxNumberOfPorts 2
 #define kMaxPrefetchMicroseconds 1000000
 
@@ -91,16 +93,19 @@ static unsigned char *sRCPDebugBuffer;
 
 @end
 
+#ifdef USE_INTERNALSYNTH
 static AUGraph sGraph = NULL;
 static AUNode sSynth, sSynth2;
 static AUNode sMixer;
 static AUNode sOutput;
 static MusicDeviceComponent sMusicDev, sMusicDev2;
 static AUMIDIControllerRef sMIDIController, sMIDIController2;
+#endif
 
 static void
 InitInternalSynth(void)
 {
+#ifdef USE_INTERNALSYNTH
 	OSStatus sts;
 	ComponentDescription desc;
 	UInt32 unum;
@@ -162,7 +167,8 @@ InitInternalSynth(void)
 //	sts = MusicDeviceMIDIEvent(gMusicDev, 0xC0, 0, 0, 0);
 //	sts = MusicDeviceMIDIEvent(gMusicDev, 0xB0, 7, 127, 0);
 //	sts = MusicDeviceMIDIEvent(gMusicDev, 0x90, 60, 127, 0);
-#endif	
+#endif
+#endif
 }
 
 void
@@ -173,8 +179,10 @@ CoreMIDIInitIfNeeded(void)
 		MIDIClientCreate(CFSTR("STed2 Mac"), NULL, NULL, &sMIDIClientRef);
 		if (sMIDIOutputPortRef == NULL)
 			MIDIOutputPortCreate(sMIDIClientRef, CFSTR("STed2 output port"), &sMIDIOutputPortRef);
+#ifdef USE_INTERNALSYNTH
 		if (sGraph == NULL)
 			InitInternalSynth();
+#endif
 		for (i = 0; i < sizeof(sDest) / sizeof(sDest[0]); i++)
 			sDest[i] = NULL;
 	}

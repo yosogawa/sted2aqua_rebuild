@@ -12,6 +12,15 @@
 
 #include "sted.h"
 
+void curses_tputs(char *);
+void curses_tlocate(int, int);
+void curses_cls_eol(void);
+
+int XSTed_tcolor(int);
+void XSTed_tputs( char * );
+void XSTed_tlocate( int , int );
+void XSTed_cls_eol( void );
+
 void H_INIT ( void ) {
 
   /* not implemented */

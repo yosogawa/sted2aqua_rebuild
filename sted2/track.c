@@ -16,16 +16,28 @@ int	same_meas_conv();
 int	same_ext_sub();
 void	trk_opt_sub();
 int	tai_compres();
-void	trk_quan();
+void	trk_quan(int,int,int);
 void	note_ctrl();
 
-int	trk_check();
+int    trk_check(int);
 int	trk_shift();
 void	trk_delete();
 int	size_change();
 int	size_max();
 int	size_add();
 void	size_ref();
+
+int add_set(int, int *);
+void    key_wait(void);
+void memcpy_l(unsigned char *, unsigned char *, int);
+void    dclr(void);
+int     vinput(int,int);
+void    undobuf(int);
+int    meas_add(int);
+int    meas_len(int);
+char    *fstr(int,int);
+void    bunkatsu(int,int,int *);
+int    velo_ctrl(int,int,int);
 
 /***************************/
 int	trk_mix_sub(unsigned char *in1,unsigned char *in2)

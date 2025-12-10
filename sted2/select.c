@@ -72,13 +72,13 @@ extern int	tkey,tvel;	/* May.26.2003 Toshi Nagata: add 'extern' */
 char	*dtasc();
 char	*tmasc();
 
-void	sinput();
-int	vinput();
+void    sinput(char *,int);
+int     vinput(int,int);
 int	inkey2();
 void	spcut();
 char	*sread();
 char	*tim_names();
-char	*fstr();
+char    *fstr(int,int);
 char	*hex_s();
 int	yn_sel();
 char	*keystr();
@@ -89,30 +89,30 @@ void	msg();
 void	msg_clr();
 void	sdis();
 void	tdis();
-void	tcur();
+void    tcur(int,int,int,int);
 void	fnc_dis();
-void	all_note_off();
+void    all_note_off(int);
 void	temporary_set();
 void	timtra();
 void	rhinit();
 int	ctc();
-int	meas_no();
-int	meas_add();
-int	meas_len();
+int	meas_no(int);
+int    meas_add(int);
+int    meas_len(int);
 int	real_cy();
 void	snsclr();
-void	twait();
-void	txerase();
+void    twait(int);
+void    txerase(int,int,int,int);
 
 void	path_cut();
 int	str_last();
-int	str_search();
-int	knck();
+int    str_search(unsigned char *,unsigned char *);
+int    knck(unsigned char *,int);
 char	*jstrupr();
 void	H_PRINT2();
 void	t_scrw();
-void	cons_md();
-void	noed_cls();
+void    cons_md(int);
+void    noed_cls(void);
 
 void	rcp_dat2();
 void	uex_read();
@@ -125,7 +125,7 @@ void	m_keyb();
 void	stest_para_disp();
 void	stest_para_edit();
 
-void	fsel();
+void    fsel(char *,char *,int);
 void	str_change();
 void	path_cut();
 void	path_down();
@@ -140,6 +140,8 @@ int	drvchk();
 int	drvchk2();
 void	memo_disp();
 void	memo_load();
+void    noed_cls_t(void);
+int _dos_nfiles( struct _x68_filbuf *);
 
 /***************************/
 int	timsel(int bmode,int bank,int gx,int prog)

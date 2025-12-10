@@ -5,15 +5,15 @@
 #include	"sted.h"
 
 
-void	fsel();
-int	vinput();
-void	sinput();
+void	fsel(char *,char *,int);
+int     vinput(int,int);
+void    sinput(char *,int);
 int	inkey2();
 int	inkey3();
 void	snsclr();
 void	spcut();
 void	str_change();
-int	str_search();
+int	str_search(unsigned char *,unsigned char *);
 int	str_last();
 int	str_val();
 
@@ -21,15 +21,15 @@ void	trk_ed();
 int	real_record();
 int	trk_load();
 int	trk_save();
-void	option();
-void	option2();
+int	option(int,int);
+int	option2(int,int,int,int);
 void	form3();
 void	logo();
 void	dplay();
-void	all_note_off();
-void	poplay();
+void    all_note_off(int);
+void    poplay(int,int);
 void	fnc_dis();
-char	*fstr();
+char    *fstr(int,int);
 char	*chstr();
 char	strch();
 void	msg();
@@ -37,13 +37,13 @@ void	msg_clr();
 void	vdis();
 void	vdis2();
 void	sdis();
-void	sdis2();
+void    sdis2(int,int,char *,int,int,int);
 void	tdis();
 void	home2();
-int	step_cluc2();
-void	edfield();
-void	g_print();
-void	txerase();
+int    step_cluc2(int,int,int);
+void    edfield(int);
+void    g_print(int, int, char *, int);
+void    txerase(int,int,int,int);
 char	*jstrupr();
 
 int	trk_mix_sub();
@@ -70,7 +70,7 @@ void	trk_no_cur();
 void	trk_no_dis();
 void	trk_set();
 void	trmod_set();
-void	trk_lin();
+void    trk_lin(int,int,int);
 void	ts_swap();
 void	ts_ins();
 void	ts_sort();
@@ -81,6 +81,11 @@ void	ts_measend();
 void	ts_ext();
 void	trksize();
 void	trksize_c();
+
+void memcpy_l(unsigned char *, unsigned char *, int);
+void    load_sub(int);
+void    save_sub(int);
+
 
 static void exetrk_dsp(int);
 

@@ -24,6 +24,8 @@
 
 extern int open_midi_port( char * );
 extern int get_midi_data( void );
+int    step_cluc2(int,int,int);
+int    meas_add(int);
 
 #define MAX_BAR      2048            /* max size of measure is 2048 */
 int STed_InitMeasureConversion( void );
@@ -52,6 +54,8 @@ static char tmp_file_name[1024];
 static int pipe_in_fd, pipe_out_fd, shmid=0;
 
 char *zero_ptr="\0";
+
+int add_set(int, int *);
 
 static void _play_external_player( void );
 static void _stop_external_player( void );

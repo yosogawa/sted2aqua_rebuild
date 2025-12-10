@@ -49,7 +49,7 @@ char	*tim_names();
 int	str_val();
 int	ctc();
 int	strch();
-int	str_search();
+int    str_search(unsigned char *,unsigned char *);
 
 void	tim_name_read();
 
