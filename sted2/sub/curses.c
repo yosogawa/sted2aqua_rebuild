@@ -71,6 +71,7 @@ static int current_tcolor, current_gcolor;
 static int current_tx, current_ty;
 static int current_gx, current_gy;
 static int iscursoron;
+static int curses_hascolor=0;
 
 static int last_key;
 static int insert_flag;
@@ -86,9 +87,16 @@ void curses_init_window( void ) {
 
 #ifdef USE_CURSES
   if ( iscursesinited ) return;
+    
+  curses_hascolor = has_colors();
 
   initscr();
- 
+    
+  if (curses_hascolor) {
+    start_color();
+    init_pair(1, COLOR_WHITE, COLOR_BLUE);
+    bkgd(COLOR_PAIR(1));
+  }
   w                 = newwin(0,0,0,0);
   curses_twindow    = newwin(0,0,0,0);
   curses_awindow    = newwin(0,0,0,0);
@@ -322,6 +330,24 @@ void curses_trev( int x, int y, int l, int col ) {
   }
   wmove( curses_twindow, current_ty, current_tx );
   wmove( curses_gwindow[current_gwindow], current_gy, current_gx );
+
+#endif /* USE_CURSES */
+  return;
+}
+
+void curses_tbox( unsigned short page, short  sx, short sy, short lx, short ly, unsigned short col ) {
+#ifdef USE_CURSES
+  int x,y,i;
+  char sp[256];
+
+  sy+=page*X68_GHeight;
+
+//  for ( i=0 ; i<lx/8 ; i++ ) sp[i]=' ';
+//  sp[i]=0;
+
+  for ( y=sy ; y<sy+ly ; y+=16 ) {
+    mvwaddstr( curses_twindow, (y/16)%X68_THeight, sx/8, sp );
+  }
 
 #endif /* USE_CURSES */
   return;

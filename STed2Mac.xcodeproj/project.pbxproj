@@ -10,7 +10,7 @@
 		1DDD58160DA1D0A300B32029 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1DDD58140DA1D0A300B32029 /* MainMenu.xib */; };
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
-		AF77CDE42EE950D800FA3E6F /* libcurses.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = AF77CDE32EE950D800FA3E6F /* libcurses.tbd */; };
+		AF7C99A52EEA6EF900E50F13 /* libncurses.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = AF7C99A42EEA6EDD00E50F13 /* libncurses.tbd */; };
 		E40E95C41ABA41ED0072AA0B /* assign.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E951C1ABA41ED0072AA0B /* assign.c */; };
 		E40E95C51ABA41ED0072AA0B /* cm6con.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E951D1ABA41ED0072AA0B /* cm6con.c */; };
 		E40E95C61ABA41ED0072AA0B /* cm64.def in Resources */ = {isa = PBXBuildFile; fileRef = E40E95201ABA41ED0072AA0B /* cm64.def */; };
@@ -82,7 +82,7 @@
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		8D1107320486CEB800E47090 /* STed2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = STed2.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		AF77CDE32EE950D800FA3E6F /* libcurses.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libcurses.tbd; path = usr/lib/libcurses.tbd; sourceTree = SDKROOT; };
+		AF7C99A42EEA6EDD00E50F13 /* libncurses.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libncurses.tbd; path = usr/lib/libncurses.tbd; sourceTree = SDKROOT; };
 		E40E951C1ABA41ED0072AA0B /* assign.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = assign.c; sourceTree = "<group>"; };
 		E40E951D1ABA41ED0072AA0B /* cm6con.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = cm6con.c; sourceTree = "<group>"; };
 		E40E95201ABA41ED0072AA0B /* cm64.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cm64.def; sourceTree = "<group>"; };
@@ -210,9 +210,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AF77CDE42EE950D800FA3E6F /* libcurses.tbd in Frameworks */,
 				8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */,
 				E40E96451ABA44D70072AA0B /* CoreMIDI.framework in Frameworks */,
+				AF7C99A52EEA6EF900E50F13 /* libncurses.tbd in Frameworks */,
 				E40E964D1ABA44F60072AA0B /* CoreAudioKit.framework in Frameworks */,
 				E40E96551ABA451B0072AA0B /* AudioToolbox.framework in Frameworks */,
 				E40E965D1ABA455D0072AA0B /* CoreAudio.framework in Frameworks */,
@@ -297,7 +297,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				AF77CDE32EE950D800FA3E6F /* libcurses.tbd */,
+				AF7C99A42EEA6EDD00E50F13 /* libncurses.tbd */,
 				1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */,
 				1058C7A2FEA54F0111CA2CBB /* Other Frameworks */,
 			);

@@ -58,7 +58,7 @@ int _dos_c_curoff( void ) {
   if ( isconsole ) {
     curses_curoff();
 
-  } else if ( isxwin ) {
+  } else if ( isGUI ) {
     XSTed_curoff();
   }
   return 0;
@@ -69,7 +69,7 @@ int _dos_c_curon( void ) {
     if ( isconsole ) {
       curses_curon();
       
-    } else if (isxwin ) {
+    } else if (isGUI) {
       XSTed_curon();
     }
   }
@@ -85,7 +85,7 @@ int _dos_c_window( int x, int y ) {
   if ( isconsole ) {
     curses_tlocate( 0, 0 );
 
-  } else if ( isxwin ) {
+  } else if ( isGUI ) {
     XSTed_tlocate( 0, 0 );
   }
   return 0;
@@ -147,7 +147,7 @@ int _dos_inpout( int code ) {
     if ( isconsole ) {
       ret=curses_keyin(code);
 
-    } else if ( isxwin ) {
+    } else if ( isGUI ) {
       ret=XSTed_keyin(code);
     }
 

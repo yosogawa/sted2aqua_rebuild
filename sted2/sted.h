@@ -234,7 +234,7 @@ _extern unsigned char	*dat2;			/* temporary			*/
 
 extern int issted3;                     /* Am I a new version ? */
 extern int isconsole;                   /* is console mode? */
-extern int isxwin;                      /* is X mode? */
+extern int isGUI;                       /* is GUI mode? */
 extern char euc_text[1024];             /* code convert buffer */
 extern char player_name[1024];          /* midi player name */
 extern char midi_port_name[1024];       /* midi_port device name */

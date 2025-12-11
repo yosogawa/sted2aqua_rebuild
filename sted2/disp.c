@@ -99,7 +99,11 @@ int	vinput(int l,int ln)
   if(ln & 0x2000){strcpy(sb,hex_s(l,ln&0xff));}else{b_striS(sb,256,l);}
 
   while(*pp=='0'){pp++;}
+#ifdef ALLOW_STRCPY_OVERRAP
   strcpy(sb,pp);
+#else
+  memmove(sb,pp,strlen(pp)+1);
+#endif
 
   if( l==0 ){sb[0]=0;}
 

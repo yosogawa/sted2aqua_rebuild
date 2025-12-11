@@ -14,6 +14,7 @@
 // prototype added
 void  XSTed_init_window(void);
 void  XSTed_start_main(int (*)(int, char **), int, char **);
+extern int isGUI;                       /* is GUI mode? */
 
 @implementation AppController
 
@@ -25,12 +26,14 @@ void  XSTed_start_main(int (*)(int, char **), int, char **);
 {
 	extern int sted2_main(int, char**);
 	static char *sArgv[] = {"sted2", NULL};
-	X68kView *xview = (X68kView *)[myWindow contentView];
 
-	[X68kView initializeX68k];
+    if (isGUI) {
+        X68kView *xview = (X68kView *)[myWindow contentView];
+        [X68kView initializeX68k];
 
-	[xview setNeedsDisplay:YES];
-	XSTed_init_window();
+        [xview setNeedsDisplay:YES];
+        XSTed_init_window();
+    }
 	XSTed_start_main(sted2_main, 1, sArgv);
 }
 

@@ -18,7 +18,7 @@
 /*extern int rcptomid( char *, int, char ** );*/
 #include "rcpconv.h"
 
-#if defined(USE_AQUA)  /* Jun.08.2003 Toshi Nagata */
+#ifdef __APPLE__  /* Jun.08.2003 Toshi Nagata */
 #include "CoreMIDIRCPPlayer.h"
 #endif
 
@@ -201,7 +201,7 @@ void _play_external_player( void ) {
 
   if ( STed_InitMeasureConversion() !=0 ) return;
 
-#if defined(USE_AQUA) /* Jun.08.2003 Toshi Nagata */
+#ifdef __APPLE__
   if (player_name[0] == 0) { play_coremidi_rcpplayer(_data_adr, rcd->totalcount); return; }
 #endif
 
@@ -382,7 +382,7 @@ void _stop_external_player( void ) {
 
   int time=0;
 
-#if defined(USE_AQUA)  /* Jun.08.2003 Toshi Nagata */
+#ifdef __APPLE__
   if (player_name[0] == 0) { stop_coremidi_rcpplayer(); return; }
 #endif
 
@@ -417,7 +417,7 @@ void _exit_external_player( int sig ){
 
   int stt;
 
-#if defined(USE_AQUA)  /* Jun.08.2003 Toshi Nagata */
+#ifdef __APPLE__
   if (player_name[0] == 0) { exit_coremidi_rcpplayer(); return; }
 #endif
 

@@ -35,14 +35,14 @@ int _iocs_crtmod( int mode ) {
     if ( mode==17 ) {
       if ( isconsole ){
 	curses_close_window();
-      } else if ( isxwin ) {
+      } else if ( isGUI ) {
 	XSTed_close_window();
       }
     } else {
       if ( isconsole ) {
 	curses_init_window();
 	curses_cls_al();
-      } else if ( isxwin ) {
+      } else if ( isGUI ) {
 	XSTed_init_window();
 	XSTed_cls_al();
       }
@@ -56,7 +56,7 @@ void _iocs_g_clr_on( void ) {
 
   if ( isconsole ) {
     curses_gclr();
-  } else if ( isxwin ) {
+  } else if ( isGUI ) {
     XSTed_gclr();
   }
 
@@ -67,7 +67,7 @@ int _iocs_gpalet( int no, int color ) {
 
   int ret=0;
 
-  if ( isxwin ) {
+  if ( isGUI ) {
     ret=XSTed_gpalet( no, color );
   }
   return ret;
@@ -80,7 +80,7 @@ int _iocs_home( int page, int x, int y ) {
   iocs_graph_home = y>511 ? 1:0;
   if ( isconsole )
     curses_ghome(iocs_graph_home);
-  else if ( isxwin )
+  else if ( isGUI )
     XSTed_ghome(iocs_graph_home);
   return 0;
 }

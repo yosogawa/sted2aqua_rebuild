@@ -20,7 +20,7 @@ int  XSTed_ms_limit(int, int, int, int);
 
 void _iocs_ms_curof( void ) {
 
-  if ( isxwin ) {
+  if ( isGUI ) {
     XSTed_ms_curof();
   }
   return;
@@ -28,7 +28,7 @@ void _iocs_ms_curof( void ) {
 
 void _iocs_ms_curon( void ) {
 
-  if ( isxwin ) {
+  if ( isGUI ) {
     XSTed_ms_curon();
   }
   return;
@@ -38,7 +38,7 @@ int _iocs_ms_getdt( void ) {
 
   int ret=0;
 
-  if ( isxwin ) {
+  if ( isGUI ) {
     ret=XSTed_ms_getdt();
   }
   return ret;
@@ -46,7 +46,7 @@ int _iocs_ms_getdt( void ) {
 
 void _iocs_ms_init( void ) { 
 
-  if ( isxwin ) {
+  if ( isGUI ) {
     XSTed_ms_init();
   }
   return;
@@ -56,7 +56,7 @@ int _iocs_ms_limit( int xs, int ys, int xe, int ye ) {
 
   int ret=0;
 
-  if ( isxwin ) {
+  if ( isGUI ) {
     XSTed_ms_limit( xs, ys, xe, ye );
   }
 

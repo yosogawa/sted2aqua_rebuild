@@ -57,7 +57,7 @@ int _iocs_b_color( int color ) {
   iocs_current_color = color;
   if ( isconsole ) {
     curses_tcolor( color );
-  } else if ( isxwin ) {
+  } else if ( isGUI ) {
     XSTed_tcolor( color );
   }
 
@@ -74,7 +74,7 @@ int _iocs_b_print( const char *message ) {
   }
   if ( isconsole )
     curses_tputs( message );
-  else if ( isxwin )
+  else if ( isGUI )
     XSTed_tputs( message );
 
   x = iocs_current_text_x + strlen(message);
@@ -105,7 +105,7 @@ int _iocs_b_putmes ( int col, int x, int y, int width, const char *str ) {
     curses_tcolor( iocs_current_color );
     curses_tlocate( iocs_current_text_x+iocs_console_xtop,
 		    iocs_current_text_y+iocs_console_ytop );
-  } else if ( isxwin ) {
+  } else if ( isGUI ) {
     c=XSTed_tcolor( col );
     XSTed_tlocate( x, y );
     XSTed_tputs( str );
@@ -137,7 +137,7 @@ int _iocs_b_locate( int x0, int y0 ) {
 
     if ( isconsole )
       curses_tlocate( x, y );
-    else if ( isxwin )
+    else if ( isGUI )
       XSTed_tlocate( x, y );
   }
 
@@ -148,7 +148,7 @@ void _iocs_b_clr_al( void ) {
 
   if ( isconsole ) {
     curses_cls_al();
-  } else if ( isxwin ) {
+  } else if ( isGUI ) {
     XSTed_cls_al();
   }
 
@@ -163,7 +163,7 @@ void _iocs_b_clr_ed ( void ) {
 
   if ( isconsole ) {
     curses_cls_ed();
-  } else if ( isxwin ) {
+  } else if ( isGUI ) {
     XSTed_cls_ed();
   }
   return;

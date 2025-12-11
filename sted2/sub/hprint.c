@@ -58,7 +58,7 @@ void H_PRINT ( char * s1, char *s2, char *s3 ) {
 
     B_LOCATE(x+l,y);
 
-  } else if ( isxwin ) {
+  } else if ( isGUI ) {
     int c;
     XSTed_tlocate(0,y);
     XSTed_cls_eol();
@@ -119,7 +119,7 @@ void H_PRINT2 ( char *s1, char *s2, char *s3 ) {
 
     B_LOCATE(x+l,y);
 
-  } else if ( isxwin ) {
+  } else if ( isGUI ) {
 
     int c;
     XSTed_tlocate(x,y);

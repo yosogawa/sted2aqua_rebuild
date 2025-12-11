@@ -19,7 +19,7 @@ void XSTed_midi_wait(void);
 /* global variables */
 
 int iswindowopened = 0;
-int isxwin         = 0;
+int isGUI          = 0;
 int isconsole      = 0;
 
 char euc_text[1024];
@@ -105,7 +105,7 @@ void key_wait( void ){
 
   if ( isconsole ) {
     curses_key_wait();
-  } else if ( isxwin ) {
+  } else if ( isGUI ) {
     XSTed_key_wait();
   }
 
@@ -116,7 +116,7 @@ void key_midi_wait( void ){
 
   if ( isconsole ) {
     curses_midi_wait();
-  } else if ( isxwin ) {
+  } else if ( isGUI ) {
     XSTed_midi_wait();
   }
   return;
@@ -126,7 +126,7 @@ void key_mouse_wait( void ) {
 
   if ( isconsole ) {
     curses_key_wait();
-  } else if ( isxwin ) {
+  } else if ( isGUI ) {
     XSTed_key_wait();
   }
   return;
@@ -135,35 +135,54 @@ void key_mouse_wait( void ) {
 /* system initialize */
 
 void STed_system_initialize( int *argc, char ***argv ) {
-
-  char *p, *buf;
-  static char *euc_lang_str[] = { "ujis", "euc", "EUC",
+    
+    char *p, *buf;
+    static char *euc_lang_str[] = { "ujis", "euc", "EUC",
 #ifndef _HPUX_SOURCE
-				  "japanese",
+        "japanese",
 #endif
-				  NULL };
-  int i;
-
-  /* init parameters */
-
-  rcd = NULL;
-  /* May.06.2001 NAGANO Daisuke <breeze.nagano@nifty.ne.jp> */
-  issted3 = 1;
-
-#if defined(USE_AQUA)  /*  May.29.2003 Toshi Nagata  */
-	isconsole = 0;
-	isxwin = 1;
+        NULL };
+    int i;
+    
+    /* init parameters */
+    
+    rcd = NULL;
+    /* May.06.2001 NAGANO Daisuke <breeze.nagano@nifty.ne.jp> */
+    issted3 = 1;
+    
+#ifdef __APPLE__
+    // ogawa 2025/12/11 switching local console & GUI
+    char termstr[256];
+    termstr[0] = 0;
+    char *env = getenv("TERM_PROGRAM");
+    strncpy(termstr, env, env?strlen(env):0);
+    if ( termstr[0] != 0 && strncmp(termstr, "Apple_Terminal", 13) == 0) {
+#if USE_CURSES
+        isconsole = 1;
+        isGUI = 0;
 #else
+        exit(-1);
+#endif
+    }
+    else {
+#if defined(USE_MACGUI)
+      isconsole = 0;
+      isGUI = 1;
+#else
+      exit(-1);
+#endif
+    }
+#elif __unix__
   if ( getenv("DISPLAY")==NULL ) {
 #if USE_CURSES
     isconsole = 1;
-    isxwin = 0;
+    isGUI = 0;
 #else /* USE_CURSES */
     exit(-1);
 #endif /* USE_CURSES */
   } else {
     isconsole = 0;
-    isxwin = 1;
+    isGUI = 1;
   }
 #endif
 
@@ -197,8 +216,9 @@ void STed_system_initialize( int *argc, char ***argv ) {
 
   /* set code conversion */
 
-#if defined(USE_AQUA)	/* Jun.01.2003 Toshi Nagata */
+#ifdef __APPLE__
   eucenv = 0;
+  /* TODO: (ogawa) need decode "ja_JP.UTF-8" */
 #else
   if ( (p=getenv("LANG")) != NULL ) {
     for ( i=0; euc_lang_str[i] != NULL  ; i++ ) {

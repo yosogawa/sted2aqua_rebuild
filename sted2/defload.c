@@ -735,7 +735,7 @@ int	defload(char *fi,int md)
       /* Sep.04.1998 Daisuke Nagano */
 
       /* Jun.18.2003 Toshi Nagata */
-	#if defined(USE_AQUA)
+	#if defined(USE_MACGUI)
 	{
 	  extern void XSTed_configure_mac_settings(const char *);
 	  XSTed_configure_mac_settings(li);

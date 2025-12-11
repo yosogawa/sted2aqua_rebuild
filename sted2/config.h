@@ -267,7 +267,8 @@
 /* */
 #define STED_DEFAULT_PATH "/usr/local/lib/sted"
 
-#define USE_AQUA 1		/*  May.29.2003 Toshi Nagata */
+#define USE_MACGUI 1		/*  May.29.2003 Toshi Nagata */
+//#undef USE_MACGUI
 
 /* Define to 1 if you can safely include both <sys/time.h> and <time.h>. */
 #define TIME_WITH_SYS_TIME 1
@@ -283,8 +284,8 @@
 //#undef USE_CURSES
 
 /* */
-//#define USE_NCURSES 1
-#undef USE_NCURSES
+#define USE_NCURSES 1
+//#undef USE_NCURSES
 
 /* */
 /* #undef USE_SUNOS_CURSES */
