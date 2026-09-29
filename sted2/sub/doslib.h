@@ -1,4 +1,3 @@
-#include <stdint.h>
 /* doslib.h
 
    dummy header file for X680x0 compatible

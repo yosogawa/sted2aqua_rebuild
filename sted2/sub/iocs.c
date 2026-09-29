@@ -9,7 +9,6 @@
  */
 
 #include "sted.h"
-#include <stdint.h>
 
 /* etc */
 

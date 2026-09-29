@@ -152,7 +152,6 @@ enum {
 /*  bit 0-15 = Mac key code (unicode)  */
 /*  bit 16 = unused, bit 17 = control mask, bit 18 = option mask  */
 /*  bit 24-31 = X68k key code  */
-#include <stdint.h>
 static uint32_t s_x68k_special_key[128] = {
 	(x68k_up << 24) + NSUpArrowFunctionKey,
 	(x68k_down << 24) + NSDownArrowFunctionKey,

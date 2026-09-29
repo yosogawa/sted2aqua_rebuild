@@ -28,8 +28,6 @@
 #ifndef _SMF_H_
 #define _SMF_H_
 
-#include <stdint.h>
-
 #define SMF_MTHD_HEADER_SIZE 14
 
 #define SMF_HEADER_STRING    "MThd"

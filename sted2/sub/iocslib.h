@@ -1,4 +1,3 @@
-#include <stdint.h>
 /* iocslib.h
 
    dummy header file for X680x0 compatible

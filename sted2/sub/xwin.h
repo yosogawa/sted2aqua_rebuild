@@ -62,7 +62,6 @@ extern int isgscrchanged;       /* is the screen touched */
 
 /* valiables */
 
-#include <stdint.h>
 extern uint32_t STed_col[XSTed_max_palletes]; /* allocated pixel number */
 
 extern uint32_t *XSTed_tcol;                   /* text pallete array */

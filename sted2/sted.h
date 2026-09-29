@@ -1,4 +1,3 @@
-#include <stdint.h>
 /*
  * MIDI Music Composer STed v2.07j : sted.h (header) 1997-07-20 by TURBO
  */
@@ -16,6 +15,7 @@ extern "C" {
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <stddef.h>
 #include <errno.h>
 #include <math.h>
