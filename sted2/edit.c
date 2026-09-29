@@ -1821,11 +1821,7 @@ trpo:
 	  po+=4;
 	}
 	/*strncpy(tmp0,(const char *)eucconv(tmp0),26); /* code converted! */
-#ifdef ALLOW_STRCPY_OVERRAP
-    strncpy(tmp0,tmp0,26); /* strcpy overwrapping! fail Xcode */
-#else
-    memmove(tmp0,tmp0,26+1);
-#endif
+    memmove(tmp0, tmp0, strlen(tmp0) + 1);
 	b=1;break;
 
       case  0xf8:

@@ -378,14 +378,7 @@ int	defload(char *fi,int md)
 	  while(n<16){
 	    c=str_search(tmp1,",");if( c==0 ){break;}
 	    strcpy(tmp0,tmp1);tmp0[c-1]=0;spcut(tmp0);
-#ifdef ALLOW_STRCPY_OVERRAP
-        strcpy(tmp1,&tmp1[c]); /* strcpy overwrapping! fail Xcode */
-#else
-        size_t len2 = strlen(&tmp1[c]);
-        if (len2 > 1024-c) len2 = 1024-c;
-        memmove(tmp1,&tmp1[c],len2 );
-        tmp1[len2] = 0;
-#endif
+        memmove(tmp1, &tmp1[c], strlen(&tmp1[c]) + 1);
 	    tmp0[15]=0;
 	    strcpy(mplay[n],tmp0);
 	    n++;
@@ -405,14 +398,7 @@ int	defload(char *fi,int md)
 	while(n<3){
 	  c=str_search(tmp1,",");if( c==0 ){break;}
 	  strcpy(tmp0,tmp1);tmp0[c-1]=0;spcut(tmp0);
-#ifdef ALLOW_STRCPY_OVERRAP
-      strcpy(tmp1,&tmp1[c]); /* strcpy overwrapping! fail Xcode */
-#else
-      size_t len2 = strlen(&tmp1[c]);
-      if (len2 > 1024-c) len2 = 1024-c;
-      memmove(tmp1,&tmp1[c],len2 );
-      tmp1[len2] = 0;
-#endif
+      memmove(tmp1, &tmp1[c], strlen(&tmp1[c]) + 1);
 	  if(n==0){
 	    k=ctc(64,tmp0,0);
 	    if(k<0||k>127){break;}
@@ -434,14 +420,7 @@ int	defload(char *fi,int md)
 	      c=str_search(tmp1,",");if( c==0 ){break;}
 	      strcpy(tmp0,tmp1);tmp0[c-1]=0;
 	      spcut(tmp0);palet_dat[n]=str_val(tmp0);
-#ifdef ALLOW_STRCPY_OVERRAP
-          strcpy(tmp1,&tmp1[c]); /* strcpy overwrapping! fail Xcode */
-#else
-          size_t len2 = strlen(&tmp1[c]);
-          if (len2 > 1024-c) len2 = 1024-c;
-          memmove(tmp1,&tmp1[c],len2 );
-          tmp1[len2] = 0;
-#endif
+          memmove(tmp1, &tmp1[c], strlen(&tmp1[c]) + 1);
           n++;
 	    }
 	  }
@@ -490,14 +469,7 @@ int	defload(char *fi,int md)
 	    c=str_search(tmp1,",");if(c==0){break;}
 	    strcpy(tmp0,tmp1);tmp0[c-1]=0;
 	    n++;tim_asin2[n]=str_val(tmp0);
-#ifdef ALLOW_STRCPY_OVERRAP
-        strcpy(tmp1,&tmp1[c]); /* strcpy overwrapping! fail Xcode */
-#else
-        size_t len2 = strlen(&tmp1[c]);
-        if (len2 > 1024-c) len2 = 1024-c;
-        memmove(tmp1,&tmp1[c],len2 );
-        tmp1[len2] = 0;
-#endif
+        memmove(tmp1, &tmp1[c], strlen(&tmp1[c]) + 1);
 	  }
 	}
       }
@@ -516,14 +488,7 @@ int	defload(char *fi,int md)
 	    strcpy(tmp0,tmp1);tmp0[c-1]=0;
 	    if(n==0){strcpy(tim_head[ch],tmp0);}
 	    else{strcpy(tim_sym[ch],tmp0);}
-#ifdef ALLOW_STRCPY_OVERRAP
-        strcpy(tmp1,&tmp1[c]); /* strcpy overwrapping! fail Xcode */
-#else
-        size_t len2 = strlen(&tmp1[c]);
-        if (len2 > 1024-c) len2 = 1024-c;
-        memmove(tmp1,&tmp1[c],len2 );
-        tmp1[len2] = 0;
-#endif
+        memmove(tmp1, &tmp1[c], strlen(&tmp1[c]) + 1);
         n++;
 	  }
 	  nm=ch*128;if( ch==1 ){nm=192;}
@@ -646,14 +611,7 @@ int	defload(char *fi,int md)
 	    if(n==0){cc=strch(0,tmp0);
 	    }else{cc=str_val(tmp0);}
 	    if((cc>=0||(n>0 && n<5))&& cc<=127){rhy_stest[n]=cc;}
-#ifdef ALLOW_STRCPY_OVERRAP
-        strcpy(tmp1,&tmp1[c]); /* strcpy overwrapping! fail Xcode */
-#else
-        size_t len2 = strlen(&tmp1[c]);
-        if (len2 > 1024-c) len2 = 1024-c;
-        memmove(tmp1,&tmp1[c],len2 );
-        tmp1[len2] = 0;
-#endif
+        memmove(tmp1, &tmp1[c], strlen(&tmp1[c]) + 1);
 	    n++;
 	  }
 	}
@@ -670,14 +628,7 @@ int	defload(char *fi,int md)
 	    c=str_search(tmp1,",");if(c==0){break;}
 	    strcpy(tmp0,tmp1);tmp0[c-1]=0;
 	    rec_met[n++]=str_val(tmp0);
-#ifdef ALLOW_STRCPY_OVERRAP
-        strcpy(tmp1,&tmp1[c]); /* strcpy overwrapping! fail Xcode */
-#else
-        size_t len2 = strlen(&tmp1[c]);
-        if (len2 > 1024-c) len2 = 1024-c;
-        memmove(tmp1,&tmp1[c],len2 );
-        tmp1[len2] = 0;
-#endif
+        memmove(tmp1, &tmp1[c], strlen(&tmp1[c]) + 1);
 	  }
 	}
       }
@@ -838,14 +789,7 @@ void	cnf_stgt(char *li,int nn)
       c=str_search(tmp1,",");if(c==0){break;}
       strcpy(tmp0,tmp1);tmp0[c-1]=0;
       stgt_def[n++]=str_val(tmp0);
-#ifdef ALLOW_STRCPY_OVERRAP
-      strcpy(tmp1,&tmp1[c]); /* strcpy overwrapping! fail Xcode */
-#else
-      size_t len2 = strlen(&tmp1[c]);
-      if (len2 > 1024-c) len2 = 1024-c;
-      memmove(tmp1,&tmp1[c],len2 );
-      tmp1[len2] = 0;
-#endif
+      memmove(tmp1, &tmp1[c], strlen(&tmp1[c]) + 1);
     }
   }
 }
@@ -867,14 +811,7 @@ void	cnf_rvel(char *li)
       strcpy(tmp0,tmp1);tmp0[c-1]=0;
       n++;cc=str_val(tmp0);
       if(cc>=0 && cc<=127){rhy_vel[n]=cc;}
-#ifdef ALLOW_STRCPY_OVERRAP
-      strcpy(tmp1,&tmp1[c]); /* strcpy overwrapping! fail Xcode */
-#else
-      size_t len2 = strlen(&tmp1[c]);
-      if (len2 > 1024-c) len2 = 1024-c;
-      memmove(tmp1,&tmp1[c],len2 );
-      tmp1[len2] = 0;
-#endif
+      memmove(tmp1, &tmp1[c], strlen(&tmp1[c]) + 1);
     }
   }
 }
@@ -903,14 +840,7 @@ void	cnf_prog(char *li,char *li2,int md)
       }
 
       strcpy(tmp0,tmp1);tmp0[c-1]=0;spcut(tmp0);
-#ifdef ALLOW_STRCPY_OVERRAP
-      strcpy(tmp1,&tmp1[c]); /* strcpy overwrapping! fail Xcode */
-#else
-      size_t len2 = strlen(&tmp1[c]);
-      if (len2 > 1024-c) len2 = 1024-c;
-      memmove(tmp1,&tmp1[c],len2 );
-      tmp1[len2] = 0;
-#endif
+      memmove(tmp1, &tmp1[c], strlen(&tmp1[c]) + 1);
       if((n&1)==0){
 	tmp0[38+10]=0;
 	strcpy(chcom_s[i][n>>1],tmp0);

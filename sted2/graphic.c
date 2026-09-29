@@ -9,7 +9,7 @@
 #define		PL1	(0x20000/2)
 #define		PL2	(0x20000)
 
-void    g_print(int, int, unsigned char *, int);
+void    g_print(int, int, char *, int);
 void	tg_copy(int);
 void	rev_area();
 void    txerase(int,int,int,int);

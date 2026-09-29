@@ -108,7 +108,7 @@ void note_ctrl(int po1, int po2);
 int  repl_select(int md);
 
 int  size_max(int tr);
-int  key_midi_wait(void);
+void key_midi_wait(void);
 int  ret_midi(int cde, int imd, int ad, int cy);
 void cur_down(int *po, int *cy);
 void cur_up(int *po, int *cy);
