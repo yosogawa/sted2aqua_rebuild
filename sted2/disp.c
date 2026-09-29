@@ -44,48 +44,7 @@ unsigned char	fnc_dat[9*10][9]={
 
 char	hex_code[16]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 
-int    meas_add(int);
-int	meas_no();
-void    all_note_off(int);
-void	trk_cluc();
-int	trk_shift();
-void	trk_delete();
-void	trksize();
-void	trk_no_dis();
-void    poplay(int,int);
-void	undobuf(int);
 
-void	fnc_dis();
-int     vinput(int,int);
-void    sinput(char *,int);
-void	spcut();
-int	inkey2();
-int    knck(unsigned char *,int);
-void	home2();
-char	*fstr(int,int);
-char	*hex_s();
-unsigned char	*jstrupr();
-char	*chstr();
-int    str_search(unsigned char *,unsigned char *);
-int	str_last();
-int	str_val();
-void    g_print(int, int, char *, int);
-void    g_print2(int,int,char *,int);
-void	vdis();
-void	vdis2();
-void	vdis3();
-void	sdis();
-void    sdis2(int,int,char *,int,int,int);
-void	sdis3();
-void	tdis();
-void	msg();
-void	msg_clr();
-void	trk_free();
-void	snsclr();
-int    channele_no(int);
-void	trk_no(void);
-void    key_wait(void);
-void    txerase(int,int,int,int);
 
 
 int isinputmode=0;

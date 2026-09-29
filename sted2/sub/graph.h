@@ -9,6 +9,10 @@
 #ifndef _GRAPH_H_
 #define _GRAPH_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* defines */
 
 #ifndef PI
@@ -21,3 +25,8 @@
 
 
 #endif /* _GRAPH_H_ */
+
+
+#ifdef __cplusplus
+}
+#endif

@@ -8,156 +8,19 @@ static char	*inmd[6]={
   "EDIT","EDIT SOUND","EDIT MIDI IN(Mono)","EDIT MIDI IN(Poly)",
   "EDIT MIDI IN(Step)","EDIT MIDI IN(P/St)"};
 
-int     vinput(int,int);
-void    sinput(char *,int);
-void	keyinp();
-void	snsclr();
-void	spcut();
-int	klen();
-int    knck(unsigned char *,int);
-void	fnc_dis();
-void    tcur(int,int,int,int);
-void	msg();
-void	msg_clr();
-void	timtra();
-int	tagj();
-int	timsel();
-void	help(int);
-int	vis_edit();
-void	gra();
-void	dat_info();
-void	trksize();
-void    edfield(int);
-void	home2();
-void	vdis();
-void	vdis2();
-void	sdis();
-void    sdis2(int,int,char *,int,int,int);
-void    fsel(char *,char *,int);
-char	*jstrupr();
-char    *fstr(int,int);
-char	*hex_s();
-char	*spadd();
-int	str_val();
-void	midi_clr();
-int	onekey();
-int	polykey();
-int	chord_ten();
-void	all_note_off();
-char	*keystr();
-char	*keystr1();
-char	*keystr2();
-char	*prog_name();
-int	ctc();
 
-int	strch();
-char	*chstr();
 
-void	trk_ed();
-void	trk_ed_end();
-void	trk_pos_set();
-void    trk_quan(int,int,int);
-void	rtrk_ed();
-void	stgt_as();
-void	part_as();
-void	user_exc_as();
-void	exc_edit();
-void 	sttrc();
-void	replace();
-int	find();
-int	find_rep();
-void    poplay(int,int);
-void	partf();
-void	trk_cluc();
-int    step_cluc(int);
-int    meas_add(int);
-int	meas_no();
-int    meas_len(int);
 
-int	sttm_no();
-int	sttm_ad();
-int	step_no();
-int	step_ad();
 
-void    trk_no(void);
-void	undobuf(int);
-void	trk_free();
 
-int	trk_ext_sub();
-int	trk_mix_sub();
-int	same_meas_conv();
-int	same_meas_extr();
-void	trk_opt_sub();
 
-int	cpybuf_set();
-int	replicate();
-int	ret_midi();
-int	ret_chord();
-int	scale_no();
-int	scale_sel();
-int	prog_no();
-char	*scale_str();
-int	spc_select();
-void	rev_area();
-void	same_shift();
-int	buf_meas();
-void    noed_cls(void);
-void	tg_copy(int);
-void    tg_copy2(int);
-void	H_PRINT();
 
-int	size_max();
-int	size_change();
-int	size_add();
-void	size_ref();
 
-int	real_po();
-int	real_ad();
-int	real_cy();
-int	trk_check(int);
-int	trk_shift();
-void	trk_delete();
 
-char    *trk_dis(int,int,int);
-char	*ctrl_type();
-void    cons_md(int);
-void	val_add();
-void	val_sub();
-void	val_rev();
-void	cur_up();
-void	cur_down();
-void	roll_up();
-void	roll_down();
-void	line_del();
-void	line_ins();
-void	line_ins_aft(int);
-void	dat_rev();
-void	ret();
-void	spcon();
-int	bank_no();
-int	channele_no(int);
-void	inmd_disp();
-int	padjust();
-int    spc_code(char *,int *);
-int	bendc2();
-void	bendc();
-void	note_ctrl();
-int	comment_inp();
-void	trk_next();
-void memcpy_l(unsigned char *, unsigned char *, int);
-int    replicate2(int,int);
-void   key_midi_wait(void);
-int    option(int,int);
-int    option2(int,int,int,int);
-int    option22(int,int,int,int);
-int    repl_select(int);
-void    load_sub(int);
-void    save_sub(int);
 
 static void ed_ch_stgt(int, int, int, int, int);
 static int    retkey(int);
 static int    retkey2(int);
-int    mml_inp(int);
 
 /***************************/
 void	trk_ed()
@@ -386,7 +249,7 @@ track_edit_top:
       }else{ke=0x137;}
     }
 
-    /*0〜9*/
+    /*09*/
     if( kc>0x2f && kc<0x3a ){
       int	ct;
       unsigned char da=trk[track][ad];
@@ -877,7 +740,7 @@ track_edit_top:
       if((sh&1)==0){
 	po=0;cy=0;cx=0;
       }else{
-	note_ctrl(ad);trk_cluc();
+	note_ctrl(ad,tr_len[track]-4);trk_cluc();
 	rc=tm_lag-1;
       }
       trk_dis(6,po,24);
@@ -1394,11 +1257,11 @@ int	retkey(int ecode)
 {
   int	ke;
 
-  ke=0x3d;			/*右*/
-  if( ecode==13 ){ke=0x3e;}	/*下*/
-  if( ecode==0x13 ){ke=0x3b;}	/*左*/
-  if( ecode==0x18 ){ke=0x3e;}	/*下*/
-  if( ecode==0x05 ){ke=0x3c;}	/*上*/
+  ke=0x3d;			/**/
+  if( ecode==13 ){ke=0x3e;}	/**/
+  if( ecode==0x13 ){ke=0x3b;}	/**/
+  if( ecode==0x18 ){ke=0x3e;}	/**/
+  if( ecode==0x05 ){ke=0x3c;}	/**/
 
   return ke;
 }
@@ -1406,9 +1269,9 @@ int	retkey(int ecode)
 int	retkey2(int ecode)
 {
   int	ke;
-  ke=0x3e;			/*下*/
-  if( ecode==0x13 ){ke=0x3b;}	/*左*/
-  if( ecode==0x05 ){ke=0x3c;}	/*上*/
+  ke=0x3e;			/**/
+  if( ecode==0x13 ){ke=0x3b;}	/**/
+  if( ecode==0x05 ){ke=0x3c;}	/**/
 
   return ke;
 }
@@ -1893,8 +1756,8 @@ trpo:
 	capi=channele_no(po);
 	strcpy(tmp0,"BankProg");
 	/*					d|=(bank_no(po)&0xff00);
-						1997-10-10    	trk.edでのbankprgの表示がbank lsbに対応して
-						なかったのを修正した
+						1997-10-10    	trk.ed任bankprg表bank lsb弍
+						覆辰里
 						*/
 	if(b==0){
 	  strcat(tmp0,prog_name(capi,d,c,3));b=1;

@@ -8,7 +8,7 @@ static char	rym[10][3]={"- ","1 ","2 ","3 ","4 ","5 ","6 ","7 ","8 ","9 "};
 static char	rym_s[10][4]={"OFF"," 1 "," 2 "," 3 "," 4 "," 5 "," 6 "," 7 "," 8 "," 9 "};
 /*
 static char	rym0[10][3]={"- ","1 ","2 ","3 ","4 ","5 ","6 ","7 ","8 ","9 "};
-static char	rym1[10][3]={"÷Ë","÷Ì","÷Í","÷Î","÷Ï","÷Ð","÷Ñ","÷Ò","÷Ó","÷Ô"};
+static char	rym1[10][3]={"","","","","","","","","",""};
 static char	rym[10][3];
 */
 
@@ -18,61 +18,8 @@ static 		int	radr[65];
 static char	vlcl[256];
 static int	dfstep=12,barstep,dfvel=9;
 
-void	H_PRINT();
-void	H_PRINT2();
-int     vinput(int,int);
-void    sinput(char *,int);
-void	spcut();
-void	vdis();
-void	sdis();
-void    tcur(int,int,int,int);
-void    tcury(int,int,int,int);
-char    *fstr(int,int);
-char	*spadd();
-void	fnc_dis();
-void	msg();
-void	msg_clr();
-void	timtra();
-void    all_note_off(int);
-int	ctc();
-void	dplay();
-void	cdplay();
-void	cntplay();
-void	trk_free();
-void	snsclr();
-void    twait(int);
 
-void	rtrk_ed();
-void	rtrk_dis();
-void	rhed_dis();
-void	rsttrc();
-char    *trk_dis(int,int,int);
-void	trk_cluc();
-int    step_cluc(int);
-int    step_cluc2(int,int,int);
-int    meas_add(int);
-int	meas_no(int);
-int    meas_len(int);
-void	rhy_step();
-void	rtopat();
-void	pattor();
-void    poplay(int,int);
-int    trk_check(int);
-void    trk_lin(int,int,int);
-int	trk_shift();
-void	trk_delete();
-void	same_shift();
 
-int add_set(int, int *);
-void    txxline(int,int,int,int,int);
-void    txyline(int,int,int,int,int);
-void    key_mouse_wait(void);
-void    edfield(int);
-void    cons_md(int);
-void    rhy_as(void);
-void    trk_no(void);
-void    help(int);
-void    sdis2(int,int,char *,int,int,int);
 
 
 static void disp_vels( void );

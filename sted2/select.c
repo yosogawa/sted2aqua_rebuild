@@ -4,13 +4,6 @@
 
 #include	"sted.h"
 
-typedef struct {
-  char		name[23];
-  unsigned char	far;
-  unsigned int	fln;
-  unsigned int	ftm;
-  unsigned int	fdt;
-} X68_DIR;
 
 static char	*fsel_ext[]={
   "R36:RCP:MID","RCP:R36:MID","CM6","GSD","DEF:DFB","TRK","PRT","TXT","EXC",
@@ -69,79 +62,11 @@ int	fsdirp[256],fsdiry[256];/*check*/
 
 extern int	tkey,tvel;	/* May.26.2003 Toshi Nagata: add 'extern' */
 
-char	*dtasc();
-char	*tmasc();
 
-void    sinput(char *,int);
-int     vinput(int,int);
-int	inkey2();
-void	spcut();
-char	*sread();
-char	*tim_names();
-char    *fstr(int,int);
-char	*hex_s();
-int	yn_sel();
-char	*keystr();
-char	*prog_name();
-char	*spadd();
-void	home2();
-void	msg();
-void	msg_clr();
-void	sdis();
-void	tdis();
-void    tcur(int,int,int,int);
-void	fnc_dis();
-void    all_note_off(int);
-void	temporary_set();
-void	timtra();
-void	rhinit();
-int	ctc();
-int	meas_no(int);
-int    meas_add(int);
-int    meas_len(int);
-int	real_cy();
-void	snsclr();
-void    twait(int);
-void    txerase(int,int,int,int);
 
-void	path_cut();
-int	str_last();
-int    str_search(unsigned char *,unsigned char *);
-int    knck(unsigned char *,int);
-char	*jstrupr();
-void	H_PRINT2();
-void	t_scrw();
-void    cons_md(int);
-void    noed_cls(void);
 
-void	rcp_dat2();
-void	uex_read();
 
-int	timsel();
-int	timsel2();
-int	varia();
-void	s_test();
-void	m_keyb();
-void	stest_para_disp();
-void	stest_para_edit();
 
-void    fsel(char *,char *,int);
-void	str_change();
-void	path_cut();
-void	path_down();
-void	frees();
-char	*dirs();
-void	dir_disp();
-int	fdir();
-int	drv_code();
-int	file_check();
-void	file_back();
-int	drvchk();
-int	drvchk2();
-void	memo_disp();
-void	memo_load();
-void    noed_cls_t(void);
-int _dos_nfiles( struct _x68_filbuf *);
 
 /***************************/
 int	timsel(int bmode,int bank,int gx,int prog)
@@ -1358,7 +1283,7 @@ void	frees(char *pth,int cx)
 }
 
 /***************************/
-inline char	*dirs(char *s)
+char	*dirs(char *s)
 {
   int	a;
   static char	name[24];

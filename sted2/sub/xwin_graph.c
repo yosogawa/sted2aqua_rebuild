@@ -31,7 +31,7 @@ int tpage ( int v ){
   return ret;
 }
 
-void XSTed_txbox( short x0, short y0, short x1, short y1, unsigned short p ) {
+void XSTed_txbox( int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t p ) {
 
   int sx,sy,lx,ly;
   int c;
@@ -54,7 +54,7 @@ void XSTed_txbox( short x0, short y0, short x1, short y1, unsigned short p ) {
   return;
 }
 
-void XSTed_txxline( unsigned short v, short x0, short y0, short x1, unsigned short ls ) {
+void XSTed_txxline( uint16_t v, int16_t x0, int16_t y0, int16_t x1, uint16_t ls ) {
 
   int sx,sy,lx;
   int c;
@@ -82,7 +82,7 @@ void XSTed_txxline( unsigned short v, short x0, short y0, short x1, unsigned sho
   return;
 }
 
-void XSTed_txyline( unsigned short v, short x0, short y0, short y1, unsigned short ls ) {
+void XSTed_txyline( uint16_t v, int16_t x0, int16_t y0, int16_t y1, uint16_t ls ) {
 
   int sx,sy,ey;
   int c;
@@ -176,7 +176,7 @@ void XSTed_rev_area( int r_ad, int r_ln, int edit_scr ) {
   return;
 }
 
-void XSTed_tfill( unsigned short p, short x0, short y0, short x1, short y1, unsigned short ls ) {
+void XSTed_tfill( uint16_t p, int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t ls ) {
 
   int sx,sy,lx,ey;
   int c;

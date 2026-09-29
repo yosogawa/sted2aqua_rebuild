@@ -35,11 +35,11 @@
 
 /* ------------------------------------------------------------------- */
 
-long rcpconv( unsigned char *data, long length, unsigned char **smf, 
+int rcpconv( unsigned char *data, size_t length, unsigned char **smf, 
 	      unsigned char *copyright ) {
 
   RCP_DATA rcp;
-  long smf_length;
+  int smf_length;
 
   rcp.length       = length;
   rcp.data         = data;
@@ -62,14 +62,14 @@ long rcpconv( unsigned char *data, long length, unsigned char **smf,
   return smf_length;
 }
 
-long rcpconv_with_notice( unsigned char *data, long length, unsigned char **smf, 
+int rcpconv_with_notice( unsigned char *data, size_t length, unsigned char **smf, 
 			  unsigned char *copyright,
 			  unsigned char *command_name,
 			  unsigned char *file_name,
 			  unsigned char *date ) {
 
   RCP_DATA rcp;
-  long smf_length;
+  int smf_length;
 
   rcp.length       = length;
   rcp.data         = data;

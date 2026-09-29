@@ -42,13 +42,13 @@ static RGBColor sWhite = {0xffff, 0xffff, 0xffff};
 //static RGBColor sRed = {0xffff, 0, 0};
 
 //static X68kView *sCurrent = nil;
-static long sCurWidth, sCurHeight;
-static long sCurAscent, sCurLineHeight, sCurCharWidth;
-static long sX68kWidth = 768, sX68kHeight = 512;
-static long sX68kTextWidth = 96, sX68kTextHeight = 32;
-static short sFont, sSize;
-static short sTextColor = 3;
-static short sGraphColor = 15;
+static int sCurWidth, sCurHeight;
+static int sCurAscent, sCurLineHeight, sCurCharWidth;
+static int sX68kWidth = 768, sX68kHeight = 512;
+static int sX68kTextWidth = 96, sX68kTextHeight = 32;
+static int16_t sFont, sSize;
+static int16_t sTextColor = 3;
+static int16_t sGraphColor = 15;
 
 static unsigned char sKeyTable[128] = {
 	/*08    19    2a    3b    4c    5d    6e    7f  */
@@ -118,7 +118,8 @@ enum {
 /*  bit 0-15 = Mac key code (unicode)  */
 /*  bit 16 = unused, bit 17 = control mask, bit 18 = option mask  */
 /*  bit 24-31 = X68k key code  */
-static unsigned long s_x68k_special_key[128] = {
+#include <stdint.h>
+static uint32_t s_x68k_special_key[128] = {
 	(x68k_up << 24) + NSUpArrowFunctionKey,
 	(x68k_down << 24) + NSDownArrowFunctionKey,
 	(x68k_left << 24) + NSLeftArrowFunctionKey,

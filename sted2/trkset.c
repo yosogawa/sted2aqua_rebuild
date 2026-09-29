@@ -5,86 +5,12 @@
 #include	"sted.h"
 
 
-void	fsel(char *,char *,int);
-int     vinput(int,int);
-void    sinput(char *,int);
-int	inkey2();
-int	inkey3();
-void	snsclr();
-void	spcut();
-void	str_change();
-int	str_search(unsigned char *,unsigned char *);
-int	str_last();
-int	str_val();
 
-void	trk_ed();
-int	real_record();
-int	trk_load();
-int	trk_save();
-int	option(int,int);
-int	option2(int,int,int,int);
-void	form3();
-void	logo();
-void	dplay();
-void    all_note_off(int);
-void    poplay(int,int);
-void	fnc_dis();
-char    *fstr(int,int);
-char	*chstr();
-char	strch();
-void	msg();
-void	msg_clr();
-void	vdis();
-void	vdis2();
-void	sdis();
-void    sdis2(int,int,char *,int,int,int);
-void	tdis();
-void	home2();
-int    step_cluc2(int,int,int);
-void    edfield(int);
-void    g_print(int, int, char *, int);
-void    txerase(int,int,int,int);
-char	*jstrupr();
 
-int	trk_mix_sub();
-int	trk_ext_sub();
-void	repeat_comp();
-int	repeat_ext();
-int	same_meas_conv();
-int	same_ext_sub();
-int	trk_opt_sub();
 
-int	size_max();
-int	size_change();
-int	size_add();
-void	size_ref();
 
-int	yn_sel();
-void	rcp_dat();
-void	rcp_dat2();
-void	trk_dat();
-void	beat_set();
 
-int	trk_sel();
-void	trk_no_cur();
-void	trk_no_dis();
-void	trk_set();
-void	trmod_set();
-void    trk_lin(int,int,int);
-void	ts_swap();
-void	ts_ins();
-void	ts_sort();
-void	ts_copy();
-void	ts_clear();
-void	ts_mix();
-void	ts_measend();
-void	ts_ext();
-void	trksize();
-void	trksize_c();
 
-void memcpy_l(unsigned char *, unsigned char *, int);
-void    load_sub(int);
-void    save_sub(int);
 
 
 static void exetrk_dsp(int);
@@ -673,7 +599,7 @@ void	trk_set(int md)
 }
 
 /***************************/
-/*「現在 Track 1 を処理しています」*/
+/*峺 Track 1 討泙*/
 void	exetrk_dsp(int i)
 {
   B_LOCATE(55,9);B_PRINT("TRACK=");B_PRINT(fstr(i+1,2));

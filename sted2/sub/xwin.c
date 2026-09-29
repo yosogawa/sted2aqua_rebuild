@@ -38,7 +38,8 @@ XFontSet XSTed_fs;                      /* font set */
 int XSTed_fs_max_width;                 /* max width of fontset */
 int XSTed_fs_max_height;                /* max height of fontset */ 
 
-long STed_col[XSTed_max_palletes];      /* allocated pixel number */
+#include <stdint.h>
+uint32_t STed_col[XSTed_max_palletes];      /* allocated pixel number */
 int XSTed_depth;                        /* Screen depth */
 Colormap XSTed_cmap;                    /* Colormap */
 

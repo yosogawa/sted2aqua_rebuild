@@ -335,7 +335,7 @@ void curses_trev( int x, int y, int l, int col ) {
   return;
 }
 
-void curses_tbox( unsigned short page, short  sx, short sy, short lx, short ly, unsigned short col ) {
+void curses_tbox( uint16_t page, int16_t  sx, int16_t sy, int16_t lx, int16_t ly, uint16_t col ) {
 #ifdef USE_CURSES
   int x,y,i;
   char sp[256];
@@ -353,7 +353,7 @@ void curses_tbox( unsigned short page, short  sx, short sy, short lx, short ly, 
   return;
 }
 
-void curses_tfill( unsigned short page, short  sx, short sy, short lx, short ly, unsigned short col ) {
+void curses_tfill( uint16_t page, int16_t  sx, int16_t sy, int16_t lx, int16_t ly, uint16_t col ) {
 
 #ifdef USE_CURSES
   int x,y,i;

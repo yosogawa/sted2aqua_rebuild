@@ -33,15 +33,15 @@
 
 static struct head {
   char chunk[4];
-  long length;
-  short format;
-  short ntrks;
-  short division;
+  int32_t length;
+  int16_t format;
+  int16_t ntrks;
+  int16_t division;
 } std_head;
 
 static struct track {
   char chunk[4];
-  long length;
+  int32_t length;
 } std_trk;
 
 static int opt, comment;
@@ -246,11 +246,11 @@ static int proc_header( void )
   }
   
   /*
-  strpaste( RCP_HEAD.memo +  28, ( unsigned char * )"  このデータは、" );
-  strpaste( RCP_HEAD.memo +  84, ( unsigned char * )"  標準MIDIフォーマットから" );
-  strpaste( RCP_HEAD.memo + 140, ( unsigned char * )"  ItoR.x (v1.00)により" );
+  strpaste( RCP_HEAD.memo +  28, ( unsigned char * )"  \u03a5\u01e1\u03e1" );
+  strpaste( RCP_HEAD.memo +  84, ( unsigned char * )"  惴MIDI\u07a5廛" );
+  strpaste( RCP_HEAD.memo + 140, ( unsigned char * )"  ItoR.x (v1.00)" );
   strpaste( RCP_HEAD.memo + 151, ( unsigned char * )version );
-  strpaste( RCP_HEAD.memo + 196, ( unsigned char * )"  変換されました。" );
+  strpaste( RCP_HEAD.memo + 196, ( unsigned char * )"  \u07a4" );
   strpaste( RCP_HEAD.memo + 252, ( unsigned char * )"  Copyright 1990-97" );
   strpaste( RCP_HEAD.memo + 280, ( unsigned char * )"           HARPOON,TURBO" );
   */
@@ -265,7 +265,7 @@ static int proc_header( void )
     
     if( !comment ) {
       if( std_head.division > tb_max ) {
-	printf( "タイムベースを%dに変更します。\n\n",tb_max );
+	printf( "\u0661%d\u0479\u07a4\n\n",tb_max );
       }
     }
     
@@ -274,7 +274,7 @@ static int proc_header( void )
     RCP_HEAD.Timebaseh = std_head.division>>8;
     
     if( !comment ) {
-      printf( "タイムベースを変更しません。\n\n" );
+      printf( "\u0661\u0479\u07a4\n\n" );
     }
     
   }
@@ -435,7 +435,7 @@ static int search( int pp )
   {
     /*	int n, dt, cc, ch, ccmd, last, i,ocmd;*/
     int dt, last, i;
-    short n,cc, ch, ccmd,ocmd;
+    int16_t n,cc, ch, ccmd,ocmd;
 
     n = buf[pp];
     ccmd = cmd;
@@ -561,7 +561,7 @@ static void ent_buf( int nt, int vl, int gt )
     cbuf[15] = midi_ch;
 
     /*
-      fprintf( stderr, "ノートオーバフロー\n" );	exit(18);
+      fprintf( stderr, "\u03a1\u0225\u0425\u0565\n" );	exit(18);
       */
   }
 
@@ -805,7 +805,7 @@ static void proc_meta( int meta, unsigned char *text, int length )
 		  /* End Toshi Nagata */
 		  
 	i = 64 * i / RCP_HEAD.Tempo;
-	/*設定したいテンポ÷初期設定テンポ×64*/
+	/*\ua937\u01a5\u0761\u01a5\u076164*/
 	if( i > 255 ) {
 	  i = 255;
 	} else {
@@ -884,7 +884,7 @@ static void proc_excl( unsigned char *text, int length ,int code)
 	}
       }
 
-      /*fprintf( stderr, "不正EXCLUSIVEメッセージ \n" );
+      /*fprintf( stderr, "EXCLUSIVE\u00e5 \n" );
 	exit(18);*/
 
       return;

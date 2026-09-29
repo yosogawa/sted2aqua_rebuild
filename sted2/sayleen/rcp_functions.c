@@ -259,7 +259,7 @@ int rcp_ch_exclusive(RCP_DATA *rcp, int track ){
     if ( data[ptr+3] == 0x83 ) size--;
     ptr+=4;
   }
-  l = smf_number_conversion((long)size);
+  l = smf_number_conversion((int32_t)size);
 
   ptr = rcp->track[track].current_ptr+4;
   j=0;
@@ -418,7 +418,7 @@ int rcp_midi_ch_change(RCP_DATA *rcp, int track ){
 int rcp_tempo_change(RCP_DATA *rcp, int track ){
 
   int t1,t2,t3;
-  long t;
+  int32_t t;
 
   rcp->realtempo = rcp->tempo * rcp->track[track].gate / 64;
   t = 1000 * 1000 * 60 / (rcp->tempo * rcp->track[track].gate / 64);
@@ -797,7 +797,7 @@ int rcp_comment_start(RCP_DATA *rcp, int track ){
   rcp->result_smf[i++] = MIDI_META;
   rcp->result_smf[i++] = META_TEXT;
 
-  l=smf_number_conversion((long)length);
+  l=smf_number_conversion((int32_t)length);
   j=0;
   do {
     rcp->result_smf[i] = l[j];

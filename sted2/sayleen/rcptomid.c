@@ -898,7 +898,7 @@ static int set_tempo_track ( RCP_DATA *rcp ) {
   while ( t != NULL ) {
     k = p / RCP_DEFAULT_SMF_SIZE;
 
-    d = smf_number_conversion((long)dt);
+    d = smf_number_conversion((int32_t)dt);
     i=0;
     do {
       data[p++] = d[i];
@@ -944,7 +944,7 @@ static int set_tempo_track ( RCP_DATA *rcp ) {
 
 static unsigned char *set_smf_data( RCP_DATA *rcp ) {
 
-  long smf_size;
+  size_t smf_size;
   unsigned char *smf_data;
   int t,tr;
   int ptr;
@@ -961,8 +961,8 @@ static unsigned char *set_smf_data( RCP_DATA *rcp ) {
       tr++;
     }
   }
-  if ( smf_size > 0xffffffffL ) return NULL;
-  smf_data = (unsigned char *)malloc(sizeof(unsigned char *) * smf_size);
+  if ( smf_size > 0xffffffffU ) return NULL;
+  smf_data = (unsigned char *)malloc(sizeof(unsigned char) * smf_size);
   if ( smf_data == (unsigned char *)NULL )
     return NULL;
 

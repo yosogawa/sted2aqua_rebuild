@@ -1,9 +1,14 @@
+#include <stdint.h>
 /*
  * MIDI Music Composer STed v2.07j : sted.h (header) 1997-07-20 by TURBO
  */
 
 #ifndef _STED_H_
 #define _STED_H_
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -81,6 +86,7 @@
 
 
 #include "version.h"
+#include "machin.h"
 
 #include "iocslib.h"
 #include "doslib.h"
@@ -88,6 +94,10 @@
 #include "rcddef.h"
 #include "sub/x68funcs.h"
 #include "sub/midi_in.h"
+#include "disp.h"
+#include "edit.h"
+#include "file.h"
+#include "sub/nkflib.h"
 
 #ifdef HAVE_SUPPORT_STED3
 # include "sted3.h"
@@ -184,13 +194,13 @@ _extern char	tim_asin[33];			/* tone list channle assign	*/
 _extern char	tim_head[400][24];		/* tone list title		*/
 _extern char	tim_sym[400][8];		/* tone list symbol		*/
 _extern char	tim_name[80*128][15];		/* tone name buffer		*/
-_extern short	tim_top[400];			/* tone name buffer address	*/
+_extern int16_t	tim_top[400];			/* tone name buffer address	*/
 
 _extern char	card_name[21][64];		/* pcm card name list		*/
 _extern char	card_no[2];			/* used pcm card no.		*/
 
-_extern short	gs_bank[18*128];		/* gs bank part no.(8+1 group)	*/
-_extern short	gs_mode[18];			/* gs bank mode    (8+1 group)	*/
+_extern int16_t	gs_bank[18*128];		/* gs bank part no.(8+1 group)	*/
+_extern int16_t	gs_mode[18];			/* gs bank mode    (8+1 group)	*/
 
 _extern char	rhy_stest[8];			/* rhythm sound test ch. & para	*/
 _extern char	rec_met[10];			/* recording metoro tone	*/
@@ -288,5 +298,36 @@ extern char *nkf_conv(char *, char *, char *);
 # define _(String) (String)
 # define N_(String) (String)
 #endif /* ENABLE_NLS */
+
+
+void form3(void);
+void logo(int y);
+int  option(int md, int sm);
+int  option2(int md, int sm, int ad, int ew);
+void load_sub(int sh);
+void memo_ed(int sh);
+void form2(void);
+void trk_dat(void);
+void rcp_dat(void);
+
+
+int  option22(int md, int sm, int ad, int ew);
+
+char *mdinport(void);
+void save_sub(int sh);
+int  option_read(char *env_option);
+void form(void);
+void end_proc(void);
+
+void dpl(int a);
+int exe(char *cmd);
+void tpl(int a);
+
+
+#ifdef __cplusplus
+}
+#endif
+
+void XSTed_configure_mac_settings(const char *line);
 
 #endif /* _STED_H_ */

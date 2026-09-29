@@ -9,6 +9,7 @@
  */
 
 #include "sted.h"
+#include <stdint.h>
 
 /* etc */
 
@@ -25,7 +26,7 @@ void _iocs_b_wpoke( void *adr, int val ) {
 int _iocs_ontime ( void ) {
 
   static struct timeval st;
-  long i;
+  int64_t i;
 
   gettimeofday( &st, NULL );
   i = st.tv_usec/10000 + st.tv_sec*100;

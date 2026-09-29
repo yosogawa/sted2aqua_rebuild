@@ -28,6 +28,9 @@
 #ifndef _RCP_H_
 #define _RCP_H_
 
+#include <stdint.h>
+#include <stddef.h>
+
 #define FLAG_TRUE  1
 #define FLAG_FALSE 0
 
@@ -76,8 +79,8 @@ typedef struct _RCP_TRACK {
   int           finished;
 
   int           current_ptr;
-  long          delta_step;
-  long          total_step;
+  int32_t       delta_step;
+  int32_t       total_step;
 
   int           event;
   int           step;
@@ -131,7 +134,7 @@ typedef struct _RCP_DATA {
 
   int tracks;                 /* track number (RCP:18 R36:26) */
 
-  long step;                  /* total step */
+  int32_t step;               /* total step */
 
                               /* user exclusive */
   int user_exclusive[RCP_MAX_USER_EXCLUSIVE][24];

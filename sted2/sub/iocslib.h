@@ -1,3 +1,4 @@
+#include <stdint.h>
 /* iocslib.h
 
    dummy header file for X680x0 compatible
@@ -9,44 +10,48 @@
 #ifndef _X68_IOCSLIB_H_
 #define _X68_IOCSLIB_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* structs */
 
 struct _x68_fntbuf {
-  short x1;                  /* dots of x-dir */
-  short y1;                  /* dots of y-dir */
+  int16_t x1;                  /* dots of x-dir */
+  int16_t y1;                  /* dots of y-dir */
   unsigned char buffer[72];  /* reading buffer */
 };
 
 #define X68_FNTBUF _x68_fntbuf
 
 struct _x68_txfillptr {
-  unsigned short vram_page;  /* text page */
-  short x;                   /* x position of start point */
-  short y;                   /* y position of start point */
-  short x1;                  /* x position of end point */
-  short y1;                  /* y position of end point */
-  unsigned short fill_patn;  /* pattern of filling */
+  uint16_t vram_page;  /* text page */
+  int16_t x;                   /* x position of start point */
+  int16_t y;                   /* y position of start point */
+  int16_t x1;                  /* x position of end point */
+  int16_t y1;                  /* y position of end point */
+  uint16_t fill_patn;  /* pattern of filling */
 };
 
 #define X68_TXFILLPTR _x68_txfillptr
 #define X68_TXBOXPTR  _x68_txfillptr
 
 struct _x68_xlineptr {
-  unsigned short vram_page;  /* text page */
-  short x;                   /* x position of start point */
-  short y;                   /* y position of start point */
-  short x1;                  /* x length to end point */
-  unsigned short line_style; /* pattern of filling */
+  uint16_t vram_page;  /* text page */
+  int16_t x;                   /* x position of start point */
+  int16_t y;                   /* y position of start point */
+  int16_t x1;                  /* x length to end point */
+  uint16_t line_style; /* pattern of filling */
 };
 
 #define X68_XLINEPTR _x68_xlineptr
 
 struct _x68_ylineptr {
-  unsigned short vram_page;  /* text page */
-  short x;                   /* x position of start point */
-  short y;                   /* y position of start point */
-  short y1;                  /* y length to end point */
-  unsigned short line_style; /* pattern of filling */
+  uint16_t vram_page;  /* text page */
+  int16_t x;                   /* x position of start point */
+  int16_t y;                   /* y position of start point */
+  int16_t y1;                  /* y length to end point */
+  uint16_t line_style; /* pattern of filling */
 };
 
 #define X68_YLINEPTR _x68_ylineptr
@@ -273,3 +278,8 @@ extern int  _iocs_window (int, int, int, int);
 /* -------------- */
 
 #endif /* _X68_IOCSLIB_H_ */
+
+
+#ifdef __cplusplus
+}
+#endif

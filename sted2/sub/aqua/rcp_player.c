@@ -30,12 +30,12 @@ typedef struct rcpplayer_record {
 	RCP_DATA rcp;
 	unsigned char result_smf[RCP_MAX_RESULT_SMF_SIZE];
 	int smf_length;
-	long total_step; /* the total step at the last sent event */
+	int32_t total_step; /* the total step at the last sent event */
 	int delta_step;  /* the step to wait until the next event */
 	int next_track;  /* the track containing the next event */
 	int next_note;   /* 0-127 if note-off is the next event, -1 otherwise */
-	long last_tempo; /* microseconds per quarter note */
-	long last_tempo_step;
+	int32_t last_tempo; /* microseconds per quarter note */
+	int32_t last_tempo_step;
 	double last_tempo_us;
 	double last_event_us;
 } rcpplayer_record;
@@ -75,7 +75,7 @@ rcpplayer_debug_print(void)
 }
 
 double
-rcpplayer_step_to_microseconds(long step)
+rcpplayer_step_to_microseconds(int32_t step)
 {
 	return sPlayer.last_tempo_us + ((double)(step - sPlayer.last_tempo_step) / sPlayer.rcp.timebase) * sPlayer.last_tempo;
 }
@@ -122,7 +122,7 @@ decrement_step(int delta_step, int *min_track, int *min_note, int *min_step)
 }
 
 int
-rcpplayer_next_midi_event(long *step, unsigned char **ptr, int *length, int *port)
+rcpplayer_next_midi_event(int32_t *step, unsigned char **ptr, int *length, int *port)
 {
 //	long s_step;
 	unsigned char *s_ptr;
@@ -196,7 +196,7 @@ rcpplayer_next_midi_event(long *step, unsigned char **ptr, int *length, int *por
 		/*  Set MIDI tempo  */
 		sPlayer.last_tempo_us = rcpplayer_step_to_microseconds(sPlayer.total_step);
 		sPlayer.last_tempo_step = sPlayer.total_step;
-		sPlayer.last_tempo = ((long)s_ptr[3] << 16) + ((long)s_ptr[4] << 8) + s_ptr[5];
+		sPlayer.last_tempo = ((int32_t)s_ptr[3] << 16) + ((int32_t)s_ptr[4] << 8) + s_ptr[5];
 	}
 	
 	if (step != NULL)
@@ -211,7 +211,7 @@ rcpplayer_next_midi_event(long *step, unsigned char **ptr, int *length, int *por
 }
 
 int
-rcpplayer_init(unsigned char *data_ptr, long data_length)
+rcpplayer_init(unsigned char *data_ptr, size_t data_length)
 {
 	int result;
 	memset(&sPlayer, 0, sizeof(sPlayer));

@@ -1,3 +1,4 @@
+#include <stdint.h>
 /* doslib.h
 
    dummy header file for X680x0 compatible
@@ -9,6 +10,10 @@
 #ifndef _X68_DOSLIB_H_
 #define _X68_DOSLIB_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* structs */
 
 #ifndef __dosmode_t_defined__
@@ -19,15 +24,15 @@ typedef int dosmode_t;
 struct _x68_filbuf {
   unsigned char searchatr; /* attributes for searching files */
   unsigned char driveno;   /* drive number */
-  unsigned short dircls;   /* claster number */
-  unsigned short dirfat;   /* FAT number of file */
-  unsigned short dirsec;   /* sector number of directory */
-  unsigned short dirpos;   /* position in directory */
+  uint16_t dircls;   /* claster number */
+  uint16_t dirfat;   /* FAT number of file */
+  uint16_t dirsec;   /* sector number of directory */
+  uint16_t dirpos;   /* position in directory */
   char filename[8];        /* filename of file */
   char ext[3];             /* extension of file */
   unsigned char atr;       /* attributes of file */
-  unsigned short time;     /* time of file */
-  unsigned short date;     /* date of file */
+  uint16_t time;     /* time of file */
+  uint16_t date;     /* date of file */
   unsigned int filelen;    /* length of file */
   char name[23];           /* long-filename( Human68k format ) */
 };
@@ -248,7 +253,7 @@ extern int _dos_files( struct _x68_filbuf *, const char *, int );
 extern int _dos_fnckeygt( int, char * );
 extern int _dos_fnckeyst( int, const char * );
 extern int _dos_inpout( int );
-extern int _dos_nfines( struct _x68_filbuf * ) ;
+extern int _dos_nfiles( struct _x68_filbuf * ) ;
 extern int _dos_rename( const char *, const char * );
 extern int _dos_setblock( void *, int );
 extern int _dos_super( int );
@@ -256,3 +261,8 @@ extern int _dos_super( int );
 /* -------------- */
 
 #endif /* _X68_DOSLIB_H_ */
+
+
+#ifdef __cplusplus
+}
+#endif

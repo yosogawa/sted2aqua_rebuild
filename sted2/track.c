@@ -4,8 +4,6 @@
 
 #include	"sted.h"
 
-void	msg();
-void	msg_clr();
 void	snsclr();
 
 int	trk_mix_sub();
@@ -27,9 +25,7 @@ int	size_max();
 int	size_add();
 void	size_ref();
 
-int add_set(int, int *);
 void    key_wait(void);
-void memcpy_l(unsigned char *, unsigned char *, int);
 void    dclr(void);
 int     vinput(int,int);
 void    undobuf(int);

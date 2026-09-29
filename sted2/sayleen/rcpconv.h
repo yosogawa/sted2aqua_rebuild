@@ -28,15 +28,17 @@
 #ifndef _RCPCONV_H_
 #define _RCPCONV_H_
 
-extern long rcpconv( unsigned char *,  /* Pointer to RCP data */
-		     long,             /* Length (bytes) of RCP data */
+#include <stddef.h>
+
+extern int rcpconv( unsigned char *,  /* Pointer to RCP data */
+		     size_t,           /* Length (bytes) of RCP data */
 		     unsigned char **, /* Destination of conversion */
 		     unsigned char *   /* Copyright notice */
 		     );
 
-extern long rcpconv_with_notice(
+extern int rcpconv_with_notice(
 		     unsigned char *,  /* Pointer to RCP data */
-		     long,             /* Length (bytes) of RCP data */
+		     size_t,           /* Length (bytes) of RCP data */
 		     unsigned char **, /* Destination of conversion */
 		     unsigned char *,  /* Copyright notice */
 		     unsigned char *,  /* Converter's command name */
@@ -44,4 +46,4 @@ extern long rcpconv_with_notice(
 		     unsigned char *   /* Timestamp of original RCP file */
 		     );
 
-#endif / _RCPCONV_H_ */
+#endif /* _RCPCONV_H_ */

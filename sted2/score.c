@@ -6,16 +6,16 @@
 #define NORMAL 1
 
 /*
-ëÏ
-ëÐ	ëÓ
-ëÑ	ëÔ
+
+	
+	
 */
 
 char	o_zero[12][3]  ={"\xeb\xb3","\xeb\xb4","\xeb\xb5","\xeb\xb6","\xeb\xb7","\xeb\xb8","\xeb\xb9","\xeb\xba","\xeb\xbb","\xeb\xbc","\xeb\xbd","\xeb\xbe"};
 char	o_flag_u[12][3]={"  ","\xeb\xa4","\xeb\xa4","\xeb\xa4","\xeb\xa4","\xeb\xa5","\xeb\xa5","\xeb\xa6","\xeb\xa6","\xeb\xa7","\xeb\xa7","\xeb\xa8"};
  /* Sep.04.1998 Daisuke Nagano */
 //char	o_zero[12][3]  ={"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "};
-//char	o_flag_u[12][3]={"  ","¢ö","¢ö","¢ö","¢ö","¢ö","¢ö","¢ö","¢ö","¢ö","¢ö","¢ö"};
+//char	o_flag_u[12][3]={"  ","","","","","","","","","","",""};
 char	o_head_u[12][3]={"\xeb\x9f","\xeb\xa0","\xeb\xa1","\xeb\xa2","\xeb\xa3","\xeb\xa2","\xeb\xa3","\xeb\xa2","\xeb\xa3","\xeb\xa2","\xeb\xa3","\xeb\xa3"};
 char	o_head_d[12][3]={"\xeb\xa9","\xeb\xaa","\xeb\xab","\xeb\xac","\xeb\xad","\xeb\xac","\xeb\xad","\xeb\xac","\xeb\xad","\xeb\xac","\xeb\xad","\xeb\xad"};
 char	o_flag_d[12][3]={"  ","\xeb\xae","\xeb\xae","\xeb\xae","\xeb\xae","\xeb\xaf","\xeb\xaf","\xeb\xb0","\xeb\xb0","\xeb\xb1","\xeb\xb1","\xeb\xb2"};
@@ -26,42 +26,9 @@ char	sharp_yp[14]={0*4,3*4,-1*4,2*4,5*4,1*4,4*4 , 4*4,1*4,5*4,2*4,6*4,3*4,7*4};
 int	ga_adr[512],ga_xpo[512],ga_co;
 int	gr_adr[512],gr_xpo[512],gr_co;
 
-int    step_cluc2(int,int,int);
-int	add_set(int, int *);
-int    meas_add(int);
-int	meas_no(int);
-int	meas_no2(int);
-void    all_note_off(int);
-void	trk_cluc();
-int	trk_shift();
-void	trk_delete();
-void    poplay(int,int);
-void	undobuf(int);
-void	msg();
-void	msg_clr();
-int	key_shift();
-char	*ctrl_type();
-char	*prog_name();
 
-void    g_print(int, int, char *, int);
 
-int     vinput(int,int);
-void	fnc_dis();
-char    *fstr(int,int);
-char	*chstr();
-void	sdis();
-void    sdis2(int,int,char *,int,int,int);
-void	vdis2();
-void	snsclr();
 
-void	gra();
-int	gra_add();
-void	gra_gakufu();
-void	gra_special();
-int	st_cv();
-void	put_sharp();
-void    exc_view(int);
-void    txyline(int,int,int,int,int);
 
 
 /***************************/
@@ -350,7 +317,7 @@ void	gra_special(int po,int md)
     line(gx,488+512-omodu ,gx  ,488+512-modu ,10,65535);
     line(gx,488+512-oentry,gx  ,488+512-entry,11,0xaaaa);
     line(gx,488+512-opan  ,gx  ,488+512-pan  ,10,0xaaaa);
-    /*²£Àþ*/
+    /**/
     if(b>1){
       line(gx,488+512-pitch ,gx+b-1,488+512-pitch,13,65535);
       line(gx,488+512-vol   ,gx+b-1,488+512-vol  ,12,65535);
@@ -453,7 +420,7 @@ void	put_sharp(int skey,int x,int y)
 
   a=skey&7;
   if(a!=0){
-    /*    if((skey&15)<8){bs=0;tmp0="öÏ";}else{bs=7;tmp0="öÎ";}*//* Aug.17.1998 Daisuke Nagano */
+    /*    if((skey&15)<8){bs=0;tmp0="";}else{bs=7;tmp0="";}*//* Aug.17.1998 Daisuke Nagano */
     if((skey&15)<8){bs=0;tmp0="\xeb\xcd";}else{bs=7;tmp0="\xeb\xcc";}
     for(i=0;i<a;i++){g_print(x,y+sharp_yp[i+bs],tmp0,15);x+=4;}
   }

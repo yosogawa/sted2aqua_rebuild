@@ -5,86 +5,20 @@
 #include	"sted.h"
 
 static	char	uxcc[5][3]={"gt","ve","ch","cs","ss"};
-static	char	dotp[4][3]={"÷§","÷¨","÷©","÷ª"};
+static	char	dotp[4][3]={"","","",""};
 
 static unsigned char	dotpat[32][32];
 
-void    sinput(char *,int);
-int     vinput(int,int);
-int	inkey2();
-void	spcut();
-char	*sread();
-char    *fstr(int,int);
-char	*hex_s();
-int	str_val();
-int	yn_sel();
-char	*spadd();
-int    knck(unsigned char *,int);
-char	*jstrupr();
-void	home2();
-void	msg();
-void	msg_clr();
-void	sdis();
-void	tdis();
-void    tcur(int,int,int,int);
-void	fnc_dis();
-void	snsclr();
-
-int	trk_check();
-int	trk_shift();
-void	trk_delete();
-char    *trk_dis(int,int,int);
-
-void    all_note_off(int);
-void	midi_clr();
-
-void	hedset();
-void	thedset();
-int	rcp_buf_put();
-int	rcp_buf_get();
 
 
 
-void	H_PRINT2();
-void	scinst_dsp();
-void	scinst_dsp();
-void	scpanel_dsp();
 
-void    cons_md(int);
-void    noed_cls(void);
-int	rex_load();
-int	rex_save();
-void	user_exc_init();
-void	user_exc_init2();
 
-void	user_exc_as();
-void	user_exc_dis();
-void	exc_edit();
-void	exc_dis();
-void	excins();
-void	excdel();
-void	excsum();
-int	exc_rec();
-int	exc_load();
-int	exc_save();
-void	prn_gspanel();
 
-int	dot_ed();
-void	dot_ctrl();
-void	dot_dis();
-void	dattopat();
-void	pattodat();
 
-void    key_wait(void);
-void    poplay(int,int);
-void    tg_copy(int);
-void    tg_copy2(int);
-void    noed_cls_t(void);
-void    fsel(char *,char *,int);
-void    txerase(int,int,int,int);
-void    twait(int);
-void    dpl(int);
-void    tpl(int);
+
+
+
 
 static void exc_dis2(int, int);
 
@@ -568,7 +502,7 @@ top:
 
     if(kc=='@'){
       /*
-	0x10 0x01¡Á5 0x00 / 0x10 0x01¡Á5 0x40
+	0x10 0x015 0x00 / 0x10 0x015 0x40
 	*/
       if( dat[0]==0x41 && dat[1]==0x10 && dat[2]==0x45 && dat[3]==0x12 &&
 	  dat[4]==0x83 && dat[5]==0x10 ){
@@ -749,7 +683,7 @@ void	exc_dis(int no,int cx,int co,int m)
   if(fl){dat[ln++]=a;}
   if(a==0xf7){fl=0;}
 
-  if(ln>=32*1024+512){msg("¥Ð¥Ã¥Õ¥¡¤¬°ìÇÕ¤Ë¤Ê¤ê¤Þ¤·¤¿");break;}
+  if(ln>=32*1024+512){msg("Ð¥Ã¥Õ¥Õ¤Ë¤Ê¤Þ¤");break;}
   }
   }
 
@@ -915,7 +849,7 @@ int	dot_ed(int dx,int co)
 
   for(i=0;i<16;i++){for(j=0;j<16;j++){dotpat[i][j]=0;}}
 
-  /*		0x10 0x01¡Á5 0x00 / 0x10 0x01¡Á5 0x40	*/
+  /*		0x10 0x015 0x00 / 0x10 0x015 0x40	*/
 
   if( dat[0]==0x41 && dat[1]==0x10 && dat[2]==0x45 && dat[3]==0x12 &&
       dat[4]==0x83 && dat[5]==0x10 && dat[6]>0 && dat[7]==0x00){
@@ -1214,7 +1148,7 @@ void	dot_dis(int cx)
 }
 
 /***************************/
-void	dattopat(int me)
+void	dattopat(void)
 {
   int	ad=8,i,j,a;
 
@@ -1232,7 +1166,7 @@ void	dattopat(int me)
 }
 
 /***************************/
-void	pattodat(int me)
+void	pattodat(void)
 {
   int	ad=8,i,j,a;
 
@@ -1251,7 +1185,7 @@ void	pattodat(int me)
 /***************************/
 
 /***************************/
-/*			0x10 0x01¡Á5 0x00 / 0x10 0x01¡Á5 0x40*/
+/*			0x10 0x015 0x00 / 0x10 0x015 0x40*/
 void	exc_view(int ad)
 {
   int	i,cx,gx,co,po,excmd=0;

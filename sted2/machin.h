@@ -7,6 +7,15 @@
 #ifndef _MACHIN_H_
 #define _MACHIN_H_
 
+#include "graph.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef struct _VIDEO VIDEO;
+
+
 void	OnGraphic(void);
 
 void	H_ERA(void);
@@ -19,5 +28,9 @@ void	key_rep_off(void);
 void	key_rep_on(void);
 void	key_vect_set(void);
 void	key_vect_reset(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _MACHIN_H_ */

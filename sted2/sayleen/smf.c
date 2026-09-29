@@ -31,10 +31,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 #include "smf.h"
 
-int *smf_number_conversion( long num ) {
+int *smf_number_conversion( int32_t num ) {
 
   /* Max number of result data sequents are limitted to 
      4 bytes. */
@@ -73,4 +74,3 @@ int *smf_number_conversion( long num ) {
 
   return smf_number;
 }
-

@@ -6,101 +6,9 @@
 
 static int	undof[4];
 
-void	H_PRINT();
-void	H_PRINT2();
-int     vinput(int,int);
-void    sinput(char *,int);
-void	spcut();
-void	vdis();
-void	sdis();
-char    *fstr(int,int);
-char	*spadd();
-char	*jstrupr();
-int	str_val();
-void	fnc_dis();
-void	msg();
-void	msg_clr();
-void    cons_md(int);
-void	timtra();
-void	fsel();
-int	part_load();
-int	part_save();
-int	part_text_save();
-void	dclr(void);
-void	all_note_off();
-int	ctc();
-int	scale_no();
-char	*keystr();
-void	dplay();
-void	cdplay();
-void	cntplay();
-void	trk_free();
-void	trksize();
-void    trk_no(void);
-void	snsclr();
-int	add_set(int, int *);
-void    twait(int);
-int    str_search(unsigned char *,unsigned char *);
-void    bunkatsu(int,int,int *);
-void    txerase(int,int,int,int);
 
-int    trk_check(int);
-int	trk_shift();
-void	trk_delete();
-void    trk_lin(int,int,int);
-int	same_ext_sub();
-int	same_meas_conv();
-int	size_max();
-int	size_change();
-int	size_add();
-void	size_ref();
 
-void	gra();
-void	gra_c();
-char    *trk_dis(int,int,int);
 
-void    poplay(int,int);
-void	partf();
-int	replace();
-int	rep_match();
-void	sttrc();
-int	find();
-int	find_rep();
-void	trk_cluc();
-int	buf_meas();
-int    step_cluc(int);
-int    step_cluc2(int,int,int);
-int	real_ad();
-int	real_po();
-int	real_cy();
-int	step_no();
-int	step_ad();
-int	sttm_no();
-int	sttm_ad();
-int	padjust();
-int	meas_no(int);
-int	meas_no2(int);
-int meas_add(int);
-int	dat_add(int,int);
-int	meas_len(int);
-void	undobuf(int);
-void	same_shift();
-int	same_meas_extr();
-int	cpybuf_set();
-void	dat_rev();
-int	replicate();
-void	bendc();
-int	bendc2();
-int	bank_no();
-int	prog_no();
-int	channele_no(int);
-void	trk_next();
-int    spc_code(char *,int *);
-char	*ctrl_type();
-void    key_wait(void);
-void memcpy_l(unsigned char *, unsigned char *, int);
-int    chd_check(int,int,int);
-int    tai_check(int,int);
 
 /***************************/
 /*
@@ -784,7 +692,7 @@ ext:
 int	rep_match(int f,int f2,int t,int t2,int a,int m)
 {
   if((f2&1)==0){
-    if( f== 0 && ( a==t				)){return 1;}	/* ¹çÆ±		*/
+    if( f== 0 && ( a==t				)){return 1;}	/* Æ±		*/
     if( f==-1 && ((m==0 && a<128) || m!=0		)){return 1;}	/* all note	*/
     if( f==-2 && ( a<t				)){return 1;}	/* <		*/
     if( f==-3 && ( a>t && ((m==0 && a<128)||m!=0)	)){return 1;}	/* >		*/
@@ -792,19 +700,19 @@ int	rep_match(int f,int f2,int t,int t2,int a,int m)
     if( f==-5 && ( a>127 && (a<0xf0 || a==0xf7)     )){return 1;}	/* all spc	*/
 
     if( f==-6 && ( a<0xfc && (a<0xf6 || a>0xf9)	)){return 1;}	/* all data	*/
-    /*	if( f==-7 && ( a>=t	&& a<=t2		)){return 1;}*/	/* ÈÏ°Ï		*/
+    /*	if( f==-7 && ( a>=t	&& a<=t2		)){return 1;}*/	/* Ï°		*/
 
     if(m==0){
-      if( f==-7 && (a>=t && a<=t2	)&& a<128){return 1;}	/* ÈÏ°Ï	*/
+      if( f==-7 && (a>=t && a<=t2	)&& a<128){return 1;}	/* Ï°	*/
     }else{
       if( f==-7 && (a>=t && a<=t2	)){return 1;}
     }
 
-    if( f==-8 && (a>=t && a<=t2)&& a>=0x90 && a<0x98){return 1;}	/* ÈÏ°Ï(usrexc)*/
+    if( f==-8 && (a>=t && a<=t2)&& a>=0x90 && a<0x98){return 1;}	/* Ï°(usrexc)*/
 
   }else{
     if( f== 0 && a!=t){
-      if(m!=0 ||(m==0 && t<128 && a<128)	){return 1;}	/* !¹çÆ±	*/
+      if(m!=0 ||(m==0 && t<128 && a<128)	){return 1;}	/* !Æ±	*/
       if(m!=0 ||(m==0 && t>127 && t<0xf0 && a>127 && a<0xf0)){return 1;}
     }
     if( f==-1 && ( a>127 && a<0xfc &&(a<0xf6 || a>0xf9))){return 1;}/* !all note	*/
@@ -814,12 +722,12 @@ int	rep_match(int f,int f2,int t,int t2,int a,int m)
     if( f==-5 && ( a<128				)){return 1;}	/* !all spc	*/
 
     if(m==0){
-      if( f==-7 && !(a>=t && a<=t2	)&& a<128){return 1;}	/* !ÈÏ°Ï*/
+      if( f==-7 && !(a>=t && a<=t2	)&& a<128){return 1;}	/* !Ï°*/
     }else{
       if( f==-7 && !(a>=t && a<=t2	)){return 1;}
     }
 
-    if( f==-8 && !(a>=t && a<=t2)&& a>=0x90 && a<0x98){return 1;}	/* !ÈÏ°Ï(usrexc)*/
+    if( f==-8 && !(a>=t && a<=t2)&& a>=0x90 && a<0x98){return 1;}	/* !Ï°(usrexc)*/
 
   }
   if( f==99 ){return 1;}
@@ -1451,7 +1359,7 @@ void	same_shift(int spo,int m,int cu)
     if ( ret > 0 ) {
       msg(b);
     }
-    /*msg("SAME MEAS¤¬");B_PRINT(fstr(ec,4));B_PRINT("²Õ½êÌµ¸ú¤Ë¤Ê¤ê¤Þ¤·¤¿¡£");*/
+    /*msg("SAME MEAS");B_PRINT(fstr(ec,4));B_PRINT("Õ½ÌµË¤Ê¤Þ¤");*/
   }
 
   snsclr();
@@ -2048,7 +1956,7 @@ char	*ctrl_type(int a)
 
   default :strcpy(tmp0,"CONTROL ");break;
   }
-  /*10 30 50 ÈÆÍÑÁàºî»Ò h-12341234 5678
+  /*10 30 50  h-12341234 5678
    */
   cc=(mdlflag&15);
   /*05rw*/

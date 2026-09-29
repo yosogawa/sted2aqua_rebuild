@@ -55,7 +55,8 @@ static int sOffsetMIDITime = 1;
 
 #if DEBUG_RCP
 #define sRCPDebugSize 200000
-static long sRCPDebugCount;
+#include <stddef.h>
+static size_t sRCPDebugCount;
 static unsigned char *sRCPDebugBuffer;
 #endif
 
@@ -333,7 +334,7 @@ dump_debug_rcp(void)
 	static unsigned char tbl[16][128];
 	unsigned char *pp;
 	memset(tbl, 0, sizeof(tbl));
-	while (n < sRCPDebugCount) {
+	while ((size_t)n < sRCPDebugCount) {
 		UInt32 t1, t2;
 		unsigned char c;
 		p = sRCPDebugBuffer + n;
@@ -379,7 +380,7 @@ void
 rcpplayer_engine(void)
 {
 	MIDITimeStamp currentTime, nextTime, nextEventTime, offsetTime, prefetchTime;
-	long step;
+	int32_t step;
 	unsigned char *ptr;
 	int length, port;
 	OSStatus sts;

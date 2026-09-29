@@ -2,7 +2,7 @@
  * MIDI Music Composer STed v2.07 (c)1996/11/17 by TURBO
  *      MIDI Sequencer
  *
- * v2.06f 95/04/18 YUI-NET¤ÎSYSOP(¤æ¤¤¹©Ë¼)¤µ¤ó¤Ë¥½¡¼¥¹¸ø³«
+ * v2.06f 95/04/18 YUI-NETSYSOP(æ¤¤Ë¼)Ë¥
  */
 
 #define DEFINE_EXTERN_VARIABLES /* May.26.2003 Toshi Nagata */
@@ -18,7 +18,7 @@ static char	menu1[18][9]={
 static char	menu2[18][9]={
 	"BTM.LOAD","R36.SAVE","EDIT&SET","PANEL   ","MIDI MON","FILTER  ",
 	"TIME&KEY","TITLE   ","MEMO    ","PART ASS","RHY ASSI","USER EXC",
-	"CM64 CON","SC55 CON","OPTION  ","UNIT SEL","INIT    ","¶¯À©EXIT"};
+	"CM64 CON","SC55 CON","OPTION  ","UNIT SEL","INIT    ","EXIT"};
 */
 
 /*
@@ -43,134 +43,20 @@ char	rc_path[256];
 
 int	cmdflagold,used_u=0;
 
-void	rhy_as(void);
-void	user_exc_as();
-void	part_as();
-void    fsel(char *,char *,int);
-int     vinput(int,int);
-void    sinput(char *,int);
-void	spcut();
-int	klen();
-int    knck(unsigned char *,int);
-void	str_change();
-int    str_search(unsigned char *,unsigned char *);
-int	str_last();
-int	str_val();
 
-void	trk_ed();
-void	rtrk_ed();
-void	inpmon();
-char	*mdinport();
-int	real_record();
-int	scale_sel();
-char	*scale_str();
-void	cm64_con();
-void	gsd_con();
-void	cnfinit();
-void	definit();
-int	defload();
-int	timload();
-int	timsave();
-int	gsdload();
-void	timtra();
-int	dload();
-int	dsave();
-int	bufset();
-int	bufload();
-void	dplay();
-void    all_note_off(int);
-void	cminit();
-void	gsinit();
-void	asin_init();
-void	user_exc_init();
-void	stgt_init();
-void	filt_init();
-void	rec_filter();
-void	dinit();
-void    poplay(int,int);
-void	fnc_dis();
-char    *fstr(int,int);
-char	*nstr();
-char	*chstr();
-char	strch();
-int	inkey2();
-int	inkey3();
-void	msg();
-void	msg_clr();
-void	vdis();
-void	vdis2();
-void	sdis();
-void    sdis2(int,int,char *,int,int,int);
-void	tdis();
-void	home2();
-int    step_cluc2(int,int,int);
-void    edfield(int);
-void	H_INIT();
-void	OnGraphic();
-void    g_print( int, int, char *, int);
-char	*jstrupr();
-int	drv_code();
-void	key_vect_set();
-void	key_vect_reset();
-void	set_errvect();
-void	rst_errvect();
-void	keyclr();
 
-void	path_cut();
-void	path_set();
 
-int	size_max();
-int	size_change();
-int	size_add();
-void	size_ref();
 
-void	com_sel();
-void    load_sub(int);
-void	save_sub(int);
-void	trk_set();
-void    trk_lin(int,int,int);
-void	beat_set();
-void	memo_ed();
-int    option(int,int);
-int    option2(int,int,int,int);
-int	progmode();
-void	key_pause();
-int	yn_sel();
-void	form();
-void	form2();
-void	form3();
-void	sinit();
-void	logo();
-void	rcp_dat();
-void	rcp_dat2();
-void	trk_dat();
-void	trksize();
-void    tpl(int);
-void	dpl(int);
 
-void	fonload();
-void	fonread();
-void	fonset();
-int	option_read();
 
-int	exe(char *);
 
-void	end_proc();
-void	ErrorTrap(void);
 
-void    cons_md(int);
-void    noed_cls(void);
-void    noed_cls_t(void);
-void    card_name_get(void);
-int    bufload_trk(int);
-int    bufset_trk(int);
-int    meas_no(int);
 
 static int   paraexe(char *,int,int,int,int);
 
 static char version_id[1024];
 
-#define	Trap14		(0x002e)	/*TRAP	#14¤Ç»²¾È¤¹¤ë¥Ù¥¯¥¿*/
+#define	Trap14		(0x002e)	/*TRAP	#14Ç»È¤Ù¥*/
 
 /********** program start **********/
 int	main(int argc,char *argv[])
@@ -416,7 +302,7 @@ realc:
     B_PRINT(tmp0);B_PRINT(_(": File not found.\n"));exit(1);}
 
   strmfe(tmp0,argv[0],"cf2");defload(tmp0,2);
-  /*		1997-07-20	STed2.cf2¤¬¤¢¤ì¤Ð¤½¤ì¤âÆÉ¤ß¹þ¤à¤è¤¦¤Ë¤·¤¿*/
+  /*		1997-07-20	STed2.cf2Ð¤É¤ß¹è¤¦Ë¤*/
 
   if ( strlen(getenv("HOME")) < sizeof(tmp0)-9 ) {
     strcpy(tmp0, getenv("HOME"));
@@ -566,7 +452,7 @@ void	set_errvect()
   return;
 #ifdef X680x0
   if (NULL == (ErrorTrap_Old=(void *)B_INTVCS(Trap14,(int)*ErrorTrap)) ) {
-    B_PRINT("TRAP14¤¬ºÆÀßÄê¤Ç¤­¤Þ¤»¤ó¤Ç¤·¤¿¡£Ãæ»ß¤·¤Þ¤¹¡£\r\n");
+    B_PRINT("TRAP14Ç¤Þ¤Ç¤ß¤Þ¤\r\n");
     exit(1);
   }
 #endif /* X680x0 */
@@ -697,8 +583,6 @@ void	com_sel()
 	  
 	  /*  2015.3.27. Toshi Nagata  */
 	  if ( ke == 27) {
-		  extern int is_coremidi_playing(void);
-		  extern void stop_coremidi_rcpplayer(void);
 		  if (is_coremidi_playing())
 			  stop_coremidi_rcpplayer();
 	  }
@@ -1129,8 +1013,8 @@ int	progmode(char *tmp2)
     if(a=='B'){cmd|=0x0001;}	/*bufset*/
     if(a=='L'){cmd|=0x0002;}	/*bufread*/
     if(a=='N'){cmd|=0x0004;}	/*bufread non cm6/gsd*/
-    if(a=='O'){cmd|=0x0008;}	/* ¼Â¹ÔÁ°¤Ë±éÁÕ¤òÄä»ß¤¹¤ë*/
-    if(a=='E'){cmd|=0x0010;}	/* ¼Â¹Ô¸å¤Ë±éÁÕ¤òÄä»ß¤¹¤ë*/
+    if(a=='O'){cmd|=0x0008;}	/* Â¹Ë±Õ¤ß¤*/
+    if(a=='E'){cmd|=0x0010;}	/* Â¹Ô¸Ë±Õ¤ß¤*/
     if(a=='S'){cmd|=0x0020;}	/*select*/
     if(a=='F'){cmd|=0x0040;}	/*ext change*/
     if(a=='P'){cmd|=0x0080;}	/*pause*/
@@ -1140,7 +1024,7 @@ int	progmode(char *tmp2)
     if(a=='R'){cmd|=0x0800;}	/*not edit window clr*/
 
     /*if(a=='C'){cmd|=0x1000;}*/	/*command.x*/
-    if(a=='T'){cmd|=0x2000;}	/*trk data¤Î¤ß¥Ð¥Ã¥Õ¥¡¥¢¥¯¥»¥¹¤¹¤ë*/
+    if(a=='T'){cmd|=0x2000;}	/*trk dataÎ¤ß¥Ð¥Ã¥Õ¥*/
   }
   return cmd;
 }
@@ -1243,7 +1127,7 @@ void	logo(int y)
 void	trk_dat()
 {
   int	i;
-  static	short	xpos[7]={163,195,227,259,291,589,637};
+  static	int16_t	xpos[7]={163,195,227,259,291,589,637};
 
   fill(103,189,120,484,8);
   for(i=0;i<7;i++){line(xpos[i],171,xpos[i],484,14,65535);}
@@ -1556,7 +1440,7 @@ int	exe(char *cl)
     er=SETBLOCK((void *)trk[0],buff_size);
     /*
       if(er>=0x81000000){
-      msg("¥È¥é¥Ã¥¯¥Ð¥Ã¥Õ¥¡¤¬ºÆ³ÎÊÝ½ÐÍè¤Þ¤»¤ó¡£");
+      msg("È¥Ã¥Ð¥Ã¥Õ¥Æ³Ý½Þ¤");
       buff_size=er&0xfffffc;
       if(er<0x82000000){goto realc;}
       }
@@ -1583,22 +1467,22 @@ void	ErrorTrap(void)
 
   if (((unsigned int)ErrCode >=0x1000) && ((unsigned int)ErrCode <= 0x7fff)) {
     switch ( (unsigned int)ErrCode ) {
-      /*case 0x01:msg("Ìµ¸ú¤Ê¥æ¥Ë¥Ã¥È¤ò»ØÄê¤·¤Þ¤·¤¿¡£");break;
-	case 0x02:msg("¥É¥é¥¤¥Ö¤Î½àÈ÷¤¬¤Ç¤­¤Æ¤¤¤Þ¤»¤ó¡£");break;
-	case 0x03:msg("Ìµ¸ú¤Ê¥³¥Þ¥ó¥É¤ò»ØÄê¤·¤Þ¤·¤¿¡£");break;*/
-    case 0x04:msg("CRC¥¨¥é¡¼");break;
-    case 0x05:msg("´ÉÍýÎÎ°è¤¬°Û¾ï¤Ç¤¹¡£");break;
-    case 0x06:msg("¥·¡¼¥¯¥¨¥é¡¼");break;
-    case 0x07:msg("Ìµ¸ú¤Ê¥á¥Ç¥£¥¢¤Ç¤¹¡£");break;
-    case 0x08:msg("¥»¥¯¥¿¤¬¸«¤Ä¤«¤ê¤Þ¤»¤ó¡£");break;
-    case 0x0a:msg("½ñ¤­¹þ¤ß¥¨¥é¡¼");break;
-    case 0x0b:msg("ÆÉ¤ß¹þ¤ß¥¨¥é¡¼");break;
-    case 0x0d:msg("¥é¥¤¥È¥×¥í¥Æ¥¯¥È¤µ¤ì¤Æ¤Þ¤¹¡£");break;
-    case 0x0e:msg("½ñ¤­¹þ¤ß¤¬¶Ø»ß¤µ¤ì¤Æ¤¤¤Þ¤¹¡£");break;
-      /*case 0x0f:msg("¥Õ¥¡¥¤¥ë¶¦Í­°ãÈ¿¤Ç¤¹¡£");break;*/
+      /*case 0x01:msg("ÌµÊ¥Ë¥Ã¥È¤ê¤·Þ¤");break;
+	case 0x02:msg("É¥é¥¤Ö¤Î½Ç¤Æ¤Þ¤");break;
+	case 0x03:msg("ÌµÊ¥Þ¥É¤ê¤·Þ¤");break;*/
+    case 0x04:msg("CRCé¡¼");break;
+    case 0x05:msg("Î°è¤¬Û¾Ç¤");break;
+    case 0x06:msg("é¡¼");break;
+    case 0x07:msg("ÌµÊ¥Ç¥Ç¤");break;
+    case 0x08:msg("Ä¤Þ¤");break;
+    case 0x0a:msg("ñ¤­¹ß¥é¡¼");break;
+    case 0x0b:msg("É¤ß¹ß¥é¡¼");break;
+    case 0x0d:msg("é¥¤È¥×¥Æ¥È¤Æ¤Þ¤");break;
+    case 0x0e:msg("ñ¤­¹ß¤Ø»ß¤Æ¤Þ¤");break;
+      /*case 0x0f:msg("Õ¥ë¶¦Í­È¿Ç¤");break;*/
 
-    case 0x09:/*msg("¥×¥ê¥ó¥¿¥ª¥Õ¥é¥¤¥ó");*/;
-      /*case 0x1f:msg("¥¤¥ó¥¿¥é¥×¥È¤¬²¡¤µ¤ì¤Þ¤·¤¿¡£");*/
+    case 0x09:/*msg("×¥ó¥¿¥Õ¥é¥¤");*/;
+      /*case 0x1f:msg("ó¥¿¥×¥È¤Þ¤");*/
       IJUMP_RTE();return;break;
     default:
       IJUMP(ErrorTrap_Old);return;break;

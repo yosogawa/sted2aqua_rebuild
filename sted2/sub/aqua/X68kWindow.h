@@ -8,12 +8,12 @@
 void XSTed_start_main(int (*mainPtr)(int, char **), int argc, char **argv);
 void XSTed_init_window(void);
 
-void XSTed_txbox(short x0, short y0, short x1, short y1, unsigned short p);
-void XSTed_txxline(unsigned short p, short x0, short y0, short x1, unsigned short ls);
-void XSTed_txyline(unsigned short p, short x0, short y0, short y1, unsigned short ls);
+void XSTed_txbox(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t p);
+void XSTed_txxline(uint16_t p, int16_t x0, int16_t y0, int16_t x1, uint16_t ls);
+void XSTed_txyline(uint16_t p, int16_t x0, int16_t y0, int16_t y1, uint16_t ls);
 void XSTed_trev(int xch, int ych, int lch, int col);
 void XSTed_rev_area(int r_ad, int r_ln, int edit_scr);
-void XSTed_tfill(unsigned short p, short x0, short y0, short x1, short y1, unsigned short ls);
+void XSTed_tfill(uint16_t p, int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t ls);
 void XSTed_trascpy(int src, int dst, int line, int mode);
 void XSTed_t_scrw(int x1, int y1, int xs, int ys, int x2, int y2);
 void XSTed_gbox(int x1, int y1, int x2, int y2, unsigned int col, unsigned int ls);

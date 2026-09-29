@@ -9,7 +9,7 @@
 #define		PL1	(0x20000/2)
 #define		PL2	(0x20000)
 
-void    g_print(int, int, char *, int);
+void    g_print(int, int, unsigned char *, int);
 void	tg_copy(int);
 void	rev_area();
 void    txerase(int,int,int,int);
@@ -21,12 +21,12 @@ void    txcur(int, int, int, int, int);
   void	g_print(int x,int y,unsigned char *s,int c)
   {
   int	sta;
-  short	j;
-  unsigned short	a;
+  int16_t	j;
+  uint16_t	a;
   unsigned char	pat;
 
-  unsigned short	*gptr= (unsigned short*)(GVRAM);
-  unsigned short	*gptr2;
+  uint16_t	*gptr= (uint16_t*)(GVRAM);
+  uint16_t	*gptr2;
   unsigned char	*pp;
 
   struct	FNTBUF	*fntb,buf;
@@ -113,12 +113,12 @@ void	tcury(int a,int b,int c,int cs)
 void	txerase(int x,int y,int x1,int y1)
 {
   struct	X68_TXFILLPTR	*txfil,buf;
-  unsigned short	sv;
+  uint16_t	sv;
 
   txfil=&buf;txfil->x=x;txfil->y=y;txfil->x1=x1;txfil->y1=y1;txfil->fill_patn=0;
-  sv=B_WPEEK((unsigned short*)0xe8002a);B_WPOKE((unsigned short*)0xe8002a,0x133);
+  sv=B_WPEEK((uint16_t*)0xe8002a);B_WPOKE((uint16_t*)0xe8002a,0x133);
   txfil->vram_page=0;TXFILL(txfil);
-  B_WPOKE((unsigned short*)0xe8002a,sv);
+  B_WPOKE((uint16_t*)0xe8002a,sv);
 }
 
 /***************************/

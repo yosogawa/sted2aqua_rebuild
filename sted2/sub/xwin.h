@@ -62,10 +62,11 @@ extern int isgscrchanged;       /* is the screen touched */
 
 /* valiables */
 
-extern long STed_col[XSTed_max_palletes]; /* allocated pixel number */
+#include <stdint.h>
+extern uint32_t STed_col[XSTed_max_palletes]; /* allocated pixel number */
 
-extern long *XSTed_tcol;                   /* text pallete array */
-extern long *XSTed_gcol;                   /* graphics pallete array */
+extern uint32_t *XSTed_tcol;                   /* text pallete array */
+extern uint32_t *XSTed_gcol;                   /* graphics pallete array */
 
 extern int TCurrentCol;
 extern int TCurrentBackCol;
@@ -140,12 +141,12 @@ extern int XSTed_SetGCol( int );
 
 /* xwin_graph.c */
 
-/*extern*/ void XSTed_txbox( short, short, short, short, unsigned short );
-/*extern*/ void XSTed_txxline( unsigned short, short, short, short, unsigned short );
-/*extern*/ void XSTed_txyline( unsigned short, short, short, short, unsigned short );
+/*extern*/ void XSTed_txbox( int16_t, int16_t, int16_t, int16_t, uint16_t );
+/*extern*/ void XSTed_txxline( uint16_t, int16_t, int16_t, int16_t, uint16_t );
+/*extern*/ void XSTed_txyline( uint16_t, int16_t, int16_t, int16_t, uint16_t );
 extern void XSTed_trev( int, int, int, int );
 /*extern*/ void XSTed_rev_area( int, int, int );
-/*extern*/ void XSTed_tfill( unsigned short, short, short, short, short, unsigned short );
+/*extern*/ void XSTed_tfill( uint16_t, int16_t, int16_t, int16_t, int16_t, uint16_t );
 /*extern*/ void XSTed_trascpy( int, int, int, int );
 /*extern*/ void XSTed_t_scrw( int, int, int, int, int, int );
 

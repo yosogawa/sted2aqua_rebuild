@@ -21,65 +21,11 @@ char curv_tbl[192]={
 int	yzm,vmo2,maxdot,excget;
 int	XB,DM;
 
-int    step_cluc(int);
 //int	step_cluc2();
-int	add_set(int, int *);
-int	meas_add();
-int	meas_no(int);
-void    all_note_off(int);
-int    trk_check(int);
-int	trk_ext_sub();
-int	trk_mix_sub();
-void	trk_cluc();
-int	trk_shift();
-void	trk_delete();
-int	size_change();
-void    poplay(int,int);
-void	undobuf(int);
-void	msg();
-void	msg_clr();
-void	key_rep_off();
-void	key_rep_on();
-int	key_shift();
-char	*ctrl_type();
-char	*prog_name();
 
-void    txerase(int,int,int,int);
-void    txxline(int,int,int,int,int);
-void    txyline(int,int,int,int,int);
-void    g_print( int, int, char *, int);
 
-int     vinput(int,int);
-void	fnc_dis();
-char    *fstr(int,int);
-void	sdis();
-void	sdis2(int,int,char *,int,int,int);
-void	vdis2();
-void	snsclr();
 
-void	vis_disp();
-int	vis_bufset();
-int	vis_ext();
-int	vis_ext_mix();
-int	vis_a_in();
-int	vis_a_in_co();
-int	vis_a_in_st();
-void	vis_a_out();
-void	vis_wave();
-int	vis_cut();
-int	vis_lnk();
-void	vis_zom();
-void	bunkatsu(int,int,int *);
-char    *nstr();
 
-void    cons_md(int);
-void    key_wait(void);
-void    sinput(char *,int);
-void memcpy_l(unsigned char *, unsigned char *, int);
-void    edfield(int);
-int    spc_code(char *,int *);
-void    g_print2(int,int,char *,int);
-void    line_ins_aft(int);
 
 /***************************/
 int	vis_edit(int po,int ln,int ssh)

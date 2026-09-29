@@ -28,6 +28,8 @@
 #ifndef _SMF_H_
 #define _SMF_H_
 
+#include <stdint.h>
+
 #define SMF_MTHD_HEADER_SIZE 14
 
 #define SMF_HEADER_STRING    "MThd"
@@ -114,6 +116,6 @@
 
 /* functions */
 
-int *smf_number_conversion( long num );
+int *smf_number_conversion( int32_t num );
 
 #endif /* _SMF_H_ */

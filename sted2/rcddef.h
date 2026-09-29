@@ -1,3 +1,4 @@
+#include <stdint.h>
 /*--------------------------------------------------------------*/
 /* rcddef.h							*/
 /*--------------------------------------------------------------*/
@@ -104,7 +105,7 @@ struct RCD_HEAD {
 #if 1
   char	scan_mode;	/* key scan flag 0:off 1:on */
   char	rsmd_mode;	/* midi port flag 0:midi 1:midi+rs/sb 2:rs/sb */
-  short	fade_time;	/* fade out speed	*/
+  int16_t	fade_time;	/* fade out speed	*/
   char	fade_count;	/* fade out start flag 128:start 0:end */
 #endif
   char	moduletype;	/* panel display 0:cm64 1:sc55 2:cm+sc */
@@ -229,7 +230,7 @@ struct RCD_HEAD {
 
   int	stepcount;		/* 演奏開n桙ｩらのSTEP COUNT	*/ /*(v2.92)*/
 #if 1
-  short	loopcount;		/* 255/256回リピートのCOUNT	*/ /*(v3.00f)*/
+  int16_t	loopcount;		/* 255/256回リピートのCOUNT	*/ /*(v3.00f)*/
 
   char	dummyF[12-2];		/* 拡張用リザーブ	*/
 

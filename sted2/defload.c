@@ -36,40 +36,8 @@ unsigned char	defrhyno[32][2];
 char	def_user_exc_memo[8][25];
 unsigned char	def_user_exc_data[8][24];
 
-void	msg();
-void	msg_clr();
-void	snsclr();
-void	fnc_dis();
-void	spcut();
-char	*spadd();
-char	*jstrupr();
-char	*hex_s();
-char	*fstr();
-char	*tim_names();
-int	str_val();
-int	ctc();
-int	strch();
-int    str_search(unsigned char *,unsigned char *);
 
-void	tim_name_read();
 
-void	rhinit();
-void	rhinit2();
-void	user_exc_init();
-void	user_exc_init2();
-void	stgt_init();
-void	stgt_init2();
-void	asin_change();
-void	asin_init();
-int	defload();
-int	def_save();
-int	def_bload();
-int	def_bsave();
-void	cnf_stgt();
-void	cnf_rvel();
-void	cnf_repl();
-void	cnf_prog();
-void	def_init();
 
 /* ================================================== file */
 #if	STED
@@ -287,7 +255,7 @@ int	defload(char *fi,int md)
 
 #if	STED
   if(md==0){
-    /*B_PRINT("ÄêµÁ¥Õ¥¡¥¤¥ë¤Î¥í¡¼¥ÉÃæ¤Ç¤¹¡£\r\n");*/ /* Oct.17.1998 by Daisuke Nagano */
+    /*B_PRINT("Õ¥Î¥Ç¤\r\n");*/ /* Oct.17.1998 by Daisuke Nagano */
   }
   if(md==1){
     msg(_("Loading config file.\n"));
@@ -737,7 +705,6 @@ int	defload(char *fi,int md)
       /* Jun.18.2003 Toshi Nagata */
 	#if defined(USE_MACGUI)
 	{
-	  extern void XSTed_configure_mac_settings(const char *);
 	  XSTed_configure_mac_settings(li);
 	}
 	#endif
@@ -1031,7 +998,7 @@ int	defsave(char *fi,int md,int mutef,int initf)
   char	li1[]= "*======================================================================================\r\n";
 
   strmfe(fi,fi,"def");
-  if(!(fp=fopen2(fi,"wb"))){B_PRINT("¥Õ¥¡¥¤¥ë¤¬¥ª¡¼¥×¥ó½ÐÍè¤Þ¤»¤ó¡£\r\n");exit(1);}
+  if(!(fp=fopen2(fi,"wb"))){B_PRINT("Õ¥ë¤¬×¥Þ¤\r\n");exit(1);}
 
   n=buf_put(li0,n);
 

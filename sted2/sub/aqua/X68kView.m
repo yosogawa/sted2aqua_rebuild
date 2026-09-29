@@ -51,7 +51,7 @@ static int sGraphColor = 15;
 
 static unsigned int sModifierFlags;
 //static unsigned int sModifierChange;
-static unsigned short sLastKeyDown;  //  The last getKeyWithOptions: return value
+static uint16_t sLastKeyDown;  //  The last getKeyWithOptions: return value
 
 static int sRequestAppKitCall;
 static void **sRequestAppKitArgs;
@@ -152,7 +152,8 @@ enum {
 /*  bit 0-15 = Mac key code (unicode)  */
 /*  bit 16 = unused, bit 17 = control mask, bit 18 = option mask  */
 /*  bit 24-31 = X68k key code  */
-static unsigned long s_x68k_special_key[128] = {
+#include <stdint.h>
+static uint32_t s_x68k_special_key[128] = {
 	(x68k_up << 24) + NSUpArrowFunctionKey,
 	(x68k_down << 24) + NSDownArrowFunctionKey,
 	(x68k_left << 24) + NSLeftArrowFunctionKey,
@@ -444,12 +445,12 @@ static unsigned long s_x68k_special_key[128] = {
 //  Bits 0-7: ASCII code
 //  Bits 8-15: scan code
 //  Bits 16-19: modifier key mask (used internally)
-static unsigned long
+static uint32_t
 eventToX68kKeyInfo(NSEvent *theEvent)
 {
 	unichar theChar;
 	unsigned int theMask;
-	unsigned long keyCode = 0, keyMask = 0;
+	uint32_t keyCode = 0, keyMask = 0;
 	int i;
 	theMask = [theEvent modifierFlags];
 	keyMask = 0;
@@ -501,7 +502,7 @@ s_RegisterKeyDown(int ch)
 
 - (void)keyDown: (NSEvent *)theEvent
 {
-	unsigned long keyInfo;
+	uint32_t keyInfo;
 	unsigned int flags, flagsChange;
 	[sLock lock];
 	flags = [theEvent modifierFlags];
@@ -573,7 +574,7 @@ s_RegisterKeyDown(int ch)
 #define kGetKeyKeepInBufferOption 2
 #define kGetKeySenseModifiersOption 4
 
-+ (unsigned short)getKeyWithOptions:(int)optionFlags
++ (uint16_t)getKeyWithOptions:(int)optionFlags
 {
 	uint16_t ch;
 	int pt;
@@ -673,7 +674,7 @@ XSTed_register_key(const char *str)
 	char buf[128];
 	char *p, *q, *r;
 	int code, mask, n;
-	unsigned long ul;
+	uint32_t ul;
 	static struct {
 		const char *symbol;
 		int code;
@@ -759,11 +760,11 @@ XSTed_register_key(const char *str)
 			n = tolower(*q) & 127;
 		else n = 0;
 		/*  Look up the table, and replace the entry if present  */
-		ul = n | ((unsigned long)mask << 16);
+		ul = n | ((uint32_t)mask << 16);
 		for (n = 0; n < 127; n++) {
 			if (s_x68k_special_key[n] == 0
 			|| (s_x68k_special_key[n] & 0x00ffffff) == ul) {
-				s_x68k_special_key[n] = (ul | ((unsigned long)code << 24));
+				s_x68k_special_key[n] = (ul | ((uint32_t)code << 24));
 				break;
 			}
 		}
@@ -828,7 +829,7 @@ tpage(int plane)
 }
 
 static void
-MakeRect(Rect *rect, short x0, short y0, short x1, short y1)
+MakeRect(Rect *rect, int16_t x0, int16_t y0, int16_t x1, int16_t y1)
 {
 	if (x0 < x1) {
 		rect->left = x0;
@@ -847,7 +848,7 @@ MakeRect(Rect *rect, short x0, short y0, short x1, short y1)
 }
 
 static void
-InvalTextInRect(short x0, short y0, short x1, short y1)
+InvalTextInRect(int16_t x0, int16_t y0, int16_t x1, int16_t y1)
 {
 	NSRect rect = NSMakeRect(x0, y0, x1 - x0, y1 - y0);
 	if (sTextInvalRect.size.width == 0.0 || sTextInvalRect.size.height == 0.0)
@@ -858,7 +859,7 @@ InvalTextInRect(short x0, short y0, short x1, short y1)
 }
 
 static void
-InvalGraphInRect(short x0, short y0, short x1, short y1)
+InvalGraphInRect(int16_t x0, int16_t y0, int16_t x1, int16_t y1)
 {
 	//  The rect must be in the screen coordinate
 	NSRect rect = NSMakeRect(x0 - sGraphOrigin.x, y0 - sGraphOrigin.y, x1 - x0, y1 - y0);
@@ -870,9 +871,9 @@ InvalGraphInRect(short x0, short y0, short x1, short y1)
 }
 
 void
-XSTed_txxline(unsigned short p, short x0, short y0, short x1, unsigned short ls)
+XSTed_txxline(uint16_t p, int16_t x0, int16_t y0, int16_t x1, uint16_t ls)
 {
-	short i;
+	int16_t i;
 	uint8_t col;
 	if (y0 < 0 || y0 >= sTextHeight)
 		return;
@@ -895,9 +896,9 @@ XSTed_txxline(unsigned short p, short x0, short y0, short x1, unsigned short ls)
 }
 
 void
-XSTed_txyline(unsigned short p, short x0, short y0, short y1, unsigned short ls)
+XSTed_txyline(uint16_t p, int16_t x0, int16_t y0, int16_t y1, uint16_t ls)
 {
-	short i;
+	int16_t i;
 	uint8_t col;
 	if (x0 < 0 || x0 >= sTextWidth)
 		return;
@@ -920,7 +921,7 @@ XSTed_txyline(unsigned short p, short x0, short y0, short y1, unsigned short ls)
 }
 
 void
-XSTed_txbox(short x0, short y0, short x1, short y1, unsigned short p)
+XSTed_txbox(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t p)
 {
 	XSTed_txxline(p, x0, y0, x1, 1);
 	XSTed_txyline(p, x1, y0, y1, 1);
@@ -931,7 +932,7 @@ XSTed_txbox(short x0, short y0, short x1, short y1, unsigned short p)
 void
 XSTed_trev(int xch, int ych, int lch, int col)
 {
-	short x0, x1, y0, i, j;
+	int16_t x0, x1, y0, i, j;
 	uint32_t *ip;
 	x0 = xch * 8;
 	y0 = ych * 16;
@@ -960,10 +961,10 @@ XSTed_rev_area(int r_ad, int r_ln, int edit_scr)
 }
 
 void
-XSTed_tfill(unsigned short p, short x0, short y0, short x1, short y1, unsigned short ls)
+XSTed_tfill(uint16_t p, int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t ls)
 {
 	uint8_t col;
-	short i, j;
+	int16_t i, j;
 	if (x0 < 0)
 		x0 = 0;
 	if (x1 >= sTextWidth)
@@ -999,7 +1000,9 @@ XSTed_trascpy(int dst, int src, int line, int mode)
 			return;
 		[sLock lock];
 		memmove(sTextVram + dst * 16 * sTextWidth, sTextVram + src * 16 * sTextWidth, line * 16 * sTextWidth);
-		memset(sTextVram + src * 16 * sTextWidth, 0, (dst - src) * 16 * sTextWidth);
+		/* FIX: Commented out memset to prevent erasing original line when pressing Return (line insertion). */
+		/* Original code: memset(sTextVram + src * 16 * sTextWidth, 0, (dst - src) * 16 * sTextWidth); */
+		// memset(sTextVram + src * 16 * sTextWidth, 0, (dst - src) * 16 * sTextWidth);
 		InvalTextInRect(0, src * 16, sTextWidth, (dst + line) * 16);
 		[sLock unlock];
 	} else {
@@ -1013,7 +1016,8 @@ XSTed_trascpy(int dst, int src, int line, int mode)
 			if (line <= 0)
 				return;
 			[sLock lock];
-		//	memset(sTextVram + dst * 16 * sTextWidth, 0, line * 16 * sTextWidth);
+			/* FIX: Enabled memset to clear VRAM when explicit clear (src == 63) is requested. */
+			memset(sTextVram + dst * 16 * sTextWidth, 0, line * 16 * sTextWidth);
 			InvalTextInRect(0, dst * 16, sTextWidth, (dst + line) * 16);
 			[sLock unlock];
 		} else {
@@ -1589,7 +1593,7 @@ XSTed_key_init(void)
 int
 XSTed_keyin(int code)
 {
-	unsigned short ch = 0, ret;
+	uint16_t ch = 0, ret;
 	extern char fnc_key[12][6];
 	int options;
 	if (code == 0xfe)
@@ -1641,7 +1645,7 @@ XSTed_keyin(int code)
 int
 XSTed_keyinp(void)
 {
-	unsigned short ch;
+	uint16_t ch;
 	ch = [X68kView getKeyWithOptions:kGetKeySenseModifiersOption];
 	//	printf("XSTed_keyinp\n");
 	return ch;
@@ -1654,7 +1658,7 @@ int
 XSTed_sftsns(void)
 {
 	unsigned int modifiers;
-	unsigned short ch;
+	uint16_t ch;
 	[sLock lock];
 	modifiers = sModifierFlags;
 	[sLock unlock];

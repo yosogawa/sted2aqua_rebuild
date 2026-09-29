@@ -8,7 +8,7 @@
 @class X68kWindow;
 @class X68kView;
 
-@interface AppController : NSObject
+@interface AppController : NSObject <NSApplicationDelegate>
 {
     IBOutlet NSWindow *myWindow;
 }

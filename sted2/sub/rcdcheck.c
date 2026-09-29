@@ -222,7 +222,7 @@ void _play_external_player( void ) {
       int smfsize;
       unsigned char *smfdata;
 
-      smfsize = rcpconv( _data_adr, (long)rcd->totalcount, &smfdata, NULL );
+      smfsize = rcpconv( _data_adr, (size_t)rcd->totalcount, &smfdata, NULL );
       if ( smfsize < -1 ) return;
 
       fd = mkstemp(tmp_file_name);
@@ -286,7 +286,7 @@ void _play_external_player( void ) {
       unsigned char *smfdata;
 
       /*smfsize = rcptomid( _data_adr, rcd->totalcount, &smfdata );*/
-      smfsize = rcpconv( _data_adr, (long)rcd->totalcount, &smfdata, NULL );
+      smfsize = rcpconv( _data_adr, (size_t)rcd->totalcount, &smfdata, NULL );
       rcd->totalcount = smfsize;
       if ( smfsize < 0 ) return;
       if ( smfsize>rcd->bufcap ) return;

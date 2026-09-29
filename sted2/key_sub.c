@@ -73,57 +73,14 @@ static char	oct[11]={
 
 int	outch,prog;
 
-int	timsel();
-void	msg();
-void	msg_clr();
-void	fnc_dis();
-void	sdis();
-int	varia();
-void    sinput(char *,int);
-char    *fstr(int,int);
-char	*hex_s();
-char	*spadd();
-char	*jstrupr();
-int	str_val();
-int     vinput(int,int);
-void	home2();
-void    poplay(int,int);
-void	gra();
-void    all_note_off(int);
-int	trk_shift();
-void	trk_delete();
-void	snsclr();
-void	undobuf();
-void    noed_cls(void);
-void    g_print(int, int, char *, int);
-void    twait(int);
-int	strch();
-char	*chstr();
-char	*tim_names();
 
-void	inpmon();
 static void	midi_change();
 static int	midi_inout();
-void	midi_chout();
-int	midi_in();
-void	midi_clr();
-char	*mdinport();
-int	polykey();
 static int	onekey();
 static int	chord_sel();
 static int	chord_ten();
 static int	chord_ins();
 static void	chord_dis();
-int	mml_inp(int);
-int	scale_no();
-char	*keystr();
-char	*keystr2();
-char	*prog_name();
-int	key_shift();
-void	key_shift_sub();
-void    key_wait(void);
-void memcpy_l(unsigned char *, unsigned char *, int);
-void    line_ins_aft(int);
 
 /***************************/
 void	inpmon()

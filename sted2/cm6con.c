@@ -246,71 +246,7 @@ char	tone_hed[6]={'A','B','I','R','I','C'};
 int	selno,tkey,tvel;
 char	trf[64];
 
-int	timload();
-int	timsave();
-char	*fstr();
-char	*keystr();
-void	fnc_dis();
-int	    vinput(int,int);
-void    sinput(char *,int);
-void	key_pause();
-void	logo();
-void    fsel(char *,char *,int);
-void	dplay();
-int	inkey2();
-int	inkey3();
-void	sinit();
-int	yn_sel();
-void	vdis2();
-void	sdis();
-void    sdis2(int,int,char *,int,int,int);
-void	tdis();
-void    dpl(int);
-void	msg();
-void	msg_clr();
-void    tcur(int,int,int,int);
-void    txerase(int,int,int,int);
-void	home2();
-int	ctc();
-void	s_test();
-char	*spadd();
-int    str_search(unsigned char *,unsigned char *);
-void	OnGraphic(void);
-void    g_print(int, int, char *, int);
-void	H_PRINT();
 
-void	cm64_con();
-char	*cm6_tone_name();
-char	*tim_names();
-void	card_sel();
-int	sys_mode();
-int	tone_patch();
-void	pat_para_set();
-void	pat_para_dis();
-int	rhy_patch();
-int	user_tone_list();
-int	cm6_tonesel();
-void	pfil();
-void	pch_fld();
-void	keyd();
-void	keyd_inp();
-void	cminit();
-void	cm6_tone_write();
-void	cm6_la_write();
-void	cm6_pcm_write();
-void	cm6_write();
-void    twait(int);
-void	trns_check();
-void	timtra();
-void	gsd_buf_trns();
-void	tim_buf_trns();
-void	tim_var_read();
-void	all_note_off(int);
-void	temporary_set();
-void    poplay(int,int);
-void	card_name_get(void);
-int    exe(char *);
-void    gsd_var_read(void);
 
 /***************************/
 void	cm64_con()
@@ -1051,7 +987,7 @@ void	cm6_pcm_write(int i)
 }
 
 /***************************/
-void	trns_check(int ti)
+void	trns_check(void)
 {
   int	ex,i,ad;
 

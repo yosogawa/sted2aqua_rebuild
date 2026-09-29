@@ -33,97 +33,23 @@ static char     sted_id[] = "STEDDATAx.xxDedicatedToTURBO\r\n"; /* 30bytes */
 
 /*prt rex -> grt gex v2.5g*/
 
-void	msg();
-void	msg_clr();
-void	snsclr();
-void	fnc_dis();
-void    dpl(int);
-void	tpl(int);
-void	spcut();
-char	*spadd();
-char	*jstrupr();
-int	str_val();
-int	ctc();
-int	strch();
-int	meas_no(int);
-int    meas_add(int);
-int    dat_add(int,int);
-int    meas_len(int);
-int	add_set(int, int *);
-int	size_change();
-void	trksize_c();
-char    *trk_dis(int,int,int);
-int    str_search(unsigned char *,unsigned char *);
 
-int	dload();
-int	dsave();
-int	trk_load();
-int	trk_save();
-int	part_load();
-int	part_save();
-int	rex_load();
-int	rex_save();
-int	timsave();
-int	timload();
-int	gsdload();
 
-void	dplay();
-void	cdplay();
-void	cntplay();
-int	last_tempo();
-int	lsp_para_set();
-int	lsp_wait_chack();
 
-void	uex_read();
-void	uex_set();
 
-void	hedset();
-void	thedset();
-void	hedread();
-int	thedread();
-char	*sread();
-void	sset();
-void	tim_buf_trns();
-void	tim_var_read();
-void	tim_name_read();
-void	tim_name_set();
-void	gsd_buf_trns();
-void	gsd_var_read(void);
 
-int	rcp_buf_put();
-int	rcp_buf_get();
 
-void    dclr(void);
-void	same_cluc();
-int	gomi_cut();
-void	dinit();
 
-void    all_note_off(int);
-void	temporary_set();
 
-void	cminit();
-void	gsinit();
 
-void	rhinit();
-void	rhinit2();
-void	user_exc_init();
-void	user_exc_init2();
-void	stgt_init();
-void	stgt_init2();
-void	asin_change();
-void	asin_init();
-void    memcpy_l(unsigned char *, unsigned char *, int);
-int    exe(char *);
-void    twait(int);
-int    knck(unsigned char *,int);
-void    OnGraphic(void);
 
 /* ================================================== file */
 static int smfload( char *fna ) {
   int  i,j,size,size2,ln,md2=0,stra=0,max;
   FILE *fp;
   unsigned char *smfbuf, *rcpbuf;
-  long ptr,rcpsize;
+  size_t ptr;
+  int rcpsize;
 
   fp = fopen2(fna,"rb");
   if ( fp == NULL ) {msg(_("File not found."));return(-1);}
@@ -1194,8 +1120,8 @@ int	lsp_para_set(int tr,int po,int *me_ad,int wcc)
 	}
 
 	/*
-	  41 10 42 12 cs 00 01 01 01 ss F7 <--- PART A01の受信ポートをBにする
-	  41 10 42 12 cs 00 01 17 00 ss F7 <--- PART B01の受信ポートをAにする
+	  41 10 42 12 cs 00 01 01 01 ss F7 <--- PART A01亮檗箸B砲
+	  41 10 42 12 cs 00 01 17 00 ss F7 <--- PART B01亮檗箸A砲
 	  */
 	if( d==0xdd ){rba=ptr[j+2]*256+ptr[j+3];}
 	if( d==0xde ){if(rba==1 && ptr[j+2]<0x17+16){goto outp;}}

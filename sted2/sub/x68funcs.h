@@ -10,6 +10,10 @@
 #ifndef _X68FUNCS_H_
 #define _X68FUNCS_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* variables */
 
 extern int iswindowopened;
@@ -23,6 +27,16 @@ extern char fnc_key[12][6];
    CLR, HELP, HOME, UNDO */
 
 /* misc functions */
+extern void rst_errvect(void);
+
+extern void keyclr(void);
+extern void key_pause(void);
+extern void set_errvect(void);
+
+extern void key_wait(void);
+
+extern void key_mouse_wait(void);
+
 
 extern void strmfe( char *, const char *, const char * );
 extern void b_striS( char *, int, int );
@@ -50,3 +64,8 @@ extern FILE *fopen2( char *, char * );
 extern void STed_system_initialize( int *, char *** );
 
 #endif /* _X68FUNCS_H_ */
+
+
+#ifdef __cplusplus
+}
+#endif

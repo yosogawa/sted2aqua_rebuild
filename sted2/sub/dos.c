@@ -272,8 +272,8 @@ int _dos_files (struct _x68_filbuf *buff, const char *name, int atr ) {
 
   buff->atr     = (unsigned char)(S_ISDIR(stt->st_mode)?0x10:1);
   buff->filelen = (unsigned int)stt->st_size;
-  buff->date    = (unsigned short)(asc->tm_year<<9 | asc->tm_mon<<5 | asc->tm_mday);
-  buff->time    = (unsigned short)(asc->tm_hour<<11 | asc->tm_min<<5 | (asc->tm_sec/2));
+  buff->date    = (uint16_t)(asc->tm_year<<9 | asc->tm_mon<<5 | asc->tm_mday);
+  buff->time    = (uint16_t)(asc->tm_hour<<11 | asc->tm_min<<5 | (asc->tm_sec/2));
   strncpy( buff->name, d->d_name, 22 );
   buff->name[22]=0;
 
@@ -308,8 +308,8 @@ int _dos_nfiles( struct _x68_filbuf *buff ) {
   asc=localtime(&(stt->st_mtime));
   buff->atr     = (unsigned char)(S_ISDIR(stt->st_mode)?0x10:0x21);
   buff->filelen = (unsigned int)stt->st_size;
-  buff->date    = (unsigned short)(asc->tm_year<<9 | asc->tm_mon<<5 | asc->tm_mday);
-  buff->time    = (unsigned short)(asc->tm_hour<<11 | asc->tm_min<<5 | (asc->tm_sec/2));
+  buff->date    = (uint16_t)(asc->tm_year<<9 | asc->tm_mon<<5 | asc->tm_mday);
+  buff->time    = (uint16_t)(asc->tm_hour<<11 | asc->tm_min<<5 | (asc->tm_sec/2));
   strncpy( buff->name, d->d_name, 22 );
   buff->name[22]=0;
 
