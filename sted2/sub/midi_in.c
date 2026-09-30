@@ -58,7 +58,7 @@ int get_midi_data( void ) {
     select( midi_dev+1, &x, (fd_set *)NULL, (fd_set *)NULL, &tp );
 
     if ( FD_ISSET( midi_dev, &x) ) {
-      unsigned char buf[16];
+      uint8_t buf[16];
       read( midi_dev, buf, 1);
       ret = (int)buf[0];
     }
@@ -89,7 +89,7 @@ int is_midi_in( void ) {
   return ret;
 }
 
-void put_midi_data ( char data ) {
+void put_midi_data ( uint8_t data ) {
 
   if ( ismididevopened > 0 ) {
     write( midi_dev, &data, 1 );

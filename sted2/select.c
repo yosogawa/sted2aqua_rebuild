@@ -953,7 +953,7 @@ void	fsel(char *fna,char *pth,int w)
       if( str_last(fna)!='/' ){
 	if( strlen(fna)>2 && str_search(fna,"/")>0 ){
 	  if(fna[0]=='/'){
-	    unsigned char tmp[128];
+	    uint8_t tmp[128];
 	    strcpy(tmp,pth);tmp[2]=0;
 	    strcat(tmp,fna);strcpy(fna,tmp);
 	  }

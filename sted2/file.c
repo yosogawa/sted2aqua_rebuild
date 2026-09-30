@@ -47,7 +47,7 @@ static char     sted_id[] = "STEDDATAx.xxDedicatedToTURBO\r\n"; /* 30bytes */
 static int smfload( char *fna ) {
   int  i,j,size,size2,ln,md2=0,stra=0,max;
   FILE *fp;
-  unsigned char *smfbuf, *rcpbuf;
+  uint8_t *smfbuf, *rcpbuf;
   size_t ptr;
   int rcpsize;
 
@@ -57,12 +57,12 @@ static int smfload( char *fna ) {
   size=ftell(fp);
   fseek(fp,0,SEEK_SET);
 
-  smfbuf = (unsigned char *)malloc(sizeof(unsigned char)*size);
+  smfbuf = (uint8_t *)malloc(sizeof(uint8_t)*size);
   if ( smfbuf==NULL ) {fclose(fp);return(-1);}
   fread(smfbuf, 1, size, fp);
   fclose(fp);
 
-  rcpbuf = (unsigned char *)malloc(sizeof(unsigned char)*DATA_ADR_SIZE);
+  rcpbuf = (uint8_t *)malloc(sizeof(uint8_t)*DATA_ADR_SIZE);
   if ( rcpbuf == NULL ) {free(smfbuf);return(-1);}
   
   if ( (rcpsize=itor( smfbuf, rcpbuf )) == 0 ) {
@@ -160,7 +160,7 @@ int	dload(char *fna,int md)
 static int smfsave(char *fna) {
   int	i,md2=0,max;
   int   smfsize, rcpsize, ptr;
-  unsigned char *smfdata, *rcpdata;
+  uint8_t *smfdata, *rcpdata;
   FILE	*fp;
 
   for(i=18;i<36;i++){
@@ -173,7 +173,7 @@ static int smfsave(char *fna) {
   for ( i=0 ; i<max ; i++ ) {
     rcpsize+=(44+tr_len[i]);
   }
-  rcpdata = (char *)malloc(sizeof(char)*rcpsize);
+  rcpdata = (uint8_t *)malloc(sizeof(uint8_t)*rcpsize);
   if ( rcpdata == NULL ) return(-1);
 
   hedset(max);
@@ -319,7 +319,7 @@ int	part_text_save(char *fna,int ad,int ln)
   int	i,j=0,fr,ll;
   FILE	*fp;
   char	tmp0[4096+1024];
-  unsigned char a;
+  uint8_t a;
 
   if(!(fp= fopen2(fna,"wb"))){msg(_("Cannot open file."));return(-1);}
 
@@ -811,7 +811,7 @@ start:
     strcpy(tmp1,rcp_path);strcat(tmp1,rcp_file);strmfe(tmp1,tmp1,"wrd");
     if(fp=fopen2(tmp1,"rb")){
       int	i,j,sz;
-      unsigned char	a;
+      uint8_t	a;
 
       sz = rcd->wordcap;
       j=fread(dat,1,work_size,fp);fclose(fp);bpo=0;
@@ -1058,15 +1058,15 @@ int	lsp_para_set(int tr,int po,int *me_ad,int wcc)
 {
   int	co=0,j,jj=0,i,pa=-1,exf=0;
   int	wa=0,wa2=0,retad=0;
-  unsigned char	d;
-  unsigned char	*ptr;
+  uint8_t	d;
+  uint8_t	*ptr;
   int	ctad[256];
   int	rba=0;
 
   if(po==0 || lsp_wait<0){return(0);}
   for(i=0;i<128;i++){ctad[i]=-1;}
 
-  ptr=(unsigned char *)trk[tr];
+  ptr=(uint8_t *)trk[tr];
 
   if(wcc>0){
     int tst=0;
@@ -1132,8 +1132,8 @@ int	lsp_para_set(int tr,int po,int *me_ad,int wcc)
 						  )){goto outp;}
 	}
 	if( d>=0x90 && d<=0x97 ){
-	  unsigned char *pt2;
-	  pt2=(unsigned char *)user_exc_data[d&0xf];
+	  uint8_t *pt2;
+	  pt2=(uint8_t *)user_exc_data[d&0xf];
 
 	  if(pt2[0]==0x41 && pt2[2]==0x42 &&(
 					     (pt2[4]==0x83 && pt2[5]==0 && pt2[6]==0x01 && pt2[7]<0x17+16)||
@@ -1305,7 +1305,7 @@ int	rcp_buf_get(char *ptr,int po,int ln)
 void	dclr(void)
 {
   int	i,j;
-  unsigned char	a;
+  uint8_t	a;
 
   for(i=0;i<36;i++){
     same_cluc(i,0);
@@ -1339,7 +1339,7 @@ void	dclr(void)
 void	same_cluc(int tr,int ofset)
 {
   int	j=0,max;
-  unsigned char	a;
+  uint8_t	a;
   int	add[2048];
 
   max=add_set(tr,add);
@@ -1367,10 +1367,10 @@ void	same_cluc(int tr,int ofset)
 }
 
 /***************************/
-int	gomi_cut(unsigned char *ptr,int size)
+int	gomi_cut(uint8_t *ptr,int size)
 {
   int	ad=0,po=0;
-  unsigned char	da,db,dc,dd;
+  uint8_t	da,db,dc,dd;
 
   while(ad<size){
     da=ptr[ad++];db=ptr[ad++];dc=ptr[ad++];dd=ptr[ad++];
@@ -1404,7 +1404,7 @@ int	gomi_cut(unsigned char *ptr,int size)
 /***************************/
 void	dinit()
 {
-  unsigned char	*ptr=trk[0];
+  uint8_t	*ptr=trk[0];
 
   int	i,j;
 

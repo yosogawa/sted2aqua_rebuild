@@ -4,7 +4,7 @@
 
 #include	"sted.h"
 
-unsigned char	fnc_dat[9*10][9]={
+uint8_t	fnc_dat[9*10][9]={
 
   /*edit*/
   N_("  TOP   "),N_(" BOTTOM "),N_("REPLACE "),N_("  FIND  "),N_(" F.NEXT "),
@@ -245,9 +245,10 @@ void	spcut(char *st)
 }
 
 /***************************/
-int	knck(unsigned char *st,int p)
+int	knck(const char *st,int p)
 {
-  int	i,f=0,a;
+  int	i,f=0;
+  uint8_t a;
 
   if( p<0 ){return(0);}
   for(i=0 ;i<=p;i++){a=st[i];if( 127<a && (161>a || 224<a) ){f=(i==p);i++;}}
@@ -255,10 +256,10 @@ int	knck(unsigned char *st,int p)
 }
 
 /***************************/
-int	str_search(unsigned char *tmp0,unsigned char *tmp1)
+int	str_search(const char *tmp0,const char *tmp1)
 {
   int	i=0;
-  unsigned char	a;
+  uint8_t	a;
 
   while(tmp0[i]!=0){
     a=tmp0[i];
@@ -277,7 +278,7 @@ int	str_search(unsigned char *tmp0,unsigned char *tmp1)
 }
 
 /***************************/
-int	str_last(unsigned char *tmp0)
+int	str_last(const char *tmp0)
 {
   int	i,a;
 
@@ -290,14 +291,14 @@ int	str_last(unsigned char *tmp0)
 }
 
 /***************************/
-unsigned char	*jstrupr(unsigned char *st)
+char	*jstrupr(char *st)
 {
-  unsigned char	a;
-  unsigned char	*ss;
+  uint8_t	a;
+  char	*ss;
   ss=st;
 
   while(*st!=0){
-    a=*st;
+    a=(uint8_t)*st;
     if( 127<a && (161>a || 224<a) ){
       st++;
     }else{
@@ -340,7 +341,7 @@ char	*nstr(int v)
 int	str_val(char *s)
 {
   int	v=0;
-  unsigned char	a;
+  uint8_t	a;
 
   while(*s==' '){s++;}
 

@@ -7,7 +7,7 @@
 static	char	uxcc[5][3]={"gt","ve","ch","cs","ss"};
 static	char	dotp[4][3]={"","","",""};
 
-static unsigned char	dotpat[32][32];
+static uint8_t	dotpat[32][32];
 
 
 
@@ -165,7 +165,7 @@ redis:
       }
 
       if( ke==0x10 /*|| ke==0x35*/ ){
-	unsigned char c=user_exc_data[nn][x];
+	uint8_t c=user_exc_data[nn][x];
 	excins(user_exc_data[nn],23,x);
 	user_exc_data[nn][x]=c;
 	user_exc_dis(nn);
@@ -272,7 +272,7 @@ void	exc_edit(int ad,int cy,int sw)
 {
   int	ke,sh,kc,i,x=0,y=0,cx,gx,a,cc,co,po,nn;
   int	e=edit_scr;
-  unsigned char	*buf;buf=dat+(16*1024);
+  uint8_t	*buf;buf=dat+(16*1024);
 
   trk_dis(cy+6,ad,24-cy);
 
@@ -393,7 +393,7 @@ top:
     }
 
     if( ke==0x10 && co<256+96){
-      unsigned char c=dat[nn];
+      uint8_t c=dat[nn];
       excins(dat,co,nn);
       dat[nn]=c;
       if(nn<co+1){co++;}
@@ -536,7 +536,7 @@ ext:
   po=ad;cc=0;while(trk[track][po+4]==0xf7){po+=4;cc+=4;}
 
   {
-    unsigned char	c1,c2;
+    uint8_t	c1,c2;
     int bc=0,i=0;
 
     while(i<co){
@@ -597,7 +597,7 @@ ext:
 
 }
 
-void	excsum(unsigned char *da,int nn)
+void	excsum(uint8_t *da,int nn)
 {
   int	top=4,i,sum=0;
 
@@ -606,14 +606,14 @@ void	excsum(unsigned char *da,int nn)
   da[nn]=(128-(sum & 0x7f))&0x7f;
 }
 
-void	excins(unsigned char *da,int co,int nn)
+void	excins(uint8_t *da,int co,int nn)
 {
   int	i;
 
   for(i=co;i>nn;i--){da[i]=da[i-1];}
 }
 
-void	excdel(unsigned char *da,int co,int nn)
+void	excdel(uint8_t *da,int co,int nn)
 {
   int	i;
 
@@ -662,7 +662,7 @@ void	exc_dis(int no,int cx,int co,int m)
 /*
   int	exc_rec()
   {
-  unsigned char	buf[8*1024];
+  uint8_t	buf[8*1024];
   int	ad,ln,pp,cc,a,bpo,i,fl;
 
   all_note_off(1);hedset(36);bpo=rcp_buf_put(hed,0,1414);
@@ -704,10 +704,10 @@ void	exc_dis(int no,int cx,int co,int m)
 int	exc_load(char *fna)
 {
   char	tmp0[2048],li[1024];
-  unsigned char	buf[8*1024];
+  uint8_t	buf[8*1024];
 
   int	ad,ln,n,j,pp,cc;
-  unsigned char	a;
+  uint8_t	a;
   FILE	*fp;
 
   if(!(fp= fopen2(fna,"rb"))){msg(_("File not found."));return(-1);}
@@ -781,7 +781,7 @@ skip:
 int	exc_save(char *fna,int co)
 {
   int	sz,i;
-  unsigned char	buf[4096];
+  uint8_t	buf[4096];
   FILE	*fp;
 
   if(!(fp= fopen2(fna,"wb"))){msg(_("Cannot open file."));return(-1);}
@@ -789,7 +789,7 @@ int	exc_save(char *fna,int co)
   strcpy(buf,"F0 ");dat[co++]=0xf7;
 
   for(i=0;i<co;i++){
-    unsigned char a=dat[i];
+    uint8_t a=dat[i];
 
     if(a>=0x80 && a!=0xf7){
       if(a>=0x80 && a<=0x84){strcat(buf,uxcc[a-0x80]);strcat(buf," ");}
@@ -1191,7 +1191,7 @@ void	exc_view(int ad)
   int	i,cx,gx,co,po,excmd=0;
   int	e=edit_scr;
   char	tmp0[128];
-  unsigned char	*buf;buf=dat+(16*1024);
+  uint8_t	*buf;buf=dat+(16*1024);
 
   if(edit_scr==0){cx=41;gx=328;}else{cx=1;gx=8;}
   cons_md(0);noed_cls();edit_scr=0;

@@ -237,7 +237,7 @@ int rcp_ch_exclusive(RCP_DATA *rcp, int track ){
   int size,check_sum;
   int finished;
   int ptr;
-  unsigned char *data = rcp->data;
+  uint8_t *data = rcp->data;
 
   v1 = rcp->track[track].gate;
   v2 = rcp->track[track].vel;
@@ -782,7 +782,7 @@ int rcp_comment_start(RCP_DATA *rcp, int track ){
   int length;
   int i,j;
   int *l;
-  unsigned char *data = rcp->data;
+  uint8_t *data = rcp->data;
 
   length=2;
   ptr = rcp->track[track].current_ptr+4;

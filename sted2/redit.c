@@ -12,8 +12,8 @@ static char	rym1[10][3]={"","","","","","","","","",""};
 static char	rym[10][3];
 */
 
-static unsigned char	rpat[64][128];
-static unsigned char	rpar[65][5];
+static uint8_t	rpat[64][128];
+static uint8_t	rpar[65][5];
 static 		int	radr[65];
 static char	vlcl[256];
 static int	dfstep=12,barstep,dfvel=9;
@@ -387,7 +387,7 @@ void	rtrk_dis(int p,int ad,int line)
       xx=21+i*2;
       if(rpar[i][0]==2){
 	int	j;
-	unsigned char	a;
+	uint8_t	a;
 	a=rpat[i][0];strcpy(tmp0,"/ ");
 	if(a==0xf8){tmp0[0]=']';}
 	if(a==0xf9){tmp0[0]='[';}
@@ -427,7 +427,7 @@ void	rtrk_dis(int p,int ad,int line)
 
       for(i=0;i<32;i++){
 	if(rpar[i][0]==2){
-	  unsigned char	a;
+	  uint8_t	a;
 	  a=rpat[i][0];tmp0[0]='/';
 	  if(a==0xf8){tmp0[0]=']';}
 	  if(a==0xf9){tmp0[0]='[';}
@@ -467,7 +467,7 @@ void	rtrk_dis(int p,int ad,int line)
   {
     int	i=63,a=0,cu=0,ct,b=1;
     while(i>=0){
-      unsigned char	c=rpat[i][0];
+      uint8_t	c=rpat[i][0];
       if( c<0xf8 ){
 	if(b==1){a=a+rpar[i][2];}else{a=a+rpar[i][2]*b;}
       }else{
@@ -547,7 +547,7 @@ void	rtopat(int me)
   radr[0]=ad;
 
   while(1){
-    unsigned char	a,b,c,d;
+    uint8_t	a,b,c,d;
     a=trk[track][ad];b=trk[track][ad+1];c=trk[track][ad+2];d=trk[track][ad+3];
     if(xp>63){
       msg(_("This track has too many steps. Cannot edit."));
@@ -661,10 +661,10 @@ void	rsttrc(int *no,int *cx,int flg,int pg)
   int	me_ad[2048];
   int	max;
   int	lpad[18],lprt[18];
-  unsigned char lpco[18];
-  unsigned char	*ptr;
+  uint8_t lpco[18];
+  uint8_t	*ptr;
 
-  ptr=(unsigned char *)trk[track];
+  ptr=(uint8_t *)trk[track];
   max=add_set(track,me_ad);
 
   skf=poft>>16;ofs=poft&0xffff;
@@ -687,7 +687,7 @@ void	rsttrc(int *no,int *cx,int flg,int pg)
     if(skf!=0){if(j==0){i=0;}else{j--;}}
 
     while(j>0 || i>0){
-      unsigned char	ca;
+      uint8_t	ca;
     loop1:			ca=ptr[ad];ad+=4;if(ca==0xf7){goto loop1;}
     if(ca>0xfd ){ad-=4;break;}
 

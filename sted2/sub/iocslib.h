@@ -18,7 +18,7 @@ extern "C" {
 struct _x68_fntbuf {
   int16_t x1;                  /* dots of x-dir */
   int16_t y1;                  /* dots of y-dir */
-  unsigned char buffer[72];  /* reading buffer */
+  uint8_t buffer[72];  /* reading buffer */
 };
 
 #define X68_FNTBUF _x68_fntbuf

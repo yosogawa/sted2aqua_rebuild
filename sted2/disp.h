@@ -17,14 +17,14 @@ void inmd_disp(void);
 
 void path_cut(char *fpath, char *fname);
 void path_set(char *path);
-void fonread(unsigned char *buf);
+void fonread(uint8_t *buf);
 void fonload(char *fi);
-void fonset(unsigned char *buf);
+void fonset(uint8_t *buf);
 void sinit(void);
 
 void prn_gspanel(int cx);
-void scpanel_dsp(int x, int y, unsigned char *buf);
-void scinst_dsp(int x, int y, unsigned char *buf);
+void scpanel_dsp(int x, int y, uint8_t *buf);
+void scinst_dsp(int x, int y, uint8_t *buf);
 
 char *fstr(int val, int len);
 char *spadd(char *s, int c);
@@ -41,9 +41,9 @@ int  inkey2(void);
 int  inkey3(void);
 void snsclr(void);
 void spcut(char *st);
-int  knck(unsigned char *st, int p);
-int  str_search(unsigned char *tmp0, unsigned char *tmp1);
-int  str_last(unsigned char *tmp0);
+int  knck(const char *st, int p);
+int  str_search(const char *tmp0, const char *tmp1);
+int  str_last(const char *tmp0);
 int  str_val(char *s);
 void fnc_dis(int n);
 void home2(int y);

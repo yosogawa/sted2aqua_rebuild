@@ -22,7 +22,7 @@ int open_midi_port( char * );
 void close_midi_port( void );
 int get_midi_data( void );
 int is_midi_in( void );
-void put_midi_data( char );
+void put_midi_data( uint8_t );
 
 #endif /* _MIDI_IN_H */
 

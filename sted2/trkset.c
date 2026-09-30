@@ -785,7 +785,7 @@ void	ts_mix(int tr1,int tr2,int tr3)
 /***************************/
 void	ts_measend(int tr1,int sh)
 {
-  static	unsigned char	bars[4*7]={
+  static	uint8_t	bars[4*7]={
     0xf9,0,0,0, 0xf9,0,0,0, 0,48,0,0, 0xf8,4,0,0, 0,0,0,0,
     0xfd,0,0,0, 0xf8,3,0,0};
 

@@ -23,7 +23,7 @@ int	gpal_no[16]={
   11*2048+14*2,14*2048+17*2, 17*2048,31*2048,31*2048+31*2,
   17*64+17*2048,31*64+31*2048,16*64+16*2048+16*2,31*64+31*2048+31*2};
 
-unsigned char	stgt_def[30]={
+uint8_t	stgt_def[30]={
   192,144, 96, 72, 48, 36, 24, 18, 12,  6,
   188,140, 92, 68, 45, 34, 22, 16, 10,  5,
   1, 15, 29, 43, 57, 71, 85, 99,113,127};
@@ -31,10 +31,10 @@ unsigned char	stgt_def[30]={
 
 char	tim_asin2[33];
 char	defrhyna[32][15];
-unsigned char	defrhyno[32][2];
+uint8_t	defrhyno[32][2];
 
 char	def_user_exc_memo[8][25];
-unsigned char	def_user_exc_data[8][24];
+uint8_t	def_user_exc_data[8][24];
 
 
 
@@ -269,7 +269,7 @@ int	defload(char *fi,int md)
   top:
     n=0;
     while(1){
-      unsigned char	a;
+      uint8_t	a;
     loop:
       a=dat[ad++];
       ln--;if(ln==0){ln=fread(dat,1,work_size,fp);ad=0;if(ln==0){break;}}
@@ -1146,7 +1146,7 @@ int	defsave(char *fi,int md,int mutef,int initf)
 }
 
 /***************************//*4.66(2.18) 4.00(1.85)*/
-char	*exc_str(unsigned char *li,int ln,int md)
+char	*exc_str(uint8_t *li,int ln,int md)
 {
   char	tmp0[1024];
   int	i=0;

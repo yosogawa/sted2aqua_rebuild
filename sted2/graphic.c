@@ -18,16 +18,16 @@ void    txcur(int, int, int, int, int);
 
 /***************************/
 /*
-  void	g_print(int x,int y,unsigned char *s,int c)
+  void	g_print(int x,int y,uint8_t *s,int c)
   {
   int	sta;
   int16_t	j;
   uint16_t	a;
-  unsigned char	pat;
+  uint8_t	pat;
 
   uint16_t	*gptr= (uint16_t*)(GVRAM);
   uint16_t	*gptr2;
-  unsigned char	*pp;
+  uint8_t	*pp;
 
   struct	FNTBUF	*fntb,buf;
   fntb=&buf;

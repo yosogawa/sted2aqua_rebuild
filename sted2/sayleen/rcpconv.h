@@ -30,20 +30,20 @@
 
 #include <stddef.h>
 
-extern int rcpconv( unsigned char *,  /* Pointer to RCP data */
+extern int rcpconv( uint8_t *,  /* Pointer to RCP data */
 		     size_t,           /* Length (bytes) of RCP data */
-		     unsigned char **, /* Destination of conversion */
-		     unsigned char *   /* Copyright notice */
+		     uint8_t **, /* Destination of conversion */
+		     const char * /* Copyright notice */
 		     );
 
 extern int rcpconv_with_notice(
-		     unsigned char *,  /* Pointer to RCP data */
+		     uint8_t *,  /* Pointer to RCP data */
 		     size_t,           /* Length (bytes) of RCP data */
-		     unsigned char **, /* Destination of conversion */
-		     unsigned char *,  /* Copyright notice */
-		     unsigned char *,  /* Converter's command name */
-		     unsigned char *,  /* Filename of original RCP file */
-		     unsigned char *   /* Timestamp of original RCP file */
+		     uint8_t **, /* Destination of conversion */
+		     const char *,  /* Copyright notice */
+		     const char *,  /* Converter's command name */
+		     const char *,  /* Filename of original RCP file */
+		     const char *   /* Timestamp of original RCP file */
 		     );
 
 #endif /* _RCPCONV_H_ */

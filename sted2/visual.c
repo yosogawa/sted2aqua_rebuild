@@ -35,7 +35,7 @@ int	vis_edit(int po,int ln,int ssh)
 
 	int	para[769],step[769],step2[769];
 	char	tmp9[64];
-	unsigned char *ptr=trk[track];
+	uint8_t *ptr=trk[track];
 	int	me_ad[2048];
 
 if(cnfflag&0x4000){ssh=1-(ssh&1);}
@@ -208,7 +208,7 @@ reco:
 
 		i=po;
 		while(i>0){
-			unsigned char	d;
+			uint8_t	d;
 top:
 			i=i-4;d=ptr[i];
 			if(vmo==0){
@@ -816,7 +816,7 @@ if(excget){
 int	vis_a_in(int po,int ln,int *para,int *step,int vmo)
 {
 	int	ad,i,j,no=0,st=0;
-	unsigned char *ptr=trk[track];
+	uint8_t *ptr=trk[track];
 
 	ad=po;
 	for(i=0;i<ln;i+=4){
@@ -828,7 +828,7 @@ int	vis_a_in(int po,int ln,int *para,int *step,int vmo)
 		}else{
 			if(vmo<128){
 				if(ptr[ad]==0xeb){
-					unsigned char cc=ptr[ad+2];
+					uint8_t cc=ptr[ad+2];
 					step[no]=0;if(vmo==cc){para[no++]=ptr[ad+3];}
 				}
 			}else{
@@ -858,7 +858,7 @@ int	vis_a_in(int po,int ln,int *para,int *step,int vmo)
 int	vis_a_in_co(int po,int ln,int vmo)
 {
 	int	ad,i,no=0;
-	unsigned char *ptr=trk[track];
+	uint8_t *ptr=trk[track];
 
 	ad=po;
 	for(i=0;i<ln;i+=4){
@@ -880,7 +880,7 @@ int	vis_a_in_co(int po,int ln,int vmo)
 int	vis_a_in_st(int po,int ln)
 {
 	int	ad,i,st=0;
-	unsigned char *ptr=trk[track];
+	uint8_t *ptr=trk[track];
 
 	ad=po;
 	for(i=0;i<ln;i+=4){
@@ -896,7 +896,7 @@ int	vis_a_in_st(int po,int ln)
 void	vis_a_out(int po,int ln,int *para,int *step,int vmo)
 {
 	int	ad,i,j,no=0;
-	unsigned char *ptr=trk[track];
+	uint8_t *ptr=trk[track];
 
 	ad=po;
 	for(i=0;i<ln;i+=4){

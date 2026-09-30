@@ -12,7 +12,7 @@
 
 
 /*
-  void memcpy_l( unsigned char *dest, unsigned char *src , int len )
+  void memcpy_l( uint8_t *dest, uint8_t *src , int len )
 
    copies len bytes from src to dest
 
@@ -20,7 +20,7 @@
    by coding long-word copy routine.
  */
 
-void memcpy_l( unsigned char *dest, unsigned char *src, int len ) {
+void memcpy_l( uint8_t *dest, uint8_t *src, int len ) {
 
   memmove( (void *)dest, (void *)src, (size_t)len );
   return;

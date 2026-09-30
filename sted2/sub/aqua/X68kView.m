@@ -75,8 +75,8 @@ static uint32_t sGraphPalette[16] = {
 //  and 0xa0-0xdf (hankaku kana).
 //  One character is represented by 16-byte bitmap.
 
-static unsigned char *sFontData;  /* 16*160 */
-static unsigned char *sKanjiData; /* 32*47*188 */
+static uint8_t *sFontData;  /* 16*160 */
+static uint8_t *sKanjiData; /* 32*47*188 */
 
 #if 1
 #define _NSLog NSLog
@@ -84,7 +84,7 @@ static unsigned char *sKanjiData; /* 32*47*188 */
 inline void  _NSLog() {}
 #endif
 
-static unsigned char sKeyTable[128] = {
+static uint8_t sKeyTable[128] = {
 	/*08    19    2a    3b    4c    5d    6e    7f  */
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x0f, 0x10, 0x00, 0x00, 0x00, 0x1d, 0x00, 0x00,
@@ -104,7 +104,7 @@ static unsigned char sKeyTable[128] = {
 	0x2b, 0x16, 0x2a, 0x1c, 0x0e, 0x29, 0x0d, 0x00  /* xyz{|}~  */
 };
 
-static unsigned char sPadKeyTable[64] = {
+static uint8_t sPadKeyTable[64] = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x0f, 0x10, 0x00, 0x00, 0x00, 0x4e, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -539,7 +539,7 @@ s_RegisterKeyDown(int ch)
 	NSTextField *tf = (NSTextField *)control;
 	NSString *str = [tf stringValue];
 	char *buf = (char *)sRequestAppKitArgs[1];
-	int len = (int)sRequestAppKitArgs[2];
+	int len = (int)(intptr_t)sRequestAppKitArgs[2];
 	if (command == @selector(insertNewline:)) {
 		if ([str getCString:buf maxLength:len encoding:NSShiftJISStringEncoding]) {
 			[tf removeFromSuperview];
@@ -776,7 +776,7 @@ XSTed_register_midi_device(const char *str)
 	char buf[128];
 	char *p, *q, *r;
 	int n;
-	unsigned char input_flag;
+	uint8_t input_flag;
 
 	NSUserDefaults *def = [NSUserDefaults standardUserDefaults];
 	
@@ -1862,7 +1862,7 @@ s_MacSelectFile(void **args)
 	
 	fna = (char *)args[0];
 	path = (char *)args[1];
-	is_save = (int)args[2];
+	is_save = (int)(intptr_t)args[2];
 	mes = (const char *)args[3];
 	ext = (const char *)args[4];
 	
@@ -1906,7 +1906,7 @@ static void
 s_MacErrorBox(void **args)
 {
 	const char *mes = (const char *)args[0];
-	int icon = (int)args[1];
+	int icon = (int)(intptr_t)args[1];
 	NSAlert *alert = [NSAlert alertWithMessageText:nil defaultButton:nil alternateButton:nil otherButton:nil informativeTextWithFormat:@"%s", mes];
 	[alert setAlertStyle:icon]; /* 0: warning, 1: information, 2: critical */
 	[alert runModal];
@@ -1917,8 +1917,8 @@ static void
 s_line_input(void **args)
 {
 	char *buf = (char *)args[0];
-	int len = (int)args[1];
-	int flag = (int)args[2];  /*  1 on first call, 0 otherwise  */
+	int len = (int)(intptr_t)args[1];
+	int flag = (int)(intptr_t)args[2];  /*  1 on first call, 0 otherwise  */
 	int x, y, width;
 	NSRect frame;
 	NSTextField *tf;
@@ -1943,7 +1943,7 @@ s_line_input(void **args)
 void
 MacSelectFile(char *fna, char *path, int is_save, const char *mes, const char *ext)
 {
-	void *args[] = {(void *)s_MacSelectFile, (void *)fna, (void *)path, (void *)is_save, (void *)mes, (void *)ext};
+	void *args[] = {(void *)s_MacSelectFile, (void *)fna, (void *)path, (void *)(intptr_t)is_save, (void *)mes, (void *)ext};
 	sRequestAppKitArgs = args;
 	sRequestAppKitCall = 1;
 	while (sRequestAppKitCall == 1) {
@@ -1954,7 +1954,7 @@ MacSelectFile(char *fna, char *path, int is_save, const char *mes, const char *e
 void
 MacErrorBox(const char *mes, int icon)
 {
-	void *args[] = {(void *)s_MacErrorBox, (void *)mes, (void *)icon};
+	void *args[] = {(void *)s_MacErrorBox, (void *)mes, (void *)(intptr_t)icon};
 	sRequestAppKitArgs = args;
 	sRequestAppKitCall = 2;
 	while (sRequestAppKitCall == 2) {
@@ -1965,7 +1965,7 @@ MacErrorBox(const char *mes, int icon)
 void
 line_input(char *buf, int len)
 {
-	void *args[] = {(void *)s_line_input, (void *)buf, (void *)len, (void *)1};
+	void *args[] = {(void *)s_line_input, (void *)buf, (void *)(intptr_t)len, (void *)(intptr_t)1};
 	sRequestAppKitArgs = args;
 	sRequestAppKitCall = 3;
 	while (sRequestAppKitCall == 3) {

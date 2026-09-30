@@ -11,13 +11,13 @@
 
 #include "sted.h"
 
-void scpanel_dsp( int x, int y, unsigned char *dp ) {
+void scpanel_dsp( int x, int y, uint8_t *dp ) {
 
   /* not implemented */
   return;
 }
 
-void scinst_dsp ( int x, int y, unsigned char *dp ) {
+void scinst_dsp ( int x, int y, uint8_t *dp ) {
 
   /* not implemented */
   return;

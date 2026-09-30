@@ -56,7 +56,7 @@ int  rcp_buf_put(char *ptr, int po, int ln);
 int  rcp_buf_get(char *ptr, int po, int ln);
 void dclr(void);
 void same_cluc(int tr, int ofset);
-int  gomi_cut(unsigned char *ptr, int size);
+int  gomi_cut(uint8_t *ptr, int size);
 void dinit(void);
 
 /* defload.c */
@@ -150,7 +150,7 @@ void aft_tch(int p);
 void pt_bend(int p);
 void run_sts(int p);
 int  num_check(int num, int limit);
-void proc_excl(unsigned char *text, int length, int code);
+void proc_excl(uint8_t *text, int length, int code);
 void proc_next(void);
 void track_end(void);
 void rec_conv(int mm);
@@ -159,9 +159,9 @@ int  meas_adjust(int i, int topm);
 int  meas_adj_sub(int ln, int st);
 
 /* exclu.c */
-void excins(unsigned char *da, int co, int nn);
-void excdel(unsigned char *da, int co, int nn);
-void excsum(unsigned char *da, int nn);
+void excins(uint8_t *da, int co, int nn);
+void excdel(uint8_t *da, int co, int nn);
+void excsum(uint8_t *da, int nn);
 void exc_dis(int no, int cx, int co, int m);
 int  dot_ed(int dx, int co);
 
@@ -182,7 +182,7 @@ void file_back(char *fna);
 
 typedef struct {
   char          name[23];
-  unsigned char far;
+  uint8_t far;
   unsigned int  fln;
   unsigned int  ftm;
   unsigned int  fdt;

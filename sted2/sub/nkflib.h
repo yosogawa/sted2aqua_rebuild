@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-unsigned char *jstrupr(unsigned char *st);
+char *jstrupr(char *st);
 
 
 /*

@@ -51,9 +51,9 @@
 
 /* ------------------------------------------------------------------- */
 
-static unsigned char *rcptomid_name      = "rcptomid";
-static unsigned char *undefined_date     = "2000-01-01";
-static unsigned char *undefined_filename = "(NO NAME)";
+static const char *rcptomid_name      = "rcptomid";
+static const char *undefined_date     = "2000-01-01";
+static const char *undefined_filename = "(NO NAME)";
 
 /* ------------------------------------------------------------------- */
 
@@ -85,7 +85,7 @@ int rcptomid_set_new_event( RCP_DATA *, int );
 
 static int flush_event( RCP_DATA *, int );
 static int set_tempo_track( RCP_DATA * );
-static unsigned char *set_smf_data( RCP_DATA * );
+static uint8_t *set_smf_data( RCP_DATA * );
 static int insert_tempo_event( RCP_DATA * );
 static int init_track_header( RCP_DATA *, int );
 
@@ -93,9 +93,9 @@ static int init_track_header( RCP_DATA *, int );
 
 /* Converter engine */
 
-unsigned char *rcptomid( RCP_DATA *rcp ) {
+uint8_t *rcptomid( RCP_DATA *rcp ) {
 
-  unsigned char *smf;
+  uint8_t *smf;
   int track;
 
   int gate_min;
@@ -257,7 +257,7 @@ int rcptomid_init_track_buffer( RCP_DATA *rcp ) {
     rcp->track[track].all_notes_expired = FLAG_TRUE;
 
     rcp->track[track].smf =
-      (unsigned char *)malloc(sizeof(unsigned char)*RCP_DEFAULT_SMF_SIZE);
+      (uint8_t *)malloc(sizeof(uint8_t)*RCP_DEFAULT_SMF_SIZE);
     if ( rcp->track[track].smf == NULL ) {
       /* Memory exhaust */
       return 1;
@@ -273,8 +273,8 @@ int rcptomid_init_track_buffer( RCP_DATA *rcp ) {
   TES_top->absolute_step = 0;    /* Initial value */
   TES_top->next = NULL;
 
-  rcp->smf_tempo_track = (unsigned char *)malloc(sizeof(unsigned char)*RCP_DEFAULT_SMF_SIZE);
-  if ( rcp->smf_tempo_track == (unsigned char *)NULL ) {
+  rcp->smf_tempo_track = (uint8_t *)malloc(sizeof(uint8_t)*RCP_DEFAULT_SMF_SIZE);
+  if ( rcp->smf_tempo_track == NULL ) {
     /* Memory exhaust */
     return 1;
   }
@@ -288,7 +288,7 @@ int rcptomid_read_rcp_header( RCP_DATA *rcp ) {
   int i,j;
   int t;
   int base,size,max_st;
-  unsigned char *ptr;
+  uint8_t *ptr;
 
   ptr = rcp->data;
 
@@ -437,7 +437,7 @@ static int init_track_header( RCP_DATA *rcp, int track ) {
   rcp->result_smf[i++] = META_SEQNAME;
   rcp->result_smf[i++] = RCP_MAX_COMMENT_SIZE;
   for ( j=0 ; j<RCP_MAX_COMMENT_SIZE ; j++ ) {
-    unsigned char c = rcp->track[track].comment[j];
+    uint8_t c = rcp->track[track].comment[j];
     if ( c == 0 ) c = 0x20;
     rcp->result_smf[i++] = c;
   }
@@ -464,7 +464,7 @@ static int init_track_header( RCP_DATA *rcp, int track ) {
 int rcptomid_set_new_event( RCP_DATA *rcp, int t ) {
 
   int ptr;
-  unsigned char *data;
+  uint8_t *data;
   int ret;
 
   ret = 0;
@@ -739,7 +739,7 @@ static int flush_event( RCP_DATA *rcp, int track ) {
       int size;
       size = (1+ptr/RCP_DEFAULT_SMF_SIZE) * RCP_DEFAULT_SMF_SIZE;
       if ( (rcp->track[track].smf = realloc( rcp->track[track].smf,
-		    sizeof(unsigned char)*size )) == (unsigned char *)NULL ) {
+		    sizeof(uint8_t)*size )) == NULL ) {
 	/* Memory exhaust */
 	return 1;
       }
@@ -754,7 +754,7 @@ static int flush_event( RCP_DATA *rcp, int track ) {
       int size;
       size = (1+ptr/RCP_DEFAULT_SMF_SIZE) * RCP_DEFAULT_SMF_SIZE;
       if ( (rcp->track[track].smf = realloc( rcp->track[track].smf,
-		    sizeof(unsigned char)*size )) == (unsigned char *)NULL ) {
+		    sizeof(uint8_t)*size )) == NULL ) {
 	/* Memory exhaust */
 	return 1;
       }
@@ -803,8 +803,8 @@ static int set_tempo_track ( RCP_DATA *rcp ) {
   int p;
   int dt,*d;
   int i,j,k;
-  unsigned char *data;
-  unsigned char buf[1024];
+  uint8_t *data;
+  uint8_t buf[1024];
 
   p = rcp->smf_tempo_track_ptr;
   data = rcp->smf_tempo_track;
@@ -816,7 +816,7 @@ static int set_tempo_track ( RCP_DATA *rcp ) {
   data[p++] = MIDI_META;
   data[p++] = META_SEQNAME;
   for ( i=0 ; i<64 ; i++ ) {
-    unsigned char c = rcp->title[i];
+    uint8_t c = rcp->title[i];
     if ( c == 0 ) break;
   }
   data[p++] = i;
@@ -914,7 +914,7 @@ static int set_tempo_track ( RCP_DATA *rcp ) {
       int size;
       size = (1+p/RCP_DEFAULT_SMF_SIZE) * RCP_DEFAULT_SMF_SIZE;
       if ( (rcp->smf_tempo_track = realloc( rcp->smf_tempo_track,
-		    sizeof(unsigned char)*size )) == (unsigned char *)NULL ) {
+		    sizeof(uint8_t)*size )) == NULL ) {
 	/* Memory exhaust */
 	return 1;
       }
@@ -942,10 +942,10 @@ static int set_tempo_track ( RCP_DATA *rcp ) {
   return 0;
 }
 
-static unsigned char *set_smf_data( RCP_DATA *rcp ) {
+static uint8_t *set_smf_data( RCP_DATA *rcp ) {
 
   size_t smf_size;
-  unsigned char *smf_data;
+  uint8_t *smf_data;
   int t,tr;
   int ptr;
   int i;
@@ -962,8 +962,8 @@ static unsigned char *set_smf_data( RCP_DATA *rcp ) {
     }
   }
   if ( smf_size > 0xffffffffU ) return NULL;
-  smf_data = (unsigned char *)malloc(sizeof(unsigned char) * smf_size);
-  if ( smf_data == (unsigned char *)NULL )
+  smf_data = (uint8_t *)malloc(sizeof(uint8_t) * smf_size);
+  if ( smf_data == NULL )
     return NULL;
 
   /* Set Header Chunk */

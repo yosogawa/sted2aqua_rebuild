@@ -7,13 +7,13 @@
 #include	"sted.h"
 
 
-unsigned char	bitkey[7][10]={
+uint8_t	bitkey[7][10]={
   "  123456","7890-^\\ "," QWERTYU","IOP@[ AS","DFGHJKL;",":]ZXCVBN","M,./_   "};
 
-unsigned char	keytable[44]="AZSXCFVGBNJMK,L./:_]" "1Q2WE4R5TY7U8I9OP-@^[\\";
+uint8_t	keytable[44]="AZSXCFVGBNJMK,L./:_]" "1Q2WE4R5TY7U8I9OP-@^[\\";
 
 /*C4=60*/
-unsigned char	keycode[44]={
+uint8_t	keycode[44]={
   0 ,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,
   56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77
 };
@@ -34,8 +34,8 @@ void	m_keyb(int ch,int bank,int prg,int velo)
   int	bnk_m,bnk_l,pm,ch2;
   int	a,i;
 
-  unsigned char	onkey[32],onnote[32];
-  unsigned char	s[16],ke[128];
+  uint8_t	onkey[32],onnote[32];
+  uint8_t	s[16],ke[128];
   char	obuf[64];
 
   msg("Music KeyBoard Emulater");

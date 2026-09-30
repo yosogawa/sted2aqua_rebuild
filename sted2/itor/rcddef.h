@@ -1,80 +1,79 @@
-#include <stdint.h>
 /*--------------------------------------------------------------*/
 /* rcddef.h							*/
 /*--------------------------------------------------------------*/
-/* RCD ¥É¥é¥¤¥Ğ¡¦¥¢¥¯¥»¥¹ÍÑ¹½Â¤ÂÎÄêµÁ   RCD v3.01 °Ê¹ßÍÑ	*/
+/* RCD ãƒ‰ãƒ©ã‚¤ãƒãƒ»ã‚¢ã‚¯ã‚»ã‚¹ç”¨æ§‹é€ ä½“å®šç¾©   RCD v3.01 ä»¥é™ç”¨    */
 /*--------------------------------------------------------------*/
-/*								*/
-/* RCD ¤òÍøÍÑ¤¹¤ë¥×¥í¥°¥é¥à¤Ï¡¢					*/
-/* 								*/
-/* ËÜ¥Õ¥¡¥¤¥ë¤ò¥¤¥ó¥¯¥ë¡¼¥É¤·¤Æ²¼¤µ¤¤¡£				*/
-/* 								*/
-/* extern struct RCD_HEAD *rcd;   <--- ¥İ¥¤¥ó¥¿¤Î³°ÉôÄêµÁ¤ò¤·¡¢	*/
-/* 								*/
-/* rcdcheck ¤ò¥³¡¼¥ë¤·¤Æ¹½Â¤ÂÎ¤Î¥¢¥É¥ì¥¹¤òµá¤á¤¿¸å¤Ë¡¢		*/
-/* 								*/
-/* rcd->fmt ¤Ê¤É¤Î¤è¤¦¤Ë¥¢¥¯¥»¥¹¤¹¤ë¡£				*/
-/* 								*/
-/* ¥ë¡¼¥Á¥ó¥³¡¼¥ë¤Ï¡¢(*rcd->begin)() ¤Î¤è¤¦¤Ë¤¹¤ë¡£		*/
+/*                                */
+/* RCD ã‚’åˆ©ç”¨ã™ã‚‹ãƒ—ãƒ­ã‚°ãƒ©ãƒ ã¯ã€                    */
+/*                                 */
+/* æœ¬ãƒ•ã‚¡ã‚¤ãƒ«ã‚’ã‚¤ãƒ³ã‚¯ãƒ«ãƒ¼ãƒ‰ã—ã¦ä¸‹ã•ã„ã€‚                */
+/*                                 */
+/* extern struct RCD_HEAD *rcd;   <--- ãƒã‚¤ãƒ³ã‚¿ã®å¤–éƒ¨å®šç¾©ã‚’ã—ã€    */
+/*                                 */
+/* rcdcheck ã‚’ã‚³ãƒ¼ãƒ«ã—ã¦æ§‹é€ ä½“ã®ã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’æ±‚ã‚ãŸå¾Œã«ã€        */
+/*                                 */
+/* rcd->fmt ãªã©ã®ã‚ˆã†ã«ã‚¢ã‚¯ã‚»ã‚¹ã™ã‚‹ã€‚                */
+/*                                 */
+/* ãƒ«ãƒ¼ãƒãƒ³ã‚³ãƒ¼ãƒ«ã¯ã€(*rcd->begin)() ã®ã‚ˆã†ã«ã™ã‚‹ã€‚        */
 /*								*/
 /*--------------------------------------------------------------*/
 
-#define	TRK_NUM	36			/* ¥È¥é¥Ã¥¯¿ô		*/
-#define	CHL_NUM	34 			/* ¥Á¥ã¥Í¥ë¿ô		*/
-					/*  32/33 ¤ÏÌ¤»ÈÍÑ	*/
+#define	TRK_NUM	36			/* ãƒˆãƒ©ãƒƒã‚¯æ•°		*/
+#define	CHL_NUM	34 			/* ãƒãƒ£ãƒãƒ«æ•°		*/
+					/*  32/33 ã¯æœªä½¿ç”¨	*/
 
 struct RCD_HEAD {
 	char	title[4];		/* "RCD "		*/
 	char	version[4];		/* "N.NN"		*/
 	int	staymark;
 
-	char	data_valid;		/* RCP/MCP Í­¸ú»ş 1	*/
-	char	tone_valid;		/* CM6/MTD Í­¸ú»ş 1	*/
-	char	word_valid;		/* WRD Í­¸ú»ş 1		*/
-	char	fmt;			/* MCP:0 RCP:1 R36:2	*/
+	uint8_t	data_valid;		/* RCP/MCP æœ‰åŠ¹æ™‚ 1	*/
+	uint8_t	tone_valid;		/* CM6/MTD æœ‰åŠ¹æ™‚ 1	*/
+	uint8_t	word_valid;		/* WRD æœ‰åŠ¹æ™‚ 1		*/
+	uint8_t	fmt;			/* MCP:0 RCP:1 R36:2	*/
 
-	char	*data_adr;		/* MCP/RCP address	*/
-	char	*tone_adr;		/* MTD/CM6 address	*/
-	char	*word_adr;		/* WRD address		*/
-	char	*gsd_adr;		/* GSD address		*/ /*(v2.92)*/
+	uint8_t	*data_adr;		/* MCP/RCP address	*/
+	uint8_t	*tone_adr;		/* MTD/CM6 address	*/
+	uint8_t	*word_adr;		/* WRD address		*/
+	uint8_t	*gsd_adr;		/* GSD address		*/ /*(v2.92)*/
 
-	void	(*init)( void );	/* ¥Ñ¥é¥á¡¼¥¿½é´ü²½	*/ /* void (v2.70)*/
-	void	(*setup)( void );	/* ²»¿§¥Ç¡¼¥¿½ñ¤­¹ş¤ß	*/ /* void (v2.70)*/
-	void	(*begin)( void );	/* ±éÁÕ³«»Ï		*/ /* void (v2.70)*/
-	void	(*end)( void );		/* ±éÁÕ½ªÎ»		*/ /* void (v2.70)*/
+	void	(*init)( void );	/* ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿åˆæœŸåŒ–	*/ /* void (v2.70)*/
+	void	(*setup)( void );	/* éŸ³è‰²ãƒ‡ãƒ¼ã‚¿æ›¸ãè¾¼ã¿	*/ /* void (v2.70)*/
+	void	(*begin)( void );	/* æ¼”å¥é–‹å§‹		*/ /* void (v2.70)*/
+	void	(*end)( void );		/* æ¼”å¥çµ‚äº†		*/ /* void (v2.70)*/
 
-	void	(*md_put)( char );	/* MIDI 1 byte ½ĞÎÏ	*/ /* void (v2.70)*/
-	int	(*md_get)( void );	/* MIDI 1 byte ÆşÎÏ¡¡(-1)ÆşÎÏ¤Ê¤·*/ /*(v2.70)*/
-	void	(*md_put2)( char );	/* MIDI 1 byte ½ĞÎÏ(dual)*/ /* void (v2.92)*/
-	void	(*mix_out)( char * );	/* MIX OUT(buff adrs)end=$ff*/ /*(v3.01)*/
+	void	(*md_put)( uint8_t );	/* MIDI 1 byte å‡ºåŠ›	*/ /* void (v2.70)*/
+	int	(*md_get)( void );	/* MIDI 1 byte å…¥åŠ› (-1)å…¥åŠ›ãªã—*/ /*(v2.70)*/
+	void	(*md_put2)( uint8_t );	/* MIDI 1 byte å‡ºåŠ›(dual)*/ /* void (v2.92)*/
+	void	(*mix_out)( uint8_t * );	/* MIX OUT(buff adrs)end=$ff*/ /*(v3.01)*/
 
-	int	act;			/* 1:±éÁÕÃæ		*/
+	int	act;			/* 1:æ¼”å¥ä¸­		*/
 	int	sts;			/* 0:RUN 1:STOP 2:SEARCH 3:CUE	*/ /*(v2.70)*/
 	int	tar_trk;		/* TARGET TRACK		*/
 	int	tar_bar;		/* TARGET BAR		*/
 
 	char	dummy1[ 18 ];
 
-	int	tempo;			/* ¸½ºß¤Î¥Æ¥ó¥İ		*/
-	int	basetempo;		/* ¸µ¤Î¥Æ¥ó¥İ		*/
+	int	tempo;			/* ç¾åœ¨ã®ãƒ†ãƒ³ãƒ		*/
+	int	basetempo;		/* å…ƒã®ãƒ†ãƒ³ãƒ		*/
 
-	int	totalcount;		/* ²»Éä¥Õ¥¡¥¤¥ëÄ¹	*/
-	char	filename[30];		/* ²»Éä¥Õ¥¡¥¤¥ëÌ¾	*/
-	char	tonename[30];		/* ²»¿§¥Õ¥¡¥¤¥ëÌ¾	*/
+	int	totalcount;		/* éŸ³ç¬¦ãƒ•ã‚¡ã‚¤ãƒ«é•·	*/
+	char	filename[30];		/* éŸ³ç¬¦ãƒ•ã‚¡ã‚¤ãƒ«å	*/
+	char	tonename[30];		/* éŸ³è‰²ãƒ•ã‚¡ã‚¤ãƒ«å	*/
 
 	char	dummy2[ 72 ];
 
-	int	bufcap;			/* ¥Ğ¥Ã¥Õ¥¡ÍÆÎÌ		*/  /*(v2.70)*/
+	int	bufcap;			/* ï¿½Ğ¥Ã¥Õ¥ï¿½ï¿½ï¿½ï¿½ï¿½		*/  /*(v2.70)*/
 
-	int	MIDI_avl;		/* MIDI ½ĞÎÏÍ­¸ú(trk.no)*/  /*(v2.80)*/
-	unsigned char MIDI_req[16];	/* MIDI ½ĞÎÏÍ×µá¥Ğ¥Ã¥Õ¥¡*/  /*(v2.80)*/
-		/* (80) (ch) ...	:Á¬ÈÙÁªİ¼*/
-		/* (90) (ke) (ve)	:É°Äµ	*/  /*(v2.92)*/
-		/* (b0) (xx) (xx)	:ºİÄÛ°ÙÁªİ¼*/
-		/* (c0) (xx) ...	:ÌßÛ¸Ş×ÑÁªİ¼Ş	*/
-		/* (e0) (xx) (xx)	:Ëß¯ÁÍŞİÀŞ°	*/
-		/* (f0) (hh) (mm) (ll) (xx) :ÒÓØ×²Ä	*/
-		/* (f1) (hh) (mm) (ll) (xx) (id):ÒÓØ×²Ä	*/  /*(v2.92)*/
+	int	MIDI_avl;		/* MIDI Î©â€“Å’Å“Ã•â‰ âˆË™(trk.no)*/  /*(v2.80)*/
+	uint8_t MIDI_req[16];	/* MIDI Î©â€“Å’Å“Ã•â—ŠÂµÂ·â€¢â€“â€¢âˆšâ€¢â€™â€¢Â°*/  /*(v2.80)*/
+		/* (80) (ch) ...	:Â¡Â¨Â»Å¸Â¡â„¢â€ºÂº*/
+		/* (90) (ke) (ve)	:â€¦âˆÆ’Âµ	*/  /*(v2.92)*/
+		/* (b0) (xx) (xx)	:âˆ«â€ºÆ’â‚¬âˆÅ¸Â¡â„¢â€ºÂº*/
+		/* (c0) (xx) ...	:Ãƒï¬‚â‚¬âˆï¬â—Šâ€”Â¡â„¢â€ºÂºï¬	*/
+		/* (e0) (xx) (xx)	:Ã€ï¬‚Ã˜Â¡Ã•ï¬â€ºÂ¿ï¬âˆ	*/
+		/* (f0) (hh) (mm) (ll) (xx) :â€œâ€Ã¿â—Šâ‰¤Æ’	*/
+		/* (f1) (hh) (mm) (ll) (xx) (id):â€œâ€Ã¿â—Šâ‰¤Æ’	*/  /*(v2.92)*/
 
 	char	LA_VOL;			/* LA part master vol   */ /*(v2.80)*/
 	char	LA_RVB_Mode;		/* LA part reverb Mode  */ /*(v2.80)*/
@@ -86,152 +85,152 @@ struct RCD_HEAD {
 	char	PCM_RVB_Time;		/* PCM part reverb Time */ /*(v2.80)*/
 	char	PCM_RVB_Level;		/* PCM part reverb Level*/ /*(v2.80)*/
 
-	int	filter_mode;		/* 0:Ìµ¸ú 1:PRG¤Î¤ß 2:LA/PCM¤¢¤ê */ /*(v2.90)*/
-	char	*filter_data;		/* Filter Data¥¢¥É¥ì¥¹	*/ /*(v2.90)*/
+	int	filter_mode;		/* 0:ÃƒÂµâˆË™ 1:PRGÂ§Å’Â§ï¬‚ 2:LA/PCMÂ§Â¢Â§Ã */ /*(v2.90)*/
+	uint8_t	*filter_data;		/* Filter Dataâ€¢Â¢â€¢â€¦â€¢Ãâ€¢Ï€	*/ /*(v2.90)*/
 
 	int	play_mode;		/* 0:normal 1:slow 2:fast 3:slow2 4:fast2 */ /*(v2.92)*/
 	int	mute_mode;		/* 0:off 1:cm64 2:sc55	*/ /*(v2.92)*/
 	int	init_mode;		/* 0:off 1:cm64 2:sc55 3:cm+sc */ /*(v2.92)*/
-	char	scan_mode;		/* key scan flag 0:off 1:on */
-	char	rsmd_mode;		/* midi port flag 0:midi 1:midi+rs/sb 2:rs/sb */
+	uint8_t	scan_mode;		/* key scan flag 0:off 1:on */
+	uint8_t	rsmd_mode;		/* midi port flag 0:midi 1:midi+rs/sb 2:rs/sb */
 	int16_t	fade_time;		/* fade out speed	*/
-	char	fade_count;		/* fade out start flag 128:start 0:end */
-	char	moduletype;		/* panel display 0:cm64 1:sc55 2:cm+sc */
-	char	fade_mode;		/* fade out mode 0:exclusive a:volume 2:expres*/
-	char	timer_mode;		/* RS-MIDI timer mode 0:OPM Timer-A 1:OPM Timer-B */
-	char	midi_clock;		/* MIDI clock out 0:disable 1:enable */
-	char	put_mode;		/* md_put port mode 0:normal 1:midi 2:rs */
-	char	rcd_type;		/* 0:midi+rs-232c 1:midi+polyphon 3:polyphon only */
-	char	sc55_fix;		/* 0:off 1:sc55 capi.down emulate */ /*(v3.01)*/
+	uint8_t	fade_count;		/* fade out start flag 128:start 0:end */
+	uint8_t	moduletype;		/* panel display 0:cm64 1:sc55 2:cm+sc */
+	uint8_t	fade_mode;		/* fade out mode 0:exclusive a:volume 2:expres*/
+	uint8_t	timer_mode;		/* RS-MIDI timer mode 0:OPM Timer-A 1:OPM Timer-B */
+	uint8_t	midi_clock;		/* MIDI clock out 0:disable 1:enable */
+	uint8_t	put_mode;		/* md_put port mode 0:normal 1:midi 2:rs */
+	uint8_t	rcd_type;		/* 0:midi+rs-232c 1:midi+polyphon 3:polyphon only */
+	uint8_t	sc55_fix;		/* 0:off 1:sc55 capi.down emulate */ /*(v3.01)*/
 
-	char	dummyA[19];		/* ³ÈÄ¥ÍÑ¥ê¥¶¡¼¥Ö	*/
+	char	dummyA[19];		/* â‰¥Â»Æ’â€¢Ã•â€”â€¢Ãâ€¢âˆ‚Â°Âºâ€¢Ã·	*/
 
-	char	mt32_mode;		/* mt-32 mode		*/
+	uint8_t	mt32_mode;		/* mt-32 mode		*/
 	int	exc_wait;		/* exclusive send wait	*/
-	char	tim_all;		/* timbre trans mode	*/
+	uint8_t	tim_all;		/* timbre trans mode	*/
 
-	char	gsd_valid;		/* GSD Í­¸ú»ş 1		*/  /*(v2.92)*/
-	char	gsdname[30];		/* GSD¥Õ¥¡¥¤¥ëÌ¾	*/
+	uint8_t	gsd_valid;		/* GSD Ã•â‰ âˆË™ÂªË› 1		*/  /*(v2.92)*/
+	char	gsdname[30];		/* GSDâ€¢â€™â€¢Â°â€¢Â§â€¢ÃÃƒÃ¦	*/
 
-	int	wordcap;		/* word ¥Ğ¥Ã¥Õ¥¡ÍÆÎÌ	*/  /*(v2.92)*/
+	int	wordcap;		/* word â€¢â€“â€¢âˆšâ€¢â€™â€¢Â°Ã•âˆ†Å’Ãƒ	*/  /*(v2.92)*/
 
-	char	dummyC[10];		/* ³ÈÄ¥ÍÑ¥ê¥¶¡¼¥Ö	*/
+	char	dummyC[10];		/* â‰¥Â»Æ’â€¢Ã•â€”â€¢Ãâ€¢âˆ‚Â°Âºâ€¢Ã·	*/
 
-	char	GS_VOL;			/* GS part master vol   */ /*(v2.93)*/
-	char	GS_PAN;			/* GS part master pan   */ /*(v2.93)*/
+	uint8_t	GS_VOL;			/* GS part master vol   */ /*(v2.93)*/
+	uint8_t	GS_PAN;			/* GS part master pan   */ /*(v2.93)*/
 
-	char	GS_RVB_Macro;		/* ¥ê¥Ğ¡¼¥Ö¥Ş¥¯¥í	*/ /*(v2.93)*/
-	char	GS_RVB_Char;		/* ¥ê¥Ğ¡¼¥Ö¡¦¥­¥ã¥é¥¯¥¿¡¼¡¦¥³¥ó¥È¥í¡¼¥ë*/
-	char	GS_RVB_Prelpf;		/* ¥ê¥Ğ¡¼¥Ö¡¦£Ğ£Ò£Å¡¦£Ì£Ğ£Æ¡¦¥³¥ó¥È¥í¡¼¥ë*/
-	char	GS_RVB_Level;		/* ¥ê¥Ğ¡¼¥Ö¡¦¥ì¥Ù¥ë¡¦¥³¥ó¥È¥í¡¼¥ë*/
-	char	GS_RVB_Time;		/* ¥ê¥Ğ¡¼¥Ö¡¦¥¿¥¤¥à¡¦¥³¥ó¥È¥í¡¼¥ë*/
-	char	GS_RVB_Delay;		/* ¥ê¥Ğ¡¼¥Ö¡¦DELAY¡¦FEEDBACK¡¦¥³¥ó¥È¥í¡¼¥ë*/
-	char	GS_RVB_Send;		/* REVERB SEND LEVEL TO CHOURUS */
-	char	GS_RVB_PreDelay;	/* REVERB PREDLY T. */
+	uint8_t	GS_RVB_Macro;		/* â€¢Ãâ€¢â€“Â°Âºâ€¢Ã·â€¢ï¬â€¢Ã˜â€¢ÃŒ	*/ /*(v2.93)*/
+	uint8_t	GS_RVB_Char;		/* â€¢Ãâ€¢â€“Â°Âºâ€¢Ã·Â°Â¶â€¢â‰ â€¢â€â€¢Ãˆâ€¢Ã˜â€¢Ã¸Â°ÂºÂ°Â¶â€¢â‰¥â€¢Ã›â€¢Â»â€¢ÃŒÂ°Âºâ€¢Ã*/
+	uint8_t	GS_RVB_Prelpf;		/* â€¢Ãâ€¢â€“Â°Âºâ€¢Ã·Â°Â¶Â£â€“Â£â€œÂ£â‰ˆÂ°Â¶Â£ÃƒÂ£â€“Â£âˆ†Â°Â¶â€¢â‰¥â€¢Ã›â€¢Â»â€¢ÃŒÂ°Âºâ€¢Ã*/
+	uint8_t	GS_RVB_Level;		/* â€¢Ãâ€¢â€“Â°Âºâ€¢Ã·Â°Â¶â€¢Ãâ€¢Å¸â€¢ÃÂ°Â¶â€¢â‰¥â€¢Ã›â€¢Â»â€¢ÃŒÂ°Âºâ€¢Ã*/
+	uint8_t	GS_RVB_Time;		/* â€¢Ãâ€¢â€“Â°Âºâ€¢Ã·Â°Â¶â€¢Ã¸â€¢Â§â€¢â€¡Â°Â¶â€¢â‰¥â€¢Ã›â€¢Â»â€¢ÃŒÂ°Âºâ€¢Ã*/
+	uint8_t	GS_RVB_Delay;		/* â€¢Ãâ€¢â€“Â°Âºâ€¢Ã·Â°Â¶DELAYÂ°Â¶FEEDBACKÂ°Â¶â€¢â‰¥â€¢Ã›â€¢Â»â€¢ÃŒÂ°Âºâ€¢Ã*/
+	uint8_t	GS_RVB_Send;		/* REVERB SEND LEVEL TO CHOURUS */
+	uint8_t	GS_RVB_PreDelay;	/* REVERB PREDLY T. */
 
-	char	GS_CHO_Macro;		/* ¥³¡¼¥é¥¹¥Ş¥¯¥í	*/
-	char	GS_CHO_Prelpf;		/* ¥³¡¼¥é¥¹¡¦£Ğ£Ò£Å¡¦£Ì£Ğ£Æ¡¦¥³¥ó¥È¥í¡¼¥ë*/
-	char	GS_CHO_Level;		/* ¥³¡¼¥é¥¹¡¦¥ì¥Ù¥ë¡¦¥³¥ó¥È¥í¡¼¥ë*/
-	char	GS_CHO_Feed;		/* ¥³¡¼¥é¥¹¡¦¥Õ¥£¡¼¥É¡¦¥Ğ¥Ã¥¯*/
-	char	GS_CHO_Delay;		/* ¥³¡¼¥é¥¹¡¦£Ä£å£ì£á£ù¡¦¥³¥ó¥È¥í¡¼¥ë*/
-	char	GS_CHO_Rate;		/* ¥³¡¼¥é¥¹¡¦£Ò£á£ô£å¡¦¥³¥ó¥È¥í¡¼¥ë*/
-	char	GS_CHO_Depth;		/* ¥³¡¼¥é¥¹¡¦£Ä£å£ğ£ô£è¡¦¥³¥ó¥È¥í¡¼¥ë*/
-	char	GS_CHO_Send;		/* CHORUS SEND LEVEL TO REVERB */
-	char	GS_CHO_Send_Dly;
+	uint8_t	GS_CHO_Macro;		/* â€¢â‰¥Â°Âºâ€¢Ãˆâ€¢Ï€â€¢ï¬â€¢Ã˜â€¢ÃŒ	*/
+	uint8_t	GS_CHO_Prelpf;		/* â€¢â‰¥Â°Âºâ€¢Ãˆâ€¢Ï€Â°Â¶Â£â€“Â£â€œÂ£â‰ˆÂ°Â¶Â£ÃƒÂ£â€“Â£âˆ†Â°Â¶â€¢â‰¥â€¢Ã›â€¢Â»â€¢ÃŒÂ°Âºâ€¢Ã*/
+	uint8_t	GS_CHO_Level;		/* â€¢â‰¥Â°Âºâ€¢Ãˆâ€¢Ï€Â°Â¶â€¢Ãâ€¢Å¸â€¢ÃÂ°Â¶â€¢â‰¥â€¢Ã›â€¢Â»â€¢ÃŒÂ°Âºâ€¢Ã*/
+	uint8_t	GS_CHO_Feed;		/* â€¢â‰¥Â°Âºâ€¢Ãˆâ€¢Ï€Â°Â¶â€¢â€™â€¢Â£Â°Âºâ€¢â€¦Â°Â¶â€¢â€“â€¢âˆšâ€¢Ã˜*/
+	uint8_t	GS_CHO_Delay;		/* â€¢â‰¥Â°Âºâ€¢Ãˆâ€¢Ï€Â°Â¶Â£Æ’Â£Ã‚Â£ÃÂ£Â·Â£Ë˜Â°Â¶â€¢â‰¥â€¢Ã›â€¢Â»â€¢ÃŒÂ°Âºâ€¢Ã*/
+	uint8_t	GS_CHO_Rate;		/* â€¢â‰¥Â°Âºâ€¢Ãˆâ€¢Ï€Â°Â¶Â£â€œÂ£Â·Â£Ã™Â£Ã‚Â°Â¶â€¢â‰¥â€¢Ã›â€¢Â»â€¢ÃŒÂ°Âºâ€¢Ã*/
+	char	GS_CHO_Depth;		/* â€¢â‰¥Â°Âºâ€¢Ãˆâ€¢Ï€Â°Â¶Â£Æ’Â£Ã‚Â£ï£¿Â£Ã™Â£Ã‹Â°Â¶â€¢â‰¥â€¢Ã›â€¢Â»â€¢ÃŒÂ°Âºâ€¢Ã*/
+	uint8_t	GS_CHO_Send;		/* CHORUS SEND LEVEL TO REVERB */
+	uint8_t	GS_CHO_Send_Dly;
 
-	char	GS_DLY_Macro;		/* ¥Ç¥£¥ì¥¤¥Ş¥¯¥í	*/ /*(v3.01)*/
-	char	GS_DLY_Prelpf;
-	char	GS_DLY_Time_C;
-	char	GS_DLY_Time_L;
-	char	GS_DLY_Time_R;
-	char	GS_DLY_Lev_C;
-	char	GS_DLY_Lev_L;
-	char	GS_DLY_Lev_R;
-	char	GS_DLY_Level;
-	char	GS_DLY_Feed;
-	char	GS_DLY_Send_Rev;
+	uint8_t	GS_DLY_Macro;		/* â€¢Â«â€¢Â£â€¢Ãâ€¢Â§â€¢ï¬â€¢Ã˜â€¢ÃŒ	*/ /*(v3.01)*/
+	uint8_t	GS_DLY_Prelpf;
+	uint8_t	GS_DLY_Time_C;
+	uint8_t	GS_DLY_Time_L;
+	uint8_t	GS_DLY_Time_R;
+	uint8_t	GS_DLY_Lev_C;
+	uint8_t	GS_DLY_Lev_L;
+	uint8_t	GS_DLY_Lev_R;
+	uint8_t	GS_DLY_Level;
+	uint8_t	GS_DLY_Feed;
+	uint8_t	GS_DLY_Send_Rev;
 
-	char	GS_EQ_Low_Freq;
-	char	GS_EQ_Low_Gain;
-	char	GS_EQ_High_Freq;
-	char	GS_EQ_High_Gain;
+	uint8_t	GS_EQ_Low_Freq;
+	uint8_t	GS_EQ_Low_Gain;
+	uint8_t	GS_EQ_High_Freq;
+	uint8_t	GS_EQ_High_Gain;
 
-	char	dummyD[32-16];		/* ³ÈÄ¥ÍÑ¥ê¥¶¡¼¥Ö	*/
+	char	dummyD[32-16];		/* â‰¥Â»Æ’â€¢Ã•â€”â€¢Ãâ€¢âˆ‚Â°Âºâ€¢Ã·	*/
 
-	char	active[ TRK_NUM ];	/* ¥È¥é¥Ã¥¯Í­¸ú		*/
+	char	active[ TRK_NUM ];	/* â€¢Â»â€¢Ãˆâ€¢âˆšâ€¢Ã˜Ã•â‰ âˆË™		*/
 	char	trk_mask[ TRK_NUM ];	/* TRACK MASK		*/
 	char	midich[ TRK_NUM ];	/* MIDI CH		*/
 
-	int	noteptr;		/* É°Ä×İÆİ¸ŞÎß²İÀ	*/
-	unsigned char	*note_adr;	/* É°Ä×İÆİ¸ŞÊŞ¯Ì§±ÄŞÚ*/
-	char	*top[ TRK_NUM ];	/* ¥È¥é¥Ã¥¯¥Ç¡¼¥¿ÀèÆ¬	*/
-	unsigned char *ptr[ TRK_NUM ];	/* ¶ÚİÄÄ×¯¸Îß²İ*/
+	int	noteptr;		/* â€¦âˆÆ’â—Šâ€ºâˆ†â€ºâˆï¬Å’ï¬‚â‰¤â€ºÂ¿	*/
+	uint8_t	*note_adr;	/* â€¦âˆÆ’â—Šâ€ºâˆ†â€ºâˆï¬Â ï¬Ã˜ÃƒÃŸÂ±Æ’ï¬â„*/
+	char	*top[ TRK_NUM ];	/* â€¢Â»â€¢Ãˆâ€¢âˆšâ€¢Ã˜â€¢Â«Â°Âºâ€¢Ã¸Â¿Ã‹âˆ†Â¨	*/
+	uint8_t *ptr[ TRK_NUM ];	/* âˆ‚â„â€ºÆ’Æ’â—ŠÃ˜âˆÅ’ï¬‚â‰¤â€º*/
 
-	char	flg_vel[ TRK_NUM ];	/* VELOCITY ON Ì×¸Ş	*/
-	char	flg_off[ TRK_NUM ];	/* VELOCITY OFF Ì×¸Ş	*/
-	char	flg_act;		/* ACTIVE OFF Ì×¸Ş	*/
-	char	flg_bar;		/* BAR ÊÑ¹¹ Ì×¸Ş	*/
-	char	flg_step;		/* STEP ÊÑ¹¹ Ì×¸Ş	*/
-	char	flg_pbend;		/* PITCH BEND ÊÑ¹¹ Ì×¸Ş	*/
-	char	flg_vol;		/* VOLUME ÊÑ¹¹ Ì×¸Ş	*/
-	char	flg_prg;		/* PROGRAM ÊÑ¹¹¡¡Ì×¸Ş	*/
-	char	flg_panpot;		/* PANPOT ÊÑ¹¹ Ì×¸Ş	*/
-	char	flg_midich;		/* MIDI CH ÊÑ¹¹ Ì×¸Ş	*/
+	char	flg_vel[ TRK_NUM ];	/* VELOCITY ON Ãƒâ—Šâˆï¬	*/
+	char	flg_off[ TRK_NUM ];	/* VELOCITY OFF Ãƒâ—Šâˆï¬	*/
+	char	flg_act;		/* ACTIVE OFF Ãƒâ—Šâˆï¬	*/
+	char	flg_bar;		/* BAR Â â€”Ï€Ï€ Ãƒâ—Šâˆï¬	*/
+	char	flg_step;		/* STEP Â â€”Ï€Ï€ Ãƒâ—Šâˆï¬	*/
+	char	flg_pbend;		/* PITCH BEND Â â€”Ï€Ï€ Ãƒâ—Šâˆï¬	*/
+	char	flg_vol;		/* VOLUME Â â€”Ï€Ï€ Ãƒâ—Šâˆï¬	*/
+	char	flg_prg;		/* PROGRAM Â â€”Ï€Ï€Â°Â°Ãƒâ—Šâˆï¬	*/
+	char	flg_panpot;		/* PANPOT Â â€”Ï€Ï€ Ãƒâ—Šâˆï¬	*/
+	char	flg_midich;		/* MIDI CH Â â€”Ï€Ï€ Ãƒâ—Šâˆï¬	*/
 
-	char	flg_song;		/* SONG ÃŞ°À Ì×¸Ş	*/
-	char	flg_system;		/* SYSTEM ´ØXÌ×¸Ş	*/ /*(v2.80)*/
+	char	flg_song;		/* SONG âˆšï¬âˆÂ¿ Ãƒâ—Šâˆï¬	*/
+	char	flg_system;		/* SYSTEM Â¥Ã¿XÃƒâ—Šâˆï¬	*/ /*(v2.80)*/
 
-	char	flg_expres;		/* EXPRESSION ÊÑ¹¹ Ì×¸Ş	*/
-	char	flg_modula;		/* MODULATION ÊÑ¹¹ Ì×¸Ş	*/
-	char	flg_bank;		/* BANK ÊÑ¹¹ Ì×¸Ş	*/
-	char	flg_replay;		/* REPLAY Ì×¸Ş		*/
+	char	flg_expres;		/* EXPRESSION Â â€”Ï€Ï€ Ãƒâ—Šâˆï¬	*/
+	char	flg_modula;		/* MODULATION Â â€”Ï€Ï€ Ãƒâ—Šâˆï¬	*/
+	char	flg_bank;		/* BANK Â â€”Ï€Ï€ Ãƒâ—Šâˆï¬	*/
+	char	flg_replay;		/* REPLAY Ãƒâ—Šâˆï¬		*/
 
-	char	flg_gssys;		/* GS SYSTEM ´ØXÌ×¸Ş*/ /*(v2.93)*/
-	char	flg_gsrev;		/* GSREV ÊÑ¹¹ Ì×¸Ş	*/ /*(v2.93)*/
-	char	flg_gscho;		/* GSCHO ÊÑ¹¹ Ì×¸Ş	*/ /*(v2.93)*/
-	char	flg_gsinfo;		/* GS info ÊÑ¹¹ Ì×¸Ş	*/ /*(v2.93l)*/
-	char	flg_gsinst;		/* GS inst ÊÑ¹¹ Ì×¸Ş	*/ /*(v2.93l)*/
-	char	flg_gspanel;		/* GS panel ÊÑ¹¹ Ì×¸Ş	*/ /*(v2.93l)*/
+	char	flg_gssys;		/* GS SYSTEM Â¥Ã¿XÃƒâ—Šâˆï¬*/ /*(v2.93)*/
+	char	flg_gsrev;		/* GSREV Â â€”Ï€Ï€ Ãƒâ—Šâˆï¬	*/ /*(v2.93)*/
+	char	flg_gscho;		/* GSCHO Â â€”Ï€Ï€ Ãƒâ—Šâˆï¬	*/ /*(v2.93)*/
+	char	flg_gsinfo;		/* GS info Â â€”Ï€Ï€ Ãƒâ—Šâˆï¬	*/ /*(v2.93l)*/
+	char	flg_gsinst;		/* GS inst Â â€”Ï€Ï€ Ãƒâ—Šâˆï¬	*/ /*(v2.93l)*/
+	char	flg_gspanel;		/* GS panel Â â€”Ï€Ï€ Ãƒâ—Šâˆï¬	*/ /*(v2.93l)*/
 
-	char	flg_hold1;		/* HOLD1 ÊÑ¹¹ Ì×¸Ş	*/
-	char	flg_gsdly;		/* GSDLY ÊÑ¹¹ Ì×¸Ş	*/ /*(v3.00q)*/
-	char	flg_bankl;		/* BANK LÊÑ¹¹ Ì×¸Ş	*/ /*(v3.01n)*/
+	char	flg_hold1;		/* HOLD1 Â â€”Ï€Ï€ Ãƒâ—Šâˆï¬	*/
+	char	flg_gsdly;		/* GSDLY Â â€”Ï€Ï€ Ãƒâ—Šâˆï¬	*/ /*(v3.00q)*/
+	char	flg_bankl;		/* BANK LÂ â€”Ï€Ï€ Ãƒâ—Šâˆï¬	*/ /*(v3.01n)*/
 
-	char	dummyE[9];		/* ³ÈÄ¥ÍÑ¥ê¥¶¡¼¥Ö	*/
+	char	dummyE[9];		/* â‰¥Â»Æ’â€¢Ã•â€”â€¢Ãâ€¢âˆ‚Â°Âºâ€¢Ã·	*/
 
-	int	panel_tempo;		/* ¥Ñ¥Í¥ë¾å¤Î¥Æ¥ó¥İÃÍ	*/
-	int	bar[ TRK_NUM ];		/* ¾®ÀáÈÖ¹æ		*/
-	int	step[ TRK_NUM ];	/* ¥¹¥Æ¥Ã¥×ÈÖ¹æ		*/
-	char	vel[ TRK_NUM ];		/* ¥Ù¥í¥·¥Æ¥£ÃÍ		*/
+	int	panel_tempo;		/* â€¢â€”â€¢Ã•â€¢ÃÃ¦Ã‚Â§Å’â€¢âˆ†â€¢Ã›â€¢â€ºâˆšÃ•	*/
+	int	bar[ TRK_NUM ];		/* Ã¦Ã†Â¿Â·Â»Ã·Ï€ÃŠ		*/
+	int	step[ TRK_NUM ];	/* â€¢Ï€â€¢âˆ†â€¢âˆšâ€¢â—ŠÂ»Ã·Ï€ÃŠ		*/
+	char	vel[ TRK_NUM ];		/* â€¢Å¸â€¢ÃŒâ€¢âˆ‘â€¢âˆ†â€¢Â£âˆšÃ•		*/
 
-	int	stepcount;		/* ±éÁÕ³«»Ï»ş¤«¤é¤ÎSTEP COUNT	*/ /*(v2.92)*/
-	int16_t	loopcount;		/* 255/256²ó¥ê¥Ô¡¼¥È¤ÎCOUNT	*/ /*(v3.00f)*/
+	int	stepcount;		/* Â±ÃˆÂ¡â€™â‰¥Â´ÂªÅ“ÂªË›Â§Â´Â§ÃˆÂ§Å’STEP COUNT	*/ /*(v2.92)*/
+	int16_t	loopcount;		/* 255/256â‰¤Ã›â€¢Ãâ€¢â€˜Â°Âºâ€¢Â»Â§Å’COUNT	*/ /*(v3.00f)*/
 
-	char	dummyF[12-2];		/* ³ÈÄ¥ÍÑ¥ê¥¶¡¼¥Ö	*/
+	char	dummyF[12-2];		/* â‰¥Â»Æ’â€¢Ã•â€”â€¢Ãâ€¢âˆ‚Â°Âºâ€¢Ã·	*/
 
-	char	song[20];		/* SONG¥Ç¡¼¥¿(¥³¥á¥ó¥È)	*/
-	char	dummyG[60];		/* ³ÈÄ¥ÍÑ¥ê¥¶¡¼¥Ö	*/
+	char	song[20];		/* SONGâ€¢Â«Â°Âºâ€¢Ã¸(â€¢â‰¥â€¢Â·â€¢Ã›â€¢Â»)	*/
+	char	dummyG[60];		/* â‰¥Â»Æ’â€¢Ã•â€”â€¢Ãâ€¢âˆ‚Â°Âºâ€¢Ã·	*/
 
 	char	gs_info[18];		/* gs patch name	*/ /*v2.93l*/
 	char	gs_inst[34];		/* gs comment		*/ /*v2.93l*/
-	char	gs_panel[64];		/* gs panel		*/ /*v2.93l*/
+	uint8_t	gs_panel[64];		/* gs panel		*/ /*v2.93l*/
 
-	char	ch_port[ CHL_NUM ];	/* Á¬ÈÙËè¤Îi.f.¼ïÎà 1:MIDI 2:RS-232C/POLYPHON */
-	char	ch_part[ CHL_NUM ];	/* Á¬ÈÙËè¤Î²»¸»¼ïÎà 0:LA 1:PCM 2:Â¾(RHYTHM) */
-	int	ch_pbend[ CHL_NUM ];	/* Á¬ÈÙËè¤ÎPITCH BENDÃÍ	*/
-	char	ch_vol[ CHL_NUM ];	/* Á¬ÈÙËè¤ÎVOLUMEÃÍ	*/
-	char	ch_panpot[ CHL_NUM ];	/* Á¬ÈÙËè¤ÎPANPOTÃÍ	*/
-	char	flg_ch_prg[ CHL_NUM ];	/* Á¬ÈÙËè¤ÎPROG.CHG¥Õ¥é¥°*/ /*v2.93j*/
-	unsigned char ch_prg[ CHL_NUM ];/* Á¬ÈÙËè¤ÎPROGRAMÈÖ¹æ	*/
-	char	ch_reverb[ CHL_NUM ];	/* ¥ê¥Ğ¡¼¥Ö OFF/ON	*/ /*(v2.80)*/
-	char	ch_expr[ CHL_NUM ];	/* Á¬ÈÙËè¤ÎEXPRSSIONÃÍ	*/ /*v2.92*/
-	char	ch_modu[ CHL_NUM ];	/* Á¬ÈÙËè¤ÎMODULATIONÃÍ	*/ /*v2.92*/
-	char	ch_bank[ CHL_NUM ];	/* Á¬ÈÙËè¤ÎBANKÃÍ	*/ /*v2.92*/
-	char	ch_gsrev[ CHL_NUM ];	/* Á¬ÈÙËè¤ÎGS REVERBÃÍ	*/ /*v2.93*/
-	char	ch_gscho[ CHL_NUM ];	/* Á¬ÈÙËè¤ÎGS CHORUSÃÍ	*/ /*v2.93*/
-	char	ch_hold1[ CHL_NUM ];	/* Á¬ÈÙËè¤ÎHOLD1ÃÍ	*/ /*v2.93*/
-	char	ch_gsdly[ CHL_NUM ];	/* Á¬ÈÙËè¤ÎGS DELAYÃÍ	*/ /*v3.00q*/
-	char	ch_bankl[ CHL_NUM ];	/* Á¬ÈÙËè¤ÎGS BANK L.ÃÍ	*/ /*v3.01n*/
+	char	ch_port[ CHL_NUM ];	/* Â¡Â¨Â»Å¸Ã€Ã‹Â§Å’i.f.ÂºÃ”Å’â€¡ 1:MIDI 2:RS-232C/POLYPHON */
+	char	ch_part[ CHL_NUM ];	/* Â¡Â¨Â»Å¸Ã€Ã‹Â§Å’â‰¤ÂªâˆÂªÂºÃ”Å’â€¡ 0:LA 1:PCM 2:Â¬Ã¦(RHYTHM) */
+	int	ch_pbend[ CHL_NUM ];	/* Â¡Â¨Â»Å¸Ã€Ã‹Â§Å’PITCH BENDâˆšÃ•	*/
+	char	ch_vol[ CHL_NUM ];	/* Â¡Â¨Â»Å¸Ã€Ã‹Â§Å’VOLUMEâˆšÃ•	*/
+	char	ch_panpot[ CHL_NUM ];	/* Â¡Â¨Â»Å¸Ã€Ã‹Â§Å’PANPOTâˆšÃ•	*/
+	char	flg_ch_prg[ CHL_NUM ];	/* Â¡Â¨Â»Å¸Ã€Ã‹Â§Å’PROG.CHGâ€¢â€™â€¢Ãˆâ€¢âˆ*/ /*v2.93j*/
+	uint8_t ch_prg[ CHL_NUM ];/* Â¡Â¨Â»Å¸Ã€Ã‹Â§Å’PROGRAMÂ»Ã·Ï€ÃŠ	*/
+	char	ch_reverb[ CHL_NUM ];	/* â€¢Ãâ€¢â€“Â°Âºâ€¢Ã· OFF/ON	*/ /*(v2.80)*/
+	char	ch_expr[ CHL_NUM ];	/* Â¡Â¨Â»Å¸Ã€Ã‹Â§Å’EXPRSSIONâˆšÃ•	*/ /*v2.92*/
+	char	ch_modu[ CHL_NUM ];	/* Â¡Â¨Â»Å¸Ã€Ã‹Â§Å’MODULATIONâˆšÃ•	*/ /*v2.92*/
+	char	ch_bank[ CHL_NUM ];	/* Â¡Â¨Â»Å¸Ã€Ã‹Â§Å’BANKâˆšÃ•	*/ /*v2.92*/
+	char	ch_gsrev[ CHL_NUM ];	/* Â¡Â¨Â»Å¸Ã€Ã‹Â§Å’GS REVERBâˆšÃ•	*/ /*v2.93*/
+	char	ch_gscho[ CHL_NUM ];	/* Â¡Â¨Â»Å¸Ã€Ã‹Â§Å’GS CHORUSâˆšÃ•	*/ /*v2.93*/
+	char	ch_hold1[ CHL_NUM ];	/* Â¡Â¨Â»Å¸Ã€Ã‹Â§Å’HOLD1âˆšÃ•	*/ /*v2.93*/
+	char	ch_gsdly[ CHL_NUM ];	/* Â¡Â¨Â»Å¸Ã€Ã‹Â§Å’GS DELAYâˆšÃ•	*/ /*v3.00q*/
+	char	ch_bankl[ CHL_NUM ];	/* Â¡Â¨Â»Å¸Ã€Ã‹Â§Å’GS BANK L.âˆšÃ•	*/ /*v3.01n*/
 
-	char	dummyH[34*1];		/* ³ÈÄ¥ÍÑ¥ê¥¶¡¼¥Ö	*/
+	char	dummyH[34*1];		/* â‰¥Â»Æ’â€¢Ã•â€”â€¢Ãâ€¢âˆ‚Â°Âºâ€¢Ã·	*/
 };

@@ -34,9 +34,9 @@ static MIDIPortRef		sMIDIOutputPortRef = NULL;
 static MIDIEndpointRef	sDest[kMaxNumberOfPorts];
 
 static MIDISysexSendRequest sSysexRequest[kMaxNumberOfPorts];
-static unsigned char sSysexSendBuffer[kMaxNumberOfPorts][kMaxMIDIMessageSize];
+static uint8_t sSysexSendBuffer[kMaxNumberOfPorts][kMaxMIDIMessageSize];
 
-static char sStopPlaying;
+static uint8_t sStopPlaying;
 static MIDITimeStamp sStartTimeStamp;
 static MIDITimeStamp sLastTimeStamp;
 static char sNoteOnTable[kMaxNumberOfPorts][16][128];
@@ -57,7 +57,7 @@ static int sOffsetMIDITime = 1;
 #define sRCPDebugSize 200000
 #include <stddef.h>
 static size_t sRCPDebugCount;
-static unsigned char *sRCPDebugBuffer;
+static uint8_t *sRCPDebugBuffer;
 #endif
 
 @implementation CoreMIDIRCPPlayer
@@ -260,7 +260,7 @@ CoreMIDISelectDeviceByNameForPort(const char *name, int port)
 }
 
 OSStatus
-CoreMIDISend(unsigned char *ptr, int length, int port, MIDITimeStamp atTime)
+CoreMIDISend(uint8_t *ptr, int length, int port, MIDITimeStamp atTime)
 {
 	MIDIPacketList	packetList;
 	MIDIPacket *	packetPtr;
@@ -284,7 +284,7 @@ CoreMIDISend(unsigned char *ptr, int length, int port, MIDITimeStamp atTime)
 		rp->completionRefCon = NULL;
 		sts = MIDISendSysex(rp);
 	} else {
-		unsigned char b;
+		uint8_t b;
 		packetPtr = MIDIPacketListInit(&packetList);
 		packetPtr = MIDIPacketListAdd(&packetList, sizeof(packetList), packetPtr, atTime, length, ptr);
 		sts = MIDISend(sMIDIOutputPortRef, sDest[port], &packetList);
@@ -313,7 +313,7 @@ CoreMIDIAllSoundOff(void)
 	/*  All sound off  */
 	for (port = 0; port < 2; port++) {
 		for (ch = 0; ch < 16; ch++) {
-			unsigned char buf[4];
+			uint8_t buf[4];
 			/*  All sound off  */
 			buf[0] = 0xb0 + ch;
 			buf[1] = 0x78;
@@ -330,13 +330,13 @@ dump_debug_rcp(void)
 	FILE *fp = fopen("sted2_debug_rcp.log", "w");
 	int n = 0;
 	int m;
-	unsigned char *p;
-	static unsigned char tbl[16][128];
-	unsigned char *pp;
+	uint8_t *p;
+	static uint8_t tbl[16][128];
+	uint8_t *pp;
 	memset(tbl, 0, sizeof(tbl));
 	while ((size_t)n < sRCPDebugCount) {
 		UInt32 t1, t2;
-		unsigned char c;
+		uint8_t c;
 		p = sRCPDebugBuffer + n;
 		t1 = p[0] + ((UInt32)p[1] << 8) + ((UInt32)p[2] << 16) + ((UInt32)p[3] << 24);
 		t2 = p[4] + ((UInt32)p[5] << 8) + ((UInt32)p[6] << 16) + ((UInt32)p[7] << 24);
@@ -381,7 +381,7 @@ rcpplayer_engine(void)
 {
 	MIDITimeStamp currentTime, nextTime, nextEventTime, offsetTime, prefetchTime;
 	int32_t step;
-	unsigned char *ptr;
+	uint8_t *ptr;
 	int length, port;
 	OSStatus sts;
 	MIDITimeStamp waitPerMIDIByte[kMaxNumberOfPorts];
@@ -424,7 +424,7 @@ rcpplayer_engine(void)
 			nextMicro = sts;
 			int n = (length >= 256 ? 255 : length);
 			if (sRCPDebugCount + 9 + n < sRCPDebugSize) {
-				unsigned char *pp = sRCPDebugBuffer + sRCPDebugCount;
+				uint8_t *pp = sRCPDebugBuffer + sRCPDebugCount;
 				*pp++ = lastMicro & 0xff;
 				*pp++ = (lastMicro >> 8) & 0xff;
 				*pp++ = (lastMicro >> 16) & 0xff;
@@ -461,7 +461,7 @@ stop_coremidi_rcpplayer(void)
 		for (ch = 0; ch < 16; ch++) {
 			for (i = 0; i < 128; i++) {
 				for (j = sNoteOnTable[port][ch][i]; j > 0; j--) {
-					unsigned char buf[4];
+					uint8_t buf[4];
 					buf[0] = 0x80 + ch;
 					buf[1] = i;
 					buf[2] = 0;
@@ -480,12 +480,12 @@ stop_coremidi_rcpplayer(void)
 }
 
 void
-play_coremidi_rcpplayer(char *rcp_data_ptr, int data_length)
+play_coremidi_rcpplayer(uint8_t *rcp_data_ptr, int data_length)
 {
 	CoreMIDIRCPPlayer *player;
-	rcpplayer_init((unsigned char *)rcp_data_ptr, data_length);
+	rcpplayer_init(rcp_data_ptr, data_length);
 #if DEBUG_RCP
-	sRCPDebugBuffer = (unsigned char *)realloc(sRCPDebugBuffer, sRCPDebugSize);
+	sRCPDebugBuffer = (uint8_t *)realloc(sRCPDebugBuffer, sRCPDebugSize);
 	sRCPDebugCount = 0;
 #endif
 	player = [CoreMIDIRCPPlayer currentPlayer];

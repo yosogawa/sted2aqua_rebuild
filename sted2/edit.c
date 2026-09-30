@@ -219,7 +219,7 @@ track_edit_top:
     if( ke==0x3f ){noed_cls();grpmode=0;}
 
     if( kc=='X' ){
-      unsigned char	da=trk[track][ad];
+      uint8_t	da=trk[track][ad];
       if(da<128 || (ad>0 && da>=0xfc && trk[track][ad-4]<128)){
 	int	j,i;
 	if(da>=0xfc){cur_up(&po,&cy);ad-=4;}
@@ -252,7 +252,7 @@ track_edit_top:
     /*09*/
     if( kc>0x2f && kc<0x3a ){
       int	ct;
-      unsigned char da=trk[track][ad];
+      uint8_t da=trk[track][ad];
       if( da==0xeb && cx==0){cx=2;}
 
       if( cx>0 && (da<0xf0 || da==0xf8 || da==0xfc)){
@@ -281,7 +281,7 @@ track_edit_top:
 	  if(ct>127){ct=127;}
 	  }else{
 	    int	fl=0x104+0x400;
-	    unsigned char	tmp0[16];
+	    uint8_t	tmp0[16];
 	    if( da==0xfc ){cx=1;}
 	    if(da>=0xdd && da<=0xdf && cx>1 &&(cmdflag & 0x100)!=0){fl+=0x2000;}
 	  resame:
@@ -318,7 +318,7 @@ track_edit_top:
       }
       if( cx==0 && da<128 ){
 	int	ct;
-	unsigned char	tmp0[16];
+	uint8_t	tmp0[16];
 
 	tmp0[0]=kc;tmp0[1]=0;
 	B_LOCATE(12,cy+6);sinput(tmp0,0x504);
@@ -358,7 +358,7 @@ track_edit_top:
     }
 
     if(kc>='A' && kc<='G'){
-      unsigned char da=trk[track][ad];
+      uint8_t da=trk[track][ad];
       tmp0[0]=kc;tmp0[1]=0;
       if( da<128 ){
 	int	ct;
@@ -474,7 +474,7 @@ track_edit_top:
 
     if( trk_check(4)==0){
       if( ke==0x6c ){
-	unsigned char	da=trk[track][ad];
+	uint8_t	da=trk[track][ad];
 	if( da<0xfe && da!=0xf7 ){
 	  if( da==0xf6 || da==0x98 ){
 	    int	cc=0,ad2=ad;
@@ -572,7 +572,7 @@ track_edit_top:
     if((ke==0x0f || kc==8)&& ad>0){cur_up(&po,&cy);ad=real_ad(po,cy);ke=0x37;}
     if(ke==0x37 || ke==0x137 || kc==25){
       if( tr_len[track]>ad+4 && trk[track][ad]!=0xf7){
-	unsigned char	da=trk[track][ad-4],db,dc;
+	uint8_t	da=trk[track][ad-4],db,dc;
 	int	i,ll=4;
 	while(trk[track][ad+ll]==0xf7){ll=ll+4;}
 	db=trk[track][ad+ll];dc=trk[track][ad];
@@ -596,7 +596,7 @@ track_edit_top:
 
     if((ke==0x3a || kc==12) && ((lcbuf[0]!=0xf6 && lcbuf[0]!=0x98 && trk_check(4)==0)||trk_check(40)==0)){
       if( lcbuf[0]<254 ){
-	unsigned char	da=trk[track][ad-4],db=trk[track][ad];
+	uint8_t	da=trk[track][ad-4],db=trk[track][ad];
 	int	i,ll=(lcbuf[1024]+1)*4;
 
 	if(lcbuf[0]==0xfc||\
@@ -1068,7 +1068,7 @@ void trk_pos_set(int po,int cx,int cy)
 void	val_add(int ad,int cx,int kc)
 {
   int	i;
-  unsigned char da=trk[track][ad];
+  uint8_t da=trk[track][ad];
 
   if(da<128 ){
     i=trk[track][ad+cx];
@@ -1124,7 +1124,7 @@ void	val_add(int ad,int cx,int kc)
 void	val_sub(int ad,int cx,int kc)
 {
   int	i;
-  unsigned char da=trk[track][ad];
+  uint8_t da=trk[track][ad];
 
   if( da<128 ){
     i=trk[track][ad+cx];
@@ -1601,7 +1601,7 @@ char	*trk_dis(int y,int ad,int line)
   static char	tmp0[64],tmp1[64];
   int	i,po,cc=0,x,a,b,c,d,capi,skey;
   int	meas=0,meas2=0,step=0,sta;
-  unsigned char	*bp=trk[track];
+  uint8_t	*bp=trk[track];
 
   sta=SUPER(0);
   x=edit_scr*56+1;po=ad;
@@ -1614,7 +1614,7 @@ char	*trk_dis(int y,int ad,int line)
 clpo:
   if(y>=0){
     while(po>0){
-      unsigned char	e;
+      uint8_t	e;
       po=po-4;e=bp[po];
       if(meas2==0){
 	if(e<0xf0 &&(po==0||bp[po-4+1]!=0||bp[po-4]>=0xf0)){
@@ -1814,7 +1814,7 @@ trpo:
 	strcpy(tmp0," [                      ]");
 	i=3;
 	while(i<25){
-	  unsigned char a;
+	  uint8_t a;
 	  a=bp[po+2];if(a==0){a=32;}tmp0[i++]=a;
 	  a=bp[po+3];if(a==0){a=32;}tmp0[i++]=a;
 	  if(bp[po+4]!=0xf7){break;}

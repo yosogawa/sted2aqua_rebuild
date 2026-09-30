@@ -36,7 +36,7 @@ int  chd_check(int tr, int ad, int md);
 int  find(int po, int h);
 int  find_rep(int po);
 void trk_cluc(void);
-int  buf_meas(unsigned char *pp, int ln);
+int  buf_meas(uint8_t *pp, int ln);
 int  step_cluc(int ad);
 int  step_cluc2(int tr, int top, int len);
 int  real_ad(int po, int cy);
@@ -119,17 +119,17 @@ int  comment_inp(int a, int b, int c);
 void spcon(int a, int b);
 int  same_ext_sub(int tr, int st, int ed, int flg);
 
-int  repeat_ext(unsigned char *obuf, int ln);
+int  repeat_ext(uint8_t *obuf, int ln);
 
 int  size_change(int tr, int ln);
-void memcpy_l(unsigned char *dest, unsigned char *src, int len);
+void memcpy_l(uint8_t *dest, uint8_t *src, int len);
 char *nstr(int a);
 
 void size_ref(void);
 int  same_meas_conv(int tr);
 int  repeat_comp(int tr);
 
-int  trk_mix_sub(unsigned char *in1, unsigned char *in2);
+int  trk_mix_sub(uint8_t *in1, uint8_t *in2);
 int  trk_ext_sub(int tr, char *exbuf);
 void trk_opt_sub(int tr, int po1, int po2);
 int  tai_compres(int tr, int po1, int po2);

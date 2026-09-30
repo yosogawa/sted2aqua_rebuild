@@ -4,7 +4,7 @@
 
 #include "sted.h"
 
-unsigned char	*note, *note_data;
+uint8_t	*note, *note_data;
 int	trch,lastptr,pt,tr,len,cmd,d_byte;
 int	step,barlen,barunit,stepsum,midi_ch,exc_no,exc_id;
 int	nbuf[16], vbuf[16], gbuf[16];
@@ -26,8 +26,8 @@ int	real_record()
   int	a,b,co=0,ad=0,stc,ost=0,bc,stm,mm,lastst,ecst;
   int	i,ccc,dtr=0,pm,pr=0,ecount=0;
   int	mtr_tempo=mtempo;
-  unsigned char	*mbuf;
-  unsigned char	ctrl_tbl[256];
+  uint8_t	*mbuf;
+  uint8_t	ctrl_tbl[256];
 
   for(i=0;i<128;i++){ctrl_tbl[i]=i;}
   for(i=16;i<32;i++){
@@ -460,12 +460,12 @@ int	countstart(int md,int smeas)
   int	bpo,met=-1,pr=0;
   int	me_ad[2048];
 
-  static	unsigned char	metp[4*14]={
+  static	uint8_t	metp[4*14]={
     0xe6,0,16,0, 0xec,0,0,0,   0xf9,0,0,0,  0xf9,0,0,0,  0xfd,0,0,0,
     64,48,2,127, 0,0,0,0,      0xf9,0,0,0,  64,48,2,117, 0,0,0,0,
     0xf8,3,0,0,  0xf8,128,0,0, 0xf8,16,0,0, 0xfe,0,0,0};
 
-  static	unsigned char	restbar[4*10]={
+  static	uint8_t	restbar[4*10]={
     0xf9,0,0,0, 64,48,0,0, 0,0,0,0, 0xf8,4,0,0, 0xfd,0,0,0,
     0xf9,0,0,0, 64,48,0,0, 0,0,0,0, 0xf8,4,0,0, 0xfd,0,0,0};
 
@@ -618,7 +618,7 @@ int	countstart(int md,int smeas)
 }
 
 /***************************/
-unsigned char	*strncpy0( unsigned char *dst, unsigned char *src, int n )
+uint8_t	*strncpy0( uint8_t *dst, uint8_t *src, int n )
 {
   int i;
 
@@ -924,7 +924,7 @@ int num_check( int num, int limit )
   if( num > limit ) {return( limit );} else {return( num );}
 }
 
-void proc_excl( unsigned char *text , int length,int code)
+void proc_excl( uint8_t *text , int length,int code)
 {
   int h, m, l, hh, mm, ll, i;
 
@@ -987,7 +987,7 @@ void proc_excl( unsigned char *text , int length,int code)
 void proc_next( void )
 {
   int meta, code,i;
-  unsigned char *text=rcpbuf;
+  uint8_t *text=rcpbuf;
 
   for(i=0;i<16;i++){nbuf[i] = vbuf[i] = gbuf[i] = 0;}
   pt = 0;len = 0;barunit = 0; stepsum = 0;

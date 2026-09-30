@@ -10,7 +10,7 @@
 #ifndef __CoreMIDIRCPPlayer_H__
 #define __CoreMIDIRCPPlayer_H__
 
-extern void play_coremidi_rcpplayer(char *rcp_data_ptr, int data_length);
+extern void play_coremidi_rcpplayer(uint8_t *rcp_data_ptr, int data_length);
 extern void stop_coremidi_rcpplayer(void);
 extern void exit_coremidi_rcpplayer(void);
 

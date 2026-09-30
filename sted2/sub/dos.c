@@ -162,10 +162,7 @@ void *_dos_malloc(int i) {
 
   void *tmp;
 
-  tmp = (void *)malloc(i);
-  if ( tmp == NULL ) tmp = (void *)0x82000000;
-
-  return tmp;
+  return malloc(i);
   
 }
 
@@ -270,7 +267,7 @@ int _dos_files (struct _x68_filbuf *buff, const char *name, int atr ) {
   
   asc=localtime(&(stt->st_mtime));
 
-  buff->atr     = (unsigned char)(S_ISDIR(stt->st_mode)?0x10:1);
+  buff->atr     = (uint8_t)(S_ISDIR(stt->st_mode)?0x10:1);
   buff->filelen = (unsigned int)stt->st_size;
   buff->date    = (uint16_t)(asc->tm_year<<9 | asc->tm_mon<<5 | asc->tm_mday);
   buff->time    = (uint16_t)(asc->tm_hour<<11 | asc->tm_min<<5 | (asc->tm_sec/2));
@@ -306,7 +303,7 @@ int _dos_nfiles( struct _x68_filbuf *buff ) {
   }
   
   asc=localtime(&(stt->st_mtime));
-  buff->atr     = (unsigned char)(S_ISDIR(stt->st_mode)?0x10:0x21);
+  buff->atr     = (uint8_t)(S_ISDIR(stt->st_mode)?0x10:0x21);
   buff->filelen = (unsigned int)stt->st_size;
   buff->date    = (uint16_t)(asc->tm_year<<9 | asc->tm_mon<<5 | asc->tm_mday);
   buff->time    = (uint16_t)(asc->tm_hour<<11 | asc->tm_min<<5 | (asc->tm_sec/2));

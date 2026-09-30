@@ -139,10 +139,10 @@ void	sttrc(int *po,int *cy,int flg)
   int	me_ad[2048];
   int	max;
   int	lpad[18],lprt[18];
-  unsigned char lpco[18];
-  unsigned char	*ptr;
+  uint8_t lpco[18];
+  uint8_t	*ptr;
 
-  ptr=(unsigned char *)trk[track];
+  ptr=(uint8_t *)trk[track];
   max=add_set(track,me_ad);
 
   skf=poft>>16;ofs=poft&0xffff;
@@ -162,7 +162,7 @@ void	sttrc(int *po,int *cy,int flg)
 	*po=meas_add(i);if(*po<0){*po=tr_len[track]-4;}
 	trk_no();trk_cluc();cplen=0;*cy=padjust(po,8);
 	size_max(track);
-	ptr=(unsigned char *)trk[track];
+	ptr=(uint8_t *)trk[track];
 	max=add_set(track,me_ad);
 	snsclr();
       }
@@ -176,7 +176,7 @@ void	sttrc(int *po,int *cy,int flg)
     if(skf!=0){if(j==0){i=-1;}else{j--;}}
 
     while(j>0 || i>0){
-      unsigned char	ca;
+      uint8_t	ca;
     loop1:			ca=ptr[ad];ad+=4;if(ca==0xf7){goto loop1;}
     if(ca>0xfd ){ad-=4;break;}
 
@@ -279,7 +279,7 @@ int	replace(int po,int ln,int sh,int v)
   char	rep[8][256];
   char	li[256],li2[256],tmp0[256],tmp1[256];
   char	si,rcvf,addf;
-  unsigned char	*ptr=trk[track];
+  uint8_t	*ptr=trk[track];
 
   if(ln<=0){return 1;}
 
@@ -737,10 +737,10 @@ int	rep_match(int f,int f2,int t,int t2,int a,int m)
 int	tai_check(int tr,int ad)
 {
   int	ln;
-  unsigned char	a,b,c,d;
+  uint8_t	a,b,c,d;
 
-  unsigned char	*ptr;
-  ptr=(unsigned char *)trk[tr];
+  uint8_t	*ptr;
+  ptr=(uint8_t *)trk[tr];
 
   ln=tr_len[tr];
   a=ptr[ad];b=ptr[ad+1];c=ptr[ad+2];d=ptr[ad+3];
@@ -749,7 +749,7 @@ int	tai_check(int tr,int ad)
     int ad2=ad,sum=0;
 
     while(ad2<ln){
-      unsigned char	da=ptr[ad2];
+      uint8_t	da=ptr[ad2];
 
       if(ad2>ad && a==da && ptr[ad2+2]!=0 && ptr[ad2+3]!=0 ){
 	if(sum<c){return 1;}else{return 0;}
@@ -766,10 +766,10 @@ int	tai_check(int tr,int ad)
 int	chd_check(int tr,int ad,int md)
 {
   int	ln,sum=1;
-  unsigned char	a,b,c,d;
+  uint8_t	a,b,c,d;
 
-  unsigned char	*ptr;
-  ptr=(unsigned char *)trk[tr];
+  uint8_t	*ptr;
+  ptr=(uint8_t *)trk[tr];
 
   ln=tr_len[tr];
   if(md!=0){
@@ -901,7 +901,7 @@ int	find_rep(int po)
 void	trk_cluc(void)
 {
   int	i,ch,meas=1,a,ln;
-  unsigned char	*ptr=trk[track];
+  uint8_t	*ptr=trk[track];
 
   ln=tr_len[track];ch=mch[track];
   for(i=0;i<ln;i=i+4){
@@ -922,7 +922,7 @@ void	trk_cluc(void)
 }
 
 /***************************/
-int	buf_meas(unsigned char *pp,int ln)
+int	buf_meas(uint8_t *pp,int ln)
 {
   int	i,co=0;
   for(i=0 ;i<ln;i=i+4){
@@ -936,11 +936,11 @@ int	step_cluc(int ad)
 {
   int	lc[16],lp[16],lx[16];
   int	a=0,b=1,i,pp=0,ct,tr;
-  unsigned char	c,d;
-  unsigned char	*ptr;
+  uint8_t	c,d;
+  uint8_t	*ptr;
   tr=track;
 
-  ptr=(unsigned char *)trk[tr];
+  ptr=(uint8_t *)trk[tr];
 
   i=ad;
   while(i>0){
@@ -971,10 +971,10 @@ int	step_cluc2(int tr,int top,int len)
 {
   int	lx[16],me_ad[2048];
   int	i,pp,a,ct,max,retad=0;
-  unsigned char	c;
-  unsigned char	*ptr;
+  uint8_t	c;
+  uint8_t	*ptr;
 
-  ptr=(unsigned char *)trk[tr];
+  ptr=(uint8_t *)trk[tr];
   max=add_set(tr,me_ad);
 
   pp=0;a=0;i=top;
@@ -1049,11 +1049,11 @@ int	step_no(int ad)
 {
   int	po;
   int	step=0+1;
-  unsigned char	*bp=trk[track];
+  uint8_t	*bp=trk[track];
 
   po=ad;
   while(po>0){
-    unsigned char	e;
+    uint8_t	e;
     po=po-4;e=bp[po];
 
     if(e<0xf0 &&(po==0||bp[po-4+1]!=0||bp[po-4]>=0xf0)){
@@ -1072,11 +1072,11 @@ int	step_no(int ad)
 int	step_ad(int ad,int step)
 {
   int	po;
-  unsigned char	*bp=trk[track];
+  uint8_t	*bp=trk[track];
 
   po=ad;
   while(step>0){
-    unsigned char	a;
+    uint8_t	a;
   redis:
     a=bp[po];
     if(a==0xf7){po+=4;goto redis;}
@@ -1104,13 +1104,13 @@ int	sttm_no(int ad)
 int	sttm_ad(int ad,int step)
 {
   int	po;
-  unsigned char	*bp=trk[track];
+  uint8_t	*bp=trk[track];
 
   if(ad<0){return ad;}
 
   po=ad;
   while(1){
-    unsigned char	a;
+    uint8_t	a;
     if(step_cluc(po)>=step){break;}
   redis:
     a=bp[po];
@@ -1155,10 +1155,10 @@ int	meas_no(int ad)
   {
   int	lx[16];
   int	i,pp,a,ct;
-  unsigned char	c;
-  unsigned char	*ptr;
+  uint8_t	c;
+  uint8_t	*ptr;
 
-  ptr=(unsigned char *)trk[track];
+  ptr=(uint8_t *)trk[track];
 
   pp=0;a=1;i=0;
   while(i<ad){
@@ -1275,7 +1275,7 @@ void	undobuf(int a)
 void	same_shift(int spo,int m,int cu)
 {
   int	i,me,me2,ec,po,ad,of;
-  unsigned char	a,b,c,d;
+  uint8_t	a,b,c,d;
   int	add[2048];
   int	sad[1024];
   int	tr=track;
@@ -1410,7 +1410,7 @@ void	dat_rev(int tr,int ad,int ln)
 
   i=ad;po=ln-4;
   while(po>=0){
-    unsigned char	a=cpbuf[po];
+    uint8_t	a=cpbuf[po];
     if(a>=0xf0){
       if(a==0xf8 || a==0xf9){a=497-a;}
       if(a==0xf7 || a==0xf6 || a==0x98){
@@ -1427,7 +1427,7 @@ void	dat_rev(int tr,int ad,int ln)
 	i+=4;po-=4;
       }
     }else{
-      unsigned char	b=cpbuf[po+1];
+      uint8_t	b=cpbuf[po+1];
       if(b!=0){
 	c=0;i2=po;
 	while(1){
@@ -1450,7 +1450,7 @@ void	dat_rev(int tr,int ad,int ln)
     if(trk[tr][i]==0xf8){
       i2=i-4;co=1;
       while(i2>=ad){
-	unsigned char	a=trk[tr][i2];
+	uint8_t	a=trk[tr][i2];
 	if(a==0xf8){co++;}
 	if(a==0xf9){co--;if(co==0){trk[tr][i+1]=trk[tr][i2+1];break;}}
 	i2-=4;
@@ -1621,8 +1621,8 @@ void	bendc(int ad,int sh)
   int	stt[256];
 
   int	ct=8192,ct2=8192,st,i,j,cc,ss,ctlch=0;
-  unsigned char	da=trk[track][ad],db=trk[track][ad+4];
-  unsigned char	ca=0xee,cf=trk[track][ad+2];
+  uint8_t	da=trk[track][ad],db=trk[track][ad+4];
+  uint8_t	ca=0xee,cf=trk[track][ad+2];
 
   if((sh&1)==0){
     if( da==0xeb && db==0xeb ){
@@ -1660,7 +1660,7 @@ void	bendc(int ad,int sh)
 
     cc=0;ss=ct;
     for(i=0;i<j;i++){
-      unsigned char	ea,eb;
+      uint8_t	ea,eb;
       if(ct2!=0){ss=ct+(ct2*cc/j);cc++;}
       trk[track][ad]=ca;trk[track][ad+1]=stt[i];
       if(ctlch==0){ea=ss&0x7f;eb=(ss>>7)&0x7f;}else{ea=cf;eb=ss;}
@@ -1668,9 +1668,9 @@ void	bendc(int ad,int sh)
       ad=ad+4;
     }
   }else{
-    unsigned char	ea=trk[track][ad+2];
-    unsigned char	eb=trk[track][ad+3];
-    unsigned char	tmp[64];
+    uint8_t	ea=trk[track][ad+2];
+    uint8_t	eb=trk[track][ad+3];
+    uint8_t	tmp[64];
     int ke,md=0,co;
 
     if(da>127 || db>127){msg_clr();return;}
@@ -1725,7 +1725,7 @@ void	bendc(int ad,int sh)
 int	bendc2(int ad,char *s)
 {
   int	po,j=0,a;
-  unsigned char	c;
+  uint8_t	c;
 
   a=ctc(-1,s,0);
   if( a<0 ){return(0);}
@@ -1748,7 +1748,7 @@ int	bank_no(int j)
   int	bank=-1,bank_l=-1;
 
   while(j>0){
-    unsigned char a;
+    uint8_t a;
     j-=4;
     a=trk[track][j];
 
@@ -1810,7 +1810,7 @@ trkloop:
 /***************************/
 int	spc_code(char *s,int *ctl)
 {
-  unsigned char	a,b;
+  uint8_t	a,b;
   int 	c1=0xeb,c2=-1;
 
 

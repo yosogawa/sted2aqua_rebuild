@@ -170,14 +170,14 @@ _extern int	rec_getch,rec_putmd;		/* recoding ch./put mode	*/
 
 _extern int	vis_reso;			/**/
 
-_extern unsigned char	rfilt[32][4];		/* record filter */
-_extern unsigned char	pfilt[32][4];		/* play   filter */
+_extern uint8_t	rfilt[32][4];		/* record filter */
+_extern uint8_t	pfilt[32][4];		/* play   filter */
 
 _extern char	mplay[16][16];
 _extern int	palet_dat[16];
 
-_extern unsigned char	keyst_table[2][128];	/* key# -> st/gt convert table	*/
-_extern unsigned char	stgt_tbl[60];		/* f.key -> st/gt table		*/
+_extern uint8_t	keyst_table[2][128];	/* key# -> st/gt convert table	*/
+_extern uint8_t	stgt_tbl[60];		/* f.key -> st/gt table		*/
 
 _extern char	rhy_vel[16];
 
@@ -205,7 +205,7 @@ _extern int16_t	gs_mode[18];			/* gs bank mode    (8+1 group)	*/
 _extern char	rhy_stest[8];			/* rhythm sound test ch. & para	*/
 _extern char	rec_met[10];			/* recording metoro tone	*/
 
-_extern unsigned char	init_exc_data[258];	/* init exclusive data		*/
+_extern uint8_t	init_exc_data[258];	/* init exclusive data		*/
 
 /*** rcp format head parameter ***/
 _extern char	mtitle[65];			/* music title			*/
@@ -215,30 +215,30 @@ _extern int     beat1,beat2,bkey,pbias;		/* common parameter		*/
 _extern char	cm6_file[128],gsd_file[128];	/* controol file name		*/
 
 _extern char	rhyna[32][15];			/* rhythm assign name		*/
-_extern unsigned char	rhyno[32][2];		/* rhythm assign key & gate	*/
+_extern uint8_t	rhyno[32][2];		/* rhythm assign key & gate	*/
 
 _extern char	user_exc_memo[8][25];		/* user exclusive memo		*/
-_extern unsigned char	user_exc_data[8][24];	/* user exclusive data		*/
+_extern uint8_t	user_exc_data[8][24];	/* user exclusive data		*/
 
-_extern unsigned char	trno[36];		/* track no.			*/
-_extern unsigned char	trmod[36];		/* track play mode		*/
-_extern unsigned char	trrhy[36];		/* track rhythm sw.		*/
-_extern unsigned char	mch[36];		/* track midi ch.		*/
-_extern unsigned char	trkey[36];		/* track key shift		*/
-_extern unsigned char	trst[36];		/* track st shift		*/
+_extern uint8_t	trno[36];		/* track no.			*/
+_extern uint8_t	trmod[36];		/* track play mode		*/
+_extern uint8_t	trrhy[36];		/* track rhythm sw.		*/
+_extern uint8_t	mch[36];		/* track midi ch.		*/
+_extern int8_t	trkey[36];		/* track key shift		*/
+_extern int8_t	trst[36];		/* track st shift		*/
 _extern char	trkmemo[36][37];		/* track comment		*/
 
 /* buffer */
-_extern unsigned char	lcbuf[1024*4+4];	/* delete line buffer		*/
-_extern unsigned char	rlcbuf[132];		/* delete rhythm line buffer	*/
-_extern unsigned char	cm6[22601],gsd[4096];	/* control file buffer		*/
-_extern unsigned char	hed[1414];		/* rcp header temporary		*/
+_extern uint8_t	lcbuf[1024*4+4];	/* delete line buffer		*/
+_extern uint8_t	rlcbuf[132];		/* delete rhythm line buffer	*/
+_extern uint8_t	cm6[22601],gsd[4096];	/* control file buffer		*/
+_extern uint8_t	hed[1414];		/* rcp header temporary		*/
 
-_extern unsigned char	*trk[36];		/* track buffer pointer		*/
-_extern unsigned char	*cpbuf;			/* track copy buffer		*/
-_extern unsigned char	*rcpbuf;		/* rhythm track copy buffer	*/
-_extern unsigned char	*dat;			/* temporary & recording buffer	*/
-_extern unsigned char	*dat2;			/* temporary			*/
+_extern uint8_t	*trk[36];		/* track buffer pointer		*/
+_extern uint8_t	*cpbuf;			/* track copy buffer		*/
+_extern uint8_t	*rcpbuf;		/* rhythm track copy buffer	*/
+_extern uint8_t	*dat;			/* temporary & recording buffer	*/
+_extern uint8_t	*dat2;			/* temporary			*/
 
 /* the following variables is only PC version available */
 
@@ -270,7 +270,7 @@ extern char KEY_RDOWN[];
 extern char KEY_OPT1[];
 extern char KEY_OPT2[];
 
-extern int itor( char *, char * );
+extern int itor( uint8_t *, uint8_t * );
 extern int STed_MeasureConversion( int track );
 extern void Exit(int);
 #define exit Exit

@@ -35,8 +35,8 @@
 
 /* ------------------------------------------------------------------- */
 
-int rcpconv( unsigned char *data, size_t length, unsigned char **smf, 
-	      unsigned char *copyright ) {
+int rcpconv( uint8_t *data, size_t length, uint8_t **smf, 
+	      const char *copyright ) {
 
   RCP_DATA rcp;
   int smf_length;
@@ -62,11 +62,11 @@ int rcpconv( unsigned char *data, size_t length, unsigned char **smf,
   return smf_length;
 }
 
-int rcpconv_with_notice( unsigned char *data, size_t length, unsigned char **smf, 
-			  unsigned char *copyright,
-			  unsigned char *command_name,
-			  unsigned char *file_name,
-			  unsigned char *date ) {
+int rcpconv_with_notice( uint8_t *data, size_t length, uint8_t **smf, 
+			  const char *copyright,
+			  const char *command_name,
+			  const char *file_name,
+			  const char *date ) {
 
   RCP_DATA rcp;
   int smf_length;

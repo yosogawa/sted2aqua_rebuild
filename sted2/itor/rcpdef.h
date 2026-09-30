@@ -2,7 +2,8 @@
 /* Constant definitions */
 /************************/
 
-#define uchar unsigned char
+#include <stdint.h>
+#define uchar uint8_t
 
 #define Y_OFT	10
 #define X_TRK	1
@@ -36,8 +37,8 @@ struct MCPDATA {
     char	name[30];	/* Song Name   */
     char	tmbase;		/* Time base   */
     char	tempo;		/* Tempo       */
-    char	rhythm0;	/* Rhythm Ê¬»Ò */
-    char	rhythm1;	/* Rhythm Ê¬Êì */
+    char	rhythm0;	/* Rhythm Ê¬ï¿½ï¿½ */
+    char	rhythm1;	/* Rhythm Ê¬ï¿½ï¿½ */
     char	volume;		/* Volume      */
     char	d1[27];		/*             */
     char	midich[9];	/* MIDI ch 1-R */
@@ -65,8 +66,8 @@ struct RCPDATA {
     char 		x40[16];	/* 0x40 .......*/
     uchar 		tmbase;		/* Time base   */
     uchar 		tempo;		/* Tempo       */
-    uchar 		rhythm0;	/* Rhythm Ê¬»Ò */
-    uchar 		rhythm1;	/* Rhythm Ê¬Êì */
+    uchar 		rhythm0;	/* Rhythm Ê¬ï¿½ï¿½ */
+    uchar 		rhythm1;	/* Rhythm Ê¬ï¿½ï¿½ */
     uchar 		key;		/* key         */
     uchar 		play_bias;	/* play bias   */
     char		cm6name[12];	/* CM6 name    */
@@ -77,7 +78,7 @@ struct RCPDATA {
     uchar		tmbase_h;	/* Time base h */
     char		x00c[30];	/* 0x00        */
     struct rset	rhythm[32];	/* rhythm      */
-    uchar		exclu[8][48];	/* ²»¸»ÀßÄê    */
+    uchar		exclu[8][48];	/* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½    */
   } hd;
   char dt[1];
 };
@@ -94,7 +95,7 @@ struct track_head {
   char	comment[36];	/* track comment */
 };
 
-/* G36 data *//* Ì¤»ÈÍÑ */
+/* G36 data *//* Ì¤ï¿½ï¿½ï¿½ï¿½ */
 struct G36DATA {
   struct {
     char 		mark[32];	/* COME ON ....*/
@@ -106,8 +107,8 @@ struct G36DATA {
     uchar		tmbase_h;	/* Time base h */
     uchar 		tempo;		/* Tempo       */
     uchar 		tempo_h;	/* Tempo       */
-    uchar 		rhythm0;	/* Rhythm Ê¬»Ò */
-    uchar 		rhythm1;	/* Rhythm Ê¬Êì */
+    uchar 		rhythm0;	/* Rhythm Ê¬ï¿½ï¿½ */
+    uchar 		rhythm1;	/* Rhythm Ê¬ï¿½ï¿½ */
     uchar 		key;		/* key         */
     uchar 		play_bias;	/* play bias   */
     char 		x00b[6];	/* 0x00 .......*/
@@ -121,7 +122,7 @@ struct G36DATA {
     char		x00f[4];	/* 0x00        */
     char		x00g[80];	/* 0x00        */
     struct rset	rhythm[128];	/* rhythm      */
-    char		exclu[8][48];	/* ²»¸»ÀßÄê    */
+    char		exclu[8][48];	/* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½    */
   } hd;
   char dt[1];
 };

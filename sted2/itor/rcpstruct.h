@@ -1,6 +1,7 @@
 /* struct definition for RCP file */
 
-#define uchar unsigned char
+#include <stdint.h>
+#define uchar uint8_t
 
 struct RCPHEAD {
 	uchar mark[32];

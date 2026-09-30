@@ -47,9 +47,9 @@ static struct track {
 static int opt, comment;
 static int sameflag;
 
-static unsigned char *rcpptr, *lastptr;
-static unsigned char *inptr, *buf;
-static unsigned char *note, *note_data;
+static uint8_t *rcpptr, *lastptr;
+static uint8_t *inptr, *buf;
+static uint8_t *note, *note_data;
 static int incount;
 static int tc;
 static int fmt;
@@ -89,7 +89,7 @@ static int same_compres(int);
 static int add_set(int, int *);
 static int meas_len(int, int);
 
-static unsigned char * strncpy0( unsigned char *dst, unsigned char *src, int n )
+static uint8_t * strncpy0( uint8_t *dst, uint8_t *src, int n )
 {
   int i;
 
@@ -109,8 +109,8 @@ static int alloc_mem( void )
     return 1;
   }
 
-  note_data = ( unsigned char * )work;
-  buf = ( unsigned char * )( work + TRACK_LEN * 4 );
+  note_data = ( uint8_t * )work;
+  buf = ( uint8_t * )( work + TRACK_LEN * 4 );
 
   return 0;
 }
@@ -123,34 +123,34 @@ static void destroy_mem( void )
   return;
 }
 
-static void get_data( unsigned char *s, int bc )
+static void get_data( uint8_t *s, int bc )
 {
-  memmove( ( char * )s, ( char *)( inptr + incount ), bc );
+  memmove( s, inptr + incount, bc );
   incount += bc;
 
   return;
 }
 
-static void put_data( unsigned char *s, int bc )
+static void put_data( uint8_t *s, int bc )
 {
   if( lastptr <= rcpptr + bc ) {
     fprintf( stderr, "Buffer exhausted\n" );
     return;
   }
-  memmove( ( char * )rcpptr, ( char * )s, bc );
+  memmove( rcpptr, s, bc );
   rcpptr += bc;
 
   return;
 }
 
-static void strpaste( unsigned char *dst, unsigned char *src )
+static void strpaste( uint8_t *dst, uint8_t *src )
 {
   while( *src ) {
     *dst++ = *src++;
   }
 }
 
-static void strnpaste( unsigned char *dst, unsigned char *src, int n )
+static void strnpaste( uint8_t *dst, uint8_t *src, int n )
 {
   while( n-- ) {
     *dst++ = *src++;
@@ -208,12 +208,12 @@ static void proc_beat( int high, int low )
 static int proc_header( void )
 {
   int	i;
-  unsigned char b[14];
+  uint8_t b[14];
   
   get_data( b, 14 );
   
   if( strncmp( b, "MThd", 4 ) ) {
-    unsigned char tmp[128];
+    uint8_t tmp[128];
     get_data( tmp, 128-14 ); /* Mac binary */
     
     get_data( b, 14 );
@@ -246,13 +246,13 @@ static int proc_header( void )
   }
   
   /*
-  strpaste( RCP_HEAD.memo +  28, ( unsigned char * )"  \u03a5\u01e1\u03e1" );
-  strpaste( RCP_HEAD.memo +  84, ( unsigned char * )"  ظMIDI\u07a5ץ" );
-  strpaste( RCP_HEAD.memo + 140, ( unsigned char * )"  ItoR.x (v1.00)" );
-  strpaste( RCP_HEAD.memo + 151, ( unsigned char * )version );
-  strpaste( RCP_HEAD.memo + 196, ( unsigned char * )"  \u07a4" );
-  strpaste( RCP_HEAD.memo + 252, ( unsigned char * )"  Copyright 1990-97" );
-  strpaste( RCP_HEAD.memo + 280, ( unsigned char * )"           HARPOON,TURBO" );
+  strpaste( RCP_HEAD.memo +  28, ( uint8_t * )"  \u03a5\u01e1\u03e1" );
+  strpaste( RCP_HEAD.memo +  84, ( uint8_t * )"  ظMIDI\u07a5ץ" );
+  strpaste( RCP_HEAD.memo + 140, ( uint8_t * )"  ItoR.x (v1.00)" );
+  strpaste( RCP_HEAD.memo + 151, ( uint8_t * )version );
+  strpaste( RCP_HEAD.memo + 196, ( uint8_t * )"  \u07a4" );
+  strpaste( RCP_HEAD.memo + 252, ( uint8_t * )"  Copyright 1990-97" );
+  strpaste( RCP_HEAD.memo + 280, ( uint8_t * )"           HARPOON,TURBO" );
   */
   
   if( !tb_mode || std_head.division > tb_max ) {
@@ -686,13 +686,13 @@ static int num_check( int num, int limit )
 
 static void clr_ttl( void )
   {
-    strpaste( ( unsigned char * )RCP_HEAD.title, ( unsigned char * )ttlinit );
+    strpaste( ( uint8_t * )RCP_HEAD.title, ( uint8_t * )ttlinit );
   }
 
-static void proc_meta( int meta, unsigned char *text, int length )
+static void proc_meta( int meta, uint8_t *text, int length )
   {
     int i;
-    unsigned char work[128];
+    uint8_t work[128];
 
     if( fmt == 0 /*&& trk*/ ) {
       flash( stepsum );
@@ -840,7 +840,7 @@ static void proc_meta( int meta, unsigned char *text, int length )
     }
   }
 
-static void proc_excl( unsigned char *text, int length ,int code)
+static void proc_excl( uint8_t *text, int length ,int code)
   {
     int h, m, l;
     int hh, mm, ll;
@@ -914,7 +914,7 @@ static void proc_excl( unsigned char *text, int length ,int code)
 static int proc_next( void )
   {
     int meta, code, length,last;
-    unsigned char text[4096];
+    uint8_t text[4096];
 
     last = std_trk.length;
     cmd = 0x00;
@@ -1007,7 +1007,7 @@ static void track_end( void )
 static int proc_track( void )
 {
   int i;
-  unsigned char b[8];
+  uint8_t b[8];
   
   exc_no=0x10;exc_id=0x16;chport=0;
   
@@ -1046,7 +1046,7 @@ static int proc_track( void )
   TRACK.ST_offset = 0x00;
   TRACK.Mode = 0x00;
   
-  strpaste( TRACK.Memo, ( unsigned char * )memoinit );
+  strpaste( TRACK.Memo, ( uint8_t * )memoinit );
   memoflag = 0;
   barno=0;
   if(barlenb[0]>0 && trk>0){barlen=barlenb[barno++];}
@@ -1074,8 +1074,8 @@ static int proc_track( void )
     }
   }
   
-  put_data( ( unsigned char * )&TRACK.len_low, 44 );
-  put_data( ( unsigned char * )note, len );
+  put_data( ( uint8_t * )&TRACK.len_low, 44 );
+  put_data( ( uint8_t * )note, len );
   tc += len + 44;
 
   return 0;
@@ -1091,7 +1091,7 @@ static void dummy_track( void )
     TRACK.Play_bias = 0x00;
     TRACK.ST_offset = 0x00;
     TRACK.Mode = 0x00;
-    strpaste( TRACK.Memo, ( unsigned char * )memoinit );
+    strpaste( TRACK.Memo, ( uint8_t * )memoinit );
 
     if( !comment ) {
       printf( "Track= %2d  dummy\n", trk );
@@ -1099,8 +1099,8 @@ static void dummy_track( void )
 
     track_end();
 
-    put_data( ( unsigned char * )&TRACK.len_low, 44 );
-    put_data( ( unsigned char * )note, len );
+    put_data( ( uint8_t * )&TRACK.len_low, 44 );
+    put_data( ( uint8_t * )note, len );
     tc += len + 44;
   }
 
@@ -1194,7 +1194,7 @@ static void option( char *s )
   }
 #endif
 
-int itor( unsigned char *smf_data, unsigned char *rcp_buf )
+int itor( uint8_t *smf_data, uint8_t *rcp_buf )
 {
   int i;
 
@@ -1283,7 +1283,7 @@ int itor( unsigned char *smf_data, unsigned char *rcp_buf )
 static int tai_compres(int ln)
   {
     int	i,ad,ch,rbh=-1,rbm=-1;
-    unsigned char	a,b,c,d;
+    uint8_t	a,b,c,d;
     /*base dd dev df*/
     ch=(TRACK.MIDI_CH+1)&0xff;
     ad=0;
@@ -1296,7 +1296,7 @@ static int tai_compres(int ln)
 	ad2=i;sum=0;
 
 	while(ad2<ln){
-	  unsigned char	da=note[ad2];
+	  uint8_t	da=note[ad2];
 	  if(da==0xe6){cc=note[ad2+2];}
 
 	  if(ad2>i && cc==ch && a==da && note[ad2+2]!=0 && note[ad2+3]!=0 ){

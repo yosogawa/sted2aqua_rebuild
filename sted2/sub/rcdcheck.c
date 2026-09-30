@@ -60,7 +60,7 @@ int add_set(int, int *);
 static void _play_external_player( void );
 static void _stop_external_player( void );
 static void _exit_external_player( int );
-static void request_midi_data( char * );
+static void request_midi_data( uint8_t * );
 
 static void install_sighandler( void );
 static void release_sighandler( void );
@@ -68,7 +68,7 @@ static void release_sighandler( void );
 static pid_t player_pid=0;
 
 static void null_func ( void ) {};
-static void null_func_char ( char a) {};
+static void null_func_char ( uint8_t a) {};
 
 void rcd_check( void ) {
 
@@ -220,7 +220,7 @@ void _play_external_player( void ) {
   if ( DATA_FROM_FILE ) {
     if ( !RCP_CAPABLE ) {
       int smfsize;
-      unsigned char *smfdata;
+      uint8_t *smfdata;
 
       smfsize = rcpconv( _data_adr, (size_t)rcd->totalcount, &smfdata, NULL );
       if ( smfsize < -1 ) return;
@@ -283,7 +283,7 @@ void _play_external_player( void ) {
   } else { /* !DATA_FROM_FILE */
     if ( !RCP_CAPABLE ) {
       int smfsize;
-      unsigned char *smfdata;
+      uint8_t *smfdata;
 
       /*smfsize = rcptomid( _data_adr, rcd->totalcount, &smfdata );*/
       smfsize = rcpconv( _data_adr, (size_t)rcd->totalcount, &smfdata, NULL );
@@ -436,7 +436,7 @@ void _exit_external_player( int sig ){
   return;
 }
 
-void request_midi_data( char *p ){
+void request_midi_data( uint8_t *p ){
   int i;
 
   if ( !STED_CONTROLLABLE ) return;
@@ -453,7 +453,7 @@ void request_midi_data( char *p ){
     return;
   }
   for( i=0;i<16;i++,p++ ){
-    if( (rcd->MIDI_req[i]=(unsigned char)*p)==0xff ){
+    if( (rcd->MIDI_req[i]=(uint8_t)*p)==0xff ){
       break;
     }
   }
@@ -547,11 +547,11 @@ int STed_MeasureConversion( int tr ) {
 
 static int stp_ad( int t, int measure, int step ) {
 
-  unsigned char a;
+  uint8_t a;
   int po;
   int tr;
   int s;
-  unsigned char *bp=trk[t];
+  uint8_t *bp=trk[t];
 
   measure+=(poft&0xffff);
   if (( poft&0xffff)==0 ) measure++;

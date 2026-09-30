@@ -42,7 +42,7 @@ static Bool opt1_flag=False, opt2_flag=False;
 static XEvent last_event;
 static char last_code[256];
 
-static unsigned char selection_buffer[1024];
+static uint8_t selection_buffer[1024];
 static int sbp=0;
 static int sbp_len=0;
 
@@ -331,7 +331,7 @@ int XSTed_sftsns( void ) {
 int XSTed_bitsns( int group ) {
 
   int ret=0;
-  unsigned char key_buffer[32];
+  uint8_t key_buffer[32];
   Bool check_keysym( KeySym, char * );
   Bool check_keycode( KeyCode, char * );
 
@@ -741,7 +741,7 @@ void check_selection( char *buf, int *ptr, int *len ) {
   XTextProperty ct;
   Atom type;
   char **cl;
-  unsigned char *buff;
+  uint8_t *buff;
   int fmt,count_return;
   unsigned long nitems, left;
 

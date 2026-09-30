@@ -71,7 +71,7 @@ typedef struct _RCP_TRACK {
   int           st;                         /* step offset */
   int           mode;                       /* mode */
                                             /* comment */
-  unsigned char comment[RCP_MAX_COMMENT_SIZE];
+  char comment[RCP_MAX_COMMENT_SIZE];
 
   /* track work */
 
@@ -101,26 +101,26 @@ typedef struct _RCP_TRACK {
   int           same_measure_flag;
   int           same_measure_ptr;
 
-  unsigned char *smf;
+  uint8_t *smf;
   int           smf_ptr;
 
 } RCP_TRACK;
 
 typedef struct _RCP_DATA {
 
-  unsigned char *data;        /* data */
+  uint8_t *data;        /* data */
   size_t         length;      /* data length */
-  unsigned char *file_name;   /* original RCP/G36 filename */
-  unsigned char *date;        /* original RCP/R36 timestamp */
-  unsigned char *command_name;/* command name ( typically "rcptomid" ) */
-  unsigned char *copyright;   /* copyright notice */
+  const char *file_name;   /* original RCP/G36 filename */
+  const char *date;        /* original RCP/R36 timestamp */
+  const char *command_name;/* command name ( typically "rcptomid" ) */
+  const char *copyright;   /* copyright notice */
 
   int g36;                    /* flag for G18/G36 format */
   int rcp;                    /* flag for RCP/R36 format */
   int steddata;               /* flag for STED3 format */
 
-  unsigned char  title[65];   /* data title ( perhaps SJIS ) */
-  unsigned char  memo[337];   /* memo */
+  char  title[65];   /* data title ( perhaps SJIS ) */
+  char  memo[337];   /* memo */
 
   int timebase;               /* timebase */
   int tempo;                  /* tempo */
@@ -149,10 +149,10 @@ typedef struct _RCP_DATA {
 
   int result_smf[RCP_MAX_RESULT_SMF_SIZE];
 
-  unsigned char *smf_tempo_track;
+  uint8_t *smf_tempo_track;
   int            smf_tempo_track_ptr;
 
-  unsigned char *smf_data;
+  uint8_t *smf_data;
   int            smf_size;
 
   int            enable_converter_notice;
@@ -167,11 +167,11 @@ typedef struct _RCP_DATA {
 
 } RCP_DATA;
 
-extern void           error_end( char *);
-extern RCP_DATA      *rcp_read_file( char * );
+extern void           error_end( const char * );
+extern RCP_DATA      *rcp_read_file( const char * );
 extern int            rcp_close( RCP_DATA * );
 
-extern unsigned char *rcptomid( RCP_DATA * );
+extern uint8_t       *rcptomid( RCP_DATA * );
 
 
 /* RCP data structure definition */

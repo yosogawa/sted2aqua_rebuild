@@ -11,7 +11,7 @@ static	char	chord_name[20][9]={
   " 7(b5)  "," m7(b5) "," aug    "," aug7   "," 7sus4  ",
   " 69     "," m9     "," m6     "," m7     "," m      "};
 
-static char	chord_pat[20][5]={
+static uint8_t	chord_pat[20][5]={
   4, 7, 0, 0,0, /* 	*/	4, 7,10, 0,0, /* 7	*/
   4, 7,11, 0,0, /* maj7	*/	4, 7, 9, 0,0, /* 6	*/
   4, 7,11,14,0, /* maj9	*/	4, 7,10,14,0, /* 9	*/
@@ -34,7 +34,7 @@ static char	key_name[32][4]={
   " A "," D "," G "," C "," F ","Bb ","Eb ","Ab "};
 
 /*       C  C# D  D# E  F  F# G  G# A  A# B */
-static char	key_shi[16][12]={
+static int8_t	key_shi[16][12]={
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,	/*    */
   0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,	/* #1 */
   1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,	/* #2 */
@@ -357,7 +357,7 @@ return(b);
 int	ret_midi(int cde,int imd,int ad,int cy)
 {
   int	j,co=0,po=0,cc,k;
-  unsigned char	b=48,c=46;
+  uint8_t	b=48,c=46;
 
   msg("MIDI INPUT(NOTE)");
   if(imd==3 || imd==5){co=polykey(cde);}else{co=onekey(imd,cde);}
@@ -365,7 +365,7 @@ int	ret_midi(int cde,int imd,int ad,int cy)
 
   if(imd>=4){
     if(keyst_table[0][dat[0]]==255){
-      unsigned char	cd=keyst_table[1][dat[0]];
+      uint8_t	cd=keyst_table[1][dat[0]];
       if(cd==0){dat[0]=0;co=4;}
       if(cd==1){return -1;}
       if(cd==2){return -2;}
@@ -402,7 +402,7 @@ int	ret_midi(int cde,int imd,int ad,int cy)
   }
   cc=co;
   while(co>0){
-    unsigned char	a,d;
+    uint8_t	a,d;
     if(co>4 && (imd==3||imd==5)){a=0;}else{a=b;}
     if(c==0){d=0;}else{d=dat[po+1];}
     trk[track][ad]=dat[po];trk[track][ad+1]=a;
@@ -895,7 +895,7 @@ int	mml_inp(int ad)
   char	s[40],nt[16];
   /*
     int	lpad[18];
-    unsigned char lpco[18];
+    uint8_t lpco[18];
     */
   if( ad>0 ){
     j=ad-4;

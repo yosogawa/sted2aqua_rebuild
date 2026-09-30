@@ -37,7 +37,7 @@ QUANTIZE  (6)    :
 TEMPO            :
 */
 
-unsigned char	stgt_name[10][4]={
+uint8_t	stgt_name[10][4]={
   "","","","","","","","","",""};
 
 
@@ -401,7 +401,7 @@ ass_ret:
       for(i=0;i<36;i++){
 	if((trrhy[i]&128)!=0){
 	  for(j=0;j<tr_len[i];j=j+4){
-	    unsigned char	a=trk[i][j];
+	    uint8_t	a=trk[i][j];
 	    if(a<128 && a!=0 && trk[i][j+2]>0 && trk[i][j+3]>0){
 	      n=0;while(n<32){
 		if(a==rno[n] && rhyno[n][0]!=0){

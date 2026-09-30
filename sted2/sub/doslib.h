@@ -21,15 +21,15 @@ typedef int dosmode_t;
 #endif
 
 struct _x68_filbuf {
-  unsigned char searchatr; /* attributes for searching files */
-  unsigned char driveno;   /* drive number */
+  uint8_t searchatr; /* attributes for searching files */
+  uint8_t driveno;   /* drive number */
   uint16_t dircls;   /* claster number */
   uint16_t dirfat;   /* FAT number of file */
   uint16_t dirsec;   /* sector number of directory */
   uint16_t dirpos;   /* position in directory */
   char filename[8];        /* filename of file */
   char ext[3];             /* extension of file */
-  unsigned char atr;       /* attributes of file */
+  uint8_t atr;       /* attributes of file */
   uint16_t time;     /* time of file */
   uint16_t date;     /* date of file */
   unsigned int filelen;    /* length of file */

@@ -74,8 +74,8 @@ void	gra_gakufu(int po,int md)
   int	a,b,c,d,i,ad,ad2,gx,cc=0,skey,co=0;
   int	tb=(tbase/48);
   char	tmp0[128];
-  unsigned char	kno[512];
-  unsigned char *ptr=trk[track];
+  uint8_t	kno[512];
+  uint8_t *ptr=trk[track];
 
   if((md&16)==0){
     fill(328-8,590,766,851,0);box(327,589,767,852,14,65535);
@@ -221,7 +221,7 @@ void	gra_special(int po,int md)
   int	pan,opan;
   int	tb=(tbase/48);
   int	me_ad[2048];
-  unsigned char *ptr=trk[track];
+  uint8_t *ptr=trk[track];
 
   int ys=1;
   if((grpmode&1)==0){ys=2;}
@@ -242,14 +242,14 @@ void	gra_special(int po,int md)
   opitch=-1;ovol=-1;oexpr=-1;omodu=-1;oentry=-1;opan=-1;
 
   i=ad;while(i>0){
-    unsigned char	d;
+    uint8_t	d;
   top:
     i=i-4;d=ptr[i];
     if(d==0xee && opitch<0){
       opitch=(ptr[i+3]*128+ptr[i+2])*ys;
     }
     if(d==0xeb){
-      unsigned char	b=ptr[i+2];
+      uint8_t	b=ptr[i+2];
       if(b== 7 && ovol <0){ovol=ptr[i+3]*ys;}
       if(b== 1 && omodu<0){omodu=ptr[i+3]*ys;}
       if(b==11 && oexpr<0){oexpr=ptr[i+3]*ys;}
@@ -432,14 +432,14 @@ void	dat_info(int po,int sh)
 {
   int	i,ln,top,st,pitch=0,ch=mch[track],prg=0,tempo=64,retad=0;
   char	tmp[256];
-  unsigned char	ctr[256];
-  static unsigned char	ctno1[16]={7,11,1,10,64,91,93,94, 5,65,66,67,99,101, 6, 0};
-  static unsigned char	ctno2[16]={0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0,98,100,38,32};
+  uint8_t	ctr[256];
+  static uint8_t	ctno1[16]={7,11,1,10,64,91,93,94, 5,65,66,67,99,101, 6, 0};
+  static uint8_t	ctno2[16]={0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0,98,100,38,32};
 
-  static unsigned char	ctno3[16]={7,11,1,10,64,91,93,94,71,72,73,74,99,101, 6, 0};
+  static uint8_t	ctno3[16]={7,11,1,10,64,91,93,94,71,72,73,74,99,101, 6, 0};
 
   int	me_ad[2048];
-  unsigned char *ptr=trk[track];
+  uint8_t *ptr=trk[track];
 
   /*if(sh&10){dat_info2(po,sh);return;}*/
 
@@ -472,7 +472,7 @@ void	dat_info(int po,int sh)
   ctr[128]=64;ctr[129]=64;ctr[130]=64;ctr[131]=64;
 
   i=0;while(i<=po){
-    unsigned char	d;
+    uint8_t	d;
   top:
     d=ptr[i];
     if(d==0xeb){ctr[ptr[i+2]]=ptr[i+3];
@@ -558,15 +558,15 @@ void	dat_info(int po,int sh)
 {
   int	i,ln,top,st,pitch=0,ch=mch[track],prg=0,tempo=64,retad=0;
   char	tmp[256];
-  unsigned char	ctr[256];
-  static unsigned char	ctno1[24]={7,11,1,10,64,91,93,94, 5,65,66,67,71,72,73,74,128,129,130,131,99,101, 6, 0};
-  static unsigned char	ctno2[24]={0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,98,100,38,32};
+  uint8_t	ctr[256];
+  static uint8_t	ctno1[24]={7,11,1,10,64,91,93,94, 5,65,66,67,71,72,73,74,128,129,130,131,99,101, 6, 0};
+  static uint8_t	ctno2[24]={0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,98,100,38,32};
 
   static char	vib_name[4][10]={"DECAY    ","VIB RATE ","VIB DEPTH","VIB DELAY"};
 
 
   int	me_ad[2048];
-  unsigned char *ptr=trk[track];
+  uint8_t *ptr=trk[track];
 
   add_set(track,me_ad);
 
@@ -594,7 +594,7 @@ void	dat_info(int po,int sh)
   ctr[128]=64;ctr[129]=64;ctr[130]=64;ctr[131]=64;
 
   i=0;while(i<=po){
-    unsigned char	d;
+    uint8_t	d;
   top:
     d=ptr[i];
     if(d==0xeb){ctr[ptr[i+2]]=ptr[i+3];

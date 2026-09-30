@@ -31,12 +31,12 @@ static char	beats[21][5]={
 static int	tbase_tbl[]={48,60,80,96,120,160,192,240,384,480};
 /*RCM V2.5G  : 48,60,80,96,120,160,240,480*/
 
-static unsigned char	fnckey[12]={
+static uint8_t	fnckey[12]={
   0x12,0x17,0x01,0x07,	0x05,0x13,0x04,0x18,	0x0C,0x16,0x0B,0x15};
 /*	R.UP,R.DOWN,INS,DEL,	UP,LEFT,RIGHT,DOWN,	CLR,HELP,HOME,UNDO*/
 
-unsigned char	fnckey0[712],fnckey1[712];
-char	fonbuf[188*32];
+uint8_t	fnckey0[712],fnckey1[712];
+uint8_t	fonbuf[188*32];
 
 char	env_opt[32][128];
 char	rc_path[256];
@@ -193,7 +193,7 @@ int	main(int argc,char *argv[])
     exit(1);
   }
 
-  if( (int)rcd==0 ) {
+  if( rcd == NULL ) {
     B_PRINT(_("RCD is not running.\n"));exit(1);
   }else{
     if( strcmp(rcd_version,"3.01")<0 || strcmp(rcd_version,"3.09")>0 ){
@@ -212,11 +212,11 @@ int	main(int argc,char *argv[])
 
   work_size=TRACK_SIZE+32*1024;if(work_size<work_size2){work_size=work_size2;}
 
-  cpbuf=(unsigned char *)MALLOC(TRACK_SIZE);
-  rcpbuf=(unsigned char *)MALLOC(TRACK_SIZE);
+  cpbuf=(uint8_t *)MALLOC(TRACK_SIZE);
+  rcpbuf=(uint8_t *)MALLOC(TRACK_SIZE);
 
-  dat=(unsigned char *)MALLOC(work_size);
-  dat2=(unsigned char *)MALLOC(work_size);
+  dat=(uint8_t *)MALLOC(work_size);
+  dat2=(uint8_t *)MALLOC(work_size);
   /* May.06.2001 NAGANO Daisuke <breeze.nagano@nifty.ne.jp> */
 #if 0
   if((int)dat>=0x81000000){
@@ -224,7 +224,7 @@ int	main(int argc,char *argv[])
 #endif
 
 realc:
-  trk[0]=(unsigned char *)MALLOC(buff_size);
+  trk[0]=(uint8_t *)MALLOC(buff_size);
 #if 0
   if((int)trk[0]>=0x81000000) {
     if(!used_u){
@@ -1374,7 +1374,7 @@ void	fonload(char *fi)
 }
 
 /***************************/
-void	fonread(unsigned char *buf)
+void	fonread(uint8_t *buf)
 {
   int	i;
 
@@ -1388,7 +1388,7 @@ void	fonread(unsigned char *buf)
 }
 
 /***************************/
-void	fonset(unsigned char *buf)
+void	fonset(uint8_t *buf)
 {
   int	i;
 

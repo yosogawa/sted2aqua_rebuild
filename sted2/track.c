@@ -36,10 +36,10 @@ void    bunkatsu(int,int,int *);
 int    velo_ctrl(int,int,int);
 
 /***************************/
-int	trk_mix_sub(unsigned char *in1,unsigned char *in2)
+int	trk_mix_sub(uint8_t *in1,uint8_t *in2)
 {
   int	ad1=0,ad2=0,po=0,st1=0,st2=0,ef1=0,ef2=0,lsad=-1;
-  unsigned char	a1,a2,b1,b2,c1,c2,d1,d2;
+  uint8_t	a1,a2,b1,b2,c1,c2,d1,d2;
 
   while(po<TRACK_SIZE){
 
@@ -273,10 +273,10 @@ int	repeat_comp(int tr)
 }
 
 /***************************/
-int	repeat_ext(unsigned char *obuf,int ln)
+int	repeat_ext(uint8_t *obuf,int ln)
 {
   int	i,po=0;
-  unsigned char	a,b,c,d;
+  uint8_t	a,b,c,d;
 
   i=0;
   while(i<ln){
@@ -284,7 +284,7 @@ int	repeat_ext(unsigned char *obuf,int ln)
     a=dat[i];b=dat[i+1];c=dat[i+2];d=dat[i+3];
 
     if(a==0xf8){
-      unsigned char	da;
+      uint8_t	da;
       int	co,ad;
       if(b==0){co=256;}else{co=b;}
       if(co>=255){goto skip;}
@@ -390,7 +390,7 @@ int	same_meas_conv(int tr)
 int	same_ext_sub(int tr,int p1,int p2,int md)
 {
   int	i,po=0,ad,max,count=0;
-  unsigned char	a,b,c,d;
+  uint8_t	a,b,c,d;
   int	add[2048];
 
   max=add_set(tr,add);
@@ -441,13 +441,13 @@ int	same_ext_sub(int tr,int p1,int p2,int md)
 /***************************/
 void	trk_opt_sub(int tr,int po1,int po2)
 {
-  unsigned char	*ptr;
+  uint8_t	*ptr;
   int	ad,ad2=0,po3;
   po2+=po1;po3=po2;
 
   po2=tai_compres(tr,po1,po2);
 
-  ptr=(unsigned char *)trk[tr];
+  ptr=(uint8_t *)trk[tr];
 
   for(ad=0;ad<tr_len[tr];ad+=4){
     /*if(ad>=po1 && ad<po2){*/
@@ -507,10 +507,10 @@ void	trk_opt_sub(int tr,int po1,int po2)
 int	tai_compres(int tr,int po1,int po2)
 {
   int	i,ln,ad,ch,po3=po2;
-  unsigned char	a,b,c,d;
+  uint8_t	a,b,c,d;
 
-  unsigned char	*ptr;
-  ptr=(unsigned char *)trk[tr];
+  uint8_t	*ptr;
+  ptr=(uint8_t *)trk[tr];
 
   ch=(mch[tr])&0xff;
   ad=0;
@@ -526,7 +526,7 @@ int	tai_compres(int tr,int po1,int po2)
 	ad2=i;sum=0;
 
 	while(ad2<ln){
-	  unsigned char	da=ptr[ad2];
+	  uint8_t	da=ptr[ad2];
 	  if(da==0xe6){cc=ptr[ad2+2];}
 
 	  if(ad2>i && cc==ch && a==da && ptr[ad2+2]!=0 && ptr[ad2+3]!=0 ){
@@ -584,10 +584,10 @@ int	tai_compres(int tr,int po1,int po2)
 /***************************/
 void	trk_quan(int tr,int po1,int po2)
 {
-  unsigned char	*ptr;
+  uint8_t	*ptr;
   int	ad,ad2=0,st=0,rt=0,hf,tt1=0,ofs=0,cf=0;
 
-  ptr=(unsigned char *)trk[tr];
+  ptr=(uint8_t *)trk[tr];
 
   while(st<2 || st>48){
     msg("QUANTIZE  RESOLUTION=");st=vinput(6,0x803);
@@ -602,7 +602,7 @@ void	trk_quan(int tr,int po1,int po2)
   undobuf(0);
 
   for(ad=0;ad<tr_len[tr];ad+=4){
-    unsigned char a,b,c,d;
+    uint8_t a,b,c,d;
     a=ptr[ad];b=ptr[ad+1];c=ptr[ad+2];d=ptr[ad+3];
 
     if(ad>=po1 && ad<po2){
@@ -680,10 +680,10 @@ void	note_ctrl(int po1,int po2)
 {
   int	i,j,k,ad=0,ln=0,md=0,ke,st=0,tr=track;
   int	stt[256],stt2[256];
-  unsigned char	a,b,c,d;
+  uint8_t	a,b,c,d;
 
-  unsigned char	*ptr;
-  ptr=(unsigned char *)trk[tr];
+  uint8_t	*ptr;
+  ptr=(uint8_t *)trk[tr];
 
   for(i=0;i<256;i++){stt[i]=0;stt2[i]=0;}
 
@@ -798,8 +798,8 @@ int	velo_ctrl(int ad,int ln,int vmo)
 {
   int	ct,st=-128,st2=-128,i,cc=0,ke;
 
-  unsigned char	*ptr;
-  ptr=(unsigned char *)trk[track];
+  uint8_t	*ptr;
+  ptr=(uint8_t *)trk[track];
 
   /*	if(cplen<0){
 	ln=abs(cpadd-ad);if(!(cpadd>ad)){ad=cpadd;}
@@ -936,7 +936,7 @@ int	size_max(int tr)
 /***************************/
 int	size_add(int tr,int size)
 {
-  unsigned char	*ptr_s,*ptr_d;
+  uint8_t	*ptr_s,*ptr_d;
 
   if(buff_free<size){
     msg(_("Track buffer exhausted."));return(-1);}
@@ -962,7 +962,7 @@ int	size_add(int tr,int size)
 /***************************/
 void	size_ref()
 {
-  unsigned char	*ptr_s,*ptr_d;
+  uint8_t	*ptr_s,*ptr_d;
   int	i,left=0,ln;
 
   for(i=1;i<36;i++){

@@ -28,7 +28,7 @@ int set_midi_tempo( RCP_DATA * ); */
 
 typedef struct rcpplayer_record {
 	RCP_DATA rcp;
-	unsigned char result_smf[RCP_MAX_RESULT_SMF_SIZE];
+	uint8_t result_smf[RCP_MAX_RESULT_SMF_SIZE];
 	int smf_length;
 	int32_t total_step; /* the total step at the last sent event */
 	int delta_step;  /* the step to wait until the next event */
@@ -122,10 +122,10 @@ decrement_step(int delta_step, int *min_track, int *min_note, int *min_step)
 }
 
 int
-rcpplayer_next_midi_event(int32_t *step, unsigned char **ptr, int *length, int *port)
+rcpplayer_next_midi_event(int32_t *step, uint8_t **ptr, int *length, int *port)
 {
 //	long s_step;
-	unsigned char *s_ptr;
+	uint8_t *s_ptr;
 	int s_length, s_maxlen;
 	int s_port;
 	int n, min_step, min_track, min_note, nstep, tr;
@@ -211,7 +211,7 @@ rcpplayer_next_midi_event(int32_t *step, unsigned char **ptr, int *length, int *
 }
 
 int
-rcpplayer_init(unsigned char *data_ptr, size_t data_length)
+rcpplayer_init(uint8_t *data_ptr, size_t data_length)
 {
 	int result;
 	memset(&sPlayer, 0, sizeof(sPlayer));
