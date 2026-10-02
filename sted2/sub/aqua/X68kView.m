@@ -801,6 +801,9 @@ XSTed_register_midi_device(const char *str)
 		if (input_flag == 0) {
 			CoreMIDISelectDeviceByNameForPort(q, n);
 			[def setValue:[NSString stringWithUTF8String:q] forKey:[NSString stringWithFormat:@"midiout%d", n + 1]];
+		} else if (input_flag == 1) {
+			CoreMIDISelectInputDeviceByName(q);
+			[def setValue:[NSString stringWithUTF8String:q] forKey:@"midiin"];
 		}
 		n++;
 	}

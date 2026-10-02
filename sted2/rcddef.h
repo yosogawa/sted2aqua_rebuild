@@ -1,26 +1,29 @@
+#ifndef _RCDDEF_H_
+#define _RCDDEF_H_
+
 /*--------------------------------------------------------------*/
 /* rcddef.h							*/
 /*--------------------------------------------------------------*/
-/* RCD hCoEANZXp\̒`   RCD v3.01 ȍ~p	*/
+/* RCD hCoEANZXp\̄`   RCD v3.01 ǃ~p	*/
 /*--------------------------------------------------------------*/
 /*								*/
-/* RCD 𗘗pvÓA					*/
+/* RCD ǃpvÓA					*/
 /* 								*/
-/* {t@CCN[hĉB				*/
+/* {t@CCN[ĥB				*/
 /* 								*/
-/* extern struct RCD_HEAD *rcd;   <--- |C^̊O`A	*/
+/* extern struct RCD_HEAD *rcd;   <--- |ĈO`A	*/
 /* 								*/
-/* rcdcheck R[č\̂̃AhX߂ɁA		*/
+/* rcdcheck R[ǃ\̂AhXǃA		*/
 /* 								*/
-/* rcd->fmt Ȃǂ̂悤ɃANZXB				*/
+/* rcd->fmt ǃɂ̂͂ANZXB				*/
 /* 								*/
-/* [`R[́A(*rcd->begin)() ̂悤ɂB		*/
+/* [`R[́A(*rcd->begin)() ̂͂B		*/
 /*								*/
 /*--------------------------------------------------------------*/
 
 #define	TRK_NUM	36			/* gbN		*/
 #define	CHL_NUM	34 			/* `l		*/
-					/*  32/33 ͖gp	*/
+					/*  32/33 ̖gp	*/
 
 #define DATA_ADR_SIZE 512 *1024          /* KB */
 #define TONE_ADR_SIZE 64  *1024
@@ -51,7 +54,7 @@ struct RCD_HEAD {
   void	(*end)( void );		/* tI		*/ /* void (v2.70)*/
 
   void	(*md_put)( uint8_t );	/* MIDI 1 byte o	*/ /* void (v2.70)*/
-  int	(*md_get)( void );	/* MIDI 1 byte ́@(-1)͂Ȃ*/ /*(v2.70)*/
+  int	(*md_get)( void );	/* MIDI 1 byte ̂@(-1)̂*/ /*(v2.70)*/
   void	(*md_put2)( uint8_t );	/* MIDI 1 byte o(dual)*/ /* void (v2.92)*/
   void	(*mix_out)( uint8_t * );	/* MIX OUT(buff adrs)end=$ff*/ /*(v3.01)*/
 
@@ -62,8 +65,8 @@ struct RCD_HEAD {
 
   char	dummy1[ 18 ];
 
-  int	tempo;			/* ݂̃e|		*/
-  int	basetempo;		/* ̃e|		*/
+  int	tempo;			/* ǃ̂e|		*/
+  int	basetempo;		/* ̂e|		*/
 
   int	totalcount;		/* t@C	*/
   char	filename[30];		/* t@C	*/
@@ -73,12 +76,12 @@ struct RCD_HEAD {
 
   int	bufcap;			/* obt@e		*/  /*(v2.70)*/
 
-  int	MIDI_avl;		/* MIDI o͗L(trk.no)*/  /*(v2.80)*/
-  uint8_t MIDI_req[16];	/* MIDI o͗vobt@*/  /*(v2.80)*/
-	  /* (80) (ch) ...	:`l`FW	*/
+  int	MIDI_avl;		/* MIDI o̖L(trk.no)*/  /*(v2.80)*/
+  uint8_t MIDI_req[16];	/* MIDI o̗vobt@*/  /*(v2.80)*/
+	  /* (80) (ch) ...	:`lǃFW	*/
 	  /* (90) (ke) (ve)	:m[gI		*/  /*(v2.92)*/
-	  /* (b0) (xx) (xx)	:Rg[`FW	*/
-	  /* (c0) (xx) ...	:vO`FW	*/
+	  /* (b0) (xx) (xx)	:Rg[ǃFW	*/
+	  /* (c0) (xx) ...	:vOǃFW	*/
 	  /* (e0) (xx) (xx)	:sb`x_		*/
 	  /* (f0) (hh) (mm) (ll) (xx) :Cg	*/
 	  /* (f1) (hh) (mm) (ll) (xx) (id):Cg	*/  /*(v2.92)*/
@@ -182,54 +185,54 @@ struct RCD_HEAD {
 
   int	noteptr;		/* m[gjO|C^	*/
   uint8_t	*note_adr;	/* m[gjOobt@AhX	*/
-  char	*top[ TRK_NUM ];	/* gbNf[^擪	*/
+  char	*top[ TRK_NUM ];	/* gbNf[^̂	*/
   uint8_t *ptr[ TRK_NUM ];	/* JggbN|C^	*/
 
   char	flg_vel[ TRK_NUM ];	/* VELOCITY ON tO	*/
   char	flg_off[ TRK_NUM ];	/* VELOCITY OFF tO	*/
   char	flg_act;		/* ACTIVE OFF tO	*/
-  char	flg_bar;		/* BAR ύX tO	*/
-  char	flg_step;		/* STEP ύX tO	*/
-  char	flg_pbend;		/* PITCH BEND ύX tO	*/
-  char	flg_vol;		/* VOLUME ύX tO	*/
-  char	flg_prg;		/* PROGRAM ύX@tO	*/
-  char	flg_panpot;		/* PANPOT ύX tO	*/
-  char	flg_midich;		/* MIDI CH ύX tO	*/
+  char	flg_bar;		/* BAR ̂X tO	*/
+  char	flg_step;		/* STEP ̂X tO	*/
+  char	flg_pbend;		/* PITCH BEND ̂X tO	*/
+  char	flg_vol;		/* VOLUME ̂X tO	*/
+  char	flg_prg;		/* PROGRAM ̂X@tO	*/
+  char	flg_panpot;		/* PANPOT ̂X tO	*/
+  char	flg_midich;		/* MIDI CH ̂X tO	*/
 
   char	flg_song;		/* SONG f[^ tO	*/
-  char	flg_system;		/* SYSTEM GAύXtO	*/ /*(v2.80)*/
+  char	flg_system;		/* SYSTEM GÂXtO	*/ /*(v2.80)*/
 
-  char	flg_expres;		/* EXPRESSION ύX tO	*/
-  char	flg_modula;		/* MODULATION ύX tO	*/
-  char	flg_bank;		/* BANK ύX tO	*/
+  char	flg_expres;		/* EXPRESSION ̂X tO	*/
+  char	flg_modula;		/* MODULATION ̂X tO	*/
+  char	flg_bank;		/* BANK ̂X tO	*/
   char	flg_replay;		/* REPLAY tO		*/
 
-  char	flg_gssys;		/* GS SYSTEM GAύXtO /*(v2.93)*/
-  char	flg_gsrev;		/* GSREV ύX tO	*/ /*(v2.93)*/
-  char	flg_gscho;		/* GSCHO ύX tO	*/ /*(v2.93)*/
+  char	flg_gssys;		/* GS SYSTEM GÂXtO /*(v2.93)*/
+  char	flg_gsrev;		/* GSREV ̂X tO	*/ /*(v2.93)*/
+  char	flg_gscho;		/* GSCHO ̂X tO	*/ /*(v2.93)*/
 #endif
-  char	flg_gsinfo;		/* GS info ύX tO	*/ /*(v2.93l)*/
-  char	flg_gsinst;		/* GS inst ύX tO	*/ /*(v2.93l)*/
-  char	flg_gspanel;		/* GS panel ύX tO	*/ /*(v2.93l)*/
+  char	flg_gsinfo;		/* GS info ̂X tO	*/ /*(v2.93l)*/
+  char	flg_gsinst;		/* GS inst ̂X tO	*/ /*(v2.93l)*/
+  char	flg_gspanel;		/* GS panel ̂X tO	*/ /*(v2.93l)*/
 
 #if 1
-  char	flg_hold1;		/* HOLD1 ύX tO	*/
-  char	flg_gsdly;		/* GSDLY ύX tO	*/ /*(v3.00q)*/
-  char	flg_bankl;		/* BANK LύX tO	*/ /*(v3.01n)*/
+  char	flg_hold1;		/* HOLD1 ̂X tO	*/
+  char	flg_gsdly;		/* GSDLY ̂X tO	*/ /*(v3.00q)*/
+  char	flg_bankl;		/* BANK L̂X tO	*/ /*(v3.01n)*/
 
   char	dummyE[9];		/* gpU[u	*/
 #endif
 
-  int	panel_tempo;		/* pl̃e|l	*/
-  int	bar[ TRK_NUM ];		/* ߔԍ		*/
-  int	step[ TRK_NUM ];	/* Xebvԍ		*/
+  int	panel_tempo;		/* pl̂e|l	*/
+  int	bar[ TRK_NUM ];		/* ̂	*/
+  int	step[ TRK_NUM ];	/* Xebv̂	*/
 #if 1
   char	vel[ TRK_NUM ];		/* xVeBl		*/
 #endif
 
   int	stepcount;		/* tJnSTEP COUNT	*/ /*(v2.92)*/
 #if 1
-  int16_t	loopcount;		/* 255/256񃊃s[gCOUNT	*/ /*(v3.00f)*/
+  int16_t	loopcount;		/* 255/256̌[s[gCOUNT	*/ /*(v3.00f)*/
 
   char	dummyF[12-2];		/* gpU[u	*/
 
@@ -244,12 +247,12 @@ struct RCD_HEAD {
 
   char	ch_port[ CHL_NUM ];/* `li.f. 1:MIDI 2:RS-232C/POLYPHON */
 #if 1
-  char	ch_part[ CHL_NUM ];/* `l̉ 0:LA 1:PCM 2:(RHYTHM) */
+  char	ch_part[ CHL_NUM ];/* `l̂ 0:LA 1:PCM 2:(RHYTHM) */
   int	ch_pbend[ CHL_NUM ];	/* `lPITCH BENDl	*/
   char	ch_vol[ CHL_NUM ];	/* `lVOLUMEl	*/
   char	ch_panpot[ CHL_NUM ];	/* `lPANPOTl	*/
   char	flg_ch_prg[ CHL_NUM ];	/* `lPROG.CHGtO*/ /*v2.93j*/
-  uint8_t ch_prg[ CHL_NUM ];/* `lPROGRAMԍ	*/
+  uint8_t ch_prg[ CHL_NUM ];/* `lPROGRAM̂	*/
   char	ch_reverb[ CHL_NUM ];	/* o[u OFF/ON	*/ /*(v2.80)*/
   char	ch_expr[ CHL_NUM ];	/* `lEXPRSSIONl	*/ /*v2.92*/
   char	ch_modu[ CHL_NUM ];	/* `lMODULATIONl	*/ /*v2.92*/
@@ -263,3 +266,7 @@ struct RCD_HEAD {
   char	dummyH[34*1];		/* gpU[u	*/
 #endif
 };
+
+extern struct RCD_HEAD *rcd;
+
+#endif /* _RCDDEF_H_ */

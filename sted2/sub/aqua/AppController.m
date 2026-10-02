@@ -64,22 +64,34 @@ extern int isGUI;                       /* is GUI mode? */
 {
 	NSUserDefaults *def = [NSUserDefaults standardUserDefaults];
 	NSMutableArray *devices = [NSMutableArray array];
+	NSMutableArray *inDevices = [NSMutableArray array];
 	int i;
-	NSString *devName, *outdevice1, *outdevice2;
+	NSString *devName, *outdevice1, *outdevice2, *indevice;
 
 	for (i = 0; (devName = CoreMIDIDeviceNameAtIndex(i)) != nil; i++) {
 		[devices addObject:devName];
 	}
 	[def setValue:devices forKey:@"devicelist"];
+
+	for (i = 0; (devName = CoreMIDIInDeviceNameAtIndex(i)) != nil; i++) {
+		[inDevices addObject:devName];
+	}
+	[def setValue:inDevices forKey:@"indevicelist"];
+
 	outdevice1 = [def valueForKey:@"midiout1"];
 	outdevice2 = [def valueForKey:@"midiout2"];
-	
+	indevice   = [def valueForKey:@"midiin"];
+
 	if ([MyDialogController runDialogWithNibName:@"MIDISettings"]) {
 		CoreMIDISelectDeviceByNameForPort([[def valueForKey:@"midiout1"] UTF8String], 0);
 		CoreMIDISelectDeviceByNameForPort([[def valueForKey:@"midiout2"] UTF8String], 1);
+		if ([def valueForKey:@"midiin"] != nil) {
+			CoreMIDISelectInputDeviceByName([[def valueForKey:@"midiin"] UTF8String]);
+		}
 	} else {
 		[def setValue:outdevice1 forKey:@"midiout1"];
 		[def setValue:outdevice2 forKey:@"midiout2"];
+		[def setValue:indevice forKey:@"midiin"];
 	}
 }
 

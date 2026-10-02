@@ -15,7 +15,7 @@
 # include <sys/shm.h>
 #endif /* NO_SHM */
 
-/*extern int rcptomid( char *, int, char ** );*/
+extern int rcptomid( char *, int, char ** );
 #include "rcpconv.h"
 
 #ifdef __APPLE__  /* Jun.08.2003 Toshi Nagata */
@@ -69,6 +69,31 @@ static pid_t player_pid=0;
 
 static void null_func ( void ) {};
 static void null_func_char ( uint8_t a) {};
+
+static const int signals[]={SIGHUP,SIGINT,SIGQUIT,SIGILL,SIGABRT,SIGFPE,
+                            SIGBUS,SIGSEGV,SIGPIPE,SIGALRM,SIGTERM,0};
+
+void Exit( int sig ) {
+  _exit_external_player( sig );
+}
+
+static void install_sighandler( void ) {
+  int i;
+
+  for ( i=0 ; signals[i]!=0 ; i++ ) {
+    signal( signals[i], Exit );
+  }
+  return;
+}
+
+static void release_sighandler( void ) {
+  int i;
+
+  for ( i=0 ; signals[i]!=0 ; i++ ) {
+    signal( signals[i], SIG_DFL );
+  }
+  return;
+}
 
 void rcd_check( void ) {
 
@@ -199,287 +224,197 @@ void _play_external_player( void ) {
   char *a,*a0;
   int cont_inter[2], inter_cont[2];
 
-  if ( STed_InitMeasureConversion() !=0 ) return;
+  if ( player_pid != 0 ) return;
 
-#ifdef __APPLE__
-  if (player_name[0] == 0) { play_coremidi_rcpplayer(_data_adr, rcd->totalcount); return; }
+#ifdef __APPLE__  /* Jun.08.2003 Toshi Nagata */
+  play_coremidi_rcpplayer((uint8_t *)rcd->data_adr, rcd->totalcount);
+  return;
 #endif
 
-  /* create temporary file name */
+  if ( STed_InitMeasureConversion() != 0 ) return;
 
-  if ( tmp_file_name[0] == '\0' ) {
-    if ( !STED_CONTROLLABLE ) {
-      player_flag |= B_DATA_FROM_FILE;
-    }
-    strcpy(tmp_file_name, "/tmp/_sted2_file_XXXXXX");
+  if ( STED_CONTROLLABLE ) {
+    pipe( cont_inter );
+    pipe( inter_cont );
   }
 
-  /* write out the data file if required */
-  /* ( !DATA_FROM_FILE not requires ) */
+  p=fork();
 
-  if ( DATA_FROM_FILE ) {
-    if ( !RCP_CAPABLE ) {
-      int smfsize;
-      uint8_t *smfdata;
-
-      smfsize = rcpconv( _data_adr, (size_t)rcd->totalcount, &smfdata, NULL );
-      if ( smfsize < -1 ) return;
-
-      fd = mkstemp(tmp_file_name);
-      if (fd<0) {
-	tmp_file_name[0] = '\0';
-	return;
-      }
-      i = write(fd, smfdata, smfsize);
-      close(fd);
-      free(smfdata);
-      if ( i!=smfsize ) {
-	unlink(tmp_file_name);
-	tmp_file_name[0] = '\0';
-	return;
-      }
-      strncpy(name, tmp_file_name, 1024);
-      strncat(name, ".mid", 1024);
-      if (access(name, W_OK)==0) {
-	unlink(tmp_file_name);
-	tmp_file_name[0] = '\0';
-	return;
-      }
-      if (rename(tmp_file_name, name)) {
-	unlink(tmp_file_name);
-	tmp_file_name[0] = '\0';
-	return;
-      }
-      strncpy(tmp_file_name, name, 1024);
-
-    } else {  /* RCP_CAPABLE */
-      fd = mkstemp(tmp_file_name);
-      if (fd<0) {
-	tmp_file_name[0] = '\0';
-	return;
-      }
-      i = write(fd, _data_adr, rcd->totalcount);
-      close(fd);
-      if ( i!=rcd->totalcount ) {
-	unlink(tmp_file_name);
-	tmp_file_name[0] = '\0';
-	return;
-      }
-      strncpy(name, tmp_file_name, 1024);
-      strncat(name, ".r36", 1024);
-      if (access(name, W_OK)==0) {
-	unlink(tmp_file_name);
-	tmp_file_name[0] = '\0';
-	return;
-      }
-      if (rename(tmp_file_name, name)) {
-	unlink(tmp_file_name);
-	tmp_file_name[0] = '\0';
-	return;
-      }
-      strncpy(tmp_file_name, name, 1024);
-    }
-
-  } else { /* !DATA_FROM_FILE */
-    if ( !RCP_CAPABLE ) {
-      int smfsize;
-      uint8_t *smfdata;
-
-      /*smfsize = rcptomid( _data_adr, rcd->totalcount, &smfdata );*/
-      smfsize = rcpconv( _data_adr, (size_t)rcd->totalcount, &smfdata, NULL );
-      rcd->totalcount = smfsize;
-      if ( smfsize < 0 ) return;
-      if ( smfsize>rcd->bufcap ) return;
-      memcpy( _smf_adr, smfdata, smfsize );
-      free(smfdata);
-    }
+  if (p < 0) {
+    fprintf(stderr, "sted: cannot fork player process\n");
+    return;
   }
 
-  /* execute external player */
+  if (p == 0) {
+    /* child process */
 
-  if (player_pid==0) {
-    if ( STED_CONTROLLABLE&&CONTROL_FROM_PIPE ) {
-      if ( pipe(cont_inter)<0 || pipe(inter_cont)<0 ) {
-	fprintf(stderr,"sted: cannot create pipe\n");
+    if ( STED_CONTROLLABLE ) {
+      close( cont_inter[1] );
+      close( inter_cont[0] );
+      pipe_in_fd = cont_inter[0];
+      pipe_out_fd = inter_cont[1];
+    }
+
+    release_sighandler();
+
+    if ( CONTROL_FROM_PIPE ) {
+      close( 0 );
+      dup( pipe_in_fd );
+      close( pipe_in_fd );
+    }
+
+    if ( !RCP_CAPABLE ) {
+
+      /* convert from RCP to SMF format 0 */
+
+      char *output_smf;
+      int size;
+
+      size = rcptomid( (char *)rcd->data_adr, rcd->totalcount, &output_smf );
+      if ( size < 0 ) {
+	fprintf(stderr, "sted: illegal RCP data\n");
 	exit(1);
       }
-    }
-    player_pid=fork();
-    if ( player_pid!=0 ) {
-      signal( SIGCHLD, _exit_external_player );
-      rcd->act = 1; /* play */
-      rcd->sts = 0; /* run */
-      if ( STED_CONTROLLABLE&&CONTROL_FROM_PIPE ) {
-	close(cont_inter[0]);
-	close(inter_cont[1]);
-	pipe_in_fd=inter_cont[0];
-	pipe_out_fd=cont_inter[1];
+
+      if ( DATA_FROM_FILE ) {
+
+	FILE *fp;
+
+	strcpy( tmp_file_name, "/tmp/sted.tmp.XXXXXX" );
+	fd=mkstemp( tmp_file_name );
+	if ( fd<0 ) {
+	  fprintf(stderr, "sted: cannot create temporary SMF file\n");
+	  exit(1);
+	}
+	fp = fdopen( fd, "wb" );
+	fwrite( output_smf, sizeof(char), size, fp );
+	fclose( fp );
+	free( output_smf );
+
+      } else {
+
+#ifndef NO_SHM
+	/* copy SMF data to shared memory */
+	memcpy( _smf_adr, output_smf, size );
+	free( output_smf );
+#endif /* NO_SHM */
+
       }
-      return;
-    }
 
-  } else if ( STED_CONTROLLABLE ) {  /* player_pid != 0 */
-    int time=0;
-    while( rcd->act==2 ) {
-      usleep(1000);
-      if ( time++ > 2000 ) { /* time-out after 2 seconts */
-	_stop_external_player();
-	return;
+    } else {
+
+      /* RCP capable */
+
+      if ( DATA_FROM_FILE ) {
+
+	FILE *fp;
+
+	strcpy( tmp_file_name, "/tmp/sted.tmp.XXXXXX" );
+	fd=mkstemp( tmp_file_name );
+	if ( fd<0 ) {
+	  fprintf(stderr, "sted: cannot create temporary RCP file\n");
+	  exit(1);
+	}
+	fp = fdopen( fd, "wb" );
+	fwrite( _data_adr, sizeof(char), rcd->totalcount, fp );
+	fclose( fp );
+
       }
+
     }
-    rcd->act=0;	/* stop */
-    usleep(10000);
-    rcd->act=1;	/* play */
-    rcd->sts=0;	/* run */
-    if ( CONTROL_FROM_PIPE ) {
-      int r;
-      r=snprintf(name,1024,"PLAY %s\n",tmp_file_name);
-      if ( r < 0 ) {
-	name[0]='\0';
+
+    a0 = argv[0] = strtok( player_name, " " );
+    argc = 1;
+    while( (a = strtok( NULL, " " )) != NULL ) {
+      if ( strncmp( a, "%s", 2 )==0 ) {
+	argv[argc] = tmp_file_name;
+      } else {
+	argv[argc] = a;
       }
+      argc++;
     }
-    return;
-  }
+    argv[argc] = NULL;
 
-  release_sighandler();
+    execvp( a0, argv );
 
-  strcpy(name,player_name);
-  a0=a=name;
-  argc=0;
+    /* reached when fail to exec player */
+    fprintf(stderr, "sted: fail to exec player\n");
+    exit(1);
 
-  while(1) {
-    argv[argc++]=a0;
-    while(!(*a==' ' || *a==0)) {a++;}
-    if ( *a==0 ) {
-      argv[argc++]=tmp_file_name;
-      argv[argc]=(char *)NULL;
-      break;
-    }
-    *a++=0;
-    a0=a;
-  }
-  if( snprintf(buf,256,"STED_RCD_SHMID=%d",shmid) > 0 ) {
-    putenv(buf);
-  }
-  if ( STED_CONTROLLABLE&&CONTROL_FROM_PIPE ) {
-    close(inter_cont[0]);
-    close(cont_inter[1]);
-    close(0);
-    dup(cont_inter[0]);
-    close(1);
-    dup(inter_cont[1]);
   } else {
-    freopen("/dev/null","r",stdin);
-    freopen("/dev/null","a",stdout);
-    freopen("/dev/null","a",stderr);
+
+    /* parent process */
+
+    if ( STED_CONTROLLABLE ) {
+      close( cont_inter[0] );
+      close( inter_cont[1] );
+      pipe_in_fd = inter_cont[0];
+      pipe_out_fd = inter_cont[1];
+    }
+
+    player_pid = p;
+
   }
-  freopen("/dev/null","a",stderr);
-  i=execvp(argv[0], argv);
-  exit(0);
+
+  return;
+
 }
 
-void _stop_external_player( void ) {
 
-  int time=0;
+static void _stop_external_player( void ) {
 
-#ifdef __APPLE__
-  if (player_name[0] == 0) { stop_coremidi_rcpplayer(); return; }
+#ifdef __APPLE__  /* Jun.08.2003 Toshi Nagata */
+  stop_coremidi_rcpplayer();
+  return;
 #endif
 
-  if ( player_pid==0 ) return;
-  while( rcd->act==2 ) {
-    usleep(1000);
-    if ( time++ > 2000 ) break;
-  }
-  rcd->act = 0; /* stop */
-  if ( STED_CONTROLLABLE ) {
-    if ( CONTROL_FROM_PIPE ) {
-      write(pipe_out_fd,"STOP\n",5);
-    }
-    if ( DATA_FROM_FILE ) {
-      unlink( tmp_file_name );
-      tmp_file_name[0] = '\0';
-    }
-    return;
-  }
-  signal( SIGCHLD, SIG_DFL );
+  if ( player_pid == 0 ) return;
+
   kill( player_pid, SIGTERM );
-  waitpid( player_pid, NULL, 0 );
+  player_pid = 0;
+
   if ( DATA_FROM_FILE ) {
-    unlink( tmp_file_name );
-    tmp_file_name[0]='\0';
+    remove( tmp_file_name );
   }
-  player_pid=0;
+
   return;
 }
 
-void _exit_external_player( int sig ){
+static void _exit_external_player( int sig ) {
 
-  int stt;
+  _stop_external_player();
 
-#ifdef __APPLE__
-  if (player_name[0] == 0) { exit_coremidi_rcpplayer(); return; }
-#endif
+#ifndef NO_SHM
+  if (shmid>0) {
+    shmdt( (char *)rcd );
+    shmctl( shmid, IPC_RMID, 0 );
+  }
+#endif /* NO_SHM */
 
-  if (player_pid==0) return;
-  if ( waitpid( player_pid, &stt, WNOHANG ) > 0 ){
-    if (WIFEXITED(stt)){
-      if ( DATA_FROM_FILE )
-        unlink( tmp_file_name );
-      player_pid=0;
-      rcd->act=0;
-      return;
+  exit( 0 );
+}
+
+static void request_midi_data( uint8_t *a ) {
+
+  /* send midi data to player directly */
+
+  if (a != NULL) {
+    int i = 0;
+    while (a[i] != 0xff && i < 16) {
+      put_midi_data(a[i]);
+      i++;
     }
   }
-  signal( SIGCHLD, _exit_external_player );
 
-  return;
-}
+  if ( STED_CONTROLLABLE ) {
 
-void request_midi_data( uint8_t *p ){
-  int i;
+    /* write to pipe */
 
-  if ( !STED_CONTROLLABLE ) return;
-  if ( player_pid==0 ){
-    rcd->totalcount = 0;
-    _play_external_player();
-  }
-  for( i=0;i<500;i++ ){
-    usleep(100);
-    if( rcd->MIDI_avl==0 ) break;
-  }
-  if( i==500 ){ /* time out */
-    rcd->MIDI_avl=0;
-    return;
-  }
-  for( i=0;i<16;i++,p++ ){
-    if( (rcd->MIDI_req[i]=(uint8_t)*p)==0xff ){
-      break;
-    }
-  }
-  rcd->MIDI_avl=1;
-  return;
-}
+    write( pipe_out_fd, a, 3 );
 
-static const int signals[]={SIGHUP,SIGINT,SIGQUIT,SIGILL,SIGABRT,SIGFPE,
-                            SIGBUS,SIGSEGV,SIGPIPE,SIGALRM,SIGTERM,0};
-
-static void install_sighandler( void ) {
-  int i;
-
-  for ( i=0 ; signals[i]!=0 ; i++ ) {
-    signal( signals[i], Exit );
   }
   return;
-}
 
-static void release_sighandler( void ) {
-  int i;
-
-  for ( i=0 ; signals[i]!=0 ; i++ ) {
-    signal( signals[i], SIG_DFL );
-  }
-  return;
 }
 
 int STed_InitMeasureConversion() {
@@ -515,7 +450,7 @@ int STed_MeasureConversion( int tr ) {
   int i;
   int c=rcd->stepcount;
 
-  if ( rcd->bar[tr]>=0 || rcd->step[tr]>=0 ) return 0;
+  /* if ( rcd->bar[tr]>=0 || rcd->step[tr]>=0 ) return 0; */
 
 #if 0
   if ( (poft&0xffff)==0 ) {
@@ -576,27 +511,4 @@ static int stp_ad( int t, int measure, int step ) {
   }
 
   return s;
-}
-
-#undef exit
-
-void Exit( int sig ) {
-
-  if ( rcd != NULL ) {
-#ifndef NO_SHM
-    shmdt( (char *)rcd );
-    shmctl( shmid, IPC_RMID, 0 );
-#else /* NO_SHM */
-    free(rcd);
-#endif /* NO_SHM */
-  }
-  if ( access( tmp_file_name, R_OK )==0 ) {
-    unlink(tmp_file_name);
-  }
-  if ( player_pid==0 ) exit(sig);
-
-  signal( SIGCHLD, SIG_DFL );
-  kill( player_pid, SIGTERM );
-  waitpid( player_pid, NULL, 0 );
-  exit(sig);
 }

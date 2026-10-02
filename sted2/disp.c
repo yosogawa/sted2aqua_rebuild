@@ -461,11 +461,12 @@ void	edfield(int m)
 void	noed_cls(void)
 {
   if(edit_scr!=0){fill(0,544,454,1001,0);}else{fill(313,544,767,1001,0);}
+  noed_cls_t();
 }
 
 void	noed_cls_t(void)
 {
-  if(edit_scr!=0){txerase(0,32,454,489-32/*,0*/);}else{txerase(313,32,767-313,489-32/*,0*/);} /*!*/
+  if(edit_scr!=0){txerase(0,32,454,489);}else{txerase(313,32,767,489);}
 }
 
 /***************************/

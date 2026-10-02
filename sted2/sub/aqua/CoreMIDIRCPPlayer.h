@@ -10,9 +10,30 @@
 #ifndef __CoreMIDIRCPPlayer_H__
 #define __CoreMIDIRCPPlayer_H__
 
-extern void play_coremidi_rcpplayer(uint8_t *rcp_data_ptr, int data_length);
-extern void stop_coremidi_rcpplayer(void);
-extern void exit_coremidi_rcpplayer(void);
+#include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void play_coremidi_rcpplayer(uint8_t *rcp_data_ptr, int data_length);
+void stop_coremidi_rcpplayer(void);
+void exit_coremidi_rcpplayer(void);
+
+void CoreMIDIInitIfNeeded(void);
+void CoreMIDISelectDeviceForPort(int index, int port);
+void CoreMIDISelectDeviceByNameForPort(const char *name, int port);
+void CoreMIDISelectInputDeviceByName(const char *name);
+void CoreMIDIAllSoundOff(void);
+
+void push_midi_in_ring_buffer(uint8_t byte);
+int pop_midi_in_ring_buffer(uint8_t *byte);
+int has_midi_in_ring_buffer(void);
+int send_midi_byte(uint8_t byte);
+
+#ifdef __cplusplus
+}
+#endif
 
 #ifdef __OBJC__
 #import <Cocoa/Cocoa.h>
@@ -24,12 +45,8 @@ extern void exit_coremidi_rcpplayer(void);
 - (BOOL)isPlaying;
 @end
 
-void CoreMIDIInitIfNeeded(void);
 NSString *CoreMIDIDeviceNameAtIndex(int index);
-void CoreMIDISelectDeviceForPort(int index, int port);
-void CoreMIDISelectDeviceByNameForPort(const char *name, int port);
-void CoreMIDIAllSoundOff(void);
-
+NSString *CoreMIDIInDeviceNameAtIndex(int index);
 #endif
 
 #endif

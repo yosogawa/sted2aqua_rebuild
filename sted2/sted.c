@@ -1096,7 +1096,7 @@ void	logo(int y)
     sdis2(0,y," FREE:",14,15,8);sdis2(15,y," USED:",14,15,8);
     sdis2(30,y," TR.: 1",8,15,8);
     fill(496,y,767,y+31,8);box(496,y,767,y+31,14,65535);
-    symbol(496+5,y+18,comment,1,1,0,15,0);
+    symbol(496+5,y+15,comment,1,1,0,15,0);
     trksize(-2);
   }
   g_print(496+24,y+2,"STed v2.07  (c)1990-97 TURBO",15);

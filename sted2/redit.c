@@ -69,7 +69,7 @@ void rtrk_ed(int md,int sh)
   top:
     yy=0;if(cy==16){yy=16+(cx&1)*16;}
     py=cy+pg;
-    if((B_SFTSNS()&16)!=0){rsttrc(&no,&cx,0,pg);}
+    if(rcd->act!=0 || (B_SFTSNS()&16)!=0){rsttrc(&no,&cx,0,pg);}
 
     /*
       fill(128+32,cy*16+655+yy,31*16+151+32,cy*16+655+yy,15);
@@ -148,7 +148,7 @@ void rtrk_ed(int md,int sh)
 		if( ke==0xf0 ){fnc_dis(0);}*/
 
     if( ke==0x5a ){
-      if((sh&16)!=0){pattor(no);rsttrc(&no,&cx,0,pg);}
+      if((sh&16)!=0 || rcd->act!=0){pattor(no);rsttrc(&no,&cx,0,pg);}
     }
 
     if( ke==1 ){pattor(no);break;}
@@ -668,7 +668,7 @@ void	rsttrc(int *no,int *cx,int flg,int pg)
   max=add_set(track,me_ad);
 
   skf=poft>>16;ofs=poft&0xffff;
-  while( ( (B_SFTSNS()&16)!=0 || flg!=0 ) && rcd->active[track] && rcd->act!=0){
+  while( rcd->active[track] && rcd->act!=0 ){
     if(B_KEYSNS()!=0){
       int	k=B_KEYINP()>>8,sh=B_SFTSNS();
       if(k==1){break;}

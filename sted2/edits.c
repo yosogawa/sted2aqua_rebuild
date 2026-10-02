@@ -146,7 +146,7 @@ void	sttrc(int *po,int *cy,int flg)
   max=add_set(track,me_ad);
 
   skf=poft>>16;ofs=poft&0xffff;
-  while( ( (B_SFTSNS()&16)!=0 || flg!=0 ) && rcd->active[track] && rcd->act!=0){
+  while( rcd->active[track] && rcd->act!=0 ){
     if(B_KEYSNS()!=0){
       int	k=B_KEYINP()>>8,sh=B_SFTSNS();
       if(k==1){break;}
@@ -253,7 +253,7 @@ void	sttrc(int *po,int *cy,int flg)
 	usleep(1000);
 	STed_MeasureConversion(track); /* Dec.11.1998 Daisuke Nagano */
       }
-      if(grpmode){txerase(392,589-512,767-327,1001-589);}
+      if(grpmode){txerase(327,589-512,767,1001-512);}
       trk_dis(6+*cy,ad2,1);
 
       if(cy && ptr[ad2]<0xf0){

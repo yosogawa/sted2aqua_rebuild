@@ -3,6 +3,7 @@ STed2Mac.xcodeproj/xcshareddata/xcschemes/STed2Mac.xcscheme
 STed2Mac.xcodeproj/project.xcworkspace/xcuserdata/ogaawa.xcuserdatad/UserInterfaceState.xcuserstate
 STed2Mac.xcodeproj/xcuserdata/
 sted2/sub/aqua/.DS_Store
+build/Release/
 build/Debug/
 build/SharedPrecompiledHeaders/
 build/STed2Mac.build/

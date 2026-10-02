@@ -42,7 +42,7 @@ track_edit_top:
   gra(po,0);
 
   while( 1){
-    if((B_SFTSNS()&16)!=0){sttrc(&po,&cy,0);}
+    if(rcd->act!=0 || (B_SFTSNS()&16)!=0){sttrc(&po,&cy,0);}
     ad=real_ad(po,cy);
 
     r_ad=0;r_ln=-1;
@@ -134,7 +134,7 @@ track_edit_top:
     if( ke==0x70 ){fnc_dis(1);}
     if( ke==0xf0 ){fnc_dis(0);}
     if( ke==0x5a ){
-      if((sh&16)!=0){sttrc(&po,&cy,0);}
+      if((sh&16)!=0 || rcd->act!=0){sttrc(&po,&cy,0);}
     }
     if( ke==1 ){
       if( cplen<0 ){

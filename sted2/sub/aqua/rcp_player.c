@@ -28,19 +28,20 @@ int set_midi_tempo( RCP_DATA * ); */
 
 typedef struct rcpplayer_record {
 	RCP_DATA rcp;
-	uint8_t result_smf[RCP_MAX_RESULT_SMF_SIZE];
+	int32_t total_step;
+	int delta_step;
 	int smf_length;
-	int32_t total_step; /* the total step at the last sent event */
-	int delta_step;  /* the step to wait until the next event */
-	int next_track;  /* the track containing the next event */
-	int next_note;   /* 0-127 if note-off is the next event, -1 otherwise */
-	int32_t last_tempo; /* microseconds per quarter note */
+	int next_track;
+	int next_note;
+	uint8_t result_smf[kMaxMIDIMessageLength];
+	
+	/*  Tempo history  */
 	int32_t last_tempo_step;
 	double last_tempo_us;
-	double last_event_us;
-} rcpplayer_record;
+	int32_t last_tempo;
+} RCPPLAYER;
 
-static rcpplayer_record sPlayer;
+static RCPPLAYER sPlayer;
 
 static void
 rcpplayer_debug_print(void)
@@ -78,6 +79,16 @@ double
 rcpplayer_step_to_microseconds(int32_t step)
 {
 	return sPlayer.last_tempo_us + ((double)(step - sPlayer.last_tempo_step) / sPlayer.rcp.timebase) * sPlayer.last_tempo;
+}
+
+int32_t
+rcpplayer_microseconds_to_step(uint32_t micros)
+{
+	int32_t step;
+	if (sPlayer.last_tempo == 0 || sPlayer.rcp.timebase == 0)
+		return 0;
+	step = sPlayer.last_tempo_step + (int32_t)(((double)micros - sPlayer.last_tempo_us) * sPlayer.rcp.timebase / sPlayer.last_tempo);
+	return step;
 }
 
 static void
@@ -229,4 +240,3 @@ rcpplayer_init(uint8_t *data_ptr, size_t data_length)
 	}
 	return result;
 }
-

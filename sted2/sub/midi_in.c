@@ -8,11 +8,17 @@
 
 #include "sted.h"
 
+#if defined(__APPLE__)
+#include "aqua/CoreMIDIRCPPlayer.h"
+#endif
+
 static int midi_dev = -1;
 static int ismididevopened = 0;
 
 int open_midi_port( char *dev_name ) {
-
+#if defined(__APPLE__)
+  return 0;
+#else
   int ret=1;
 
   if ( ismididevopened!=0 ) return ret;
@@ -30,19 +36,30 @@ int open_midi_port( char *dev_name ) {
   }
 
   return ret;
+#endif
 }
 
 void close_midi_port( void ) {
-
+#if defined(__APPLE__)
+  return;
+#else
   if ( ismididevopened > 0 ) {
     close(midi_dev);
   }
 
   return;
+#endif
 }
 
 int get_midi_data( void ) {
-
+#if defined(__APPLE__)
+  CoreMIDIInitIfNeeded();
+  uint8_t byte;
+  if (pop_midi_in_ring_buffer(&byte)) {
+    return (int)byte;
+  }
+  return -1;
+#else
   int ret=-1;
   static fd_set x;
   static struct timeval tp;
@@ -65,10 +82,14 @@ int get_midi_data( void ) {
   }
 
   return ret;
+#endif
 }
 
 int is_midi_in( void ) {
-
+#if defined(__APPLE__)
+  CoreMIDIInitIfNeeded();
+  return has_midi_in_ring_buffer();
+#else
   int ret=0;
   static fd_set x;
   static struct timeval tp;
@@ -87,23 +108,17 @@ int is_midi_in( void ) {
   }
 
   return ret;
+#endif
 }
 
 void put_midi_data ( uint8_t data ) {
-
+#if defined(__APPLE__)
+  send_midi_byte(data);
+#else
   if ( ismididevopened > 0 ) {
     write( midi_dev, &data, 1 );
   }
 
   return;
-}
-
-/* */
-
-int start_plm_daemon ( char *device_name ) {
-
-  return 0;
-}
-
-static void plm_daemon ( void ) {
+#endif
 }

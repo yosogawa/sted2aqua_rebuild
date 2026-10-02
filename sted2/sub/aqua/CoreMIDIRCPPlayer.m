@@ -16,6 +16,10 @@
 #include <AudioUnit/MusicDevice.h>
 #include <unistd.h>
 
+#include "sted.h"
+
+extern int STed_InitMeasureConversion(void);
+
 ///#define USE_INTERNALSYNTH    (ogawa)
 
 #define kMaxNumberOfPorts 2
@@ -27,6 +31,45 @@
 #define ConvertMDTimeTypeToHostTime(tm)	AudioConvertNanosToHostTime((tm) * 1000)
 
 void rcpplayer_engine(void);
+
+#define MIDI_IN_RING_BUFFER_SIZE 4096
+static uint8_t sMIDIInRingBuffer[MIDI_IN_RING_BUFFER_SIZE];
+static volatile int sMIDIInHead = 0;
+static volatile int sMIDIInTail = 0;
+
+void push_midi_in_ring_buffer(uint8_t byte) {
+    int next = (sMIDIInHead + 1) % MIDI_IN_RING_BUFFER_SIZE;
+    if (next != sMIDIInTail) {
+        sMIDIInRingBuffer[sMIDIInHead] = byte;
+        sMIDIInHead = next;
+    }
+}
+
+int pop_midi_in_ring_buffer(uint8_t *byte) {
+    if (sMIDIInHead == sMIDIInTail) {
+        return 0;
+    }
+    *byte = sMIDIInRingBuffer[sMIDIInTail];
+    sMIDIInTail = (sMIDIInTail + 1) % MIDI_IN_RING_BUFFER_SIZE;
+    return 1;
+}
+
+int has_midi_in_ring_buffer(void) {
+    return (sMIDIInHead != sMIDIInTail) ? 1 : 0;
+}
+
+static MIDIPortRef sMIDIInputPortRef = 0;
+static MIDIEndpointRef sMIDIInputSourceRef = 0;
+
+static void CoreMIDIReadProc(const MIDIPacketList *pktlist, void *readProcRefCon, void *srcConnRefCon) {
+    const MIDIPacket *packet = &pktlist->packet[0];
+    for (UInt32 i = 0; i < pktlist->numPackets; i++) {
+        for (UInt16 j = 0; j < packet->length; j++) {
+            push_midi_in_ring_buffer(packet->data[j]);
+        }
+        packet = MIDIPacketNext(packet);
+    }
+}
 
 static CoreMIDIRCPPlayer *sCurrentPlayer;
 static MIDIClientRef	sMIDIClientRef = NULL;
@@ -85,6 +128,9 @@ static uint8_t *sRCPDebugBuffer;
 	rcpplayer_engine();
 	playing = NO;
 	sStopPlaying = 0;
+	if (rcd != NULL) {
+		rcd->act = 0;
+	}
 }
 
 - (BOOL)isPlaying
@@ -172,6 +218,8 @@ InitInternalSynth(void)
 #endif
 }
 
+void CoreMIDIConnectDefaultInputs(void);
+
 void
 CoreMIDIInitIfNeeded(void)
 {
@@ -180,17 +228,42 @@ CoreMIDIInitIfNeeded(void)
 		MIDIClientCreate(CFSTR("STed2 Mac"), NULL, NULL, &sMIDIClientRef);
 		if (sMIDIOutputPortRef == NULL)
 			MIDIOutputPortCreate(sMIDIClientRef, CFSTR("STed2 output port"), &sMIDIOutputPortRef);
+		if (sMIDIInputPortRef == NULL)
+			MIDIInputPortCreate(sMIDIClientRef, CFSTR("STed2 input port"), CoreMIDIReadProc, NULL, &sMIDIInputPortRef);
 #ifdef USE_INTERNALSYNTH
 		if (sGraph == NULL)
 			InitInternalSynth();
 #endif
 		for (i = 0; i < sizeof(sDest) / sizeof(sDest[0]); i++)
 			sDest[i] = NULL;
+
+		CoreMIDIConnectDefaultInputs();
 	}
 	for (i = 0; i < kMaxNumberOfPorts; i++)
 		sWaitPerMIDIByte[i] = 300;
 	sOffsetMIDITime = 1;
 }
+void CoreMIDIConnectDefaultInputs(void) {
+	if (sMIDIInputPortRef == 0) return;
+
+	NSUserDefaults *def = [NSUserDefaults standardUserDefaults];
+	NSString *savedInputName = [def stringForKey:@"midiin"];
+
+	if (savedInputName != nil && [savedInputName length] > 0) {
+		CoreMIDISelectInputDeviceByName([savedInputName UTF8String]);
+	}
+
+	if (sMIDIInputSourceRef == 0) {
+		ItemCount count = MIDIGetNumberOfSources();
+		for (ItemCount i = 0; i < count; i++) {
+			MIDIEndpointRef src = MIDIGetSource(i);
+			if (src != 0) {
+				MIDIPortConnectSource(sMIDIInputPortRef, src, NULL);
+			}
+		}
+	}
+}
+
 
 NSString *
 CoreMIDIDeviceNameAtIndex(int index)
@@ -259,6 +332,76 @@ CoreMIDISelectDeviceByNameForPort(const char *name, int port)
 	}
 }
 
+NSString *
+CoreMIDIInDeviceNameAtIndex(int index)
+{
+	MIDIEndpointRef eref;
+	CFStringRef name, name2;
+	NSString *string;
+	SInt32 i;
+	MIDIObjectType objType;
+	MIDIObjectRef oref;
+	MIDIEntityRef enref;
+	MIDIDeviceRef dref;
+	CoreMIDIInitIfNeeded();
+	eref = MIDIGetSource(index);
+	if (eref == NULL)
+		return nil;
+	name = name2 = NULL;
+	if (MIDIObjectGetIntegerProperty(eref, kMIDIPropertyConnectionUniqueID, &i) == noErr
+	&& i != 0
+	&& MIDIObjectFindByUniqueID(i, &oref, &objType) == noErr) {
+		MIDIObjectGetStringProperty(oref, kMIDIPropertyName, &name);
+	} else {
+		MIDIObjectGetStringProperty(eref, kMIDIPropertyName, &name);
+		if (MIDIEndpointGetEntity(eref, &enref) == noErr
+			&& enref != NULL
+			&& MIDIEntityGetDevice(enref, &dref) == noErr
+			&& dref != NULL) {
+			if (MIDIObjectGetStringProperty(dref, kMIDIPropertyName, &name2) != noErr)
+				name2 = NULL;
+		}
+	}
+	if (name2 != NULL && [(NSString *)name2 isEqualToString:(NSString *)name]) {
+		CFRelease(name2);
+		name2 = NULL;
+	}
+	string = [NSString stringWithString:(NSString *)name];
+	CFRelease(name);
+	if (name2 != NULL) {
+		string = [NSString stringWithFormat:@"%@-%@", (NSString *)name2, string];
+		CFRelease(name2);
+	}
+	return string;
+}
+
+void
+CoreMIDISelectInputDeviceByName(const char *name)
+{
+	int n = 0;
+	NSString *str;
+	CoreMIDIInitIfNeeded();
+
+	if (sMIDIInputSourceRef != 0) {
+		MIDIPortDisconnectSource(sMIDIInputPortRef, sMIDIInputSourceRef);
+		sMIDIInputSourceRef = 0;
+	}
+
+	if (name == NULL || name[0] == '\0')
+		return;
+
+	while ((str = CoreMIDIInDeviceNameAtIndex(n)) != nil) {
+		if (strcasecmp(name, [str UTF8String]) == 0) {
+			sMIDIInputSourceRef = MIDIGetSource(n);
+			if (sMIDIInputSourceRef != 0) {
+				MIDIPortConnectSource(sMIDIInputPortRef, sMIDIInputSourceRef, NULL);
+			}
+			return;
+		}
+		n++;
+	}
+}
+
 OSStatus
 CoreMIDISend(uint8_t *ptr, int length, int port, MIDITimeStamp atTime)
 {
@@ -302,6 +445,11 @@ CoreMIDISend(uint8_t *ptr, int length, int port, MIDITimeStamp atTime)
 	}
 	return sts;
 }
+
+int send_midi_byte(uint8_t byte) {
+    return (int)CoreMIDISend(&byte, 1, 0, 0);
+}
+
 
 void
 CoreMIDIAllSoundOff(void)
@@ -397,50 +545,42 @@ rcpplayer_engine(void)
 	prefetchTime = ConvertMicrosToHostTime(kMaxPrefetchMicroseconds);
 	offsetTime = ConvertMicrosToHostTime(sOffsetMIDITime);
 
-	while (rcpplayer_next_midi_event(&step, &ptr, &length, &port)) {
-		if (length == 0 || ptr[0] == 0xff)
-			continue;
-		nextEventTime = sStartTimeStamp + ConvertMicrosToHostTime(rcpplayer_step_to_microseconds(step));
-		if (nextEventTime > currentTime + prefetchTime) {
-			usleep(AudioConvertHostTimeToNanos(nextEventTime - currentTime - prefetchTime) / 1000);
-			currentTime = AudioGetCurrentHostTime();
-		}
-	//	printf("step %ld, nextTime %qd, port %d, length %d, %02x %02x %02x\n",
-	//		step, nextTime, port, length, (int)ptr[0], (int)ptr[1], (int)ptr[2]);
-		
-		nextTime = nextEventTime;
-		if (nextTime < sNextEarliestTimeForPort[port])
-			nextTime = sNextEarliestTimeForPort[port];
-		if (nextTime < sLastTimeStamp + offsetTime)
-			nextTime = sLastTimeStamp + offsetTime;
-		sLastTimeStamp = nextTime;
-		sts = CoreMIDISend(ptr, length, port, nextTime);
-		sNextEarliestTimeForPort[port] = nextTime + waitPerMIDIByte[port] * length;
-
-#if DEBUG_RCP
-		{
-			UInt32 lastMicro = AudioConvertHostTimeToNanos(sLastTimeStamp - sStartTimeStamp) / 1000;
-			UInt32 nextMicro = AudioConvertHostTimeToNanos(nextEventTime - sStartTimeStamp) / 1000;
-			nextMicro = sts;
-			int n = (length >= 256 ? 255 : length);
-			if (sRCPDebugCount + 9 + n < sRCPDebugSize) {
-				uint8_t *pp = sRCPDebugBuffer + sRCPDebugCount;
-				*pp++ = lastMicro & 0xff;
-				*pp++ = (lastMicro >> 8) & 0xff;
-				*pp++ = (lastMicro >> 16) & 0xff;
-				*pp++ = (lastMicro >> 24) & 0xff;
-				*pp++ = nextMicro & 0xff;
-				*pp++ = (nextMicro >> 8) & 0xff;
-				*pp++ = (nextMicro >> 16) & 0xff;
-				*pp++ = (nextMicro >> 24) & 0xff;
-				*pp++ = n;
-				memmove(pp, ptr, n);
-				sRCPDebugCount += 9 + n;
+	while (!sStopPlaying) {
+		MIDITimeStamp now = AudioGetCurrentHostTime();
+		if (now >= sStartTimeStamp) {
+			UInt64 elapsed_micros = AudioConvertHostTimeToNanos(now - sStartTimeStamp) / 1000;
+			int32_t current_step = rcpplayer_microseconds_to_step(elapsed_micros);
+			if (rcd != NULL) {
+				rcd->stepcount = current_step;
+				rcd->act = 1;
 			}
 		}
-#endif
-		if (sStopPlaying)
-			break;
+
+		if (rcpplayer_next_midi_event(&step, &ptr, &length, &port)) {
+			if (length == 0 || ptr[0] == 0xff)
+				continue;
+
+			nextEventTime = sStartTimeStamp + ConvertMicrosToHostTime(rcpplayer_step_to_microseconds(step));
+			if (nextEventTime > currentTime + prefetchTime) {
+				usleep(AudioConvertHostTimeToNanos(nextEventTime - currentTime - prefetchTime) / 1000);
+				currentTime = AudioGetCurrentHostTime();
+			}
+
+			nextTime = nextEventTime;
+			if (nextTime < sNextEarliestTimeForPort[port])
+				nextTime = sNextEarliestTimeForPort[port];
+			if (nextTime < sLastTimeStamp + offsetTime)
+				nextTime = sLastTimeStamp + offsetTime;
+			sLastTimeStamp = nextTime;
+			sts = CoreMIDISend(ptr, length, port, nextTime);
+			sNextEarliestTimeForPort[port] = nextTime + waitPerMIDIByte[port] * length;
+		} else {
+			usleep(5000);
+			currentTime = AudioGetCurrentHostTime();
+		}
+	}
+	if (rcd != NULL) {
+		rcd->act = 0;
 	}
 }
 
@@ -472,6 +612,9 @@ stop_coremidi_rcpplayer(void)
 			}
 		}
 	}
+	if (rcd != NULL) {
+		rcd->act = 0;
+	}
 	
 #if DEBUG_RCP
 	dump_debug_rcp();
@@ -483,6 +626,7 @@ void
 play_coremidi_rcpplayer(uint8_t *rcp_data_ptr, int data_length)
 {
 	CoreMIDIRCPPlayer *player;
+	STed_InitMeasureConversion();
 	rcpplayer_init(rcp_data_ptr, data_length);
 #if DEBUG_RCP
 	sRCPDebugBuffer = (uint8_t *)realloc(sRCPDebugBuffer, sRCPDebugSize);
