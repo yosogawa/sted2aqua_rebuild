@@ -686,7 +686,7 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = "";
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
-				OTHER_LDFLAGS = "";
+				OTHER_LDFLAGS = "-liconv -framework CoreFoundation";
 				PRODUCT_NAME = STed2;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
@@ -712,7 +712,7 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = "";
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
-				OTHER_LDFLAGS = "";
+				OTHER_LDFLAGS = "-liconv -framework CoreFoundation";
 				PRODUCT_NAME = STed2;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;

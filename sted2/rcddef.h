@@ -207,7 +207,7 @@ struct RCD_HEAD {
   char	flg_bank;		/* BANK ̂X tO	*/
   char	flg_replay;		/* REPLAY tO		*/
 
-  char	flg_gssys;		/* GS SYSTEM GÂXtO /*(v2.93)*/
+  char	flg_gssys;		/* GS SYSTEM GÂXtO*/ /*(v2.93)*/
   char	flg_gsrev;		/* GSREV ̂X tO	*/ /*(v2.93)*/
   char	flg_gscho;		/* GSCHO ̂X tO	*/ /*(v2.93)*/
 #endif

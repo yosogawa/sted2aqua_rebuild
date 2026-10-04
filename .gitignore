@@ -11,3 +11,4 @@ build/XCBuildData/
 sted2/.DS_Store
 .DS_Store
 *.timestamp
+sted2/conf/convert_x68k.py

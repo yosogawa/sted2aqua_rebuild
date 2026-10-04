@@ -19,6 +19,7 @@
 #include "rcpfile.h"
 #include "rcpdef.h"
 #include "rcddef.h"
+#include "../sub/nkflib.h"
 
 #if STDC_HEADERS
 # include <string.h>
@@ -702,6 +703,8 @@ static void proc_meta( int meta, uint8_t *text, int length )
     case 0x03:
       if( !memoflag ) {
 	ctrlcut(text);
+	sted_ensure_sjis((char *)text, 4096);
+	length = (int)strlen((char *)text);
 	memoflag = 1;
 	if(trk){
 	  if((127<text[35] && 161>text[35]) || 224<text[35]){
@@ -723,6 +726,8 @@ static void proc_meta( int meta, uint8_t *text, int length )
       if( step<barlen ) {
 	if( !memoflag ) {
 	  ctrlcut(text);
+	  sted_ensure_sjis((char *)text, 4096);
+	  length = (int)strlen((char *)text);
 	  memoflag = 1;
 	  if(trk){
 	    if((127<text[35] && 161>text[35]) || 224<text[35]){

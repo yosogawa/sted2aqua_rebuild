@@ -1279,17 +1279,20 @@ void	frees(char *pth,int cx)
 char	*dirs(char *s)
 {
   int	a;
-  static char	name[24];
+  static char	name[64];
+  char	work[256];
   char	ext[8];
 
-  ext[0]=0;strcpy(name,s);
-  a =str_search(name,".");
-  a+=str_search(&name[a],".");
-  a+=str_search(&name[a],".");
+  ext[0]=0;
+  strncpy(work, s, sizeof(work) - 1);
+  work[sizeof(work) - 1] = 0;
+  a =str_search(work,".");
+  a+=str_search(&work[a],".");
+  a+=str_search(&work[a],".");
 
-  if(a>0 && name[0]!='.'){strcpy(ext,&name[a-1]);name[a-1]=0;}
+  if(a>0 && work[0]!='.'){strncpy(ext,&work[a-1], sizeof(ext) - 1);ext[sizeof(ext)-1]=0;work[a-1]=0;}
 
-  strcpy(name,spadd(name,18));strcat(name,spadd(ext,4));
+  strcpy(name,spadd(work,18));strcat(name,spadd(ext,4));
 
   return(name);
 }
@@ -1307,7 +1310,16 @@ void	dir_disp(X68_DIR *dir,int nm,int p,int cx,int sp,int ln)
   sta=SUPER(0);
   for(i=sp ;i< sp+ln;i++){
     int nn=p+i;if( nn>=nm ){break;}
-    strcpy(tmp0,dirs(dir[nn].name));
+    {
+      char shown[256];
+      if (sted_looks_like_utf8(dir[nn].name, (int)strlen(dir[nn].name)))
+	nkf_convert(dir[nn].name, shown, (int)sizeof(shown), "UTF-8", "SJIS");
+      else {
+	strncpy(shown, dir[nn].name, sizeof(shown) - 1);
+	shown[sizeof(shown) - 1] = 0;
+      }
+      strcpy(tmp0,dirs(shown));
+    }
     B_LOCATE(cx,i+12);
     if(dir[nn].far&0x10){
       strcat(tmp0,"  <dir> ");

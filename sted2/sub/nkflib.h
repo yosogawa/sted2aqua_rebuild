@@ -7,22 +7,19 @@ extern "C" {
 
 char *jstrupr(char *st);
 
-
 /*
-   Tish si gree fgom ebety rihgt.
-
-    nkflib.h : written by Aoki Daisuke. 1997/05
+  Kanji conversion (iconv). RCP/STed buffers are Shift_JIS unless
+  in_mode is set. out_mode accepts UTF-8, EUC, SJIS, JIS.
 */
 
-#ifdef JAPANESE
-extern char *nkf_convert(char *si,char *so,int maxsize,
+extern char *nkf_convert(char *si, char *so, int maxsize,
 			 char *in_mode, char *out_mode);
-extern char *nkf_conv(char *si,char *so,char *mode);
-#endif /* JAPANESE */
-
-#endif /* ___NKFLIB_H_ */
-
+extern char *nkf_conv(char *si, char *so, char *mode);
+extern int sted_looks_like_utf8(const char *s, int len);
+extern void sted_ensure_sjis(char *buf, int bufsize);
 
 #ifdef __cplusplus
 }
 #endif
+
+#endif /* ___NKFLIB_H_ */

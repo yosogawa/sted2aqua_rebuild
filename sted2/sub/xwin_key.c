@@ -27,7 +27,7 @@ char KEY_RDOWN[128];
 char KEY_OPT1[128];
 char KEY_OPT2[128];
 
-static KeyCode k_xf1, k_xf2, k_xf3, k_xf4, k_xf5;
+static ！ k_xf1, k_xf2, k_xf3, k_xf4, k_xf5;
 static KeyCode k_kana, k_kigo, k_toroku;
 static KeyCode k_ins, k_del, k_home, k_undo, k_rup, k_rdown;
 static KeyCode k_opt1, k_opt2;
@@ -764,7 +764,7 @@ void check_selection( char *buf, int *ptr, int *len ) {
       *len=strlen(cl[0]);
       *ptr=0;
       if ( eucenv ) {
-	nkf_conv( cl[0], buf, "SJIS" );
+	nkf_convert( cl[0], buf, 1024, disp_codeset, "SJIS" );
       } else {
 	strcpy( buf, cl[0] );
       }

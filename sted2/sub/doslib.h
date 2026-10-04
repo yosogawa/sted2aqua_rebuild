@@ -33,7 +33,7 @@ struct _x68_filbuf {
   uint16_t time;     /* time of file */
   uint16_t date;     /* date of file */
   unsigned int filelen;    /* length of file */
-  char name[23];           /* long-filename( Human68k format ) */
+  char name[256];          /* long filename (UTF-8 on APFS) */
 };
 
 #define X68_FILBUF _x68_filbuf

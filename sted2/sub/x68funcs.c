@@ -24,6 +24,7 @@ int isconsole      = 0;
 
 char euc_text[1024];
 int eucenv         = 0;
+char *disp_codeset = "UTF-8";
 
 int issted3        = 0;
 
@@ -37,22 +38,22 @@ char s_sted_default_path[PATHLEN];	/* Jun.01.2003 Toshi Nagata */
 
 void strmfe( char *dest, const char *node, const char *ext ) {
 
-  char *last,*temp;
+  char temp[PATHLEN];
+  const char *last = strrchr(node, '.');
 
-  temp = (char *)malloc( sizeof(char) * 1024 );
-
-  if ( ((last=strrchr(node, (int)'.')) != NULL) &&
-      (((int)*(last-1)!='.') && ((int)*(last+1)!='/'))) {
-    strncpy( temp, node, (size_t)(last-node+1));
-    strcat( temp, ext );
+  /* Prefix is "name." — strncpy() of that length omits the NUL. */
+  if ( last != NULL && last != node && last[-1] != '.' && last[1] != '/' ) {
+    size_t prefix = (size_t)(last - node + 1);
+    if ( prefix >= PATHLEN )
+      prefix = PATHLEN - 1;
+    memcpy(temp, node, prefix);
+    temp[prefix] = '\0';
+    strncat(temp, ext, PATHLEN - strlen(temp) - 1);
   } else {
-    strcpy( temp, node );
-    strcat( temp, "." );
-    strcat( temp, ext );
+    snprintf(temp, sizeof(temp), "%s.%s", node, ext);
   }
 
   strcpy( dest, temp );
-  free(temp);
   return;
 }
 
@@ -152,11 +153,8 @@ void STed_system_initialize( int *argc, char ***argv ) {
     
 #ifdef __APPLE__
     // ogawa 2025/12/11 switching local console & GUI
-    char termstr[256];
-    termstr[0] = 0;
     char *env = getenv("TERM_PROGRAM");
-    strncpy(termstr, env, env?strlen(env):0);
-    if ( termstr[0] != 0 && strncmp(termstr, "Apple_Terminal", 13) == 0) {
+    if ( env != NULL && strcmp(env, "Apple_Terminal") == 0 ) {
 #if USE_CURSES
         isconsole = 1;
         isGUI = 0;
@@ -216,18 +214,30 @@ void STed_system_initialize( int *argc, char ***argv ) {
 
   /* set code conversion */
 
-#ifdef __APPLE__
   eucenv = 0;
-  /* TODO: (ogawa) need decode "ja_JP.UTF-8" */
-#else
-  if ( (p=getenv("LANG")) != NULL ) {
-    for ( i=0; euc_lang_str[i] != NULL  ; i++ ) {
-      if ( strstr(p, euc_lang_str[i]) != NULL ) {
-	eucenv=1;
-        break;
+  disp_codeset = "UTF-8";
+  p = getenv("LC_ALL");
+  if ( p == NULL || p[0] == 0 ) p = getenv("LC_CTYPE");
+  if ( p == NULL || p[0] == 0 ) p = getenv("LANG");
+  if ( p != NULL ) {
+    if ( strstr(p, "UTF-8") || strstr(p, "utf-8") ||
+	 strstr(p, "UTF8") || strstr(p, "utf8") ) {
+      eucenv = 1;
+      disp_codeset = "UTF-8";
+    } else {
+      for ( i=0; euc_lang_str[i] != NULL; i++ ) {
+	if ( strstr(p, euc_lang_str[i]) != NULL ) {
+	  eucenv = 1;
+	  disp_codeset = "EUC";
+	  break;
+	}
       }
     }
   }
+#ifdef __APPLE__
+  /* Kanji ROM blit still walks Shift_JIS bytes. */
+  if ( isGUI )
+    eucenv = 0;
 #endif
 
   return;

@@ -246,6 +246,7 @@ extern int issted3;                     /* Am I a new version ? */
 extern int isconsole;                   /* is console mode? */
 extern int isGUI;                       /* is GUI mode? */
 extern char euc_text[1024];             /* code convert buffer */
+extern char *disp_codeset;              /* UTF-8 or EUC for eucconv() */
 extern char player_name[1024];          /* midi player name */
 extern char midi_port_name[1024];       /* midi_port device name */
 extern char font_name[1024];            /* X font set name */
@@ -284,7 +285,8 @@ extern void line_input(char *buf, int len);
 #ifndef DISABLE_NKF
 extern int eucenv;
 extern char *nkf_conv(char *, char *, char *);
-#define eucconv(a) ((eucenv!=0) ? nkf_conv( a, euc_text, "EUC" ) : a)
+extern char *nkf_convert(char *, char *, int, char *, char *);
+#define eucconv(a) ((eucenv!=0) ? nkf_conv( a, euc_text, disp_codeset ) : a)
 #endif
 
 #ifdef ENABLE_NLS

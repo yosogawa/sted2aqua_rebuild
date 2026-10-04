@@ -216,7 +216,7 @@ void	trk_set(int md)
 	trrhy[i]=ex;
       }
 
-      if( cx==5 ){B_LOCATE(37,y);sinput(trkmemo[i],36);}
+      if( cx==5 ){B_LOCATE(37,y); line_input(trkmemo[i], 36);}
       B_CLR_AL();
     }
 

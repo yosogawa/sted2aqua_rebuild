@@ -453,13 +453,13 @@ eventToX68kKeyInfo(NSEvent *theEvent)
 	int i;
 	theMask = [theEvent modifierFlags];
 	keyMask = 0;
-	if (theMask & NSShiftKeyMask)
+	if (theMask & NSEventModifierFlagShift)
 		keyMask |= 1;
-	if (theMask & NSControlKeyMask)
+	if (theMask & NSEventModifierFlagControl)
 		keyMask |= 2;
-	if (theMask & NSAlternateKeyMask)
+	if (theMask & NSEventModifierFlagOption)
 		keyMask |= 4;	/* Opt.1 */
-	if (theMask & NSAlphaShiftKeyMask)
+	if (theMask & NSEventModifierFlagCapsLock)
 		keyMask |= 8;   /* Opt.2 */
 	theChar = [[theEvent charactersIgnoringModifiers] characterAtIndex: 0];
 	for (i = 0; i < sizeof(s_x68k_special_key) / sizeof(s_x68k_special_key[0]); i++) {
@@ -474,7 +474,7 @@ eventToX68kKeyInfo(NSEvent *theEvent)
 	if (keyCode == 0) {
 		theChar = [[theEvent characters] characterAtIndex: 0];
 		if (theChar > 0 && theChar < 128) {
-			if ((theMask & NSNumericPadKeyMask) && theChar < 64) {
+			if ((theMask & NSEventModifierFlagNumericPad) && theChar < 64) {
 				keyCode = sPadKeyTable[theChar];
 			} else {
 				keyCode = sKeyTable[theChar];
@@ -506,19 +506,19 @@ s_RegisterKeyDown(int ch)
 	[sLock lock];
 	flags = [theEvent modifierFlags];
 	flagsChange = (sModifierFlags ^ flags);
-	if ([theEvent type] == NSKeyDown) {
+	if ([theEvent type] == NSEventTypeKeyDown) {
 		keyInfo = eventToX68kKeyInfo(theEvent);
 		s_RegisterKeyDown(keyInfo & 0xffff);
 	} else {
 		if (flagsChange != 0) {
-			if (flagsChange & NSControlKeyMask)
-				s_RegisterKeyDown((0x71 + (flags & NSControlKeyMask ? 0 : 0x80)) << 8);
-			if (flagsChange & NSShiftKeyMask)
-				s_RegisterKeyDown((0x70 + (flags & NSShiftKeyMask ? 0 : 0x80)) << 8);
-			if (flagsChange & NSAlternateKeyMask)
-				s_RegisterKeyDown((0x72 + (flags & NSAlternateKeyMask ? 0 : 0x80)) << 8);
-			if (flagsChange & NSAlphaShiftKeyMask)
-				s_RegisterKeyDown((0x73 + (flags & NSAlphaShiftKeyMask ? 0 : 0x80)) << 8);
+			if (flagsChange & NSEventModifierFlagControl)
+				s_RegisterKeyDown((0x71 + (flags & NSEventModifierFlagControl ? 0 : 0x80)) << 8);
+			if (flagsChange & NSEventModifierFlagShift)
+				s_RegisterKeyDown((0x70 + (flags & NSEventModifierFlagShift ? 0 : 0x80)) << 8);
+			if (flagsChange & NSEventModifierFlagOption)
+				s_RegisterKeyDown((0x72 + (flags & NSEventModifierFlagOption ? 0 : 0x80)) << 8);
+			if (flagsChange & NSEventModifierFlagCapsLock)
+				s_RegisterKeyDown((0x73 + (flags & NSEventModifierFlagCapsLock ? 0 : 0x80)) << 8);
 		}
 	}
 	[sLock unlock];
@@ -1407,6 +1407,15 @@ s_XSTed_tputs(const char *message, int *xbase, int *ybase, int col, int isText)
 	uint8_t ch, ch2, *p, dp;
 	uint8_t b, rev;
 	int i, x, y, xmin, ymin, xmax, ymax, dx, em;
+	char fontbuf[4096];
+
+	if (message != NULL) {
+		strncpy(fontbuf, message, sizeof(fontbuf) - 1);
+		fontbuf[sizeof(fontbuf) - 1] = 0;
+		sted_ensure_sjis(fontbuf, (int)sizeof(fontbuf));
+		message = fontbuf;
+	}
+
 	xmin = xmax = *xbase;
 	ymin = ymax = *ybase;
 	[sLock lock];
@@ -1665,13 +1674,13 @@ XSTed_sftsns(void)
 	modifiers = sModifierFlags;
 	[sLock unlock];
 	ch = 0;
-	if (modifiers & NSShiftKeyMask)
+	if (modifiers & NSEventModifierFlagShift)
 		ch |= 1;
-	if (modifiers & NSControlKeyMask)
+	if (modifiers & NSEventModifierFlagControl)
 		ch |= 2;
-	if (modifiers & NSAlternateKeyMask)
+	if (modifiers & NSEventModifierFlagOption)
 		ch |= 4;
-	if (modifiers & NSAlphaShiftKeyMask)
+	if (modifiers & NSEventModifierFlagCapsLock)
 		ch |= 8;
 //	printf("XSTed_sftsns\n");
 	return ch;
@@ -1690,13 +1699,13 @@ XSTed_bitsns(int group)
 	if (group == 14) {
 		/*  shift, ctrl, opt1, opt2  */
 		unsigned int mflags = sModifierFlags;
-		if (mflags & NSShiftKeyMask)
+		if (mflags & NSEventModifierFlagShift)
 			ret |= 1;
-		if (mflags & NSControlKeyMask)
+		if (mflags & NSEventModifierFlagControl)
 			ret |= 2;
-		if (mflags & NSAlternateKeyMask)
+		if (mflags & NSEventModifierFlagOption)
 			ret |= 4;
-		if (mflags & NSAlphaShiftKeyMask)
+		if (mflags & NSEventModifierFlagCapsLock)
 			ret |= 16;
 		return ret;
 	}
@@ -1890,7 +1899,7 @@ s_MacSelectFile(void **args)
 		title = [NSString stringWithFormat:@"%s %s File", (is_save ? "Save" : "Load"), mes];
 		[panel setTitle:title];
 	}
-	if ([panel runModal] == NSFileHandlingPanelOKButton) {
+	if ([panel runModal] == NSModalResponseOK) {
 		NSString *pathstr = [[panel URL] path];
 		NSString *lastComp = [pathstr lastPathComponent];
 		NSString *dirPath = [pathstr stringByDeletingLastPathComponent];

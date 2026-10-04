@@ -181,7 +181,7 @@ int  file_check(char *fna, int cc);
 void file_back(char *fna);
 
 typedef struct {
-  char          name[23];
+  char          name[256];
   uint8_t far;
   unsigned int  fln;
   unsigned int  ftm;

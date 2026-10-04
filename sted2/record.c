@@ -156,7 +156,7 @@ restart:
 
   while(1){
     int nst;
-    /*usleep(100); /* Dec.07.1999 Daisuke Nagano */
+    /*usleep(100);*/ /* Dec.07.1999 Daisuke Nagano */
     STed_MeasureConversion(dtr);
     nst=rcd->step[dtr];          /* Dec.11.1998 Daisuke Nagano */
 
