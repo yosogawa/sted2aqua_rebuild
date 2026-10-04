@@ -97,7 +97,7 @@ extern "C" {
 #include "disp.h"
 #include "edit.h"
 #include "file.h"
-#include "sub/nkflib.h"
+#include "sub/kanjiconv.h"
 
 #ifdef HAVE_SUPPORT_STED3
 # include "sted3.h"
@@ -245,8 +245,8 @@ _extern uint8_t	*dat2;			/* temporary			*/
 extern int issted3;                     /* Am I a new version ? */
 extern int isconsole;                   /* is console mode? */
 extern int isGUI;                       /* is GUI mode? */
-extern char euc_text[1024];             /* code convert buffer */
-extern char *disp_codeset;              /* UTF-8 or EUC for eucconv() */
+extern char disp_text[1024];            /* SJIS → display conversion buffer */
+extern char *disp_codeset;              /* locale codeset for X11/curses; RCP text stays SJIS */
 extern char player_name[1024];          /* midi player name */
 extern char midi_port_name[1024];       /* midi_port device name */
 extern char font_name[1024];            /* X font set name */
@@ -283,10 +283,11 @@ extern void line_input(char *buf, int len);
 /*  End Toshi Nagata  */
 
 #ifndef DISABLE_NKF
-extern int eucenv;
+extern int disp_conv;
 extern char *nkf_conv(char *, char *, char *);
 extern char *nkf_convert(char *, char *, int, char *, char *);
-#define eucconv(a) ((eucenv!=0) ? nkf_conv( a, euc_text, disp_codeset ) : a)
+/* SJIS RCP text → locale for X11/curses. Mac kanji ROM blit does not use this. */
+extern char *sted_to_locale_display(char *s);
 #endif
 
 #ifdef ENABLE_NLS

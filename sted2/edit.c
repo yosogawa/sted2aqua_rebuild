@@ -1820,7 +1820,7 @@ trpo:
 	  if(bp[po+4]!=0xf7){break;}
 	  po+=4;
 	}
-	/*strncpy(tmp0,(const char *)eucconv(tmp0),26); /* code converted! */
+	/*strncpy(tmp0,(const char *)tmp0,26); */
     memmove(tmp0, tmp0, strlen(tmp0) + 1);
 	b=1;break;
 

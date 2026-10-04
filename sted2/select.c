@@ -1312,7 +1312,13 @@ void	dir_disp(X68_DIR *dir,int nm,int p,int cx,int sp,int ln)
     int nn=p+i;if( nn>=nm ){break;}
     {
       char shown[256];
-      if (sted_looks_like_utf8(dir[nn].name, (int)strlen(dir[nn].name)))
+      int nlen = (int)strlen(dir[nn].name);
+      int font_sjis = (disp_conv == 0);
+#ifdef __APPLE__
+      if (isGUI)
+	font_sjis = 1;
+#endif
+      if (font_sjis && sted_looks_like_utf8(dir[nn].name, nlen))
 	nkf_convert(dir[nn].name, shown, (int)sizeof(shown), "UTF-8", "SJIS");
       else {
 	strncpy(shown, dir[nn].name, sizeof(shown) - 1);
@@ -1406,11 +1412,8 @@ void	memo_disp()
 
   txerase(2*8,12*16,34*8+7,12*16+16);
 
-  /*tdis(18,3,mtitle,65,3);
-  for(i=0;i<12;i++){tdis(3,15+i,memo[i],28,3);}*/
-
-  tdis(18,3,eucconv(mtitle),65,3); /* code converted! */
-  for(i=0;i<12;i++){tdis(3,15+i,eucconv(memo[i]),28,3);} /* code converted! */
+  tdis(18,3,mtitle,65,3);
+  for(i=0;i<12;i++){tdis(3,15+i,memo[i],28,3);}
 
 }
 
@@ -1429,11 +1432,8 @@ void	memo_load(char *pth,char *fna)
   }else{
     for(i=0;i<1414;i++){hed[i]=0;}
   }
-  /*tdis(18,3,sread(0x20,64),65,3);
-  for(i=0;i<12;i++){tdis(3,15+i,sread(0x60+i*28,28),28,3);}*/
-
-  tdis(18,3,eucconv(sread(0x20,64)),65,3); /* code converted! */
-  for(i=0;i<12;i++){tdis(3,15+i,eucconv(sread(0x60+i*28,28)),28,3);} /* code converted! */
+  tdis(18,3,sread(0x20,64),65,3);
+  for(i=0;i<12;i++){tdis(3,15+i,sread(0x60+i*28,28),28,3);}
 }
 
 /***************************/

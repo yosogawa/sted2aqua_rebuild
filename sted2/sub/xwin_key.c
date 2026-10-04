@@ -763,7 +763,7 @@ void check_selection( char *buf, int *ptr, int *len ) {
 
       *len=strlen(cl[0]);
       *ptr=0;
-      if ( eucenv ) {
+      if ( disp_conv ) {
 	nkf_convert( cl[0], buf, 1024, disp_codeset, "SJIS" );
       } else {
 	strcpy( buf, cl[0] );

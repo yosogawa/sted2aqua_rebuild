@@ -40,6 +40,7 @@ int x68_scancode[]={
 int is_midi_in( void );
 
 extern char *nkf_conv( const char *, char *, char * );
+extern char *sted_to_locale_display(char *);
 
 extern int iswindowopened;
 extern int iocs_graph_home; /* 0 or 1 */
@@ -221,14 +222,14 @@ void curses_tputs( char *message ) {
   int l,i;
   char s[128];
   
-  l=strlen( message );
   if ( message[0]=='\r' ) {
-    l-=2;
     message+=2;
     current_tx=0;
     if (current_ty<X68_THeight-1) current_ty++;
     wmove( curses_twindow, current_ty, current_tx );
   }
+  message = sted_to_locale_display(message);
+  l=strlen( message );
 
   for ( i=0 ; i<l ; i++ ) s[i]=' ';
   s[i]=0;
@@ -269,6 +270,7 @@ void curses_gputs( int x, int y, const char *message ) {
   current_gy = (X68_THeight * y / X68_GHeight) % X68_THeight;
 
   c = (y>=X68_GHeight) ? 1:0;
+  message = sted_to_locale_display((char *)message);
 
   t=mvwinch( curses_gwindow[c],
 	    current_gy, current_gx )&A_ATTRIBUTES;

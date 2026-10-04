@@ -1412,6 +1412,7 @@ s_XSTed_tputs(const char *message, int *xbase, int *ybase, int col, int isText)
 	if (message != NULL) {
 		strncpy(fontbuf, message, sizeof(fontbuf) - 1);
 		fontbuf[sizeof(fontbuf) - 1] = 0;
+		/* Kanji ROM entry: any encoding → Shift_JIS. Do not also run sted_to_locale_display. */
 		sted_ensure_sjis(fontbuf, (int)sizeof(fontbuf));
 		message = fontbuf;
 	}

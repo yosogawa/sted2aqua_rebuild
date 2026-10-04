@@ -1164,8 +1164,7 @@ void	rcp_dat2(int n,int m)
   if(m==1){c1=0;c2=15;}else{c1=15;c2=0;}
   if(m==2){c2=-1;}
 
-  /*if(n==0 || n<0){sdis2(28,48,mtitle,64,c1,c2);}*/
-  if(n==0 || n<0){sdis2(28,48,eucconv(mtitle),65,c1,c2);} /* code converted! */
+  if(n==0 || n<0){sdis2(28,48,mtitle,65,c1,c2);}
   if(n==1 || n<0){sdis2(28,64,rcp_file,22,c1,c2);}
   if(n==2 || n<0){sdis2(28+25,64,cm6_file,12,c1,c2);sdis2(28+44,64,gsd_file,16,c1,c2);}
   if(n==3 || n<0){vdis(25,96,mtempo,3,c1,c2);}

@@ -509,8 +509,7 @@ void	trk_no(void)
   }else{
     vdis2(68,556,track+1,2,15,8);
   }
-  /*sdis(xx+3,556,trkmemo[track],36,15,8);*/
-  sdis(xx+3,556,eucconv(trkmemo[track]),36,15,8); /* Jul.02.1998 Daisuke Nagano */
+  sdis(xx+3,556,trkmemo[track],36,15,8);
 }
 
 /***************************/

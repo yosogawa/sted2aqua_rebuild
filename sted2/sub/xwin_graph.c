@@ -449,14 +449,14 @@ void XSTed_overlap( void ) {
   if ( strcmp( last_file_name, rcp_file ) != 0 ) {
     strncpy( last_file_name, rcp_file, 512 );
     l =strlen( XSTed_Window_Title );
-    l+=strlen( (char *)eucconv(mtitle) );
+    l+=strlen( sted_to_locale_display(mtitle) );
     l+=strlen( rcp_file );
     l+=10;
     namlist[0] = (char *)malloc(sizeof(char)*l);
 
     if ( rcp_file[0] != 0 )
       r=snprintf( namlist[0], l, "%s : [ %s ] %s",
-	       XSTed_Window_Title, rcp_file, eucconv(mtitle) );
+	       XSTed_Window_Title, rcp_file, sted_to_locale_display(mtitle) );
     else
       r=snprintf( namlist[0], l, "%s", XSTed_Window_Title );
     if ( r > 0 ) {

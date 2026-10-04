@@ -15,7 +15,7 @@
 #include <string.h>
 #include <iconv.h>
 
-#include "nkflib.h"
+#include "kanjiconv.h"
 
 #ifdef __APPLE__
 #include <CoreFoundation/CoreFoundation.h>

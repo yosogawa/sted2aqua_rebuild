@@ -9,6 +9,9 @@
 
 #include "sted.h"
 
+#include <locale.h>
+#include <langinfo.h>
+
 /* prototype */
 void curses_key_wait(void);
 void XSTed_key_wait(void);
@@ -22,13 +25,86 @@ int iswindowopened = 0;
 int isGUI          = 0;
 int isconsole      = 0;
 
-char euc_text[1024];
-int eucenv         = 0;
+char disp_text[1024];
+int disp_conv      = 0;
 char *disp_codeset = "UTF-8";
 
 int issted3        = 0;
 
 char s_sted_default_path[PATHLEN];	/* Jun.01.2003 Toshi Nagata */
+
+/* Display conversion only. RCP / track memo / title stay Shift_JIS in memory. */
+static int
+sted_codeset_is_utf8(const char *cs)
+{
+  return cs != NULL &&
+    (strstr(cs, "UTF-8") || strstr(cs, "utf-8") ||
+     strstr(cs, "UTF8") || strstr(cs, "utf8"));
+}
+
+static int
+sted_codeset_is_eucjp(const char *cs)
+{
+  if (cs == NULL)
+    return 0;
+  return strstr(cs, "EUC-JP") || strstr(cs, "eucJP") ||
+    strstr(cs, "eucjp") || strstr(cs, "ujis") || strstr(cs, "UJIS") ||
+    strstr(cs, ".euc") || strstr(cs, ".EUC");
+}
+
+static void
+sted_init_display_codeset(void)
+{
+  const char *cs = NULL;
+  const char *p;
+
+  disp_conv = 0;
+  disp_codeset = "UTF-8";
+
+#ifndef ENABLE_NLS
+  setlocale(LC_CTYPE, "");
+#endif
+
+  cs = nl_langinfo(CODESET);
+  if (cs != NULL && cs[0] != '\0') {
+    if (sted_codeset_is_utf8(cs)) {
+      disp_conv = 1;
+      disp_codeset = "UTF-8";
+    } else if (sted_codeset_is_eucjp(cs)) {
+      disp_conv = 1;
+      disp_codeset = "EUC";
+    }
+  } else {
+    p = getenv("LC_ALL");
+    if (p == NULL || p[0] == 0)
+      p = getenv("LC_CTYPE");
+    if (p == NULL || p[0] == 0)
+      p = getenv("LANG");
+    if (p != NULL) {
+      if (sted_codeset_is_utf8(p)) {
+	disp_conv = 1;
+	disp_codeset = "UTF-8";
+      } else if (sted_codeset_is_eucjp(p)) {
+	disp_conv = 1;
+	disp_codeset = "EUC";
+      }
+    }
+  }
+
+}
+
+char *
+sted_to_locale_display(char *s)
+{
+  if (s == NULL || s[0] == '\0' || disp_conv == 0)
+    return s;
+  /* X68000 1/4-width overlay (g_print2), not a character encoding. */
+  if ((unsigned char)s[0] == 0xf0)
+    return s;
+  if (sted_looks_like_utf8(s, (int)strlen(s)))
+    return s;
+  return nkf_conv(s, disp_text, disp_codeset);
+}
 
 /*
   void strmfe( char dest, *char *node , char *extention )
@@ -138,12 +214,6 @@ void key_mouse_wait( void ) {
 void STed_system_initialize( int *argc, char ***argv ) {
     
     char *p, *buf;
-    static char *euc_lang_str[] = { "ujis", "euc", "EUC",
-#ifndef _HPUX_SOURCE
-        "japanese",
-#endif
-        NULL };
-    int i;
     
     /* init parameters */
     
@@ -212,33 +282,8 @@ void STed_system_initialize( int *argc, char ***argv ) {
 
 #endif /* HAVE_NLS */
 
-  /* set code conversion */
-
-  eucenv = 0;
-  disp_codeset = "UTF-8";
-  p = getenv("LC_ALL");
-  if ( p == NULL || p[0] == 0 ) p = getenv("LC_CTYPE");
-  if ( p == NULL || p[0] == 0 ) p = getenv("LANG");
-  if ( p != NULL ) {
-    if ( strstr(p, "UTF-8") || strstr(p, "utf-8") ||
-	 strstr(p, "UTF8") || strstr(p, "utf8") ) {
-      eucenv = 1;
-      disp_codeset = "UTF-8";
-    } else {
-      for ( i=0; euc_lang_str[i] != NULL; i++ ) {
-	if ( strstr(p, euc_lang_str[i]) != NULL ) {
-	  eucenv = 1;
-	  disp_codeset = "EUC";
-	  break;
-	}
-      }
-    }
-  }
-#ifdef __APPLE__
-  /* Kanji ROM blit still walks Shift_JIS bytes. */
-  if ( isGUI )
-    eucenv = 0;
-#endif
+  /* locale codeset for X11/curses; RCP text stays Shift_JIS */
+  sted_init_display_codeset();
 
   return;
 }

@@ -19,7 +19,7 @@
 #include "rcpfile.h"
 #include "rcpdef.h"
 #include "rcddef.h"
-#include "../sub/nkflib.h"
+#include "../sub/kanjiconv.h"
 
 #if STDC_HEADERS
 # include <string.h>

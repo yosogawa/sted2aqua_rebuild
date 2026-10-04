@@ -671,8 +671,7 @@ void	trk_lin(int i,int cx,int m)
     }else{
       sdis2(33,y,"OFF",3,c1,c2);}
   }
-  /*  if(cx==5 || cx<0){sdis2(37,y,trkmemo[i],36,c1,c2);}*/
-  if(cx==5 || cx<0){sdis2(37,y,eucconv(trkmemo[i]),36,c1,c2);}
+  if(cx==5 || cx<0){sdis2(37,y,trkmemo[i],36,c1,c2);}
   if(cx<0 && m<2){trksize(i);}
 }
 

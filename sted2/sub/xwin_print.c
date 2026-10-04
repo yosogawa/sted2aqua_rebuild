@@ -60,14 +60,13 @@ void XSTed_tputs( char *message ) {
   lx = current_tx;
   ly = current_ty;
 
-  l = strlen(message);
-
   if ( message[0]=='\r' ) {
-    l-=2;
     message+=2;
     current_tx=0;
     if (current_ty<X68_THeight-1) current_ty++;
   }
+  message = sted_to_locale_display(message);
+  l = strlen(message);
 
   x0=W_Width * current_tx/X68_TWidth;
   y0=W_Height * current_ty/X68_THeight;
@@ -116,6 +115,7 @@ void XSTed_gputs( int x0, int y0, const char *message ) {
   current_gy = (W_Height * y0 / X68_GHeight) % W_Height;
 
   c = (y0>=X68_GHeight) ? 1:0;
+  message = sted_to_locale_display((char *)message);
   l = strlen(message);
 
   XmbTextExtents( XSTed_fs, message, l, &ink, &log );

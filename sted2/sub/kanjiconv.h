@@ -1,5 +1,5 @@
-#ifndef ___NKFLIB_H_
-#define ___NKFLIB_H_
+#ifndef ___KANJICONV_H_
+#define ___KANJICONV_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -22,4 +22,4 @@ extern void sted_ensure_sjis(char *buf, int bufsize);
 }
 #endif
 
-#endif /* ___NKFLIB_H_ */
+#endif /* ___KANJICONV_H_ */
