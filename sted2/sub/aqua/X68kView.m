@@ -613,6 +613,7 @@ s_RegisterKeyDown(int ch)
 				s_RegisterKeyDown((0x73 + (flags & NSEventModifierFlagCapsLock ? 0 : 0x80)) << 8);
 		}
 	}
+	sModifierFlags = flags;
 	[sLock unlock];
 }
 
@@ -1915,11 +1916,13 @@ XSTed_bitsns(int group)
 
 /*  X680x0 B_KEYSNS  */
 /*  Peek only. Must not go through XSTed_keyin(0xfe): that path drops
-    scan-only keys (KIGOU/TOROKU/XF, ascii 0) as "no character".  */
+    scan-only keys (KIGOU/TOROKU/XF, ascii 0) as "no character".
+    Include modifier make/break (0x70-0x73 / 0xf0-0xf3); B_KEYINP already
+    returns them, and EDIT uses 0x70/0xf0 to switch the function-key guide.  */
 int
 XSTed_keysns(void)
 {
-	uint16_t ch = [X68kView getKeyWithOptions:kGetKeyNoWaitOption | kGetKeyKeepInBufferOption];
+	uint16_t ch = [X68kView getKeyWithOptions:kGetKeyNoWaitOption | kGetKeyKeepInBufferOption | kGetKeySenseModifiersOption];
 	return ch != 0;
 }
 
