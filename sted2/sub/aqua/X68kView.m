@@ -1418,15 +1418,10 @@ s_XSTed_tputs(const char *message, int *xbase, int *ybase, int col, int isText)
 	uint8_t ch, ch2, *p, dp;
 	uint8_t b, rev;
 	int i, x, y, xmin, ymin, xmax, ymax, dx, em;
-	char fontbuf[4096];
 
-	if (message != NULL) {
-		strncpy(fontbuf, message, sizeof(fontbuf) - 1);
-		fontbuf[sizeof(fontbuf) - 1] = 0;
-		/* Kanji ROM entry: any encoding → Shift_JIS. Do not also run sted_to_locale_display. */
-		sted_ensure_sjis(fontbuf, (int)sizeof(fontbuf));
-		message = fontbuf;
-	}
+	/* Kanji ROM is indexed by raw X68k/SJIS bytes, including STed gaiji
+	   (0xEBxx) and g_print2's 0xF0 prefix. Do not run sted_ensure_sjis
+	   here: a Unicode round-trip remaps those codes to ordinary kanji. */
 
 	xmin = xmax = *xbase;
 	ymin = ymax = *ybase;
