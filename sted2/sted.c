@@ -312,7 +312,7 @@ realc:
     }
 
     if(!(fp= fopen2(rcp_file,"rb"))){
-      B_PRINT(rcp_file);
+      B_PRINT(sted_filename_for_font(rcp_file));
       B_PRINT(_(": File not found.\n"));exit(1);
     }
     fclose(fp);
@@ -438,14 +438,14 @@ realc:
       if(cm6_file[0]!=0){
 	strcpy(tmp0,rcp_path);strcat(tmp0,cm6_file);
 	if(timload(tmp0)!=0){
-	  msg(cm6_file);
+	  msg(sted_filename_for_font(cm6_file));
 	  B_PRINT(_(": File not found.\n"));cm6_file[0]=0;
 	}
       }
       if(gsd_file[0]!=0){
 	strcpy(tmp0,rcp_path);strcat(tmp0,gsd_file);
 	if(gsdload(tmp0)!=0){
-	  msg(gsd_file);
+	  msg(sted_filename_for_font(gsd_file));
 	  B_PRINT(_(": File not found.\n"));gsd_file[0]=0;
 	}
       }
@@ -628,14 +628,14 @@ void	load_sub(int sh)
       strcpy(tmp0,path2);strcat(tmp0,cm6_file);
       if(cm6_file[0]!=0){
 	if(timload(tmp0)!=0){
-	  msg(cm6_file);B_PRINT(_(": File not found.\n"));
+	  msg(sted_filename_for_font(cm6_file));B_PRINT(_(": File not found.\n"));
 	  cm6_file[0]=0;
 	}
       }
       strcpy(tmp0,path2);strcat(tmp0,gsd_file);
       if(gsd_file[0]!=0){
 	if(gsdload(tmp0)!=0){
-	  msg(gsd_file);B_PRINT(_(": File not found.\n"));
+	  msg(sted_filename_for_font(gsd_file));B_PRINT(_(": File not found.\n"));
 	  gsd_file[0]=0;
 	}
       }
@@ -672,7 +672,7 @@ void	save_sub(int sh)
       msg_clr();
     }
   }
-  sdis2(28,64,rcp_file,22,15,0);
+  sdis2(28,64,sted_filename_for_font(rcp_file),22,15,0);
 }
 
 /***************************/
@@ -1188,8 +1188,8 @@ void	rcp_dat2(int n,int m)
   if(m==2){c2=-1;}
 
   if(n==0 || n<0){sdis2(28,48,mtitle,65,c1,c2);}
-  if(n==1 || n<0){sdis2(28,64,rcp_file,22,c1,c2);}
-  if(n==2 || n<0){sdis2(28+25,64,cm6_file,12,c1,c2);sdis2(28+44,64,gsd_file,16,c1,c2);}
+  if(n==1 || n<0){sdis2(28,64,sted_filename_for_font(rcp_file),22,c1,c2);}
+  if(n==2 || n<0){sdis2(28+25,64,sted_filename_for_font(cm6_file),12,c1,c2);sdis2(28+44,64,sted_filename_for_font(gsd_file),16,c1,c2);}
   if(n==3 || n<0){vdis(25,96,mtempo,3,c1,c2);}
   if(n==4 || n<0){i=pbias;if(i>127){i=i-256;}vdis(25,112,i,3,c1,c2);}
   if(n==5 || n<0){sdis2(20,128,scale_str(bkey),13,c1,c2);}

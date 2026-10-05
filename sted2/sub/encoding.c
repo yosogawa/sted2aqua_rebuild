@@ -341,3 +341,20 @@ sted_ensure_sjis(char *buf, int bufsize)
 #endif
 }
 
+const char *
+sted_filename_for_font(const char *name)
+{
+  static char buf[4096];
+  int n;
+
+  if (name == NULL || name[0] == '\0')
+    return name != NULL ? name : "";
+  n = (int)strlen(name);
+  if (!sted_looks_like_utf8(name, n))
+    return name;
+  strncpy(buf, name, sizeof(buf) - 1);
+  buf[sizeof(buf) - 1] = '\0';
+  sted_ensure_sjis(buf, (int)sizeof(buf));
+  return buf;
+}
+

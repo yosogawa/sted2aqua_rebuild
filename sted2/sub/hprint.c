@@ -12,139 +12,66 @@
 
 #include "sted.h"
 
-void curses_tputs(char *);
-void curses_tlocate(int, int);
 void curses_cls_eol(void);
+void XSTed_cls_eol(void);
 
-int XSTed_tcolor(int);
-void XSTed_tputs( char * );
-void XSTed_tlocate( int , int );
-void XSTed_cls_eol( void );
+static int
+hprint_len(const char *s)
+{
+  return (s != NULL && s[0] != '\0') ? (int)strlen(s) : 0;
+}
 
-void H_INIT ( void ) {
+static void
+hprint_put(const char *s, int color)
+{
+  if (s == NULL || s[0] == '\0')
+    return;
+  B_COLOR(color);
+  B_PRINT(s);
+}
 
-  /* not implemented */
+void
+H_INIT(void)
+{
   return;
 }
 
-void H_PRINT ( char * s1, char *s2, char *s3 ) {
+void
+H_PRINT(char *s1, char *s2, char *s3)
+{
+  int x, y;
 
-  int x,y;
-  int l=0;
+  x = B_LOCATE(-1, 0);
+  y = x & 0xffff;
+  x = x >> 16;
 
-  x=B_LOCATE(-1,0);
-  y=x&0xffff;
-  x=x>>16;
-
-  if ( isconsole ) {
-    curses_tlocate(0,y);
+  B_LOCATE(0, y);
+  if (isconsole)
     curses_cls_eol();
-
-    curses_tlocate(x,y);
-    if (s1!="") {
-      curses_tputs(s1);
-      l=strlen(s1);
-    }
-
-    if (s2!="") {
-      curses_tputs(s2);
-      l+=strlen(s2);
-    }
-
-    if (s3!="") {
-      curses_tputs(s3);
-      l+=strlen(s3);
-    }
-
-    B_LOCATE(x+l,y);
-
-  } else if ( isGUI ) {
-    int c;
-    XSTed_tlocate(0,y);
+  else if (isGUI)
     XSTed_cls_eol();
 
-    XSTed_tlocate(x,y);
-    if (s1!="") {
-      c=XSTed_tcolor(3);
-      XSTed_tputs(s1);
-      XSTed_tcolor(c);
-      l=strlen(s1);
-    }
-
-    if (s2!="") {
-      c=XSTed_tcolor(2);
-      XSTed_tputs(s2);
-      XSTed_tcolor(c);
-      l+=strlen(s2);
-    }
-
-    if (s3!="") {
-      c=XSTed_tcolor(1);
-      XSTed_tputs(s3);
-      XSTed_tcolor(c);
-      l+=strlen(s3);
-    }
-
-    B_LOCATE(x+l,y);
-  }
-
-  return;
+  B_LOCATE(x, y);
+  hprint_put(s1, 3);
+  hprint_put(s2, 2);
+  hprint_put(s3, 1);
 }
 
-void H_PRINT2 ( char *s1, char *s2, char *s3 ) {
+void
+H_PRINT2(char *s1, char *s2, char *s3)
+{
+  int x, y, n;
 
-  int x,y;
-  int l=0;
+  x = B_LOCATE(-1, 0);
+  y = x & 0xffff;
+  x = x >> 16;
+  B_LOCATE(x, y);
 
-  x=B_LOCATE(-1,0);
-  y=x&0xffff;
-  x=x>>16;
-
-  if ( isconsole ) {
-    curses_tlocate(x,y);
-    if (s1!="") {
-      curses_tputs(s1);
-      l=strlen(s1);
-    }
-
-    if (s2!="") {
-      curses_tputs(s2);
-      l+=strlen(s2);
-    }
-
-    if (s3!="") {
-      curses_tputs(s3);
-      l+=strlen(s3);
-    }
-
-    B_LOCATE(x+l,y);
-
-  } else if ( isGUI ) {
-
-    int c;
-    XSTed_tlocate(x,y);
-    if (s1!="") {
-      c=XSTed_tcolor(3);
-      XSTed_tputs(s1);
-      XSTed_tcolor(c);
-      l=strlen(s1);
-    }
-
-    if (s2!="") {
-      c=XSTed_tcolor(2);
-      XSTed_tputs(s2);
-      XSTed_tcolor(c);
-      l+=strlen(s2);
-    }
-
-    if (s3!="") {
-      c=XSTed_tcolor(1);
-      XSTed_tputs(s3);
-      XSTed_tcolor(c);
-      l+=strlen(s3);
-    }
-
-    B_LOCATE(x+l,y);
-  }
-  return;
+  n = hprint_len(s1) + hprint_len(s2) + hprint_len(s3);
+  hprint_put(s1, 3);
+  hprint_put(s2, 2);
+  hprint_put(s3, 1);
+  /* Original hprint.s always wrote two text cells. */
+  if (n == 0)
+    B_PRINT("  ");
 }

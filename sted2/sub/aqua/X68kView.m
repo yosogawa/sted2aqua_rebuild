@@ -53,6 +53,10 @@ static unsigned int sModifierFlags;
 //static unsigned int sModifierChange;
 static uint16_t sLastKeyDown;  //  The last getKeyWithOptions: return value
 
+/* Mouse snapshot for the X68k thread (same contract as xwin_mouse.c). */
+static int sMsX, sMsY, sMsButtons;
+static int sMsMinX, sMsMinY, sMsMaxX, sMsMaxY;
+
 static int sRequestAppKitCall;
 static void **sRequestAppKitArgs;
 
@@ -187,14 +191,52 @@ static uint32_t s_x68k_special_key[128] = {
 	(x68k_xf3 << 24) + (1 << 17) + (1 << 18) + '3',
 	(x68k_xf4 << 24) + (1 << 17) + (1 << 18) + '4',
 	(x68k_xf5 << 24) + (1 << 17) + (1 << 18) + '5',
-	(x68k_touroku << 24) + NSF11FunctionKey,
-	(x68k_kigou << 24) + NSF12FunctionKey,
+	(x68k_kigou << 24) + NSF11FunctionKey,   /* X11 / curses: F11 = 記号 */
+	(x68k_kigou << 24) + (1 << 18) + '-',    /* option--  */
+	(x68k_kigou << 24) + (1 << 18) + '_',    /* option-_  */
+	(x68k_touroku << 24) + NSF12FunctionKey, /* X11 / curses: F12 = 登録 */
+	(x68k_touroku << 24) + (1 << 18) + '=',  /* option-=  */
+	(x68k_touroku << 24) + (1 << 18) + '+',  /* option-+  */
 	(x68k_del << 24) + NSDeleteFunctionKey,
 	(x68k_home << 24) + NSHomeFunctionKey,
 	(x68k_rollup << 24) + NSPageUpFunctionKey,
 	(x68k_rolldown << 24) + NSPageDownFunctionKey,
 	(x68k_clr << 24) + NSClearLineFunctionKey
 };
+
+/* Map NSView coords (origin bottom-left) to X68k screen (origin top-left). */
+static void
+s_XSTed_ms_store_view_point(NSPoint p, NSUInteger buttons)
+{
+	NSRect b;
+	int x, y;
+
+	if (sMainView != nil)
+		b = [sMainView bounds];
+	else
+		b = NSMakeRect(0, 0, sTextWidth, sTextHeight);
+	if (b.size.width < 1.0)
+		b.size.width = sTextWidth;
+	if (b.size.height < 1.0)
+		b.size.height = sTextHeight;
+	x = (int)(p.x * (CGFloat)sTextWidth / b.size.width);
+	y = (int)((b.size.height - p.y) * (CGFloat)sTextHeight / b.size.height);
+	if (x < sMsMinX)
+		x = sMsMinX;
+	else if (x > sMsMaxX)
+		x = sMsMaxX;
+	if (y < sMsMinY)
+		y = sMsMinY;
+	else if (y > sMsMaxY)
+		y = sMsMaxY;
+	sMsX = x;
+	sMsY = y;
+	sMsButtons = 0;
+	if (buttons & (1UL << 0))
+		sMsButtons |= 0xff00; /* left, same as X11 Button1Mask */
+	if (buttons & (1UL << 1))
+		sMsButtons |= 0x00ff; /* right, same as X11 Button3Mask */
+}
 
 @implementation X68kView
 
@@ -230,6 +272,13 @@ static uint32_t s_x68k_special_key[128] = {
 
 	sKeyBufferBase = 0;
 	sKeyBufferCount = 0;
+	sMsX = 0;
+	sMsY = 0;
+	sMsButtons = 0;
+	sMsMinX = 0;
+	sMsMinY = 0;
+	sMsMaxX = sTextWidth - 1;
+	sMsMaxY = sTextHeight - 1;
 	
 	//  The following code snippet was used in generating the bitmap data
 #if 0
@@ -340,6 +389,14 @@ static uint32_t s_x68k_special_key[128] = {
 {
 	int x1, y1, x2, y2, x, y, xx, yy;
 	NSRect rect;
+
+	if (sMainView != nil && [sMainView window] != nil) {
+		NSPoint p = [sMainView convertPoint:[[sMainView window] mouseLocationOutsideOfEventStream]
+					  fromView:nil];
+		[sLock lock];
+		s_XSTed_ms_store_view_point(p, [NSEvent pressedMouseButtons]);
+		[sLock unlock];
+	}
 
 	//  Handle AppKit request
 	if (sRequestAppKitCall != 0) {
@@ -452,10 +509,13 @@ static uint32_t s_x68k_special_key[128] = {
 static uint32_t
 eventToX68kKeyInfo(NSEvent *theEvent)
 {
-	unichar theChar;
+	unichar theChar = 0;
 	unsigned int theMask;
 	uint32_t keyCode = 0, keyMask = 0;
+	unsigned short vk;
 	int i;
+	NSString *chars;
+
 	theMask = [theEvent modifierFlags];
 	keyMask = 0;
 	if (theMask & NSEventModifierFlagShift)
@@ -466,25 +526,52 @@ eventToX68kKeyInfo(NSEvent *theEvent)
 		keyMask |= 4;	/* Opt.1 */
 	if (theMask & NSEventModifierFlagCapsLock)
 		keyMask |= 8;   /* Opt.2 */
-	theChar = [[theEvent charactersIgnoringModifiers] characterAtIndex: 0];
-	for (i = 0; i < sizeof(s_x68k_special_key) / sizeof(s_x68k_special_key[0]); i++) {
-		if (s_x68k_special_key[i] == 0)
-			break;
-		if ((s_x68k_special_key[i] & 0xffff) == theChar
-		&& ((s_x68k_special_key[i] >> 16) & 6) == (keyMask & 6)) {
-			keyCode = (s_x68k_special_key[i] >> 16) & 0xff00;
-		//	NSLog(@"keyCode = %d", (int)keyCode);
+
+	/* Option+minus is U+2013, not '-', so match hardware key codes.
+	   0x67 F11, 0x6F F12, 0x1B minus, 0x18 equal, 0x5E JIS '_. */
+	vk = [theEvent keyCode];
+	if ((theMask & NSEventModifierFlagCommand) == 0) {
+		if (vk == 0x67)
+			keyCode = (uint32_t)x68k_kigou << 8;
+		else if (vk == 0x6F)
+			keyCode = (uint32_t)x68k_touroku << 8;
+		else if ((keyMask & 6) == 4) {
+			if (vk == 0x18)
+				keyCode = (uint32_t)x68k_touroku << 8;
+			else if (vk == 0x1B)
+				keyCode = (uint32_t)((keyMask & 1) ? x68k_touroku : x68k_kigou) << 8;
+			else if (vk == 0x5E)
+				keyCode = (uint32_t)x68k_kigou << 8;
+		}
+	}
+
+	if (keyCode == 0) {
+		chars = [theEvent charactersIgnoringModifiers];
+		if ([chars length] > 0) {
+			theChar = [chars characterAtIndex: 0];
+			for (i = 0; i < (int)(sizeof(s_x68k_special_key) / sizeof(s_x68k_special_key[0])); i++) {
+				if (s_x68k_special_key[i] == 0)
+					break;
+				if ((s_x68k_special_key[i] & 0xffff) == theChar
+				&& ((s_x68k_special_key[i] >> 16) & 6) == (keyMask & 6)) {
+					keyCode = (s_x68k_special_key[i] >> 16) & 0xff00;
+					break;
+				}
+			}
 		}
 	}
 	if (keyCode == 0) {
-		theChar = [[theEvent characters] characterAtIndex: 0];
-		if (theChar > 0 && theChar < 128) {
-			if ((theMask & NSEventModifierFlagNumericPad) && theChar < 64) {
-				keyCode = sPadKeyTable[theChar];
-			} else {
-				keyCode = sKeyTable[theChar];
+		chars = [theEvent characters];
+		if ([chars length] > 0) {
+			theChar = [chars characterAtIndex: 0];
+			if (theChar > 0 && theChar < 128) {
+				if ((theMask & NSEventModifierFlagNumericPad) && theChar < 64) {
+					keyCode = sPadKeyTable[theChar];
+				} else {
+					keyCode = sKeyTable[theChar];
+				}
+				keyCode = (keyCode << 8) + theChar;
 			}
-			keyCode = (keyCode << 8) + theChar;
 		}
 	}
 	return (keyMask << 16) | keyCode;
@@ -537,6 +624,72 @@ s_RegisterKeyDown(int ch)
 - (void)keyUp:(NSEvent *)theEvent
 {
 	[self keyDown:theEvent];
+}
+
+- (BOOL)performKeyEquivalent:(NSEvent *)theEvent
+{
+	unsigned short vk = [theEvent keyCode];
+	NSUInteger flags = [theEvent modifierFlags];
+	int take = 0;
+
+	if (vk == 0x67 || vk == 0x6F)
+		take = 1;
+	else if ((flags & NSEventModifierFlagOption) &&
+		 (vk == 0x1B || vk == 0x18 || vk == 0x5E))
+		take = 1;
+	if (!take)
+		return [super performKeyEquivalent:theEvent];
+	if ([theEvent type] == NSEventTypeKeyDown) {
+		uint32_t keyInfo;
+		[sLock lock];
+		keyInfo = eventToX68kKeyInfo(theEvent);
+		s_RegisterKeyDown(keyInfo & 0xffff);
+		[sLock unlock];
+	}
+	return YES;
+}
+
+- (BOOL)acceptsFirstMouse:(NSEvent *)theEvent
+{
+	return YES;
+}
+
+- (void)updateMouseFromEvent:(NSEvent *)theEvent
+{
+	NSPoint p = [self convertPoint:[theEvent locationInWindow] fromView:nil];
+	[sLock lock];
+	s_XSTed_ms_store_view_point(p, [NSEvent pressedMouseButtons]);
+	[sLock unlock];
+}
+
+- (void)mouseDown:(NSEvent *)theEvent
+{
+	[self updateMouseFromEvent:theEvent];
+}
+
+- (void)mouseDragged:(NSEvent *)theEvent
+{
+	[self updateMouseFromEvent:theEvent];
+}
+
+- (void)mouseUp:(NSEvent *)theEvent
+{
+	[self updateMouseFromEvent:theEvent];
+}
+
+- (void)rightMouseDown:(NSEvent *)theEvent
+{
+	[self updateMouseFromEvent:theEvent];
+}
+
+- (void)rightMouseDragged:(NSEvent *)theEvent
+{
+	[self updateMouseFromEvent:theEvent];
+}
+
+- (void)rightMouseUp:(NSEvent *)theEvent
+{
+	[self updateMouseFromEvent:theEvent];
 }
 
 - (BOOL)control:(NSControl *)control textView:(NSTextView *)textView doCommandBySelector:(SEL)command
@@ -691,6 +844,7 @@ XSTed_register_key(const char *str)
 	} s_x68k_keysym_table[] = {
 		{ "TOROKU", x68k_touroku },
 		{ "KIGOU", x68k_kigou },
+		{ "KIGO", x68k_kigou },
 		{ "KANA", x68k_kana },
 		{ "DEL", x68k_del },
 		{ "HOME", x68k_home },
@@ -715,7 +869,7 @@ XSTed_register_key(const char *str)
 		code = x68k_f1 + n - 1;
 	} else if (strcasecmp(q, "TOROKU") == 0) {
 		code = x68k_touroku;
-	} else if (strcasecmp(q, "KIGOU") == 0) {
+	} else if (strcasecmp(q, "KIGOU") == 0 || strcasecmp(q, "KIGO") == 0) {
 		code = x68k_kigou;
 	} else if (strcasecmp(q, "KANA") == 0) {
 		code = x68k_kana;
@@ -735,15 +889,29 @@ XSTed_register_key(const char *str)
 		if (*q == 0)
 			continue;
 		mask = 0;
-		while (q != NULL && strchr(q, '-') != NULL) {
-			r = strsep(&q, "-");
+		/* option-- means Option + '-'; only split on '-' when the
+		   left token is a modifier. */
+		for (;;) {
+			char *dash = (q != NULL) ? strchr(q, '-') : NULL;
+			if (dash == NULL || dash == q)
+				break;
+			*dash = 0;
+			r = q;
+			q = dash + 1;
 			if (strcasecmp(r, "c") == 0 || strcasecmp(r, "ctrl") == 0 || strcasecmp(r, "control") == 0)
 				mask |= 2;
 			else if (strcasecmp(r, "o") == 0 || strcasecmp(r, "opt") == 0 || strcasecmp(r, "option") == 0)
 				mask |= 4;
+			else {
+				*dash = '-';
+				q = r;
+				break;
+			}
 		}
-		if (q == NULL || *q == 0)
+		if (q == NULL)
 			continue;
+		if (*q == 0)
+			q = "-";
 		if (strcasecmp(q, "space") == 0)
 			n = ' ';
 		else if (strcasecmp(q, "up") == 0)
@@ -886,60 +1054,71 @@ InvalGraphInRect(int16_t x0, int16_t y0, int16_t x1, int16_t y1)
 void
 XSTed_txxline(uint16_t p, int16_t x0, int16_t y0, int16_t x1, uint16_t ls)
 {
-	int16_t i;
+	int16_t i, x1e;
 	uint8_t col;
-	if (y0 < 0 || y0 >= sTextHeight)
+
+	/* x1 is length in pixels (IOCS TXXLINE / xwin_graph.c), not end x. */
+	if (x1 <= 0 || y0 < 0 || y0 >= sTextHeight)
 		return;
-	if (x0 > x1) {
-		i = x0;
-		x0 = x1;
-		x1 = i;
-	}
+	x1e = x0 + x1 - 1;
 	if (x0 < 0)
 		x0 = 0;
-	if (x1 >= sTextWidth)
-		x1 = sTextWidth - 1;
+	if (x1e >= sTextWidth)
+		x1e = sTextWidth - 1;
+	if (x0 > x1e)
+		return;
 	col = (ls == 0 ? 0 : tpage(p));
 	[sLock lock];
-	for (i = x0; i <= x1; i++) {
+	for (i = x0; i <= x1e; i++)
 		sTextVram[y0 * sTextWidth + i] = col;
-	}
-	InvalTextInRect(x0, y0, x1 + 1, y0 + 1);
+	InvalTextInRect(x0, y0, x1e + 1, y0 + 1);
 	[sLock unlock];
 }
 
 void
 XSTed_txyline(uint16_t p, int16_t x0, int16_t y0, int16_t y1, uint16_t ls)
 {
-	int16_t i;
+	int16_t i, y1e;
 	uint8_t col;
-	if (x0 < 0 || x0 >= sTextWidth)
+
+	/* y1 is length in pixels (IOCS TXYLINE / xwin_graph.c), not end y. */
+	if (y1 <= 0 || x0 < 0 || x0 >= sTextWidth)
 		return;
-	if (y0 > y1) {
-		i = y0;
-		y0 = y1;
-		y1 = i;
-	}
+	y1e = y0 + y1 - 1;
 	if (y0 < 0)
 		y0 = 0;
-	if (y1 >= sTextHeight)
-		y1 = sTextHeight - 1;
+	if (y1e >= sTextHeight)
+		y1e = sTextHeight - 1;
+	if (y0 > y1e)
+		return;
 	col = (ls == 0 ? 0 : tpage(p));
 	[sLock lock];
-	for (i = y0; i <= y1; i++) {
+	for (i = y0; i <= y1e; i++)
 		sTextVram[i * sTextWidth + x0] = col;
-	}
-	InvalTextInRect(x0, y0, x0 + 1, y1 + 1);
+	InvalTextInRect(x0, y0, x0 + 1, y1e + 1);
 	[sLock unlock];
 }
 
 void
 XSTed_txbox(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t p)
 {
-	XSTed_txxline(p, x0, y0, x1, 1);
-	XSTed_txyline(p, x1, y0, y1, 1);
-	XSTed_txxline(p, x1, y1, x0, 1);
-	XSTed_txyline(p, x0, y1, y0, 1);
+	int16_t lw, lh;
+
+	/* Corners (x0,y0)-(x1,y1), same as X11 XSTed_txbox. */
+	lw = x1 - x0;
+	lh = y1 - y0;
+	if (lw < 0) {
+		x0 = x1;
+		lw = -lw;
+	}
+	if (lh < 0) {
+		y0 = y1;
+		lh = -lh;
+	}
+	XSTed_txxline(p, x0, y0, lw, 1);
+	XSTed_txxline(p, x0, y0 + lh, lw, 1);
+	XSTed_txyline(p, x0, y0, lh, 1);
+	XSTed_txyline(p, x0 + lw, y0, lh, 1);
 }
 
 void
@@ -977,23 +1156,31 @@ void
 XSTed_tfill(uint16_t p, int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t ls)
 {
 	uint8_t col;
-	int16_t i, j;
+	int16_t i, j, x1e, y1e;
+
+	/* x1/y1 are width/height (IOCS TXFILL / xwin_graph.c), not end point. */
+	if (x1 <= 0 || y1 <= 0)
+		return;
+	x1e = x0 + x1 - 1;
+	y1e = y0 + y1 - 1;
 	if (x0 < 0)
 		x0 = 0;
-	if (x1 >= sTextWidth)
-		x1 = sTextWidth - 1;
 	if (y0 < 0)
 		y0 = 0;
-	if (y1 >= sTextHeight)
-		y1 = sTextHeight - 1;
+	if (x1e >= sTextWidth)
+		x1e = sTextWidth - 1;
+	if (y1e >= sTextHeight)
+		y1e = sTextHeight - 1;
+	if (x0 > x1e || y0 > y1e)
+		return;
 	col = (ls == 0 ? 0 : tpage(p));
 	[sLock lock];
-	for (i = x0; i <= x1; i++) {
-		for (j = y0; j <= y1; j++) {
+	for (i = x0; i <= x1e; i++) {
+		for (j = y0; j <= y1e; j++) {
 			sTextVram[j * sTextWidth + i] = col;
 		}
 	}
-	InvalTextInRect(x0, y0, x1 + 1, y1 + 1);
+	InvalTextInRect(x0, y0, x1e + 1, y1e + 1);
 	[sLock unlock];
 //	printf("XSTed_tfill %d %d %d %d %d %d\n", p, x0, y0, x1, y1, ls);
 }
@@ -1559,19 +1746,21 @@ XSTed_gputs(int x0, int y0, const char *message)
 void
 XSTed_cls_eol(void)
 {
-	//  Clear to the end of line
-	XSTed_tfill(3, sCursorX * 8, sCursorY * 16, sTextWidth - 1, sCursorY * 16 + 15, 0);
-//	printf("XSTed_cls_eol\n");
+	int16_t x0 = sCursorX * 8;
+	int16_t y0 = sCursorY * 16;
+
+	XSTed_tfill(3, x0, y0, sTextWidth - x0, 16, 0);
 }
 
 void
 XSTed_cls_ed(void)
 {
-	//  Clear to the end of screen
-	XSTed_tfill(3, sCursorX * 8, sCursorY * 16, sTextWidth - 1, sCursorY * 16 + 15, 0);
-	if (sCursorY * 16 + 16 < sTextHeight)
-		XSTed_tfill(3, 0, sCursorY * 16 + 16, sTextWidth - 1, sTextHeight - 1, 0);
-//	printf("XSTed_cls_ed\n");
+	int16_t x0 = sCursorX * 8;
+	int16_t y0 = sCursorY * 16;
+
+	XSTed_tfill(3, x0, y0, sTextWidth - x0, 16, 0);
+	if (y0 + 16 < sTextHeight)
+		XSTed_tfill(3, 0, y0 + 16, sTextWidth, sTextHeight - (y0 + 16), 0);
 }
 
 #pragma mark "=== Keyboard functions ==="
@@ -1725,12 +1914,13 @@ XSTed_bitsns(int group)
 }
 
 /*  X680x0 B_KEYSNS  */
-/*  Examine whether the input buffer has a character or not. Does not change the
-    input buffer. (Same as INPOUT(0xfe)?)  */
+/*  Peek only. Must not go through XSTed_keyin(0xfe): that path drops
+    scan-only keys (KIGOU/TOROKU/XF, ascii 0) as "no character".  */
 int
 XSTed_keysns(void)
 {
-	return XSTed_keyin(0xfe);
+	uint16_t ch = [X68kView getKeyWithOptions:kGetKeyNoWaitOption | kGetKeyKeepInBufferOption];
+	return ch != 0;
 }
 
 void
@@ -1763,41 +1953,65 @@ XSTed_ledmod(int code, int onoff)
 void
 XSTed_ms_curof(void)
 {
-	// Not implemented yet
-//	printf("XSTed_ms_curof\n");
 }
 
 void
 XSTed_ms_curon(void)
 {
-	// Not implemented yet
-//	printf("XSTed_ms_curon\n");
 }
 
 int
 XSTed_ms_getdt(void)
 {
-//	printf("XSTed_ms_getdt\n");
-	return 0;
+	int buttons;
+
+	if (sLock == nil)
+		return 0;
+	[sLock lock];
+	buttons = sMsButtons;
+	[sLock unlock];
+	return buttons;
 }
 
 void
 XSTed_ms_init(void)
 {
-//	printf("XSTed_ms_init\n");
+	if (sLock == nil)
+		return;
+	[sLock lock];
+	sMsButtons = 0;
+	sMsMinX = 0;
+	sMsMinY = 0;
+	sMsMaxX = sTextWidth - 1;
+	sMsMaxY = sTextHeight - 1;
+	[sLock unlock];
 }
 
 int
 XSTed_ms_limit( int xs, int ys, int xe, int ye )
 {
-//	printf("XSTed_ms_limit\n");
+	if (sLock == nil)
+		return 0;
+	[sLock lock];
+	sMsMinX = xs;
+	sMsMinY = ys;
+	sMsMaxX = xe;
+	sMsMaxY = ye;
+	[sLock unlock];
 	return 0;
 }
 
 int
 XSTed_ms_pos(int *x, int *y)
 {
-//	printf("XSTed_ms_pos\n");
+	if (sLock == nil)
+		return 0;
+	[sLock lock];
+	if (x != NULL)
+		*x = sMsX;
+	if (y != NULL)
+		*y = sMsY;
+	[sLock unlock];
 	return 0;
 }
 

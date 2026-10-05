@@ -1310,22 +1310,7 @@ void	dir_disp(X68_DIR *dir,int nm,int p,int cx,int sp,int ln)
   sta=SUPER(0);
   for(i=sp ;i< sp+ln;i++){
     int nn=p+i;if( nn>=nm ){break;}
-    {
-      char shown[256];
-      int nlen = (int)strlen(dir[nn].name);
-      int font_sjis = (disp_conv == 0);
-#ifdef __APPLE__
-      if (isGUI)
-	font_sjis = 1;
-#endif
-      if (font_sjis && sted_looks_like_utf8(dir[nn].name, nlen))
-	encoding_convert(dir[nn].name, shown, (int)sizeof(shown), "UTF-8", "SJIS");
-      else {
-	strncpy(shown, dir[nn].name, sizeof(shown) - 1);
-	shown[sizeof(shown) - 1] = 0;
-      }
-      strcpy(tmp0,dirs(shown));
-    }
+    strcpy(tmp0,dirs(sted_filename_for_font(dir[nn].name)));
     B_LOCATE(cx,i+12);
     if(dir[nn].far&0x10){
       strcat(tmp0,"  <dir> ");

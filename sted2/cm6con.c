@@ -302,7 +302,7 @@ void	cm64_con()
 	}
 	timtra();trns_check();
       }
-      sdis2(53,64,cm6_file,15,15,0);pfil();
+      sdis2(53,64,sted_filename_for_font(cm6_file),15,15,0);pfil();
     }
     if( ke==0xf6 ){
       B_CLR_AL();strcpy(path2,rcp_path);fsel(cm6_file,path2,0x102);
@@ -312,7 +312,7 @@ void	cm64_con()
 	  if(!(cnfflag&0x0008)){strcpy(rcp_path,path2);}
 	}
       }
-      sdis2(53,64,cm6_file,15,15,0);pfil();
+      sdis2(53,64,sted_filename_for_font(cm6_file),15,15,0);pfil();
     }
 
     if( ke==0xf7 ){poplay(0,1);}
@@ -336,7 +336,7 @@ void	cm64_con()
 void	pfil()
 {
   sdis2(0,552," CM-64 CONTROLER",17,15,8);
-  sdis2(50,552," CONTROL FILE:",14,15,8);sdis2(64,552,cm6_file,15,15,8);
+  sdis2(50,552," CONTROL FILE:",14,15,8);sdis2(64,552,sted_filename_for_font(cm6_file),15,15,8);
   box(648,552,744,600,14,65535);box(650,554,742,598,14,65535);
   keyd();
 }
@@ -1119,7 +1119,7 @@ void	gsd_con()
   WINDOW(0,0,1023,1023);
 
   if(ex<0){msg(_("Cannot execute: GE.x"));}
-  sdis2(72,64,gsd_file,15,15,0);
+  sdis2(72,64,sted_filename_for_font(gsd_file),15,15,0);
 }
 
 /***************************/

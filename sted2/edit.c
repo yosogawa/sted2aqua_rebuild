@@ -936,6 +936,8 @@ track_edit_top:
 	B_CLR_AL();cons_md(0);rtrk_ed(ke-0x52,sh);
 	edfield(0);po=tr_pos[track][edit_scr][0];cx=0;cy=0;trk_no();
 	trk_cluc();trk_dis(6,po,24);rc=tm_lag-1;
+      }else{
+	msg(_("Rhythm track only."));
       }
     }
 
