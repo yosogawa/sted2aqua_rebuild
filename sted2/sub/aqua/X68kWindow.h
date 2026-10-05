@@ -6,6 +6,7 @@
 #include <Carbon/Carbon.h>
 
 void XSTed_start_main(int (*mainPtr)(int, char **), int argc, char **argv);
+void XSTed_setup_default_path(void);
 void XSTed_init_window(void);
 
 void XSTed_txbox(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t p);

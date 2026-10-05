@@ -3,10 +3,10 @@
 #endif /* HAVE_CONFIG_H */
 
 /*
-  Kanji conversion for STed2.
+  Character encoding conversion for STed2.
 
-  The 1997 nkf 1.7 embed (EUC/SJIS/JIS only, no UTF-8) is replaced with
-  POSIX iconv. Call sites keep nkf_conv / nkf_convert.
+  POSIX iconv wrapper. RCP/STed memory is Shift_JIS unless in_mode
+  is given. Replaces the 1997 nkf 1.7 embed.
 */
 
 #include <errno.h>
@@ -15,7 +15,7 @@
 #include <string.h>
 #include <iconv.h>
 
-#include "kanjiconv.h"
+#include "encoding.h"
 
 #ifdef __APPLE__
 #include <CoreFoundation/CoreFoundation.h>
@@ -155,7 +155,7 @@ utf8_nfc(const char *s, char **owned)
 #endif
 
 char *
-nkf_convert(char *si, char *so, int maxsize, char *in_mode, char *out_mode)
+encoding_convert(char *si, char *so, int maxsize, char *in_mode, char *out_mode)
 {
   const char *from, *to;
   char *inptr, *outbuf, *outptr, *owned = NULL, *nfc_owned = NULL;
@@ -334,15 +334,10 @@ sted_ensure_sjis(char *buf, int bufsize)
     char tmp[4096];
     if (!sted_looks_like_utf8(buf, (int)strlen(buf)))
       return;
-    nkf_convert(buf, tmp, (int)sizeof(tmp), "UTF-8", "SJIS");
+    encoding_convert(buf, tmp, (int)sizeof(tmp), "UTF-8", "SJIS");
     strncpy(buf, tmp, (size_t)bufsize - 1);
     buf[bufsize - 1] = '\0';
   }
 #endif
 }
 
-char *
-nkf_conv(char *si, char *so, char *mode)
-{
-  return nkf_convert(si, so, so != NULL ? 1024 : -1, NULL, mode);
-}

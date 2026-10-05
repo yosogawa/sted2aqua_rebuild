@@ -74,6 +74,21 @@ static const int signals[]={SIGHUP,SIGINT,SIGQUIT,SIGILL,SIGABRT,SIGFPE,
                             SIGBUS,SIGSEGV,SIGPIPE,SIGALRM,SIGTERM,0};
 
 void Exit( int sig ) {
+  static volatile sig_atomic_t exiting;
+  int i;
+
+  if ( exiting )
+    _exit( 128 + (sig > 0 ? sig : 1) );
+  exiting = 1;
+
+  for ( i=0 ; signals[i]!=0 ; i++ )
+    signal( signals[i], SIG_DFL );
+
+  /* Fatal faults must not run ObjC / MIDI cleanup (it re-enters Exit). */
+  if ( sig==SIGSEGV || sig==SIGBUS || sig==SIGILL ||
+       sig==SIGFPE || sig==SIGABRT )
+    _exit( 128 + sig );
+
   _exit_external_player( sig );
 }
 

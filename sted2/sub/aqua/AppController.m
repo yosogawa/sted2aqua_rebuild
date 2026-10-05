@@ -14,7 +14,9 @@
 // prototype added
 void  XSTed_init_window(void);
 void  XSTed_start_main(int (*)(int, char **), int, char **);
-extern int isGUI;                       /* is GUI mode? */
+extern int isconsole;
+extern int sted_saved_argc;
+extern char **sted_saved_argv;
 
 @implementation AppController
 
@@ -35,16 +37,28 @@ extern int isGUI;                       /* is GUI mode? */
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
 	extern int sted2_main(int, char**);
-	static char *sArgv[] = {"sted2", NULL};
+	static char *fallback[] = {"sted2", NULL};
+	int argc = sted_saved_argc;
+	char **argv = sted_saved_argv;
+	X68kView *xview;
 
-    if (isGUI) {
-        X68kView *xview = (X68kView *)[myWindow contentView];
-        [X68kView initializeX68k];
+	if (isconsole) {
+		[myWindow orderOut:nil];
+		[myWindow close];
+		return;
+	}
 
-        [xview setNeedsDisplay:YES];
-        XSTed_init_window();
-    }
-	XSTed_start_main(sted2_main, 1, sArgv);
+	xview = (X68kView *)[myWindow contentView];
+
+	[X68kView initializeX68k];
+	[xview setNeedsDisplay:YES];
+	XSTed_init_window();
+
+	if (argc < 1 || argv == NULL) {
+		argc = 1;
+		argv = fallback;
+	}
+	XSTed_start_main(sted2_main, argc, argv);
 }
 
 - (void)startX68kThread: (id)argument

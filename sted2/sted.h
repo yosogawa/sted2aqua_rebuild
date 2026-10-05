@@ -97,7 +97,7 @@ extern "C" {
 #include "disp.h"
 #include "edit.h"
 #include "file.h"
-#include "sub/kanjiconv.h"
+#include "sub/encoding.h"
 
 #ifdef HAVE_SUPPORT_STED3
 # include "sted3.h"
@@ -282,13 +282,9 @@ extern void MacErrorBox(const char *mes, int icon);
 extern void line_input(char *buf, int len);
 /*  End Toshi Nagata  */
 
-#ifndef DISABLE_NKF
 extern int disp_conv;
-extern char *nkf_conv(char *, char *, char *);
-extern char *nkf_convert(char *, char *, int, char *, char *);
 /* SJIS RCP text → locale for X11/curses. Mac kanji ROM blit does not use this. */
 extern char *sted_to_locale_display(char *s);
-#endif
 
 #ifdef ENABLE_NLS
 # include <locale.h>

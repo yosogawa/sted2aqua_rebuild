@@ -54,7 +54,7 @@
 		E40E961E1ABA41ED0072AA0B /* iocs_tgraph.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E95971ABA41ED0072AA0B /* iocs_tgraph.c */; };
 		E40E96201ABA41ED0072AA0B /* mcpy.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E959A1ABA41ED0072AA0B /* mcpy.c */; };
 		E40E96211ABA41ED0072AA0B /* midi_in.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E959B1ABA41ED0072AA0B /* midi_in.c */; };
-		E40E96221ABA41ED0072AA0B /* kanjiconv.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E959D1ABA41ED0072AA0B /* kanjiconv.c */; };
+		E40E96221ABA41ED0072AA0B /* encoding.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E959D1ABA41ED0072AA0B /* encoding.c */; };
 		E40E96231ABA41ED0072AA0B /* ongraph.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E959F1ABA41ED0072AA0B /* ongraph.c */; };
 		E40E96241ABA41ED0072AA0B /* rcdcheck.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E95A01ABA41ED0072AA0B /* rcdcheck.c */; };
 		E40E96251ABA41ED0072AA0B /* scdsp.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E95A11ABA41ED0072AA0B /* scdsp.c */; };
@@ -169,8 +169,8 @@
 		E40E959A1ABA41ED0072AA0B /* mcpy.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mcpy.c; sourceTree = "<group>"; };
 		E40E959B1ABA41ED0072AA0B /* midi_in.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = midi_in.c; sourceTree = "<group>"; };
 		E40E959C1ABA41ED0072AA0B /* midi_in.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = midi_in.h; sourceTree = "<group>"; };
-		E40E959D1ABA41ED0072AA0B /* kanjiconv.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kanjiconv.c; sourceTree = "<group>"; };
-		E40E959E1ABA41ED0072AA0B /* kanjiconv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kanjiconv.h; sourceTree = "<group>"; };
+		E40E959D1ABA41ED0072AA0B /* encoding.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = encoding.c; sourceTree = "<group>"; };
+		E40E959E1ABA41ED0072AA0B /* encoding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = encoding.h; sourceTree = "<group>"; };
 		E40E959F1ABA41ED0072AA0B /* ongraph.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ongraph.c; sourceTree = "<group>"; };
 		E40E95A01ABA41ED0072AA0B /* rcdcheck.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = rcdcheck.c; sourceTree = "<group>"; };
 		E40E95A11ABA41ED0072AA0B /* scdsp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = scdsp.c; sourceTree = "<group>"; };
@@ -456,8 +456,8 @@
 				E40E959A1ABA41ED0072AA0B /* mcpy.c */,
 				E40E959B1ABA41ED0072AA0B /* midi_in.c */,
 				E40E959C1ABA41ED0072AA0B /* midi_in.h */,
-				E40E959D1ABA41ED0072AA0B /* kanjiconv.c */,
-				E40E959E1ABA41ED0072AA0B /* kanjiconv.h */,
+				E40E959D1ABA41ED0072AA0B /* encoding.c */,
+				E40E959E1ABA41ED0072AA0B /* encoding.h */,
 				E40E959F1ABA41ED0072AA0B /* ongraph.c */,
 				E40E95A01ABA41ED0072AA0B /* rcdcheck.c */,
 				E40E95A11ABA41ED0072AA0B /* scdsp.c */,
@@ -621,7 +621,7 @@
 				E40E961E1ABA41ED0072AA0B /* iocs_tgraph.c in Sources */,
 				E40E96201ABA41ED0072AA0B /* mcpy.c in Sources */,
 				E40E96211ABA41ED0072AA0B /* midi_in.c in Sources */,
-				E40E96221ABA41ED0072AA0B /* kanjiconv.c in Sources */,
+				E40E96221ABA41ED0072AA0B /* encoding.c in Sources */,
 				E40E96231ABA41ED0072AA0B /* ongraph.c in Sources */,
 				E40E96241ABA41ED0072AA0B /* rcdcheck.c in Sources */,
 				E40E96251ABA41ED0072AA0B /* scdsp.c in Sources */,

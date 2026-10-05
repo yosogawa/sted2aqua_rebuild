@@ -1319,7 +1319,7 @@ void	dir_disp(X68_DIR *dir,int nm,int p,int cx,int sp,int ln)
 	font_sjis = 1;
 #endif
       if (font_sjis && sted_looks_like_utf8(dir[nn].name, nlen))
-	nkf_convert(dir[nn].name, shown, (int)sizeof(shown), "UTF-8", "SJIS");
+	encoding_convert(dir[nn].name, shown, (int)sizeof(shown), "UTF-8", "SJIS");
       else {
 	strncpy(shown, dir[nn].name, sizeof(shown) - 1);
 	shown[sizeof(shown) - 1] = 0;

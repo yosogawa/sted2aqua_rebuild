@@ -24,6 +24,8 @@ void XSTed_midi_wait(void);
 int iswindowopened = 0;
 int isGUI          = 0;
 int isconsole      = 0;
+int sted_saved_argc = 0;
+char **sted_saved_argv = NULL;
 
 char disp_text[1024];
 int disp_conv      = 0;
@@ -103,7 +105,7 @@ sted_to_locale_display(char *s)
     return s;
   if (sted_looks_like_utf8(s, (int)strlen(s)))
     return s;
-  return nkf_conv(s, disp_text, disp_codeset);
+  return encoding_convert(s, disp_text, 1024, NULL, disp_codeset);
 }
 
 /*
@@ -115,10 +117,13 @@ sted_to_locale_display(char *s)
 void strmfe( char *dest, const char *node, const char *ext ) {
 
   char temp[PATHLEN];
+  const char *slash = strrchr(node, '/');
   const char *last = strrchr(node, '.');
 
-  /* Prefix is "name." — strncpy() of that length omits the NUL. */
-  if ( last != NULL && last != node && last[-1] != '.' && last[1] != '/' ) {
+  /* Only a dot in the final path component is an extension.
+     STed2.app/Contents/MacOS/STed2 must not become STed2.cnf. */
+  if ( last != NULL && (slash == NULL || last > slash) &&
+       last != node && last[-1] != '.' && last[1] != '/' && last[1] != '\0' ) {
     size_t prefix = (size_t)(last - node + 1);
     if ( prefix >= PATHLEN )
       prefix = PATHLEN - 1;
@@ -209,6 +214,160 @@ void key_mouse_wait( void ) {
   return;
 }
 
+static int
+sted_strieq(const char *a, const char *b)
+{
+  if (a == NULL || b == NULL)
+    return 0;
+  while (*a != '\0' && *b != '\0') {
+    char ca = *a++;
+    char cb = *b++;
+    if (ca >= 'A' && ca <= 'Z')
+      ca = (char)(ca + 32);
+    if (cb >= 'A' && cb <= 'Z')
+      cb = (char)(cb + 32);
+    if (ca != cb)
+      return 0;
+  }
+  return *a == *b;
+}
+
+static int
+sted_arg_is_curses(const char *a)
+{
+  return strcmp(a, "-nw") == 0 || strcmp(a, "-NW") == 0 ||
+    strcmp(a, "--tty") == 0 || strcmp(a, "--curses") == 0;
+}
+
+static int
+sted_arg_is_gui(const char *a)
+{
+  return strcmp(a, "-g") == 0 || strcmp(a, "-G") == 0 ||
+    strcmp(a, "--gui") == 0;
+}
+
+static int
+sted_env_is_curses(const char *s)
+{
+  return sted_strieq(s, "curses") || sted_strieq(s, "tty") ||
+    sted_strieq(s, "console") || sted_strieq(s, "nw");
+}
+
+static int
+sted_env_is_gui(const char *s)
+{
+  return sted_strieq(s, "gui");
+}
+
+/*
+  LaunchServices / Xcode / Cocoa inject arguments such as
+  -psn_0_123 and -NSDocumentRevisionsDebugMode YES.
+  Those must not reach STed's filename parser.
+*/
+int
+sted_is_host_arg(const char *a)
+{
+  if (a == NULL || a[0] != '-')
+    return 0;
+  return strncmp(a, "-psn", 4) == 0 ||
+    strncmp(a, "-NS", 3) == 0 ||
+    strncmp(a, "-Apple", 6) == 0;
+}
+
+static int
+sted_host_arg_takes_value(const char *a)
+{
+  return a != NULL && strncmp(a, "-psn", 4) != 0;
+}
+
+/*
+  Decide console vs GUI before Cocoa starts.
+
+  Priority: -nw/--tty  -g/--gui  STED_UI  then platform default
+  (macOS = GUI, Unix = DISPLAY ? GUI : curses).
+  Last explicit argv flag wins. UI flags are removed from argv.
+*/
+void
+sted_select_ui(int *argc, char ***argv)
+{
+  static int selected = 0;
+  char **av;
+  int ac, i, o, want;
+  const char *ui;
+
+  if (selected)
+    return;
+  selected = 1;
+
+  want = -1;
+  av = (argv != NULL && *argv != NULL) ? *argv : NULL;
+  ac = (argc != NULL) ? *argc : 0;
+
+  if (av != NULL && ac > 0) {
+    o = 1;
+    for (i = 1; i < ac; i++) {
+      if (sted_arg_is_curses(av[i])) {
+	want = 1;
+	continue;
+      }
+      if (sted_arg_is_gui(av[i])) {
+	want = 0;
+	continue;
+      }
+      if (sted_is_host_arg(av[i])) {
+	if (sted_host_arg_takes_value(av[i]) &&
+	    i + 1 < ac && av[i + 1][0] != '-')
+	  i++;
+	continue;
+      }
+      av[o++] = av[i];
+    }
+    av[o] = NULL;
+    *argc = o;
+  }
+
+  if (want < 0) {
+    ui = getenv("STED_UI");
+    if (ui != NULL && ui[0] != '\0') {
+      if (sted_env_is_curses(ui))
+	want = 1;
+      else if (sted_env_is_gui(ui))
+	want = 0;
+    }
+  }
+
+  if (want < 0) {
+#ifdef __APPLE__
+    want = 0;
+#elif defined(__unix__)
+    want = (getenv("DISPLAY") == NULL) ? 1 : 0;
+#else
+    want = 1;
+#endif
+  }
+
+  if (want) {
+#if USE_CURSES
+    isconsole = 1;
+    isGUI = 0;
+#else
+    exit(-1);
+#endif
+  } else {
+#ifdef __APPLE__
+#if defined(USE_MACGUI)
+    isconsole = 0;
+    isGUI = 1;
+#else
+    exit(-1);
+#endif
+#else
+    isconsole = 0;
+    isGUI = 1;
+#endif
+  }
+}
+
 /* system initialize */
 
 void STed_system_initialize( int *argc, char ***argv ) {
@@ -220,39 +379,8 @@ void STed_system_initialize( int *argc, char ***argv ) {
     rcd = NULL;
     /* May.06.2001 NAGANO Daisuke <breeze.nagano@nifty.ne.jp> */
     issted3 = 1;
-    
-#ifdef __APPLE__
-    // ogawa 2025/12/11 switching local console & GUI
-    char *env = getenv("TERM_PROGRAM");
-    if ( env != NULL && strcmp(env, "Apple_Terminal") == 0 ) {
-#if USE_CURSES
-        isconsole = 1;
-        isGUI = 0;
-#else
-        exit(-1);
-#endif
-    }
-    else {
-#if defined(USE_MACGUI)
-      isconsole = 0;
-      isGUI = 1;
-#else
-      exit(-1);
-#endif
-    }
-#elif __unix__
-  if ( getenv("DISPLAY")==NULL ) {
-#if USE_CURSES
-    isconsole = 1;
-    isGUI = 0;
-#else /* USE_CURSES */
-    exit(-1);
-#endif /* USE_CURSES */
-  } else {
-    isconsole = 0;
-    isGUI = 1;
-  }
-#endif
+
+    sted_select_ui(argc, argv);
 
   /* get message catalogues */
 

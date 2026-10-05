@@ -39,7 +39,6 @@ int x68_scancode[]={
 
 int is_midi_in( void );
 
-extern char *nkf_conv( const char *, char *, char * );
 extern char *sted_to_locale_display(char *);
 
 extern int iswindowopened;
@@ -77,6 +76,170 @@ static int curses_hascolor=0;
 static int last_key;
 static int insert_flag;
 
+/*
+  X68k STed palette, approximated with 8-color curses pairs.
+  Graphic 0 is black (the real ground). 8 is the navy menu bar.
+  Text 1=cyan, 2=yellow, 3=white. Reverse (bit 8) is black-on-light.
+*/
+#define P_W_BLK  1
+#define P_C_BLK  2
+#define P_Y_BLK  3
+#define P_G_BLK  4
+#define P_W_BLU  5
+#define P_C_BLU  6
+#define P_Y_BLU  7
+#define P_K_WHT  8
+#define P_W_CYN  9
+#define P_K_CYN  10
+#define P_R_BLK  11
+
+#ifdef USE_CURSES
+#ifndef PAIR_NUMBER
+#define PAIR_NUMBER(c) (((int)((c) & A_COLOR)) >> 8)
+#endif
+
+static int
+curses_x68_fg(int col)
+{
+  switch (col) {
+  case 0:
+    return COLOR_BLACK;
+  case 1:
+  case 7:
+  case 11:
+    return COLOR_CYAN;
+  case 2:
+  case 12:
+  case 13:
+    return COLOR_YELLOW;
+  case 6:
+    return COLOR_RED;
+  case 9:
+  case 10:
+    return COLOR_GREEN;
+  default:
+    return COLOR_WHITE;
+  }
+}
+
+static int
+curses_x68_bg(int col)
+{
+  switch (col) {
+  case 8:
+    return COLOR_BLUE;
+  case 14:
+    return COLOR_CYAN;
+  case 3:
+  case 11:
+  case 15:
+    return COLOR_WHITE;
+  default:
+    return COLOR_BLACK;
+  }
+}
+
+static int
+curses_pair_fg_bg(int fg, int bg)
+{
+  if (!curses_hascolor)
+    return 0;
+  if (bg == COLOR_WHITE)
+    return P_K_WHT;
+  if (bg == COLOR_BLUE) {
+    if (fg == COLOR_CYAN)
+      return P_C_BLU;
+    if (fg == COLOR_YELLOW)
+      return P_Y_BLU;
+    return P_W_BLU;
+  }
+  if (bg == COLOR_CYAN)
+    return (fg == COLOR_BLACK) ? P_K_CYN : P_W_CYN;
+  if (fg == COLOR_CYAN)
+    return P_C_BLK;
+  if (fg == COLOR_YELLOW)
+    return P_Y_BLK;
+  if (fg == COLOR_GREEN)
+    return P_G_BLK;
+  if (fg == COLOR_RED)
+    return P_R_BLK;
+  return P_W_BLK;
+}
+
+static int
+curses_bg_from_pair(int pair)
+{
+  switch (pair) {
+  case P_W_BLU:
+  case P_C_BLU:
+  case P_Y_BLU:
+    return COLOR_BLUE;
+  case P_K_WHT:
+    return COLOR_WHITE;
+  case P_W_CYN:
+  case P_K_CYN:
+    return COLOR_CYAN;
+  default:
+    return COLOR_BLACK;
+  }
+}
+
+static int
+curses_pair_text(int col)
+{
+  int fg;
+
+  if (col & 8) {
+    if ((col & 3) == 1)
+      return curses_pair_fg_bg(COLOR_BLACK, COLOR_CYAN);
+    return curses_pair_fg_bg(COLOR_BLACK, COLOR_WHITE);
+  }
+  if ((col & 3) == 1)
+    fg = COLOR_CYAN;
+  else if ((col & 3) == 2)
+    fg = COLOR_YELLOW;
+  else
+    fg = COLOR_WHITE;
+  return curses_pair_fg_bg(fg, COLOR_BLACK);
+}
+
+static int
+curses_pair_fill(int col)
+{
+  int bg = curses_x68_bg(col);
+  int fg = (bg == COLOR_BLACK) ? COLOR_WHITE : COLOR_BLACK;
+
+  return curses_pair_fg_bg(fg, bg);
+}
+
+static int
+curses_pair_graph_on(int col, int bg)
+{
+  return curses_pair_fg_bg(curses_x68_fg(col), bg);
+}
+
+static void
+curses_chgat(WINDOW *win, int y, int x, int n, int pair)
+{
+  if (win == NULL || n <= 0)
+    return;
+  if (curses_hascolor)
+    mvwchgat(win, y, x, n, A_NORMAL, pair, NULL);
+  else
+    mvwchgat(win, y, x, n, (pair == P_K_WHT || pair == P_K_CYN) ? A_REVERSE : A_NORMAL,
+	     0, NULL);
+}
+
+static void
+curses_set_tattr(int col)
+{
+  if (curses_hascolor)
+    wattrset(curses_twindow, COLOR_PAIR(curses_pair_text(col)));
+  else
+    wattrset(curses_twindow, (col & 8) ? A_REVERSE : A_NORMAL);
+}
+#endif
+
 #ifndef HAVE_MVWCHGAT
 static void mvwchgat( WINDOW *win, int ty, int tx, int l, int attr, int color, char *dummy ) {} 
 /* void function that forces to through linker. (by zinnia@jan.ne.jp) */
@@ -89,20 +252,36 @@ void curses_init_window( void ) {
 #ifdef USE_CURSES
   if ( iscursesinited ) return;
     
-  curses_hascolor = has_colors();
-
   initscr();
+  curses_hascolor = has_colors();
     
   if (curses_hascolor) {
     start_color();
-    init_pair(1, COLOR_WHITE, COLOR_BLUE);
-    bkgd(COLOR_PAIR(1));
+    init_pair(P_W_BLK, COLOR_WHITE, COLOR_BLACK);
+    init_pair(P_C_BLK, COLOR_CYAN, COLOR_BLACK);
+    init_pair(P_Y_BLK, COLOR_YELLOW, COLOR_BLACK);
+    init_pair(P_G_BLK, COLOR_GREEN, COLOR_BLACK);
+    init_pair(P_W_BLU, COLOR_WHITE, COLOR_BLUE);
+    init_pair(P_C_BLU, COLOR_CYAN, COLOR_BLUE);
+    init_pair(P_Y_BLU, COLOR_YELLOW, COLOR_BLUE);
+    init_pair(P_K_WHT, COLOR_BLACK, COLOR_WHITE);
+    init_pair(P_W_CYN, COLOR_WHITE, COLOR_CYAN);
+    init_pair(P_K_CYN, COLOR_BLACK, COLOR_CYAN);
+    init_pair(P_R_BLK, COLOR_RED, COLOR_BLACK);
+    bkgd(COLOR_PAIR(P_W_BLK));
   }
   w                 = newwin(0,0,0,0);
   curses_twindow    = newwin(0,0,0,0);
   curses_awindow    = newwin(0,0,0,0);
   curses_gwindow[0] = newwin(0,0,0,0);
   curses_gwindow[1] = newwin(0,0,0,0);
+  if (curses_hascolor) {
+    wbkgd(w, COLOR_PAIR(P_W_BLK));
+    wbkgd(curses_twindow, COLOR_PAIR(P_W_BLK));
+    wbkgd(curses_awindow, COLOR_PAIR(P_W_BLK));
+    wbkgd(curses_gwindow[0], COLOR_PAIR(P_W_BLK));
+    wbkgd(curses_gwindow[1], COLOR_PAIR(P_W_BLK));
+  }
 
   cbreak();
   noecho();
@@ -114,8 +293,9 @@ void curses_init_window( void ) {
   nonl();
 
   current_gwindow=0;
-  current_tcolor=0;
-  current_gcolor=0;
+  current_tcolor=3;
+  current_gcolor=15;
+  curses_set_tattr(current_tcolor);
 
   current_tx=0;
   current_ty=0;
@@ -176,11 +356,7 @@ void curses_curoff( void ) {
 void curses_gcolor( int col ) {
 
 #ifdef USE_CURSES
-  if ((col==15)||(col==3)||(col==2)||(col==1)||(col==6)) {
-    current_gcolor=0;
-  } else {
-    current_gcolor=1;
-  }
+  current_gcolor = col;
 
 #endif /* USE_CURSES */
   return;
@@ -189,27 +365,8 @@ void curses_gcolor( int col ) {
 void curses_tcolor( int col ) {
 
 #ifdef USE_CURSES
-  switch( col ) {
-  case 11:
-    wattroff( curses_twindow, A_NORMAL );
-    wattroff( curses_twindow, A_STANDOUT );
-    wattron ( curses_twindow, A_REVERSE );
-    break;
-
-  case 3:
-    wattroff( curses_twindow, A_NORMAL );
-    wattron ( curses_twindow, A_STANDOUT );
-    wattroff( curses_twindow, A_REVERSE );
-    break;
-
-  default:
-    wattron ( curses_twindow, A_NORMAL );
-    wattroff( curses_twindow, A_STANDOUT );
-    wattroff( curses_twindow, A_REVERSE );
-    break;
-  }
-
-  current_tcolor=col;
+  current_tcolor = col;
+  curses_set_tattr(col);
 
 #endif /* USE_CURSES */
   return;
@@ -218,7 +375,6 @@ void curses_tcolor( int col ) {
 void curses_tputs( char *message ) {
 
 #ifdef USE_CURSES
-  chtype t;
   int l,i;
   char s[128];
   
@@ -238,17 +394,10 @@ void curses_tputs( char *message ) {
   wmove( curses_twindow, current_ty, current_tx );
   waddstr( curses_twindow, message );
 
-  t = mvwinch( curses_twindow,
-	       current_ty, current_tx ) & A_ATTRIBUTES;
-  if ( t&A_REVERSE ) {
-    mvwchgat( curses_gwindow[current_gwindow],
-	      current_ty, current_tx ,l,
-	      A_REVERSE, COLOR_WHITE, NULL );
-  } else {
-    mvwchgat( curses_gwindow[current_gwindow],
-	      current_ty, current_tx ,l,
-	      A_NORMAL, COLOR_WHITE, NULL );
-  }
+  curses_chgat(curses_twindow, current_ty, current_tx, l,
+	       curses_pair_text(current_tcolor));
+  curses_chgat(curses_gwindow[current_gwindow], current_ty, current_tx, l,
+	       curses_pair_text(current_tcolor));
 
   current_tx+=l;
   wmove( curses_twindow, current_ty, current_tx );
@@ -262,9 +411,8 @@ void curses_gputs( int x, int y, const char *message ) {
 
 #ifdef USE_CURSES
   int c;
-  chtype t;
-  int flg;
   int l;
+  int bg;
 
   current_gx = X68_TWidth * x / X68_GWidth;
   current_gy = (X68_THeight * y / X68_GHeight) % X68_THeight;
@@ -272,20 +420,15 @@ void curses_gputs( int x, int y, const char *message ) {
   c = (y>=X68_GHeight) ? 1:0;
   message = sted_to_locale_display((char *)message);
 
-  t=mvwinch( curses_gwindow[c],
-	    current_gy, current_gx )&A_ATTRIBUTES;
-  flg=((t&A_REVERSE)!=0)||(current_gcolor!=0)?1:0;
+  bg = curses_bg_from_pair(PAIR_NUMBER(mvwinch(curses_gwindow[c],
+					      current_gy, current_gx)));
 
   mvwaddstr( curses_gwindow[c],
 	    current_gy, current_gx, message );
   l=strlen(message);
 
-  if ( flg ) 
-      mvwchgat( curses_gwindow[c], current_gy, current_gx,
-	       l, A_REVERSE, COLOR_WHITE, NULL );
-  else
-      mvwchgat( curses_gwindow[c], current_gy, current_gx,
-	       l, A_NORMAL, COLOR_WHITE, NULL );
+  curses_chgat(curses_gwindow[c], current_gy, current_gx, l,
+	       curses_pair_graph_on(current_gcolor, bg));
 
 #endif /* USE_CURSES */
   return;
@@ -316,20 +459,15 @@ void curses_ghome( int home_flag ) {
 void curses_trev( int x, int y, int l, int col ) {
 
 #ifdef USE_CURSES
-  chtype t;
+  int pair;
 
-  t = mvwinch( curses_twindow, y, x ) & A_ATTRIBUTES;
-  if ( t&A_REVERSE ) {
-    mvwchgat( curses_twindow, y, x ,l,
-	     A_NORMAL, COLOR_WHITE, NULL );
-    mvwchgat( curses_gwindow[current_gwindow], y, x ,l,
-	     A_NORMAL, COLOR_WHITE, NULL );
-  } else {
-    mvwchgat( curses_twindow, y, x ,l,
-	     A_REVERSE, COLOR_WHITE, NULL );
-    mvwchgat( curses_gwindow[current_gwindow], y, x ,l,
-	     A_REVERSE, COLOR_WHITE, NULL );
-  }
+  pair = PAIR_NUMBER(mvwinch(curses_twindow, y, x));
+  if (pair == P_K_WHT || pair == P_K_CYN)
+    pair = curses_pair_text(current_tcolor);
+  else
+    pair = P_K_WHT;
+  curses_chgat(curses_twindow, y, x, l, pair);
+  curses_chgat(curses_gwindow[current_gwindow], y, x, l, pair);
   wmove( curses_twindow, current_ty, current_tx );
   wmove( curses_gwindow[current_gwindow], current_gy, current_gx );
 
@@ -388,23 +526,15 @@ void curses_gfill( int sx, int sy, int ex, int ey, int col ) {
   sp[i]=0;
 
   cx = X68_TWidth * sx / X68_GWidth;
-  if ( col < 10 ) {
+  {
+    int pair = curses_pair_fill(col);
+
     for ( y=sy ; y<ey ; y+=16 ) {
       cy=(X68_THeight*y/X68_GHeight) % X68_THeight;
       c = (y>=X68_GHeight) ? 1:0;
-      
+
       mvwaddstr( curses_gwindow[c],cy, cx, sp );
-      mvwchgat( curses_gwindow[c],cy, cx, x,
-	       A_NORMAL, COLOR_WHITE, NULL );
-    }
-  } else {
-    for ( y=sy ; y<ey ; y+=16 ) {
-      cy=(X68_THeight*y/X68_GHeight)%X68_GHeight;
-      c = (y>=X68_GHeight) ? 1:0;
-      
-      mvwaddstr( curses_gwindow[c],cy, cx, sp );
-      mvwchgat( curses_gwindow[c],cy, cx, x,
-	       A_REVERSE, COLOR_WHITE, NULL );
+      curses_chgat(curses_gwindow[c], cy, cx, x, pair);
     }
   }
 #endif /* USE_CURSES */

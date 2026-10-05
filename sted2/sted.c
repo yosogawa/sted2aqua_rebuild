@@ -121,6 +121,15 @@ int	main(int argc,char *argv[])
       strcpy(cmd,env_opt[i]);
 
       if( cmd[0]=='-' ){
+	if (sted_is_host_arg(cmd)) {
+	  if (strncmp(cmd, "-psn", 4) != 0 &&
+	      i + 1 < eoptc && env_opt[i + 1][0] != '-')
+	    i++;
+	  continue;
+	}
+	if (strcmp(cmd, "--tty")==0 || strcmp(cmd, "--curses")==0 ||
+	    strcmp(cmd, "--gui")==0)
+	  continue;
 	switch(cmd[1]){
 
 	case 'M':
@@ -169,9 +178,21 @@ int	main(int argc,char *argv[])
 	case 'O':
 	case 'o':cmdflag|=0x0200;break;
 
+	case 'G':
+	case 'g':
+	  break;
+
+	case 'N':
+	case 'n':
+	  break;
+
 	default:f=1;break;
 	}
       }else{
+	/* Cocoa debug flags leave a bare YES/NO after the -NS* option. */
+	if (strcmp(cmd, "YES") == 0 || strcmp(cmd, "NO") == 0 ||
+	    strcmp(cmd, "TRUE") == 0 || strcmp(cmd, "FALSE") == 0)
+	  continue;
 	strcpy(rcp_file,cmd);
       }
     }
@@ -189,7 +210,9 @@ int	main(int argc,char *argv[])
     B_PRINT( _("\t-R\t\t Do pointplay with RCD function\n") );
     B_PRINT( _("\t-P\t\t Set panel displaying as default playing command\n") );
     B_PRINT( _("\t-L\t\t Read the data in RCD buffer at boot time\n") );
-    B_PRINT( _("\t-S\t\t Don't copy the data to RCD buffer when exit\n\n") );
+    B_PRINT( _("\t-S\t\t Don't copy the data to RCD buffer when exit\n") );
+    B_PRINT( _("\t-nw\t\t Start in console (curses) mode\n") );
+    B_PRINT( _("\t-g\t\t Start in GUI mode\n\n") );
     exit(1);
   }
 

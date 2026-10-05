@@ -172,7 +172,11 @@ void _iocs_b_clr_ed ( void ) {
 /* fonts */
 
 int _iocs_defchr( int type, int code, const void *buff ) {
-	return XSTed_defchr(type, code, buff); /* 2015.3.25. Toshi Nagata */
+  if ( isconsole )
+    return 0;
+  if ( isGUI )
+    return XSTed_defchr(type, code, buff);
+  return 0;
 }
 
 int _iocs_fntget( int type, int code, struct _x68_fntbuf *fntbuf ) {

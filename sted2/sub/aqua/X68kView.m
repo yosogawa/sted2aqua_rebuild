@@ -203,6 +203,11 @@ static uint32_t s_x68k_special_key[128] = {
 	int i;
 	FILE *fp;
 
+	if (isconsole) {
+		[[self window] orderOut:nil];
+		return;
+	}
+
 	sLock = [[NSLock alloc] init];
 	
 	sCompositeBitmap = (uint32_t *)calloc(sizeof(uint32_t), sTextWidth * sTextHeight);
@@ -609,23 +614,29 @@ s_RegisterKeyDown(int ch)
 #pragma mark "=== System setup functions ==="
 			
 void
-XSTed_start_main(int (*mainPtr)(int, char **), int argc, char **argv)
+XSTed_setup_default_path(void)
 {
-//	extern char s_sted_default_path[1024];
-	NSArray *args;
 	NSString *pathString, *rsrcPathString;
 	NSFileManager *fileManager = [NSFileManager defaultManager];
-	FILE *fp;
 
-	/*  Set up the config files  */
 	pathString = [@"~/Library/Application Support/sted" stringByExpandingTildeInPath];
 	if (![fileManager fileExistsAtPath: pathString]) {
-		/*  If the directory does not exist, then the "Resource/conf" directory in the main bundle is copied  */
 		rsrcPathString = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent: @"conf"];
 		[fileManager copyPath: rsrcPathString toPath: pathString handler: nil];
 	}
 	if (![pathString getFileSystemRepresentation: s_sted_default_path maxLength: 1000])
 		s_sted_default_path[0] = 0;
+}
+
+void
+XSTed_start_main(int (*mainPtr)(int, char **), int argc, char **argv)
+{
+	NSArray *args;
+	NSString *pathString;
+	FILE *fp;
+
+	XSTed_setup_default_path();
+	pathString = [NSString stringWithUTF8String: s_sted_default_path];
 	
 	/*  Read font data  */
 	sFontData = (uint8_t *)malloc(sizeof(uint8_t) * 16 * 160);
@@ -1831,6 +1842,8 @@ XSTed_defchr(int type, int code, const void *buff)
 		/*  test  */
 		int i, j, b, bb;
 		uint8_t *p = (uint8_t *)buff;
+		if (sKanjiData == NULL)
+			return -1;
 		n1 = c1 - (0xe0 - 31);
 		if (c2 >= 0x40 && c2 <= 0x7e)
 			n2 = c2 - 0x40;
