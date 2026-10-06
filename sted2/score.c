@@ -51,7 +51,7 @@ void	gra_c(int po)
       for(i=0;i<ga_co-1;i++){
 	if(ga_adr[i+1]>po){
 	  xx=(ga_xpo[i]+ga_xpo[i+1])>>1;
-	  txyline(xx,592-512,850-512,1,65535);
+	  txyline(xx,592-512,(850-512)-(592-512)+1,1,65535);
 	  break;
 	}
       }
@@ -60,7 +60,7 @@ void	gra_c(int po)
       int yy=872-512,yy1=999-512;if((grpmode&1)==0){yy=yy-128;yy1=yy1-128;}
       for(i=0;i<gr_co-1;i++){
 	if(gr_adr[i+1]>po){
-	  xx=gr_xpo[i];txyline(xx,yy,yy1,1,65535);
+      xx=gr_xpo[i];txyline(xx,yy,yy1-yy+1,1,65535);
 	  break;
 	}
       }

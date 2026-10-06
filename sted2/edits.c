@@ -253,7 +253,12 @@ void	sttrc(int *po,int *cy,int flg)
 	usleep(1000);
 	STed_MeasureConversion(track); /* Dec.11.1998 Daisuke Nagano */
       }
-      if(grpmode){txerase(327,589-512,767,1001-512);}
+      /* TXFILL x1/y1 are width/height. Old (327,77,767,489) was corners
+	 and wiped text through y=511 (function-key row). Inclusive box
+	 bottom is 1001-512=489; row 31 starts at 496. */
+      if(grpmode){
+	txerase(327, 589-512, 767-327+1, (1001-512)-(589-512)+1);
+      }
       trk_dis(6+*cy,ad2,1);
 
       if(cy && ptr[ad2]<0xf0){

@@ -1235,6 +1235,10 @@ int itor( uint8_t *smf_data, uint8_t *rcp_buf )
   note = note_data + 16;
   
 
+  /* RCP_HEAD.title is static; clear every conversion or a MID
+     without meta 0x03/0x01 on track 0 keeps the previous title. */
+  clr_ttl();
+
   /* process all tracks */
   
   if ( proc_header() != 0 ) {
