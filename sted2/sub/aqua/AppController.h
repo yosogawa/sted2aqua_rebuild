@@ -15,4 +15,5 @@
 - (void)startX68kThread:(id)argument;
 - (IBAction)midiSettingsDialog:(id)sender;
 - (IBAction)allSoundOff:(id)sender;
+- (IBAction)setDisplayScale:(id)sender;
 @end

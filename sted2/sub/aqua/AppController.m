@@ -53,6 +53,11 @@ extern char **sted_saved_argv;
 	[X68kView initializeX68k];
 	[xview setNeedsDisplay:YES];
 	XSTed_init_window();
+	[self installViewMenu];
+	{
+		NSInteger percent = [[NSUserDefaults standardUserDefaults] integerForKey:@"DisplayScalePercent"];
+		[X68kView applyDisplayScalePercent:(int)percent toView:xview];
+	}
 
 	if (argc < 1 || argv == NULL) {
 		argc = 1;
@@ -112,6 +117,57 @@ extern char **sted_saved_argv;
 - (IBAction)allSoundOff:(id)sender
 {
 	CoreMIDIAllSoundOff();
+}
+
+- (void)installViewMenu
+{
+	NSMenu *mainMenu = [NSApp mainMenu];
+	NSMenu *viewMenu;
+	NSMenuItem *viewTop, *item;
+	NSInteger i, n, insertAt;
+	static const int percents[] = { 100, 125, 150 };
+
+	if (mainMenu == nil)
+		return;
+	n = [mainMenu numberOfItems];
+	insertAt = n;
+	for (i = 0; i < n; i++) {
+		NSString *title = [[mainMenu itemAtIndex:i] title];
+		if ([title isEqualToString:@"MIDI"] || [title isEqualToString:@"Help"]) {
+			insertAt = i;
+			break;
+		}
+	}
+	viewMenu = [[NSMenu alloc] initWithTitle:@"View"];
+	for (i = 0; i < 3; i++) {
+		item = [[NSMenuItem alloc] initWithTitle:[NSString stringWithFormat:@"%d%%", percents[i]]
+						  action:@selector(setDisplayScale:)
+					   keyEquivalent:@""];
+		[item setTag:percents[i]];
+		[item setTarget:self];
+		[viewMenu addItem:item];
+		[item release];
+	}
+	viewTop = [[NSMenuItem alloc] initWithTitle:@"View" action:nil keyEquivalent:@""];
+	[viewTop setSubmenu:viewMenu];
+	[mainMenu insertItem:viewTop atIndex:insertAt];
+	[viewMenu release];
+	[viewTop release];
+}
+
+- (IBAction)setDisplayScale:(id)sender
+{
+	[X68kView applyDisplayScalePercent:(int)[sender tag] toView:[myWindow contentView]];
+}
+
+- (BOOL)validateMenuItem:(NSMenuItem *)menuItem
+{
+	if ([menuItem action] == @selector(setDisplayScale:)) {
+		[menuItem setState:(([menuItem tag] == [X68kView displayScalePercent])
+				    ? NSOnState : NSOffState)];
+		return YES;
+	}
+	return YES;
 }
 
 @end

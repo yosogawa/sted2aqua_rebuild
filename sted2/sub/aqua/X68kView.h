@@ -17,4 +17,6 @@
 }
 + (void)initializeX68k;
 + (unsigned int)getKey: (BOOL)senseOnly;
++ (int)displayScalePercent;
++ (void)applyDisplayScalePercent:(int)percent toView:(NSView *)view;
 @end

@@ -64,6 +64,7 @@ static void **sRequestAppKitArgs;
 
 static NSView *sMainView;
 static NSTimer *sTimer;
+static int sDisplayScalePercent = 100;
 
 //  The palette values are to be stored in big-endian format
 static char sPaletteEndianIsFixed = 0;  //  Endian conversion should be done only once
@@ -239,6 +240,59 @@ s_XSTed_ms_store_view_point(NSPoint p, NSUInteger buttons)
 }
 
 @implementation X68kView
+
++ (int)displayScalePercent
+{
+	return sDisplayScalePercent;
+}
+
++ (void)applyDisplayScalePercent:(int)percent toView:(NSView *)view
+{
+	NSWindow *w;
+	NSRect oldFrame, newFrame, vis, content;
+	CGFloat s;
+
+	if (percent != 100 && percent != 125 && percent != 150)
+		percent = 100;
+	sDisplayScalePercent = percent;
+	[[NSUserDefaults standardUserDefaults] setInteger:percent forKey:@"DisplayScalePercent"];
+	if (view == nil)
+		return;
+	w = [view window];
+	if (w == nil)
+		return;
+	s = (CGFloat)percent / 100.0;
+	content.origin = NSZeroPoint;
+	content.size.width = floor((CGFloat)sTextWidth * s + 0.5);
+	content.size.height = floor((CGFloat)sTextHeight * s + 0.5);
+	oldFrame = [w frame];
+	newFrame = [w frameRectForContentRect:content];
+	newFrame.origin.x = oldFrame.origin.x;
+	newFrame.origin.y = oldFrame.origin.y + oldFrame.size.height - newFrame.size.height;
+	vis = [[w screen] visibleFrame];
+	if (NSIsEmptyRect(vis) == NO) {
+		if (newFrame.size.width > vis.size.width)
+			newFrame.size.width = vis.size.width;
+		if (newFrame.size.height > vis.size.height)
+			newFrame.size.height = vis.size.height;
+		if (newFrame.origin.x < vis.origin.x)
+			newFrame.origin.x = vis.origin.x;
+		if (newFrame.origin.y < vis.origin.y)
+			newFrame.origin.y = vis.origin.y;
+		if (newFrame.origin.x + newFrame.size.width > vis.origin.x + vis.size.width)
+			newFrame.origin.x = vis.origin.x + vis.size.width - newFrame.size.width;
+		if (newFrame.origin.y + newFrame.size.height > vis.origin.y + vis.size.height)
+			newFrame.origin.y = vis.origin.y + vis.size.height - newFrame.size.height;
+	}
+	[w setFrame:newFrame display:YES];
+	[view setNeedsDisplay:YES];
+}
+
+- (void)setFrameSize:(NSSize)newSize
+{
+	[super setFrameSize:newSize];
+	[self setBounds:NSMakeRect(0, 0, sTextWidth, sTextHeight)];
+}
 
 - (void)awakeFromNib
 {
@@ -493,7 +547,11 @@ s_XSTed_ms_store_view_point(NSPoint p, NSUInteger buttons)
 		sTimer = [NSTimer scheduledTimerWithTimeInterval:0.05 target:self selector:@selector(timerHandler:) userInfo:nil repeats:YES];
 	}
 	if (bitmapRep != nil) {
-		[bitmapRep drawAtPoint:NSZeroPoint];
+		NSGraphicsContext *gc = [NSGraphicsContext currentContext];
+		NSImageInterpolation old = [gc imageInterpolation];
+		[gc setImageInterpolation:NSImageInterpolationNone];
+		[bitmapRep drawInRect:[self bounds]];
+		[gc setImageInterpolation:old];
 	}
 //	printf("drawRect\n");
 }
