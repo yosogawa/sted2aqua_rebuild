@@ -41,6 +41,9 @@ static NSRect sGraphInvalRect;     //  ibid
 static uint16_t sKeyBuffer[kKeyBufferMax];
 static int sKeyBufferBase, sKeyBufferCount;
 
+int sTextWidth = 768;   /* session-fixed; do not change after VRAM alloc */
+int sTextHeight = 512;  /* session-fixed; do not change after VRAM alloc */
+
 //  The screen coordinate of the upper-left point of the real graphic screen.
 static NSPoint sGraphOrigin;
 
@@ -1823,26 +1826,6 @@ XSTed_cls_ed(void)
 }
 
 #pragma mark "=== Keyboard functions ==="
-
-#if 0
-/* keysym names */
-char KEY_XF1[128];
-char KEY_XF2[128];
-char KEY_XF3[128];
-char KEY_XF4[128];
-char KEY_XF5[128];
-char KEY_KANA[128];
-char KEY_KIGO[128];
-char KEY_TOROKU[128];
-char KEY_INS[128];
-char KEY_DEL[128];
-char KEY_HOME[128];
-char KEY_UNDO[128];
-char KEY_RUP[128];
-char KEY_RDOWN[128];
-char KEY_OPT1[128];
-char KEY_OPT2[128];
-#endif
 
 char font_name[1024];
 

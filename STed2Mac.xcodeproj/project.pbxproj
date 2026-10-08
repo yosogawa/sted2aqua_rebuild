@@ -75,10 +75,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		089C165DFE840E0CC02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		089C165DFE840E0CC02AAC07 /* en */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		13E42FB307B3F0F600E4EEF1 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = /System/Library/Frameworks/CoreData.framework; sourceTree = "<absolute>"; };
-		1DDD58150DA1D0A300B32029 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		1DDD58150DA1D0A300B32029 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		8D1107320486CEB800E47090 /* STed2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = STed2.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -126,7 +126,7 @@
 		E40E954C1ABA41ED0072AA0B /* key_sub.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = key_sub.c; sourceTree = "<group>"; };
 		E40E954D1ABA41ED0072AA0B /* machin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = machin.h; sourceTree = "<group>"; };
 		E40E954E1ABA41ED0072AA0B /* mkeyb.c */ = {isa = PBXFileReference; fileEncoding = 2147483649; lastKnownFileType = sourcecode.c.c; path = mkeyb.c; sourceTree = "<group>"; };
-		E40E954F1ABA41ED0072AA0B /* rcddef.h */ = {isa = PBXFileReference; fileEncoding = 2147486209; lastKnownFileType = sourcecode.c.h; path = rcddef.h; sourceTree = "<group>"; };
+		E40E954F1ABA41ED0072AA0B /* rcddef.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = rcddef.h; sourceTree = "<group>"; tabWidth = 8; };
 		E40E95501ABA41ED0072AA0B /* record.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = record.c; sourceTree = "<group>"; };
 		E40E95511ABA41ED0072AA0B /* redit.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = redit.c; sourceTree = "<group>"; };
 		E40E95581ABA41ED0072AA0B /* gettext_wrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gettext_wrapper.h; sourceTree = "<group>"; };
@@ -189,12 +189,15 @@
 		E40E95AE1ABA41ED0072AA0B /* trkset.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = trkset.c; sourceTree = "<group>"; };
 		E40E95AF1ABA41ED0072AA0B /* version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = version.h; sourceTree = "<group>"; };
 		E40E95B01ABA41ED0072AA0B /* visual.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = visual.c; sourceTree = "<group>"; };
+		E40E95B11ABA41ED0072AA0B /* track.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = track.h; sourceTree = "<group>"; };
+		E40E95B21ABA41ED0072AA0B /* edits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = edits.h; sourceTree = "<group>"; };
+		E40E95B31ABA41ED0072AA0B /* sted_keysym.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sted_keysym.h; sourceTree = "<group>"; };
 		E40E96441ABA44D70072AA0B /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = /System/Library/Frameworks/CoreMIDI.framework; sourceTree = "<absolute>"; };
 		E40E964C1ABA44F60072AA0B /* CoreAudioKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudioKit.framework; path = /System/Library/Frameworks/CoreAudioKit.framework; sourceTree = "<absolute>"; };
 		E40E96541ABA451B0072AA0B /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = /System/Library/Frameworks/AudioToolbox.framework; sourceTree = "<absolute>"; };
 		E40E965C1ABA455D0072AA0B /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = /System/Library/Frameworks/CoreAudio.framework; sourceTree = "<absolute>"; };
 		E44B2A421AC6B44C00910C7B /* STed2_help */ = {isa = PBXFileReference; lastKnownFileType = folder; name = STed2_help; path = sted2/doc/STed2_help; sourceTree = "<group>"; };
-		E44E7DD91AC4C83B00F71120 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/MIDISettings.xib; sourceTree = "<group>"; };
+		E44E7DD91AC4C83B00F71120 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MIDISettings.xib; sourceTree = "<group>"; };
 		E44E7DFB1AC4C94E00F71120 /* MyDialogController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyDialogController.h; sourceTree = "<group>"; };
 		E44E7DFC1AC4C94E00F71120 /* MyDialogController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyDialogController.m; sourceTree = "<group>"; };
 		E47C19121AC55B7600A70D36 /* STed2Mac-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "STed2Mac-Info.plist"; sourceTree = "<group>"; };
@@ -210,12 +213,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E40E96551ABA451B0072AA0B /* AudioToolbox.framework in Frameworks */,
 				8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */,
+				E40E965D1ABA455D0072AA0B /* CoreAudio.framework in Frameworks */,
+				E40E964D1ABA44F60072AA0B /* CoreAudioKit.framework in Frameworks */,
 				E40E96451ABA44D70072AA0B /* CoreMIDI.framework in Frameworks */,
 				AF7C99A52EEA6EF900E50F13 /* libncurses.tbd in Frameworks */,
-				E40E964D1ABA44F60072AA0B /* CoreAudioKit.framework in Frameworks */,
-				E40E96551ABA451B0072AA0B /* AudioToolbox.framework in Frameworks */,
-				E40E965D1ABA455D0072AA0B /* CoreAudio.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -316,6 +319,7 @@
 				E40E95291ABA41ED0072AA0B /* doc */,
 				E40E953E1ABA41ED0072AA0B /* edit.c */,
 				E40E953F1ABA41ED0072AA0B /* edits.c */,
+				E40E95B21ABA41ED0072AA0B /* edits.h */,
 				E40E95401ABA41ED0072AA0B /* exclu.c */,
 				E40E95411ABA41ED0072AA0B /* file.c */,
 				E40E95421ABA41ED0072AA0B /* graphic.c */,
@@ -331,9 +335,11 @@
 				E40E95641ABA41ED0072AA0B /* select.c */,
 				E40E95651ABA41ED0072AA0B /* sted.c */,
 				E40E95661ABA41ED0072AA0B /* sted.h */,
+				E40E95B31ABA41ED0072AA0B /* sted_keysym.h */,
 				E40E95671ABA41ED0072AA0B /* sted3.h */,
 				E40E95681ABA41ED0072AA0B /* sub */,
 				E40E95AD1ABA41ED0072AA0B /* track.c */,
+				E40E95B11ABA41ED0072AA0B /* track.h */,
 				E40E95AE1ABA41ED0072AA0B /* trkset.c */,
 				E40E95AF1ABA41ED0072AA0B /* version.h */,
 				E40E95B01ABA41ED0072AA0B /* visual.c */,
@@ -524,13 +530,11 @@
 			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "STed2Mac" */;
 			compatibilityVersion = "Xcode 3.1";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 1;
 			knownRegions = (
-				English,
-				Japanese,
-				French,
-				German,
+				en,
+				ja,
 			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* STed2_aqua2 */;
 			projectDirPath = "";
@@ -641,7 +645,7 @@
 		089C165CFE840E0CC02AAC07 /* InfoPlist.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
-				089C165DFE840E0CC02AAC07 /* English */,
+				089C165DFE840E0CC02AAC07 /* en */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
@@ -649,7 +653,7 @@
 		1DDD58140DA1D0A300B32029 /* MainMenu.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
-				1DDD58150DA1D0A300B32029 /* English */,
+				1DDD58150DA1D0A300B32029 /* en */,
 			);
 			name = MainMenu.xib;
 			sourceTree = "<group>";
@@ -657,7 +661,7 @@
 		E44E7DD81AC4C83B00F71120 /* MIDISettings.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
-				E44E7DD91AC4C83B00F71120 /* English */,
+				E44E7DD91AC4C83B00F71120 /* en */,
 			);
 			name = MIDISettings.xib;
 			sourceTree = "<group>";
@@ -686,7 +690,11 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = "";
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
-				OTHER_LDFLAGS = "-liconv -framework CoreFoundation";
+				OTHER_LDFLAGS = (
+					"-liconv",
+					"-framework",
+					CoreFoundation,
+				);
 				PRODUCT_NAME = STed2;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
@@ -712,7 +720,11 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = "";
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
-				OTHER_LDFLAGS = "-liconv -framework CoreFoundation";
+				OTHER_LDFLAGS = (
+					"-liconv",
+					"-framework",
+					CoreFoundation,
+				);
 				PRODUCT_NAME = STed2;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;

@@ -10,22 +10,22 @@
 #include "sted.h"
 #include "xwin.h"
 
-char KEY_XF1[128];               /* keysym names */
-char KEY_XF2[128];
-char KEY_XF3[128];
-char KEY_XF4[128];
-char KEY_XF5[128];
-char KEY_KANA[128];
-char KEY_KIGO[128];
-char KEY_TOROKU[128];
-char KEY_INS[128];
-char KEY_DEL[128];
-char KEY_HOME[128];
-char KEY_UNDO[128];
-char KEY_RUP[128];
-char KEY_RDOWN[128];
-char KEY_OPT1[128];
-char KEY_OPT2[128];
+char KEY_XF1[KEYSYM_NAME_LEN]    = "Alt_L";
+char KEY_XF2[KEYSYM_NAME_LEN]    = "Muhenkan";
+char KEY_XF3[KEYSYM_NAME_LEN]    = "Henkan_Mode";
+char KEY_XF4[KEYSYM_NAME_LEN]    = "Hiragana_Katakana";
+char KEY_XF5[KEYSYM_NAME_LEN]    = "Alt_R";
+char KEY_KANA[KEYSYM_NAME_LEN]   = "Caps_Lock";
+char KEY_KIGO[KEYSYM_NAME_LEN]   = "F11";
+char KEY_TOROKU[KEYSYM_NAME_LEN] = "F12";
+char KEY_INS[KEYSYM_NAME_LEN]    = "Insert";
+char KEY_DEL[KEYSYM_NAME_LEN]    = "Delete";
+char KEY_HOME[KEYSYM_NAME_LEN]   = "Home";
+char KEY_UNDO[KEYSYM_NAME_LEN]   = "End";
+char KEY_RUP[KEYSYM_NAME_LEN]    = "Page_Up";
+char KEY_RDOWN[KEYSYM_NAME_LEN]  = "Page_Down";
+char KEY_OPT1[KEYSYM_NAME_LEN]   = "";
+char KEY_OPT2[KEYSYM_NAME_LEN]   = "";
 
 static ！ k_xf1, k_xf2, k_xf3, k_xf4, k_xf5;
 static KeyCode k_kana, k_kigo, k_toroku;

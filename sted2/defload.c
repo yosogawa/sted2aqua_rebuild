@@ -154,25 +154,6 @@ void	definit()
   font_name[0]=0;         /* Sep.04.1998 */
   player_flag=0;          /* Nov.25.1998 */
 
-#if 0  /*  Jun.18.2003 Toshi Nagata: delete the following block of code */
-  strcpy( KEY_XF1,    "Alt_L" );
-  strcpy( KEY_XF2,    "Muhenkan" );
-  strcpy( KEY_XF3,    "Henkan_Mode" );
-  strcpy( KEY_XF4,    "Hiragana_Katakana" );
-  strcpy( KEY_XF5,    "Alt_R" );
-  strcpy( KEY_KANA,   "Caps_Lock" );
-  strcpy( KEY_KIGO,   "F11" );
-  strcpy( KEY_TOROKU, "F12" );  /* Nov 25.1998 Daisuke Nagano */
-  strcpy( KEY_INS,    "Insert" );
-  strcpy( KEY_DEL,    "Delete" );
-  strcpy( KEY_HOME,   "Home" );
-  strcpy( KEY_UNDO,   "End" );
-  strcpy( KEY_RUP,    "Page_Up" );
-  strcpy( KEY_RDOWN,  "Page_Down" );
-  strcpy( KEY_OPT1,   "" );
-  strcpy( KEY_OPT2,   "" ); /* Dec.22.1998 Daisuke Nagano */
-#endif
-
   lsp_wait=1;bend_range=12;
   tim_name_read();
 }
@@ -653,15 +634,12 @@ int	defload(char *fi,int md)
 	strcpy(font_name, &li[11]); }
       /* Sep.04.1998 Daisuke Nagano */
 
-      /* Jun.18.2003 Toshi Nagata */
-	#if defined(USE_MACGUI)
+#if defined(USE_MACGUI)
 	{
 	  XSTed_configure_mac_settings(li);
 	}
-	#endif
-
-      /* Jun.18.2003 Toshi Nagata: delete the following block of code */
-/*      if ( str_search(li2, "#KEY_XF1=")>0 )
+#else
+      if ( str_search(li2, "#KEY_XF1=")>0 )
 	strcpy( KEY_XF1, &li[9]);
       if ( str_search(li2, "#KEY_XF2=")>0 )
 	strcpy( KEY_XF2, &li[9]);
@@ -676,11 +654,8 @@ int	defload(char *fi,int md)
       if ( str_search(li2, "#KEY_KIGO=")>0 )
 	strcpy( KEY_KIGO, &li[10]);
       if ( str_search(li2, "#KEY_TOROKU=")>0 )
-	strcpy( KEY_TOROKU, &li[12]); */
-      /* Nov.25.1998 Daisuke Nagano */
-
-      /* Jun.18.2003 Toshi Nagata: delete the following block of code */
-/*      if ( str_search(li2, "#KEY_INS=")>0 )
+	strcpy( KEY_TOROKU, &li[12]);
+      if ( str_search(li2, "#KEY_INS=")>0 )
 	strcpy( KEY_INS, &li[9]);
       if ( str_search(li2, "#KEY_DEL=")>0 )
 	strcpy( KEY_DEL, &li[9]);
@@ -690,13 +665,13 @@ int	defload(char *fi,int md)
 	strcpy( KEY_UNDO, &li[10]);
       if ( str_search(li2, "#KEY_RUP=")>0 )
 	strcpy( KEY_RUP, &li[9]);
-      if ( str_search(li2, "#KEY_RDOWM=")>0 )
+      if ( str_search(li2, "#KEY_RDOWN=")>0 )
 	strcpy( KEY_RDOWN, &li[11]);
       if ( str_search(li2, "#KEY_OPT1=")>0 )
 	strcpy( KEY_OPT1, &li[10]);
       if ( str_search(li2, "#KEY_OPT2=")>0 )
-	strcpy( KEY_OPT2, &li[10]); */
-      /* Dec.22.1998 Daisuke Nagano */
+	strcpy( KEY_OPT2, &li[10]);
+#endif
 
     }else{
       int	c;

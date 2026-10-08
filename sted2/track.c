@@ -3,37 +3,7 @@
  */
 
 #include	"sted.h"
-
-void	snsclr();
-
-int	trk_mix_sub();
-int	trk_ext_sub();
-int	repeat_comp();
-int	repeat_ext();
-int	same_meas_conv();
-int	same_ext_sub();
-void	trk_opt_sub();
-int	tai_compres();
-void	trk_quan(int,int,int);
-void	note_ctrl();
-
-int    trk_check(int);
-int	trk_shift();
-void	trk_delete();
-int	size_change();
-int	size_max();
-int	size_add();
-void	size_ref();
-
-void    key_wait(void);
-void    dclr(void);
-int     vinput(int,int);
-void    undobuf(int);
-int    meas_add(int);
-int    meas_len(int);
-char    *fstr(int,int);
-void    bunkatsu(int,int,int *);
-int    velo_ctrl(int,int,int);
+#include	"track.h"
 
 /***************************/
 int	trk_mix_sub(uint8_t *in1,uint8_t *in2)
@@ -890,6 +860,32 @@ int	velo_ctrl(int ad,int ln,int vmo)
 }
 
 /***************************/
+static int	size_add(int tr,int size)
+{
+  uint8_t	*ptr_s,*ptr_d;
+
+  if(buff_free<size){
+    msg(_("Track buffer exhausted."));return(-1);}
+
+  if(tr_alc[tr]+size>TRACK_SIZE){
+    msg(_("Track buffer exhausted."));return(-1);}
+
+  if(tr<35){
+    int	i;
+
+    for(i=35;i>tr;i--){
+      ptr_s=trk[i];ptr_d=ptr_s+size;trk[i]=ptr_d;
+      memcpy_l(ptr_d,ptr_s,tr_len[i]);
+    }
+  }
+
+  tr_alc[tr]+=size;
+  buff_free-=size;
+
+  return 0;
+}
+
+/***************************/
 int	trk_check(int ln)
 {
   if(ln<=0){return 0;}
@@ -931,32 +927,6 @@ int	size_max(int tr)
   size_ref();fr=buff_free;
   if(fr+tr_alc[tr]>TRACK_SIZE){fr=TRACK_SIZE-tr_alc[tr];}
   return(size_add(tr,fr));
-}
-
-/***************************/
-int	size_add(int tr,int size)
-{
-  uint8_t	*ptr_s,*ptr_d;
-
-  if(buff_free<size){
-    msg(_("Track buffer exhausted."));return(-1);}
-
-  if(tr_alc[tr]+size>TRACK_SIZE){
-    msg(_("Track buffer exhausted."));return(-1);}
-
-  if(tr<35){
-    int	i;
-
-    for(i=35;i>tr;i--){
-      ptr_s=trk[i];ptr_d=ptr_s+size;trk[i]=ptr_d;
-      memcpy_l(ptr_d,ptr_s,tr_len[i]);
-    }
-  }
-
-  tr_alc[tr]+=size;
-  buff_free-=size;
-
-  return 0;
 }
 
 /***************************/

@@ -7,7 +7,7 @@
 	<key>CFBundleHelpBookFolder</key>
 	<string>STed2_help</string>
 	<key>CFBundleDevelopmentRegion</key>
-	<string>English</string>
+	<string>en</string>
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleIconFile</key>

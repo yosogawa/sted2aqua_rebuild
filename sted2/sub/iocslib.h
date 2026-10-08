@@ -239,40 +239,40 @@ struct _x68_ylineptr {
 
 /* functions */
 
-extern void _iocs_b_clr_al (void);
-extern void _iocs_b_clr_ed (void);
-extern int  _iocs_b_color (int);
-extern int  _iocs_b_consol (int, int, int, int);
-extern int  _iocs_b_keyinp (void);
-extern int  _iocs_b_keysns (void);
-extern int  _iocs_b_locate (int, int);
-extern int  _iocs_b_putmes (int, int, int, int, const char *);
-extern int  _iocs_b_print (const char *);
-extern int  _iocs_b_sftsns (void);
-extern int  _iocs_b_wpeek (const void *);
-extern void _iocs_b_wpoke (void *, int);
-extern int  _iocs_bitsns (int);
-extern int  _iocs_crtmod (int);
-extern int  _iocs_defchr (int, int, const void *);
-extern int  _iocs_fntget (int, int, struct _x68_fntbuf *);
-extern void _iocs_g_clr_on (void);
-extern int  _iocs_gpalet (int, int);
-extern int  _iocs_home (int, int, int);
-extern void _iocs_ledmod (int, int);
-extern void _iocs_ms_curof (void);
-extern void _iocs_ms_curon (void);
-extern int  _iocs_ms_getdt (void);
-extern void _iocs_ms_init (void);
-extern int  _iocs_ms_limit (int, int, int, int);
-extern int  _iocs_ontime (void);
-extern int  _iocs_tgusemd (int, int);
-extern int  _iocs_tpalet (int, int);
-extern void _iocs_txbox (const struct _x68_txfillptr *);
-extern void _iocs_txfill (const struct _x68_txfillptr *);
-extern void _iocs_txrascpy (int, int, int);
-extern void _iocs_txxline (const struct _x68_xlineptr *);
-extern void _iocs_txyline (const struct _x68_ylineptr *);
-extern int  _iocs_window (int, int, int, int);
+void _iocs_b_clr_al (void);
+void _iocs_b_clr_ed (void);
+int  _iocs_b_color (int);
+int  _iocs_b_consol (int, int, int, int);
+int  _iocs_b_keyinp (void);
+int  _iocs_b_keysns (void);
+int  _iocs_b_locate (int, int);
+int  _iocs_b_putmes (int, int, int, int, const char *);
+int  _iocs_b_print (const char *);
+int  _iocs_b_sftsns (void);
+int  _iocs_b_wpeek (const void *);
+void _iocs_b_wpoke (void *, int);
+int  _iocs_bitsns (int);
+int  _iocs_crtmod (int);
+int  _iocs_defchr (int, int, const void *);
+int  _iocs_fntget (int, int, struct _x68_fntbuf *);
+void _iocs_g_clr_on (void);
+int  _iocs_gpalet (int, int);
+int  _iocs_home (int, int, int);
+void _iocs_ledmod (int, int);
+void _iocs_ms_curof (void);
+void _iocs_ms_curon (void);
+int  _iocs_ms_getdt (void);
+void _iocs_ms_init (void);
+int  _iocs_ms_limit (int, int, int, int);
+int  _iocs_ontime (void);
+int  _iocs_tgusemd (int, int);
+int  _iocs_tpalet (int, int);
+void _iocs_txbox (const struct _x68_txfillptr *);
+void _iocs_txfill (const struct _x68_txfillptr *);
+void _iocs_txrascpy (int, int, int);
+void _iocs_txxline (const struct _x68_xlineptr *);
+void _iocs_txyline (const struct _x68_ylineptr *);
+int  _iocs_window (int, int, int, int);
 
 /* -------------- */
 

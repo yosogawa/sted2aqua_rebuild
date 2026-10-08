@@ -5,8 +5,8 @@
 
 #import <Cocoa/Cocoa.h>
 
-#define sTextWidth 768
-#define sTextHeight 512
+extern int sTextWidth;   /* text visible width in pixels; session-fixed, default 768 */
+extern int sTextHeight;  /* text visible height in pixels; session-fixed, default 512 */
 #define sGraphWidth 1024
 #define sGraphHeight 1024
 

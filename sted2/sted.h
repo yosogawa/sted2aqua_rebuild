@@ -96,6 +96,8 @@ extern "C" {
 #include "sub/midi_in.h"
 #include "disp.h"
 #include "edit.h"
+#include "edits.h"
+#include "track.h"
 #include "file.h"
 #include "sub/encoding.h"
 
@@ -103,8 +105,8 @@ extern "C" {
 # include "sted3.h"
 #endif
 
-extern void rcd_check( void );
-extern void rcd_open_device( void );
+void rcd_check( void );
+void rcd_open_device( void );
 extern struct RCD_HEAD	*rcd;
 extern char rcd_version[];
 
@@ -254,37 +256,22 @@ extern int player_flag;                 /* is player able to play only SMF? */
 
 extern char s_sted_default_path[PATHLEN];	/* Jun.01.2003 Toshi Nagata */
 
-extern char KEY_XF1[];                  /* keysym names */
-extern char KEY_XF2[];
-extern char KEY_XF3[];
-extern char KEY_XF4[];
-extern char KEY_XF5[];
-extern char KEY_KANA[];
-extern char KEY_KIGO[];
-extern char KEY_TOROKU[];
-extern char KEY_INS[];
-extern char KEY_DEL[];
-extern char KEY_HOME[];
-extern char KEY_UNDO[];
-extern char KEY_RUP[];
-extern char KEY_RDOWN[];
-extern char KEY_OPT1[];
-extern char KEY_OPT2[];
+#include "sted_keysym.h"
 
-extern int itor( uint8_t *, uint8_t * );
-extern int STed_MeasureConversion( int track );
-extern void Exit(int);
+int itor( uint8_t *, uint8_t * );
+int STed_MeasureConversion( int track );
+void Exit(int);
 #define exit Exit
 
 /*  2015.3.26. Toshi Nagata  */
-extern void MacSelectFile(char *fna, char *path, int is_save, const char *mes, const char *ext);
-extern void MacErrorBox(const char *mes, int icon);
-extern void line_input(char *buf, int len);
+void MacSelectFile(char *fna, char *path, int is_save, const char *mes, const char *ext);
+void MacErrorBox(const char *mes, int icon);
+void line_input(char *buf, int len);
 /*  End Toshi Nagata  */
 
 extern int disp_conv;
 /* SJIS RCP text → locale for X11/curses. Mac kanji ROM blit does not use this. */
-extern char *sted_to_locale_display(char *s);
+char *sted_to_locale_display(char *s);
 
 #ifdef ENABLE_NLS
 # include <locale.h>

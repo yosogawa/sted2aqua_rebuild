@@ -3,6 +3,7 @@
  */
 
 #include	"sted.h"
+#include	"edits.h"
 
 static int	undof[4];
 
