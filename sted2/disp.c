@@ -407,9 +407,13 @@ void	fnc_dis(int n)
     tmp[0]=32;tmp[1]=0;if(n==1){tmp[0]='*';}
     B_PUTMES(3,0,31,1,tmp);
 
-    for(i=0;i<=9;i++){
-      j=i*9+2;if(i>4){j+=3;}
-      B_PUTMES(11,j,31,7,_(fnc_dat[n*10+i]));
+    {
+      int fcol=11;
+      if(n==2 || n==8){fcol=9;}
+      for(i=0;i<=9;i++){
+	j=i*9+2;if(i>4){j+=3;}
+	B_PUTMES(fcol,j,31,7,_(fnc_dat[n*10+i]));
+      }
     }
     if ( (B_SFTSNS()&16)!=0 )
       B_PUTMES( 3, 47, 31, 0, "*" );

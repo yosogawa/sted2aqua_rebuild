@@ -153,7 +153,9 @@ enum {
 	x68k_rolldown = 0x38,
 	x68k_clr = 0x35,
 	x68k_ins = 0x5e,
-	x68k_undo = 0x3a
+	x68k_undo = 0x3a,
+	x68k_opt1 = 0x72,
+	x68k_opt2 = 0x73
 };
 
 /*  Key combination -> X68k special key conversion table  */
@@ -185,11 +187,8 @@ static uint32_t s_x68k_special_key[128] = {
 	(x68k_f8 << 24) + (1 << 17) + '8',
 	(x68k_f9 << 24) + (1 << 17) + '9',
 	(x68k_f10 << 24) + (1 << 17) + '0',
-	(x68k_xf1 << 24) + (1 << 18) + NSF1FunctionKey,  /*  Option + F1  */
-	(x68k_xf2 << 24) + (1 << 18) + NSF2FunctionKey,
-	(x68k_xf3 << 24) + (1 << 18) + NSF3FunctionKey,
-	(x68k_xf4 << 24) + (1 << 18) + NSF4FunctionKey,
-	(x68k_xf5 << 24) + (1 << 18) + NSF5FunctionKey,
+	/* Option+F1-F5 used to map to XF1-XF5; that stole OPT+F1-F5
+	   (one-touch ST/GT). XF is still Ctrl+Option+1-5. */
 	(x68k_xf1 << 24) + (1 << 17) + (1 << 18) + '1',  /*  ctrl-option-1  */
 	(x68k_xf2 << 24) + (1 << 17) + (1 << 18) + '2',
 	(x68k_xf3 << 24) + (1 << 17) + (1 << 18) + '3',
@@ -606,16 +605,57 @@ eventToX68kKeyInfo(NSEvent *theEvent)
 		}
 	}
 
+	/* Physical F1-F10 stay F-keys with Option/Shift (one-touch ST/GT). */
+	if (keyCode == 0 && (theMask & NSEventModifierFlagCommand) == 0) {
+		switch (vk) {
+		case 0x7A: keyCode = (uint32_t)x68k_f1 << 8; break;
+		case 0x78: keyCode = (uint32_t)x68k_f2 << 8; break;
+		case 0x63: keyCode = (uint32_t)x68k_f3 << 8; break;
+		case 0x76: keyCode = (uint32_t)x68k_f4 << 8; break;
+		case 0x60: keyCode = (uint32_t)x68k_f5 << 8; break;
+		case 0x61: keyCode = (uint32_t)x68k_f6 << 8; break;
+		case 0x62: keyCode = (uint32_t)x68k_f7 << 8; break;
+		case 0x64: keyCode = (uint32_t)x68k_f8 << 8; break;
+		case 0x65: keyCode = (uint32_t)x68k_f9 << 8; break;
+		case 0x6D: keyCode = (uint32_t)x68k_f10 << 8; break;
+		}
+	}
+
 	if (keyCode == 0) {
-		chars = [theEvent charactersIgnoringModifiers];
-		if ([chars length] > 0) {
-			theChar = [chars characterAtIndex: 0];
+		/* Main-row 1-0: look up '1'-'0', not Shift glyphs ('!'). */
+		switch (vk) {
+		case 0x12: theChar = '1'; break;
+		case 0x13: theChar = '2'; break;
+		case 0x14: theChar = '3'; break;
+		case 0x15: theChar = '4'; break;
+		case 0x17: theChar = '5'; break;
+		case 0x16: theChar = '6'; break;
+		case 0x1A: theChar = '7'; break;
+		case 0x1C: theChar = '8'; break;
+		case 0x19: theChar = '9'; break;
+		case 0x1D: theChar = '0'; break;
+		default:
+			theChar = 0;
+			chars = [theEvent charactersIgnoringModifiers];
+			if ([chars length] > 0)
+				theChar = [chars characterAtIndex: 0];
+			break;
+		}
+		if (theChar != 0) {
 			for (i = 0; i < (int)(sizeof(s_x68k_special_key) / sizeof(s_x68k_special_key[0])); i++) {
 				if (s_x68k_special_key[i] == 0)
 					break;
 				if ((s_x68k_special_key[i] & 0xffff) == theChar
 				&& ((s_x68k_special_key[i] >> 16) & 6) == (keyMask & 6)) {
 					keyCode = (s_x68k_special_key[i] >> 16) & 0xff00;
+					/* SHIFT+OPT+1-0 is not one-touch F-keys. OPT+1 (CNF o-1) stays. */
+					if ((keyMask & 7) == 5
+					    && keyCode >= ((uint32_t)x68k_f1 << 8)
+					    && keyCode <= ((uint32_t)x68k_f10 << 8)
+					    && (vk == 0x12 || vk == 0x13 || vk == 0x14 || vk == 0x15
+						|| vk == 0x16 || vk == 0x17 || vk == 0x19 || vk == 0x1A
+						|| vk == 0x1C || vk == 0x1D))
+						keyCode = 0;
 					break;
 				}
 			}
@@ -915,6 +955,8 @@ XSTed_register_key(const char *str)
 		{ "CLR", x68k_clr },
 		{ "INS", x68k_ins },
 		{ "UNDO", x68k_undo },
+		{ "OPT1", x68k_opt1 },
+		{ "OPT2", x68k_opt2 },
 		{ NULL, 0 }
 	};
 		
@@ -935,6 +977,10 @@ XSTed_register_key(const char *str)
 		code = x68k_kigou;
 	} else if (strcasecmp(q, "KANA") == 0) {
 		code = x68k_kana;
+	} else if (strcasecmp(q, "OPT1") == 0) {
+		code = x68k_opt1;
+	} else if (strcasecmp(q, "OPT2") == 0) {
+		code = x68k_opt2;
 	} else {
 		for (n = 0; s_x68k_keysym_table[n].symbol != NULL; n++) {
 			if (strcasecmp(q, s_x68k_keysym_table[n].symbol) == 0) {
@@ -992,7 +1038,7 @@ XSTed_register_key(const char *str)
 			n = NSHomeFunctionKey;
 		else if (strcasecmp(q, "page_up") == 0)
 			n = NSPageUpFunctionKey;
-		else if (strcasecmp(q, "page_down") == 0)
+		else if (strcasecmp(q, "page_d⁄own") == 0)
 			n = NSPageDownFunctionKey;
 		else if (strcasecmp(q, "clear") == 0)
 			n = NSClearLineFunctionKey;

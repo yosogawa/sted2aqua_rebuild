@@ -21,6 +21,7 @@ static char	*inmd[6]={
 static void ed_ch_stgt(int, int, int, int, int);
 static int    retkey(int);
 static int    retkey2(int);
+static void ed_fnc_guide(int sh, int ad, int cx);
 
 /***************************/
 void	trk_ed()
@@ -105,7 +106,7 @@ track_edit_top:
     rc++;
     if( rc==tm_lag ){
       sh=B_SFTSNS();
-      if((sh&1)!=0){fnc_dis(1);}else{fnc_dis(0);}
+      ed_fnc_guide(sh,ad,cx);
       trk_free(ad);
       if(grpmode!=0){gra(ad,0);}
     }
@@ -127,12 +128,11 @@ track_edit_top:
       if(kc>='a' && kc<='z'){kc-=32;}
     }
 
-    if(ke>=0x70 && ke<=0x73){rc=tm_lag;}else{rc=0;}
+    if((ke>=0x70 && ke<=0x73)||(ke>=0xf0 && ke<=0xf3)){
+      rc=tm_lag;ed_fnc_guide(sh,ad,cx);
+    }else{rc=0;}
 
     if( (sh&6)==0 ){tcp=0;tcs=0;}
-
-    if( ke==0x70 ){fnc_dis(1);}
-    if( ke==0xf0 ){fnc_dis(0);}
     if( ke==0x5a ){
       if((sh&16)!=0 || rcd->act!=0){sttrc(&po,&cy,0);}
     }
@@ -682,8 +682,8 @@ track_edit_top:
     if( ke==0x3c && (sh&4)!=0 ){roll_up(&po,&cy);ke=0;}
     if( ke==0x3e && (sh&4)!=0 ){roll_down(&po,&cy);ke=0;}
 
-    if( kc==0x13 || ke==0x3b){cx--;if( cx<0 ){cx=3;ke=0x3c;}}
-    if( kc==0x04 || ke==0x3d || kc==' '){cx++;if( cx>3 ){cx=0;ke=0x3e;}}
+    if( kc==0x13 || ke==0x3b){cx--;if( cx<0 ){cx=3;ke=0x3c;}if(sh&4){ed_fnc_guide(sh,ad,cx);}}
+    if( kc==0x04 || ke==0x3d || kc==' '){cx++;if( cx>3 ){cx=0;ke=0x3e;}if(sh&4){ed_fnc_guide(sh,ad,cx);}}
     if( kc==0x05 || ke==0x3c){cur_up(&po,&cy);}
     if( kc==0x18 || ke==0x3e){cur_down(&po,&cy);}
 
@@ -1204,6 +1204,18 @@ void	val_rev(int ad,int cx)
     if(i<0){i=0;}
     if(i>127){i=127;}
     trk[track][ad+3]=i;
+  }
+}
+
+/***************************/
+static void	ed_fnc_guide(int sh,int ad,int cx)
+{
+  if((sh&1)!=0 && (sh&4)!=0 && trk[track][ad]<128){
+    fnc_dis(cx==3 ? 8 : 2);
+  }else if((sh&1)!=0){
+    fnc_dis(1);
+  }else{
+    fnc_dis(0);
   }
 }
 
