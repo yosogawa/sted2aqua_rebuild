@@ -451,7 +451,7 @@ int	rhy_as_sel(int no)
 }
 
 /***************************/
-void	rhy_as_para()
+void	rhy_as_para(void)
 {
   B_LOCATE(2,7);B_PRINT("CH.=");B_PRINT(chstr(rhy_stest[0]));
   B_LOCATE(11,7);
@@ -547,7 +547,7 @@ int	tagj(int *po,int fl)
 }
 
 /***************************/
-void	part_as()
+void	part_as(void)
 {
   int	ke,sh,i,j,x=0,y=0,scr,gy;
   char	tmp[128];
@@ -828,7 +828,7 @@ top:
 }
 
 /***************************/
-void	filt_init()
+void	filt_init(void)
 {
   int	i;
 
@@ -843,7 +843,7 @@ void	filt_init()
 }
 
 /***************************/
-void	stgt_as()
+void	stgt_as(void)
 {
   int	a,n,i,xx,yy,x=0,y=0,scr,sh;
 

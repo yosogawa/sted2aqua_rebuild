@@ -1211,7 +1211,8 @@ void	val_rev(int ad,int cx)
 static void	ed_fnc_guide(int sh,int ad,int cx)
 {
   if((sh&1)!=0 && (sh&4)!=0 && trk[track][ad]<128){
-    fnc_dis(cx==3 ? 8 : 2);
+    /* 2=ST  9=GT(stgt_tbl+10)  8=VEL */
+    fnc_dis(cx==3 ? 8 : cx==2 ? 9 : 2);
   }else if((sh&1)!=0){
     fnc_dis(1);
   }else{

@@ -99,6 +99,7 @@ extern "C" {
 #include "edits.h"
 #include "track.h"
 #include "file.h"
+#include "assign.h"
 #include "sub/encoding.h"
 
 #ifdef HAVE_SUPPORT_STED3

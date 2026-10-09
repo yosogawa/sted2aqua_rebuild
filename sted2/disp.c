@@ -14,7 +14,10 @@ uint8_t	fnc_dat[9*10][9]={
   N_(" NOTES  "),N_(" OPTIM. "),N_(" S.DEL  "),N_(" F.BACK "),N_(" F.PREV "),
   N_("SET UNDO"),N_("DO UNDO "),N_("MIX PST."),N_("REV.PST."),N_("        "),
 
-  /*one touch st/gt*/
+  /*
+   * fnc_dat[2] はダミー。表示には使わない。
+   * 画面の文字列は fnc_dis() が stgt_tbl から作る。
+   */
   N_("  192   "),N_("  144   "),N_("   96   "),N_("   72   "),N_("   48   "),
   N_("   36   "),N_("   24   "),N_("   18   "),N_("   12   "),N_("    6   "),
 
@@ -393,9 +396,10 @@ void	fnc_dis(int n)
 	FNCKEYST(i+1+10,tmp);
       }
     }
-    if( n==8 ){
+    if( n==8 || n==9 ){
+      int off=(n==8 ? 20 : 10);
       for(i=0;i<10;i++){
-	strcpy(tmp,fstr(stgt_tbl[i+20],3));
+	strcpy(tmp,fstr(stgt_tbl[i+off],3));
 	for(j=0;j<2;j++){if(tmp[j]==32){tmp[j]='\\';}}
 
 	tmp[3]=0x0d;tmp[4]=0;
@@ -409,10 +413,17 @@ void	fnc_dis(int n)
 
     {
       int fcol=11;
-      if(n==2 || n==8){fcol=9;}
+      char stlab[9];
+      if(n==2 || n==8 || n==9){fcol=9;}
       for(i=0;i<=9;i++){
 	j=i*9+2;if(i>4){j+=3;}
-	B_PUTMES(fcol,j,31,7,_(fnc_dat[n*10+i]));
+	if(n==2 || n==9){
+	  strcpy(stlab,fstr(stgt_tbl[i+(n==9 ? 10 : 0)],5));
+	  stlab[5]=' ';stlab[6]=' ';stlab[7]=' ';stlab[8]=0;
+	  B_PUTMES(fcol,j,31,7,stlab);
+	}else{
+	  B_PUTMES(fcol,j,31,7,_(fnc_dat[n*10+i]));
+	}
       }
     }
     if ( (B_SFTSNS()&16)!=0 )

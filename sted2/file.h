@@ -82,15 +82,9 @@ int  def_bsave(char *fi, int last_no, int mutef, int initf);
 int  def_bload(char *fi, int md);
 
 /* assign.c */
-void rhy_as(void);
 int  rhy_as_sel(int no);
 void rhy_as_para(void);
-int  tagj(int *po, int fl);
-void part_as(void);
 int  part_sel(int yy);
-void rec_filter(int md);
-void filt_init(void);
-void stgt_as(void);
 
 /* cm6con.c */
 void cm64_con(void);

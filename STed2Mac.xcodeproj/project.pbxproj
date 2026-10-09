@@ -84,6 +84,7 @@
 		8D1107320486CEB800E47090 /* STed2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = STed2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AF7C99A42EEA6EDD00E50F13 /* libncurses.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libncurses.tbd; path = usr/lib/libncurses.tbd; sourceTree = SDKROOT; };
 		E40E951C1ABA41ED0072AA0B /* assign.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = assign.c; sourceTree = "<group>"; };
+		E40E95B41ABA41ED0072AA0B /* assign.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = assign.h; sourceTree = "<group>"; };
 		E40E951D1ABA41ED0072AA0B /* cm6con.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = cm6con.c; sourceTree = "<group>"; };
 		E40E95201ABA41ED0072AA0B /* cm64.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cm64.def; sourceTree = "<group>"; };
 		E40E95211ABA41ED0072AA0B /* sc55.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = sc55.def; sourceTree = "<group>"; };
@@ -311,6 +312,7 @@
 			isa = PBXGroup;
 			children = (
 				E40E951C1ABA41ED0072AA0B /* assign.c */,
+				E40E95B41ABA41ED0072AA0B /* assign.h */,
 				E40E951D1ABA41ED0072AA0B /* cm6con.c */,
 				E40E951E1ABA41ED0072AA0B /* conf */,
 				E40E95261ABA41ED0072AA0B /* config.h */,
