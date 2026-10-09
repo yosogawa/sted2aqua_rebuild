@@ -2027,6 +2027,8 @@ XSTed_midi_wait(void)
 	while (1) {
 		if (XSTed_keysns())
 			return;
+		if (is_midi_in())
+			return;
 		usleep(10000);
 	}
 }
