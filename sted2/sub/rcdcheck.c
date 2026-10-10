@@ -477,7 +477,7 @@ int STed_MeasureConversion( int tr ) {
   i=0;
   while (i<MAX_BAR) {
     if ( bar_st[tr][i]>c ) break;
-    if ( bar_st[tr][i]<0 ) i=MAX_BAR;
+    if ( bar_st[tr][i]<0 ) i=MAX_BAR-1;
     i++;
   }
   i--;
