@@ -13,3 +13,4 @@ sted2/conf/convert_x68k.py
 SDL3.xcframework/
 .DS_Store
 *.timestamp
+/build/DerivedData

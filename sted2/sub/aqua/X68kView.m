@@ -5,6 +5,7 @@
 
 #import "X68kView.h"
 #import "CoreMIDIRCPPlayer.h"
+#import <CoreText/CoreText.h>
 
 #include "sted.h"
 
@@ -85,6 +86,10 @@ static uint32_t sGraphPalette[16] = {
 
 static uint8_t *sFontData;  /* 16*160 */
 static uint8_t *sKanjiData; /* 32*47*188 */
+static uint8_t *sFontDataBase;
+static uint8_t *sKanjiDataBase;
+static char sAppliedMacFont[256];
+static int sAppliedCellHeight;
 
 #if 1
 #define _NSLog NSLog
@@ -883,28 +888,309 @@ XSTed_setup_default_path(void)
 		s_sted_default_path[0] = 0;
 }
 
+/* Glyph tables stay 16 rows until the text buffer itself is rebuilt.
+   cellHeight is accepted so a later display size can call this again. */
+#define kFontCellHeight 16
+#define kFontHalfBytes (kFontCellHeight * 160)
+#define kFontKanjiBytes (kFontCellHeight * 2 * 47 * 188)
+
+static void s_font_capture_base(void)
+{
+	if (sFontDataBase == NULL) {
+		sFontDataBase = (uint8_t *)malloc(kFontHalfBytes);
+		sKanjiDataBase = (uint8_t *)malloc(kFontKanjiBytes);
+	}
+	if (sFontDataBase == NULL || sKanjiDataBase == NULL)
+		return;
+	memcpy(sFontDataBase, sFontData, kFontHalfBytes);
+	memcpy(sKanjiDataBase, sKanjiData, kFontKanjiBytes);
+}
+
+static void s_font_restore_base(void)
+{
+	if (sFontDataBase == NULL || sKanjiDataBase == NULL)
+		return;
+	memcpy(sFontData, sFontDataBase, kFontHalfBytes);
+	memcpy(sKanjiData, sKanjiDataBase, kFontKanjiBytes);
+}
+
+static void s_cnf_take_mac_font(const char *path, char *name, size_t nlen)
+{
+	FILE *fp;
+	char line[1024];
+	char alt[PATHLEN];
+	const char *base;
+
+	fp = fopen2((char *)path, "rb");
+	if (fp == NULL && s_sted_default_path[0] != 0) {
+		base = strrchr(path, '/');
+		snprintf(alt, sizeof alt, "%s/%s", s_sted_default_path, base ? base + 1 : path);
+		fp = fopen2(alt, "rb");
+	}
+	if (fp == NULL)
+		return;
+	while (fgets(line, sizeof line, fp) != NULL) {
+		char *p = line;
+		size_t n;
+		while (*p == ' ' || *p == '\t')
+			p++;
+		if (strncasecmp(p, "#mac_font=", 10) != 0)
+			continue;
+		p += 10;
+		while (*p == ' ' || *p == '\t')
+			p++;
+		n = strlen(p);
+		while (n > 0 && (p[n - 1] == '\n' || p[n - 1] == '\r' || p[n - 1] == ' ' || p[n - 1] == '\t'))
+			p[--n] = 0;
+		if (n >= nlen)
+			n = nlen - 1;
+		memcpy(name, p, n);
+		name[n] = 0;
+	}
+	fclose(fp);
+}
+
+static void s_load_mac_font_setting(int argc, char **argv, char *name, size_t nlen)
+{
+	char path[PATHLEN];
+	const char *argv0;
+	const char *home;
+
+	name[0] = 0;
+	argv0 = (argc > 0 && argv != NULL && argv[0] != NULL) ? argv[0] : "sted2";
+	strmfe(path, argv0, "cnf");
+	s_cnf_take_mac_font(path, name, nlen);
+	strmfe(path, argv0, "cf2");
+	s_cnf_take_mac_font(path, name, nlen);
+	home = getenv("HOME");
+	if (home != NULL && home[0] != 0) {
+		snprintf(path, sizeof path, "%s/.sted2rc", home);
+		s_cnf_take_mac_font(path, name, nlen);
+	}
+}
+
+static CTFontRef s_font_fitted(NSString *psName, CGFloat targetW, CGFloat targetH, UniChar sample)
+{
+	CTFontRef probe, fitted;
+	CGFloat ascent, descent, body, advw, sy, sx, fit;
+	CGGlyph glyph;
+	CGSize adv;
+
+	probe = CTFontCreateWithName((CFStringRef)psName, targetH, NULL);
+	if (probe == NULL)
+		return NULL;
+	ascent = CTFontGetAscent(probe);
+	descent = CTFontGetDescent(probe);
+	body = ascent + descent;
+	if (body < 1.0)
+		body = 1.0;
+	advw = targetW;
+	glyph = 0;
+	if (CTFontGetGlyphsForCharacters(probe, &sample, &glyph, 1) && glyph != 0) {
+		CTFontGetAdvancesForGlyphs(probe, kCTFontOrientationHorizontal, &glyph, &adv, 1);
+		if (adv.width > 0.5)
+			advw = adv.width;
+	}
+	CFRelease(probe);
+	sy = targetH / body;
+	sx = targetW / advw;
+	fit = (sy < sx) ? sy : sx;
+	if (fit <= 0.0)
+		fit = 1.0;
+	fitted = CTFontCreateWithName((CFStringRef)psName, targetH * fit, NULL);
+	return fitted;
+}
+
+static int s_draw_cell(CTFontRef font, CGGlyph glyph, int cellW, int cellH, uint8_t *dst)
+{
+	uint8_t *pix, tmp[16 * 2], *src;
+	CGColorSpaceRef cs;
+	CGContextRef ctx;
+	CGPoint pos;
+	int y, x, any, bytesPerRow;
+
+	pix = (uint8_t *)calloc((size_t)cellW * (size_t)cellH, 1);
+	if (pix == NULL)
+		return 0;
+	cs = CGColorSpaceCreateDeviceGray();
+	ctx = CGBitmapContextCreate(pix, (size_t)cellW, (size_t)cellH, 8, (size_t)cellW, cs, (CGBitmapInfo)kCGImageAlphaNone);
+	CGColorSpaceRelease(cs);
+	if (ctx == NULL) {
+		free(pix);
+		return 0;
+	}
+	CGContextSetShouldAntialias(ctx, false);
+	CGContextSetAllowsAntialiasing(ctx, false);
+	CGContextSetShouldSmoothFonts(ctx, false);
+	CGContextSetAllowsFontSmoothing(ctx, false);
+	CGContextSetGrayFillColor(ctx, 1.0, 1.0);
+	pos = CGPointMake(0, CTFontGetDescent(font));
+	CTFontDrawGlyphs(font, &glyph, &pos, 1, ctx);
+	CGContextRelease(ctx);
+
+	bytesPerRow = (cellW + 7) / 8;
+	memset(tmp, 0, sizeof tmp);
+	any = 0;
+	for (y = 0; y < cellH; y++) {
+		src = pix + y * cellW;
+		for (x = 0; x < cellW; x++) {
+			if (src[x] >= 128) {
+				tmp[y * bytesPerRow + x / 8] |= (uint8_t)(1 << (x % 8));
+				any = 1;
+			}
+		}
+	}
+	free(pix);
+	if (any && sLock != nil)
+		[sLock lock];
+	if (any)
+		memcpy(dst, tmp, (size_t)bytesPerRow * (size_t)cellH);
+	if (any && sLock != nil)
+		[sLock unlock];
+	return any;
+}
+
+static void s_apply_mac_font_main(const char *name, int cellHeight)
+{
+	NSFont *nsfont;
+	NSString *psName;
+	CTFontRef halfFont, fullFont;
+	int i, j, nHalf, nKanji;
+	UniChar sample;
+
+	if (sFontData == NULL || sKanjiData == NULL)
+		return;
+	if (cellHeight != kFontCellHeight)
+		cellHeight = kFontCellHeight;
+	if (name == NULL)
+		name = "";
+	if (strcmp(sAppliedMacFont, name) == 0 && sAppliedCellHeight == cellHeight)
+		return;
+	strncpy(sAppliedMacFont, name, sizeof sAppliedMacFont - 1);
+	sAppliedMacFont[sizeof sAppliedMacFont - 1] = 0;
+	sAppliedCellHeight = cellHeight;
+	s_font_restore_base();
+	if (name[0] == 0)
+		return;
+
+	nsfont = [NSFont fontWithName:[NSString stringWithUTF8String:name] size:(CGFloat)cellHeight];
+	if (nsfont == nil) {
+		NSAlert *alert = [[NSAlert alloc] init];
+		[alert setMessageText:@"フォントが見つかりません"];
+		[alert setInformativeText:[NSString stringWithFormat:@"「%s」は使えません。fontdata.bin の字形で表示します。", name]];
+		[alert setAlertStyle:NSAlertStyleWarning];
+		[alert runModal];
+		[alert release];
+		return;
+	}
+
+	psName = [nsfont fontName];
+	sample = 'M';
+	halfFont = s_font_fitted(psName, 8.0, (CGFloat)cellHeight, sample);
+	sample = 0x4E00; /* 一 */
+	fullFont = s_font_fitted(psName, 16.0, (CGFloat)cellHeight, sample);
+	nHalf = 0;
+	nKanji = 0;
+
+	if (halfFont != NULL) {
+		for (i = 0; i < 160; i++) {
+			UniChar cp;
+			CGGlyph glyph = 0;
+			if (i < 95)
+				cp = (UniChar)(0x20 + i);
+			else if (i >= 97 && i <= 159)
+				cp = (UniChar)(0xFF61 + (i - 97));
+			else
+				continue;
+			if (!CTFontGetGlyphsForCharacters(halfFont, &cp, &glyph, 1) || glyph == 0)
+				continue;
+			if (s_draw_cell(halfFont, glyph, 8, cellHeight, sFontData + i * cellHeight))
+				nHalf++;
+		}
+		CFRelease(halfFont);
+	}
+
+	if (fullFont != NULL) {
+		for (i = 0; i < 47; i++) {
+			for (j = 0; j < 188; j++) {
+				unsigned char bytes[2];
+				int c1, c2, scode;
+				NSString *s;
+				CGGlyph glyph = 0;
+				UniChar cp;
+				c1 = (i < 31) ? i + 0x81 : i + (0xe0 - 31);
+				c2 = (j < 63) ? j + 0x40 : j + (0x80 - 63);
+				scode = (c1 << 8) | c2;
+				if ((scode >= 0xeb9f && scode <= 0xebfc) || (scode >= 0xec40 && scode <= 0xec9e))
+					continue;
+				bytes[0] = (unsigned char)c1;
+				bytes[1] = (unsigned char)c2;
+				s = [[NSString alloc] initWithBytes:bytes length:2 encoding:NSShiftJISStringEncoding];
+				if (s == nil || [s length] != 1) {
+					[s release];
+					continue;
+				}
+				cp = [s characterAtIndex:0];
+				[s release];
+				if (cp == 0xFFFD)
+					continue;
+				if (!CTFontGetGlyphsForCharacters(fullFont, &cp, &glyph, 1) || glyph == 0)
+					continue;
+				if (s_draw_cell(fullFont, glyph, 16, cellHeight, sKanjiData + (i * 188 + j) * 32))
+					nKanji++;
+			}
+		}
+		CFRelease(fullFont);
+	}
+	NSLog(@"mac_font \"%s\": halfwidth %d, kanji %d", name, nHalf, nKanji);
+}
+
+static char sPendingMacFont[256];
+static int sPendingCellHeight;
+
+static void s_apply_mac_font(const char *name, int cellHeight)
+{
+	if (name == NULL)
+		name = "";
+	if ([NSThread isMainThread]) {
+		s_apply_mac_font_main(name, cellHeight);
+		return;
+	}
+	strncpy(sPendingMacFont, name, sizeof sPendingMacFont - 1);
+	sPendingMacFont[sizeof sPendingMacFont - 1] = 0;
+	sPendingCellHeight = cellHeight;
+	dispatch_sync(dispatch_get_main_queue(), ^{
+		s_apply_mac_font_main(sPendingMacFont, sPendingCellHeight);
+	});
+}
+
 void
 XSTed_start_main(int (*mainPtr)(int, char **), int argc, char **argv)
 {
 	NSArray *args;
 	NSString *pathString;
 	FILE *fp;
+	char macFont[256];
 
 	XSTed_setup_default_path();
 	pathString = [NSString stringWithUTF8String: s_sted_default_path];
 	
-	/*  Read font data  */
-	sFontData = (uint8_t *)malloc(sizeof(uint8_t) * 16 * 160);
-	sKanjiData = (uint8_t *)malloc(sizeof(uint8_t) * 32 * 47 * 188);
+	/*  Read font data. fontdata.bin is the failsafe; #mac_font= overlays it.  */
+	sFontData = (uint8_t *)calloc(kFontHalfBytes, 1);
+	sKanjiData = (uint8_t *)calloc(kFontKanjiBytes, 1);
 	
 	fp = fopen([[pathString stringByAppendingPathComponent:@"fontdata.bin"] fileSystemRepresentation], "rb");
 	if (fp != NULL) {
-		fread(sFontData, sizeof(uint8_t), 16 * 160, fp);
-		fread(sKanjiData, sizeof(uint8_t), 32 * 47 * 188, fp);
+		fread(sFontData, 1, kFontHalfBytes, fp);
+		fread(sKanjiData, 1, kFontKanjiBytes, fp);
 		fclose(fp);
 	} else {
 		NSLog(@"Warning: cannot open fontdata.bin\n");
 	}
+	s_font_capture_base();
+	s_load_mac_font_setting(argc, argv, macFont, sizeof macFont);
+	if (macFont[0] != 0)
+		s_apply_mac_font(macFont, kFontCellHeight);
 
 	/*  Initialize CoreMIDI  */
 	CoreMIDIInitIfNeeded();
@@ -1103,6 +1389,21 @@ XSTed_configure_mac_settings(const char *line)
 		XSTed_register_key(line);
 	if (strncasecmp(line, "#MIDI_DEVICE_", 13) == 0)
 		XSTed_register_midi_device(line);
+	if (strncasecmp(line, "#mac_font=", 10) == 0) {
+		const char *p = line + 10;
+		char name[256];
+		size_t n;
+		while (*p == ' ' || *p == '\t')
+			p++;
+		n = strlen(p);
+		while (n > 0 && (p[n - 1] == '\n' || p[n - 1] == '\r' || p[n - 1] == ' ' || p[n - 1] == '\t'))
+			n--;
+		if (n >= sizeof name)
+			n = sizeof name - 1;
+		memcpy(name, p, n);
+		name[n] = 0;
+		s_apply_mac_font(name, kFontCellHeight);
+	}
 }
 
 #pragma mark "=== Graphic functions ==="

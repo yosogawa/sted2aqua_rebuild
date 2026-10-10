@@ -223,10 +223,17 @@
 
 *#font_name=-\*-fixed-\*-r-normal--12-\*-\*-\*
 *#font_name=-\*-fixed-\*-r-normal--14-\*-\*-\*
-#font_name=-\*-fixed-\*-r-normal--16-\*-\*-\*
+*#font_name=-\*-fixed-\*-r-normal--16-\*-\*-\*
 *#font_name=-\*-fixed-\*-r-normal--18-\*-\*-\*
 *#font_name=-\*-fixed-\*-r-normal--20-\*-\*-\*
 *#font_name=-\*-fixed-\*-r-normal--24-\*-\*-\*
+
+*=============================================================================
+* macOS で画面に使用するフォント名 (NSFont の書体名)
+* フォントが見つからない場合は fontdata.bin を使用する
+* Monaco は macOS 標準の等幅フォント。漢字グリフは含まない
+
+#mac_font=Monaco
 
 *=============================================================================
 * X Window 上で動作する場合のキーボードの設定
