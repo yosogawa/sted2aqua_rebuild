@@ -17,6 +17,7 @@ void  XSTed_start_main(int (*)(int, char **), int, char **);
 extern int isconsole;
 extern int sted_saved_argc;
 extern char **sted_saved_argv;
+extern void sted_redraw_midi_in(void);
 
 @implementation AppController
 
@@ -107,6 +108,7 @@ extern char **sted_saved_argv;
 		if ([def valueForKey:@"midiin"] != nil) {
 			CoreMIDISelectInputDeviceByName([[def valueForKey:@"midiin"] UTF8String]);
 		}
+		sted_redraw_midi_in();
 	} else {
 		[def setValue:outdevice1 forKey:@"midiout1"];
 		[def setValue:outdevice2 forKey:@"midiout2"];

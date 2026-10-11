@@ -1198,6 +1198,12 @@ void	rcp_dat2(int n,int m)
   if(n==8 || n<0){sdis2(44,144,mdinport(),8,c1,c2);}
 }
 
+void
+sted_redraw_midi_in(void)
+{
+  rcp_dat2(8, 0);
+}
+
 /***************************/
 void	beat_set()
 {
@@ -1332,6 +1338,31 @@ void	beat_set()
 }
 
 /***************************/
+static void
+mdin_fit(char *dst, const char *src, int cells)
+{
+  int i, col;
+
+  i = 0;
+  col = 0;
+  while (src[i] != 0 && col < cells && i < 62) {
+    unsigned char c = (unsigned char)src[i];
+    if ((c >= 0x81 && c <= 0x9f) || (c >= 0xe0 && c <= 0xef)) {
+      if (src[i + 1] == 0 || col + 2 > cells || i + 1 >= 62)
+        break;
+      dst[i] = src[i];
+      dst[i + 1] = src[i + 1];
+      i += 2;
+      col += 2;
+    } else {
+      dst[i] = src[i];
+      i++;
+      col++;
+    }
+  }
+  dst[i] = 0;
+}
+
 char	*mdinport()
 {
   static	char tmp0[64];
@@ -1349,15 +1380,27 @@ char	*mdinport()
     }
   }
   */
-  
+
+#if defined(__APPLE__)
+  {
+    char raw[64];
+    if (coremidi_connected_input_name(raw, (int)sizeof raw))
+      mdin_fit(tmp0, raw, 8);
+    else
+      strcpy(tmp0, "NoConnect");
+    return tmp0;
+  }
+#else
   if ( midi_port_name[0] != 0 ) {  /* Sep.02.1998 Daisuke Nagano */
     a = strrchr( midi_port_name, '/' );
     if ( a==NULL ) a=midi_port_name-1;
     strncpy( tmp0, a+1, 63 );
+    tmp0[63] = 0;
   } else {
     strcpy( tmp0, "NoConnect" );
   }
   return tmp0;
+#endif
 }
 
 /***************************/
