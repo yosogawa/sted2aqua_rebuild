@@ -415,10 +415,10 @@ static void request_midi_data( uint8_t *a ) {
 
   if (a != NULL) {
     int i = 0;
-    while (a[i] != 0xff && i < 16) {
-      put_midi_data(a[i]);
+    while (a[i] != 0xff && i < 16)
       i++;
-    }
+    if (i > 0)
+      put_midi_message(a, i);
   }
 
   if ( STED_CONTROLLABLE ) {

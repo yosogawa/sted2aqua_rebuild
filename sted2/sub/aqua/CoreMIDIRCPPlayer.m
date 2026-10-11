@@ -904,8 +904,123 @@ CoreMIDISend(uint8_t *ptr, int length, int port, MIDITimeStamp atTime)
 	return sts;
 }
 
-int send_midi_byte(uint8_t byte) {
-    return (int)CoreMIDISend(&byte, 1, 0, 0);
+int
+send_midi_message(uint8_t *data, int length)
+{
+	if (data == NULL || length <= 0)
+		return 0;
+	return (int)CoreMIDISend(data, length, 0, 0);
+}
+
+/*
+ * WORKAROUND / quick hack. md_put() だけがまだ 1 バイトずつ渡してくる。
+ * MIDI IN の生バイト（モニターやエディタの THRU）用で、mix_out は
+ * put_midi_message() を通り、ここには来ない。
+ * 共通の MIDI スタックをメッセージ単位にするとき、このバッファは消す。
+ * UNIX の 1 バイト write には広げない。
+ */
+static uint8_t sMidiByteBuf[kMaxMIDIMessageSize];
+static int sMidiByteLen;
+static int sMidiByteNeed; /* 0: idle, >0: message size, -1: sysex until F7 */
+static uint8_t sMidiRunningStatus;
+
+static int
+MidiVoiceLength(uint8_t status)
+{
+	switch (status & 0xf0) {
+	case 0x80: case 0x90: case 0xa0: case 0xb0: case 0xe0:
+		return 3;
+	case 0xc0: case 0xd0:
+		return 2;
+	default:
+		return 0;
+	}
+}
+
+static int
+MidiSystemLength(uint8_t status)
+{
+	switch (status) {
+	case 0xf1: case 0xf3:
+		return 2;
+	case 0xf2:
+		return 3;
+	default:
+		return 1;
+	}
+}
+
+static int
+SendAssembledMidi(void)
+{
+	int n = sMidiByteLen;
+
+	sMidiByteLen = 0;
+	sMidiByteNeed = 0;
+	if (n <= 0)
+		return 0;
+	return (int)CoreMIDISend(sMidiByteBuf, n, 0, 0);
+}
+
+int
+send_midi_byte(uint8_t byte)
+{
+	int voice;
+
+	/* Realtime may arrive inside another message. Send it and keep assembling. */
+	if (byte >= 0xf8)
+		return (int)CoreMIDISend(&byte, 1, 0, 0);
+
+	if (byte >= 0x80) {
+		if (sMidiByteNeed < 0 && byte == 0xf7) {
+			if (sMidiByteLen < kMaxMIDIMessageSize)
+				sMidiByteBuf[sMidiByteLen++] = byte;
+			return SendAssembledMidi();
+		}
+		sMidiByteBuf[0] = byte;
+		sMidiByteLen = 1;
+		if (byte == 0xf0) {
+			sMidiByteNeed = -1;
+			sMidiRunningStatus = 0;
+			return 0;
+		}
+		if (byte < 0xf0) {
+			sMidiRunningStatus = byte;
+			sMidiByteNeed = MidiVoiceLength(byte);
+		} else {
+			sMidiRunningStatus = 0;
+			sMidiByteNeed = MidiSystemLength(byte);
+		}
+		if (sMidiByteNeed <= 1)
+			return SendAssembledMidi();
+		return 0;
+	}
+
+	if (sMidiByteNeed < 0) {
+		if (sMidiByteLen >= kMaxMIDIMessageSize - 1) {
+			sMidiByteLen = 0;
+			sMidiByteNeed = 0;
+			return 0;
+		}
+		sMidiByteBuf[sMidiByteLen++] = byte;
+		return 0;
+	}
+
+	/* Data without a status continues the previous channel message. */
+	if (sMidiByteLen == 0) {
+		voice = MidiVoiceLength(sMidiRunningStatus);
+		if (voice == 0)
+			return 0;
+		sMidiByteBuf[0] = sMidiRunningStatus;
+		sMidiByteLen = 1;
+		sMidiByteNeed = voice;
+	}
+	if (sMidiByteLen >= kMaxMIDIMessageSize)
+		return 0;
+	sMidiByteBuf[sMidiByteLen++] = byte;
+	if (sMidiByteNeed > 0 && sMidiByteLen >= sMidiByteNeed)
+		return SendAssembledMidi();
+	return 0;
 }
 
 

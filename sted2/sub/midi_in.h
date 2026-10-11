@@ -28,6 +28,7 @@ void close_midi_port( void );
 int get_midi_data( void );
 int is_midi_in( void );
 void put_midi_data( uint8_t );
+void put_midi_message( const uint8_t *, int );
 
 #endif /* _MIDI_IN_H */
 

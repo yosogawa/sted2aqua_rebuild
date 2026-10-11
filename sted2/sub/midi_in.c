@@ -128,3 +128,17 @@ void put_midi_data ( uint8_t data ) {
   return;
 #endif
 }
+
+void put_midi_message( const uint8_t *data, int length ) {
+  if ( data == NULL || length <= 0 )
+    return;
+#if defined(__APPLE__)
+  send_midi_message( (uint8_t *)data, length );
+#else
+  if ( ismididevopened > 0 ) {
+    int i;
+    for ( i = 0; i < length; i++ )
+      write( midi_dev, &data[i], 1 );
+  }
+#endif
+}

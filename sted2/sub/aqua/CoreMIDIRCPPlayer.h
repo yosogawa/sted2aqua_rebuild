@@ -32,6 +32,7 @@ void push_midi_in_ring_buffer(uint8_t byte);
 int pop_midi_in_ring_buffer(uint8_t *byte);
 int has_midi_in_ring_buffer(void);
 int send_midi_byte(uint8_t byte);
+int send_midi_message(uint8_t *data, int length);
 
 #ifdef __cplusplus
 }
