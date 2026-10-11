@@ -340,110 +340,6 @@ s_XSTed_ms_store_view_point(NSPoint p, NSUInteger buttons)
 	sMsMinY = 0;
 	sMsMaxX = sTextWidth - 1;
 	sMsMaxY = sTextHeight - 1;
-	
-	//  The following code snippet was used in generating the bitmap data
-#if 0
-	{
-		static uint32_t *sBitmapBuffer;
-		NSDictionary *attr;
-		NSGraphicsContext *sTextContext;
-		NSBitmapImageRep *rep;
-		char ch[10];
-		int i, j, xx, yy;
-		uint16_t b;
-		FILE *fp1, *fp2;
-		NSString *s;
-	
-		sBitmapBuffer = (uint32_t *)calloc(sizeof(uint32_t), 1024);
-		
-		rep = [[NSBitmapImageRep alloc] initWithBitmapDataPlanes:(uint8_t **)&sBitmapBuffer pixelsWide:32 pixelsHigh:32 bitsPerSample:8 samplesPerPixel:4 hasAlpha:YES isPlanar:NO colorSpaceName:NSCalibratedRGBColorSpace bytesPerRow:0 bitsPerPixel:0];
-		sTextContext = [NSGraphicsContext graphicsContextWithBitmapImageRep:rep];
-		[sTextContext setShouldAntialias:NO];
-		[NSGraphicsContext saveGraphicsState];
-		[NSGraphicsContext setCurrentContext:sTextContext];
-		attr = [NSDictionary dictionaryWithObjectsAndKeys:[NSFont fontWithName:@"Sazanami-Gothic-Regular" size:16], NSFontAttributeName, [NSColor whiteColor], NSForegroundColorAttributeName, nil];
-//	attr = [NSDictionary dictionaryWithObjectsAndKeys:[NSFont userFixedPitchFontOfSize:14], NSFontAttributeName, [NSColor whiteColor], NSForegroundColorAttributeName, nil];
-		fp1 = fopen("fontdata.bin", "wb");
-		fp2 = fopen("fontdata.ascii", "w");
-		for (i = 0; i < 160; i++) {
-			/*	if (i == 96)
-			 attr = [NSDictionary dictionaryWithObjectsAndKeys:[NSFont userFixedPitchFontOfSize:16], NSFontAttributeName, [NSColor whiteColor], NSForegroundColorAttributeName, nil]; */
-			if (i == 95 || i == 96) {
-				ch[0] = 32;
-				ch[1] = 0;
-			} else if (i < 96) {
-				ch[0] = i + 32;
-				ch[1] = 0;
-			} else if (i < 128) {
-				ch[0] = 0xef;
-				ch[1] = 0xbd;
-				ch[2] = 0xa0 + (i - 96);
-				ch[3] = 0;
-			} else {
-				ch[0] = 0xef;
-				ch[1] = 0xbe;
-				ch[2] = 0x80 + (i - 128);
-				ch[3] = 0;
-			}
-			s = [[NSString alloc] initWithUTF8String:ch];
-			memset(sBitmapBuffer, 0, sizeof(sBitmapBuffer[0]) * 1024);
-			[s drawWithRect:NSMakeRect(0, 0, 16, 32) options:NSStringDrawingUsesLineFragmentOrigin	attributes:attr];
-			[s release];
-			fprintf(fp2, "%02x:\n", (i < 96 ? i + 32 : i + 0xa0));
-			for (yy = 0; yy < 16; yy++) {
-				b = 0;
-				for (xx = 0; xx < 8; xx++) {
-					if (sBitmapBuffer[(yy + 6) * 32 + xx] != 0)
-						b |= (1 << xx);
-					fprintf(fp2, "%c", (b & (1 << xx)) ? '#' : '.');
-				}
-				fprintf(fp2, "\n");
-				fputc(b, fp1);
-			}
-		//	if (i < 95)
-		//		fprintf(fp1, "/* %c */\n", i + 32);
-		//	else fprintf(fp1, "/* \\uFF%02X */\n", i - 96 + 0x60);
-		}
-		
-		for (i = 0; i < 47; i++) {  /* 0x81-0x9f/0xe0-0xef */
-			for (j = 0; j < 188; j++) {  /* 0x40-0x7e/0x80-0xfc */
-				int c1, c2;
-				c1 = (i < 31 ? i + 0x81 : i + (0xe0 - 31));
-				c2 = (j < 63 ? j + 0x40 : j + (0x80 - 63));
-				ch[0] = c1;
-				ch[1] = c2;
-				ch[2] = 0;
-				s = [[NSString alloc] initWithCString:ch encoding:NSShiftJISStringEncoding];
-				memset(sBitmapBuffer, 0, sizeof(sBitmapBuffer[0]) * 1024);
-				[s drawWithRect:NSMakeRect(0, 0, 32, 32) options:NSStringDrawingUsesLineFragmentOrigin	attributes:attr];
-				[s release];
-				fprintf(fp2, "%02x%2x:\n", c1, c2);
-				for (yy = 0; yy < 16; yy++) {
-					const char *p;
-					b = 0;
-					for (xx = 0; xx < 16; xx++) {
-						if (sBitmapBuffer[(yy + 6) * 32 + xx] != 0)
-							b |= (1 << xx);
-						fprintf(fp2, "%c", (b & (1 << xx)) ? '#' : '.');
-					}
-					fprintf(fp2, "\n");
-					if (yy == 7)
-						p = ",\n    ";
-					else if (yy == 15 && i == 62 && j == 187)
-						p = "";
-					else p = ",";
-					fputc(b & 0xff, fp1);
-					fputc((b >> 8) & 0xff, fp1);
-				}
-			}
-		}		
-
-		[NSGraphicsContext restoreGraphicsState];
-		fclose(fp1);
-		fclose(fp2);
-	}
-#endif
-
 }
 
 - (void)timerHandler:(NSTimer *)aTimer
@@ -1050,6 +946,33 @@ static int s_draw_cell(CTFontRef font, CGGlyph glyph, int cellW, int cellH, uint
 	return any;
 }
 
+static const char kBundledFontPSName[] = "KH-Dot-Kodenmachou-16";
+
+static int s_nsfont_installed(const char *name)
+{
+	NSFont *font;
+	if (name == NULL || name[0] == 0)
+		return 0;
+	font = [NSFont fontWithName:[NSString stringWithUTF8String:name] size:(CGFloat)kFontCellHeight];
+	return font != nil;
+}
+
+/* Use a font already registered under this PostScript name.
+   Otherwise register the copy in the application bundle. */
+static int s_register_bundled_kodenmachou(void)
+{
+	NSString *path;
+	NSURL *url;
+	if (s_nsfont_installed(kBundledFontPSName))
+		return 1;
+	path = [[NSBundle mainBundle] pathForResource:@"KH-Dot-Kodenmachou-16" ofType:@"ttf"];
+	if (path == nil)
+		return 0;
+	url = [NSURL fileURLWithPath:path];
+	CTFontManagerRegisterFontsForURL((CFURLRef)url, kCTFontManagerScopeProcess, NULL);
+	return s_nsfont_installed(kBundledFontPSName);
+}
+
 static void s_apply_mac_font_main(const char *name, int cellHeight)
 {
 	NSFont *nsfont;
@@ -1077,7 +1000,7 @@ static void s_apply_mac_font_main(const char *name, int cellHeight)
 	if (nsfont == nil) {
 		NSAlert *alert = [[NSAlert alloc] init];
 		[alert setMessageText:@"フォントが見つかりません"];
-		[alert setInformativeText:[NSString stringWithFormat:@"「%s」は使えません。fontdata.bin の字形で表示します。", name]];
+		[alert setInformativeText:[NSString stringWithFormat:@"「%s」は使えません。", name]];
 		[alert setAlertStyle:NSAlertStyleWarning];
 		[alert runModal];
 		[alert release];
@@ -1146,21 +1069,55 @@ static void s_apply_mac_font_main(const char *name, int cellHeight)
 }
 
 static char sPendingMacFont[256];
-static int sPendingCellHeight;
 
-static void s_apply_mac_font(const char *name, int cellHeight)
+static void s_alert_font(NSString *message, NSString *info)
 {
-	if (name == NULL)
-		name = "";
-	if ([NSThread isMainThread]) {
-		s_apply_mac_font_main(name, cellHeight);
+	NSAlert *alert = [[NSAlert alloc] init];
+	[alert setMessageText:message];
+	[alert setInformativeText:info];
+	[alert setAlertStyle:NSAlertStyleWarning];
+	[alert runModal];
+	[alert release];
+}
+
+static void s_use_mac_font_main(const char *requested)
+{
+	int haveBundled;
+	haveBundled = s_register_bundled_kodenmachou();
+	if (requested != NULL && requested[0] != 0 && s_nsfont_installed(requested)) {
+		s_apply_mac_font_main(requested, kFontCellHeight);
 		return;
 	}
-	strncpy(sPendingMacFont, name, sizeof sPendingMacFont - 1);
+	if (requested != NULL && requested[0] != 0 && strcmp(requested, kBundledFontPSName) != 0) {
+		if (haveBundled) {
+			s_alert_font(@"フォントが見つかりません",
+				[NSString stringWithFormat:@"「%s」は使えません。同梱の %s で表示します。",
+					requested, kBundledFontPSName]);
+		} else {
+			s_alert_font(@"フォントが見つかりません",
+				[NSString stringWithFormat:@"「%s」は使えません。同梱の %s.ttf もありません。",
+					requested, kBundledFontPSName]);
+		}
+	} else if (!haveBundled) {
+		s_alert_font(@"フォントが見つかりません",
+			[NSString stringWithFormat:@"同梱の %s.ttf がありません。", kBundledFontPSName]);
+	}
+	if (haveBundled)
+		s_apply_mac_font_main(kBundledFontPSName, kFontCellHeight);
+}
+
+static void s_use_mac_font(const char *requested)
+{
+	if (requested == NULL)
+		requested = "";
+	if ([NSThread isMainThread]) {
+		s_use_mac_font_main(requested);
+		return;
+	}
+	strncpy(sPendingMacFont, requested, sizeof sPendingMacFont - 1);
 	sPendingMacFont[sizeof sPendingMacFont - 1] = 0;
-	sPendingCellHeight = cellHeight;
 	dispatch_sync(dispatch_get_main_queue(), ^{
-		s_apply_mac_font_main(sPendingMacFont, sPendingCellHeight);
+		s_use_mac_font_main(sPendingMacFont);
 	});
 }
 
@@ -1168,29 +1125,16 @@ void
 XSTed_start_main(int (*mainPtr)(int, char **), int argc, char **argv)
 {
 	NSArray *args;
-	NSString *pathString;
-	FILE *fp;
 	char macFont[256];
 
 	XSTed_setup_default_path();
-	pathString = [NSString stringWithUTF8String: s_sted_default_path];
-	
-	/*  Read font data. fontdata.bin is the failsafe; #mac_font= overlays it.  */
+
+	/*  Glyph tables start empty. The bundled TTF, or #mac_font=, fills them.  */
 	sFontData = (uint8_t *)calloc(kFontHalfBytes, 1);
 	sKanjiData = (uint8_t *)calloc(kFontKanjiBytes, 1);
-	
-	fp = fopen([[pathString stringByAppendingPathComponent:@"fontdata.bin"] fileSystemRepresentation], "rb");
-	if (fp != NULL) {
-		fread(sFontData, 1, kFontHalfBytes, fp);
-		fread(sKanjiData, 1, kFontKanjiBytes, fp);
-		fclose(fp);
-	} else {
-		NSLog(@"Warning: cannot open fontdata.bin\n");
-	}
 	s_font_capture_base();
 	s_load_mac_font_setting(argc, argv, macFont, sizeof macFont);
-	if (macFont[0] != 0)
-		s_apply_mac_font(macFont, kFontCellHeight);
+	s_use_mac_font(macFont);
 
 	/*  Initialize CoreMIDI  */
 	CoreMIDIInitIfNeeded();
@@ -1402,7 +1346,7 @@ XSTed_configure_mac_settings(const char *line)
 			n = sizeof name - 1;
 		memcpy(name, p, n);
 		name[n] = 0;
-		s_apply_mac_font(name, kFontCellHeight);
+		s_use_mac_font(name);
 	}
 }
 

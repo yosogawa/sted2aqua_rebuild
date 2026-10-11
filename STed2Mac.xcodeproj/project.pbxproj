@@ -70,6 +70,8 @@
 		E44E7DDA1AC4C83B00F71120 /* MIDISettings.xib in Resources */ = {isa = PBXBuildFile; fileRef = E44E7DD81AC4C83B00F71120 /* MIDISettings.xib */; };
 		E44E7DFD1AC4C94E00F71120 /* MyDialogController.m in Sources */ = {isa = PBXBuildFile; fileRef = E44E7DFC1AC4C94E00F71120 /* MyDialogController.m */; };
 		E47C191F1AC55B8700A70D36 /* conf in Resources */ = {isa = PBXBuildFile; fileRef = E47C19141AC55B8700A70D36 /* conf */; };
+		A1F0E0111AC55B8700A70D01 /* KH-Dot-Kodenmachou-16.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A1F0E0131AC55B8700A70D03 /* KH-Dot-Kodenmachou-16.ttf */; };
+		A1F0E0121AC55B8700A70D02 /* OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = A1F0E0141AC55B8700A70D04 /* OFL.txt */; };
 		E4DBA7B81ABB1F1E0070024F /* X68kView.m in Sources */ = {isa = PBXBuildFile; fileRef = E4DBA7B71ABB1F1E0070024F /* X68kView.m */; };
 		E4F8616F1AC7D306007DF49E /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E4F8616E1AC7D306007DF49E /* main.m */; };
 /* End PBXBuildFile section */
@@ -203,6 +205,8 @@
 		E44E7DFC1AC4C94E00F71120 /* MyDialogController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyDialogController.m; sourceTree = "<group>"; };
 		E47C19121AC55B7600A70D36 /* STed2Mac-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "STed2Mac-Info.plist"; sourceTree = "<group>"; };
 		E47C19141AC55B8700A70D36 /* conf */ = {isa = PBXFileReference; lastKnownFileType = folder; name = conf; path = sted2/conf; sourceTree = "<group>"; };
+		A1F0E0131AC55B8700A70D03 /* KH-Dot-Kodenmachou-16.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "KH-Dot-Kodenmachou-16.ttf"; path = "sted2/fonts/KH-Dot-Kodenmachou-16.ttf"; sourceTree = "<group>"; };
+		A1F0E0141AC55B8700A70D04 /* OFL.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = OFL.txt; path = sted2/fonts/OFL.txt; sourceTree = "<group>"; };
 		E47C192A1AC55C1A00A70D36 /* STed2Mac_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = STed2Mac_Prefix.pch; sourceTree = "<group>"; };
 		E4DBA7B61ABB1F1E0070024F /* X68kView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = X68kView.h; sourceTree = "<group>"; };
 		E4DBA7B71ABB1F1E0070024F /* X68kView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = X68kView.m; sourceTree = "<group>"; wrapsLines = 1; };
@@ -290,6 +294,8 @@
 			children = (
 				E44B2A421AC6B44C00910C7B /* STed2_help */,
 				E47C19141AC55B8700A70D36 /* conf */,
+				A1F0E0131AC55B8700A70D03 /* KH-Dot-Kodenmachou-16.ttf */,
+				A1F0E0141AC55B8700A70D04 /* OFL.txt */,
 				E47C19121AC55B7600A70D36 /* STed2Mac-Info.plist */,
 				089C165CFE840E0CC02AAC07 /* InfoPlist.strings */,
 				1DDD58140DA1D0A300B32029 /* MainMenu.xib */,
@@ -562,6 +568,8 @@
 				E40E95CB1ABA41ED0072AA0B /* sted2.fon in Resources */,
 				E44E7DDA1AC4C83B00F71120 /* MIDISettings.xib in Resources */,
 				E47C191F1AC55B8700A70D36 /* conf in Resources */,
+				A1F0E0111AC55B8700A70D01 /* KH-Dot-Kodenmachou-16.ttf in Resources */,
+				A1F0E0121AC55B8700A70D02 /* OFL.txt in Resources */,
 				E44B2A4E1AC6B44C00910C7B /* STed2_help in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
