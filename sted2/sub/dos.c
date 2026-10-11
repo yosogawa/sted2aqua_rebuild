@@ -28,6 +28,10 @@ int curses_keyin( int);
 void XSTed_tlocate(int, int);
 void XSTed_curon(void);
 void XSTed_curoff(void);
+
+extern unsigned int iocs_console_xtop, iocs_console_ytop;
+extern unsigned int iocs_current_console_height;
+extern unsigned int iocs_current_text_x, iocs_current_text_y;
 int  XSTed_keyin(int);
 
 /* local functions */
@@ -81,12 +85,28 @@ int _dos_c_fnkmod( int mode ) {
   return 0;
 }
 int _dos_c_window( int x, int y ) {
+  int top, bottom;
+
+  /*  Human68k C_WINDOW(top, bottom). Lines are 0..31.  */
+  top = x;
+  bottom = y;
+  if (top < 0)
+    top = 0;
+  if (bottom > 31)
+    bottom = 31;
+  if (bottom < top)
+    bottom = top;
+
+  iocs_console_ytop = (unsigned int)top;
+  iocs_current_console_height = (unsigned int)(bottom - top + 1);
+  iocs_current_text_x = 0;
+  iocs_current_text_y = 0;
 
   if ( isconsole ) {
-    curses_tlocate( 0, 0 );
+    curses_tlocate( (int)iocs_console_xtop, top );
 
   } else if ( isGUI ) {
-    XSTed_tlocate( 0, 0 );
+    XSTed_tlocate( (int)iocs_console_xtop, top );
   }
   return 0;
 }

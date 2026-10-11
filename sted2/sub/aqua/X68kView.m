@@ -2085,10 +2085,66 @@ s_XSTed_tputs(const char *message, int *xbase, int *ybase, int col, int isText)
 	[sLock unlock];
 }
 
+/* Scroll one text row inside the C_WINDOW range. Lines outside it stay put. */
+static void
+s_scroll_text_window(int top, int bottom)
+{
+	int rowBytes;
+	int lines;
+	int last;
+
+	last = sTextHeight / 16 - 1;
+	if (top < 0)
+		top = 0;
+	if (bottom > last)
+		bottom = last;
+	if (bottom < top)
+		return;
+	rowBytes = 16 * sTextWidth;
+	lines = bottom - top;
+	[sLock lock];
+	if (lines > 0) {
+		memmove(sTextVram + top * rowBytes,
+			sTextVram + (top + 1) * rowBytes,
+			(size_t)lines * rowBytes);
+	}
+	memset(sTextVram + bottom * rowBytes, 0, (size_t)rowBytes);
+	InvalTextInRect(0, top * 16, sTextWidth, (bottom + 1) * 16);
+	[sLock unlock];
+}
+
 void
 XSTed_tputs(const char *message)
 {
 	int x, y;
+
+	/* A leading CR LF moves to column 0 of the next line, inside C_WINDOW.
+	   At the bottom row, that range scrolls up one line and the footer stays. */
+	if (message[0] == '\r') {
+		extern unsigned int iocs_console_ytop, iocs_current_console_height;
+		int top, bottom, last;
+
+		if (message[1] != 0)
+			message += 2;
+		else
+			message += 1;
+		top = (int)iocs_console_ytop;
+		bottom = top + (int)iocs_current_console_height - 1;
+		last = sTextHeight / 16 - 1;
+		if (bottom > last)
+			bottom = last;
+		if (bottom < 0)
+			bottom = 0;
+		if (top > bottom)
+			top = bottom;
+		sCursorX = 0;
+		if (sCursorY < bottom)
+			sCursorY++;
+		else {
+			s_scroll_text_window(top, bottom);
+			sCursorY = bottom;
+		}
+	}
 	x = sCursorX * 8;
 	y = sCursorY * 16;
 	s_XSTed_tputs(message, &x, &y, sTextColor, 1);

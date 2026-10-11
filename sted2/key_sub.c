@@ -3,6 +3,7 @@
  */
 
 #include	"sted.h"
+#include	"key_sub.h"
 
 /* ************** chord list */
 static	char	chord_name[20][9]={
@@ -99,14 +100,14 @@ void	inpmon()
 
   B_LOCATE(25,31);B_PRINT("OUT MIDI CH.:THRU");
   B_LOCATE(76,31);B_PRINT(_("[ESC] to exit."));
-  C_WINDOW(4,26);B_LOCATE(0,0);
+  C_WINDOW(5,29);B_LOCATE(0,0);
   midi_clr();
 
   while(1){
     if(f==0){a=midi_inout();}else{a=f;f=0;}
     if( a<0 ){break;}
 
-    if( a>127 && a<0xf0){B_PRINT("\r\nch=");B_PRINT(fstr((a&15)+1,2));B_PRINT(" : ");}
+    if( a>127 && a<0xf0){B_PRINT("\r\n ch=");B_PRINT(fstr((a&15)+1,2));B_PRINT(" : ");}
 
     if( a>=0x80 && a<=0x9f){
       if( a<0x90 ){B_PRINT("note off :");}else{B_PRINT("note on  :");}
@@ -200,7 +201,7 @@ void	midi_change(int md)
     }
     midi_chout(0xc0+((outch-1)&15));midi_chout(prog);
   }
-  C_WINDOW(4,26);B_LOCATE(0,0);
+  C_WINDOW(5,29);B_LOCATE(0,0);
 }
 
 /***************************/

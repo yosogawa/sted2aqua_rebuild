@@ -3,6 +3,7 @@
  */
 
 #include	"sted.h"
+#include	"redit.h"
 
 static char	rym[10][3]={"- ","1 ","2 ","3 ","4 ","5 ","6 ","7 ","8 ","9 "};
 static char	rym_s[10][4]={"OFF"," 1 "," 2 "," 3 "," 4 "," 5 "," 6 "," 7 "," 8 "," 9 "};

@@ -3,6 +3,7 @@
  */
 
 #include	"sted.h"
+#include	"trkset.h"
 
 
 
