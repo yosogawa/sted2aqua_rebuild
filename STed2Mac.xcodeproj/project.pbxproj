@@ -65,6 +65,7 @@
 		E40E96451ABA44D70072AA0B /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E40E96441ABA44D70072AA0B /* CoreMIDI.framework */; };
 		E40E964D1ABA44F60072AA0B /* CoreAudioKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E40E964C1ABA44F60072AA0B /* CoreAudioKit.framework */; };
 		E40E96551ABA451B0072AA0B /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E40E96541ABA451B0072AA0B /* AudioToolbox.framework */; };
+		A1F0E0311AC55B8700A70D21 /* AVFAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1F0E0321AC55B8700A70D22 /* AVFAudio.framework */; };
 		E40E965D1ABA455D0072AA0B /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E40E965C1ABA455D0072AA0B /* CoreAudio.framework */; };
 		E44B2A4E1AC6B44C00910C7B /* STed2_help in Resources */ = {isa = PBXBuildFile; fileRef = E44B2A421AC6B44C00910C7B /* STed2_help */; };
 		E44E7DDA1AC4C83B00F71120 /* MIDISettings.xib in Resources */ = {isa = PBXBuildFile; fileRef = E44E7DD81AC4C83B00F71120 /* MIDISettings.xib */; };
@@ -198,6 +199,7 @@
 		E40E96441ABA44D70072AA0B /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = /System/Library/Frameworks/CoreMIDI.framework; sourceTree = "<absolute>"; };
 		E40E964C1ABA44F60072AA0B /* CoreAudioKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudioKit.framework; path = /System/Library/Frameworks/CoreAudioKit.framework; sourceTree = "<absolute>"; };
 		E40E96541ABA451B0072AA0B /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = /System/Library/Frameworks/AudioToolbox.framework; sourceTree = "<absolute>"; };
+		A1F0E0321AC55B8700A70D22 /* AVFAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFAudio.framework; path = /System/Library/Frameworks/AVFAudio.framework; sourceTree = "<absolute>"; };
 		E40E965C1ABA455D0072AA0B /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = /System/Library/Frameworks/CoreAudio.framework; sourceTree = "<absolute>"; };
 		E44B2A421AC6B44C00910C7B /* STed2_help */ = {isa = PBXFileReference; lastKnownFileType = folder; name = STed2_help; path = sted2/doc/STed2_help; sourceTree = "<group>"; };
 		E44E7DD91AC4C83B00F71120 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MIDISettings.xib; sourceTree = "<group>"; };
@@ -219,6 +221,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E40E96551ABA451B0072AA0B /* AudioToolbox.framework in Frameworks */,
+				A1F0E0311AC55B8700A70D21 /* AVFAudio.framework in Frameworks */,
 				8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */,
 				E40E965D1ABA455D0072AA0B /* CoreAudio.framework in Frameworks */,
 				E40E964D1ABA44F60072AA0B /* CoreAudioKit.framework in Frameworks */,
@@ -242,6 +245,7 @@
 			children = (
 				E40E965C1ABA455D0072AA0B /* CoreAudio.framework */,
 				E40E96541ABA451B0072AA0B /* AudioToolbox.framework */,
+				A1F0E0321AC55B8700A70D22 /* AVFAudio.framework */,
 				E40E964C1ABA44F60072AA0B /* CoreAudioKit.framework */,
 				E40E96441ABA44D70072AA0B /* CoreMIDI.framework */,
 				1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */,

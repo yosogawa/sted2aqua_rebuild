@@ -22,7 +22,9 @@ void exit_coremidi_rcpplayer(void);
 
 void CoreMIDIInitIfNeeded(void);
 void CoreMIDISelectDeviceForPort(int index, int port);
+const char *CoreMIDICanonicalOutputName(const char *name);
 void CoreMIDISelectDeviceByNameForPort(const char *name, int port);
+void CoreMIDISetDLSSynthFont(const char *filename);
 void CoreMIDISelectInputDeviceByName(const char *name);
 void CoreMIDIAllSoundOff(void);
 

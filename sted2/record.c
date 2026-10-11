@@ -113,6 +113,7 @@ restart:
 
   if(metoro_trk>=0){dtr=metoro_trk;}
 
+  set_realtime_recording(1);
   (*rcd->begin)();
 
   rec_mt_change(1);rec_mt_change(1);
@@ -335,6 +336,7 @@ restart:
   key_wait();
 
 ext:
+  set_realtime_recording(0);
   B_CLR_AL();home2(0);
   rcd->put_mode=pm;
 

@@ -101,6 +101,10 @@ extern void sted_redraw_midi_in(void);
 	outdevice1 = [def valueForKey:@"midiout1"];
 	outdevice2 = [def valueForKey:@"midiout2"];
 	indevice   = [def valueForKey:@"midiin"];
+	if (outdevice1 != nil)
+		[def setValue:[NSString stringWithUTF8String:CoreMIDICanonicalOutputName([outdevice1 UTF8String])] forKey:@"midiout1"];
+	if (outdevice2 != nil)
+		[def setValue:[NSString stringWithUTF8String:CoreMIDICanonicalOutputName([outdevice2 UTF8String])] forKey:@"midiout2"];
 
 	if ([MyDialogController runDialogWithNibName:@"MIDISettings"]) {
 		CoreMIDISelectDeviceByNameForPort([[def valueForKey:@"midiout1"] UTF8String], 0);

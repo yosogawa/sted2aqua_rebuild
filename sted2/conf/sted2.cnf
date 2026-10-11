@@ -127,21 +127,21 @@
 * Replace/Delete/Find Selecterの設定(A〜Z)
 
 *          [コメント(34文字まで)            ]-[parameter(35文字まで)            ]
-#replace=a,�����������־�ΥΡ��Ȥ�Ťͤ�    ,%:+12
+#replace=a,�����������־�ΥΡ��Ȥ�Ťͤ�    ,%:+12
 
 #delete =a,
 
-#find   =a,Total ST��192�ʳ��ξ������˰�ư   ,$ST!=192
+#find   =a,Total ST��192�ʳ��ξ������˰�ư   ,$ST!=192
 
 *=============================================================================
 * 外部プログラムの設定(A〜Z)
 
 *          [コメント(37文字まで)               ]-[ MODE ][コマンド(38文字まで)][拡張子]
-#program=a,���Ѳ����ꥹ��ɽ�� (CM-64)           ,pb	,command.x /c tone.x -b -c|more
-#program=b,���Ѳ����ꥹ��ɽ�� (SC-55)           ,pb	,command.x /c tone.x -b -g|more
-#program=c,�λ�ե������Խ�    (ed filename.WRD),f	,mule			,WRD
-#program=d,�ɥ�������Խ�    (     ��    .DOC),f	,mule			,DOC
-#program=e,�ɥ�������Խ�(select)  (.DOC/.TXT),s	,mule			,DOC:TXT
+#program=a,���Ѳ����ꥹ��ɽ�� (CM-64)           ,pb	,command.x /c tone.x -b -c|more
+#program=b,���Ѳ����ꥹ��ɽ�� (SC-55)           ,pb	,command.x /c tone.x -b -g|more
+#program=c,�λ�ե������Խ�    (ed filename.WRD),f	,mule			,WRD
+#program=d,�ɥ�������Խ�    (     ��    .DOC),f	,mule			,DOC
+#program=e,�ɥ�������Խ�(select)  (.DOC/.TXT),s	,mule			,DOC:TXT
 
 *#program=g,SNG出力 (for Mu-1GS format)    (.SNG),pbf	,tosng -b
 *#program=h,MML出力 (for MDD(MDL)format)   (.MDL),pbf	,tomml -b -d
@@ -151,18 +151,18 @@
 #program=l,RCM-PC98 v1 control file load  (.MTD),pslm	,mtor -x		,MTD
 #program=m,Standard MIDI file load (STD/MID/MFF),pslm	,itor -x		,STD:MID:MFF
 #program=n,Music Studio/Mu-1 file load    (.SNG),pslm	,utor -x		,SNG
-#program=o,�ߥ塼������/Ϻ file load      (.SNG),pslm	,stor -x		,SNG
+#program=o,�ߥ塼������/Ϻ file load      (.SNG),pslm	,stor -x		,SNG
 #program=p,MDD (.MDI) file load           (.MDI),pslm	,dtor -x		,MDI
-#program=q,��ã�� file load               (.SEQ),pslm	,qtor -x		,SEQ
+#program=q,��ã�� file load               (.SEQ),pslm	,qtor -x		,SEQ
 #program=r,Micro Musician file load(MMC/MM2/MM3),pslm	,ctor -x		,MMC:MM2:MM3
 #program=s,Z-Music file load               (ZMD),pslm	,ztor -x		,ZMD
 
-#program=u,LZM �ե����� ������            (.MDF),slm	,lzm -x			,MDF
-#program=v,LZM ���̥ե�����ꥹ��ɽ��     (.MDF),ps	,lzm -l			,MDF
-#program=w,LZM �ե�����Ÿ�� (->������)  (.MDF),ps	,lzm -e			,MDF
-#program=x,LZM �ե����밵�� (->������)  (.RCP),ps	,lzm -c			,RCP:R36
+#program=u,LZM �ե����� ������            (.MDF),slm	,lzm -x			,MDF
+#program=v,LZM ���̥ե�����ꥹ��ɽ��     (.MDF),ps	,lzm -l			,MDF
+#program=w,LZM �ե�����Ÿ�� (->������)  (.MDF),ps	,lzm -e			,MDF
+#program=x,LZM �ե����밵�� (->������)  (.RCP),ps	,lzm -c			,RCP:R36
 
-#program=z,Shell�ε�ư			         ,p	,sh
+#program=z,Shell�ε�ư			         ,p	,sh
 
 * MODE = 外部プログラム実行のオプション
 *
@@ -216,7 +216,19 @@
 * Jun.21.2003 Toshi Nagata
 
 *#midi_device_input=
-#midi_device_output=Internal Synth, Internal Synth 2
+#midi_device_output=Apple DLS Synth, Apple DLS Synth 2
+
+*=============================================================================
+* Apple DLS Synth に読み込むサウンドバンク（サウンドフォント）ファイル(macOS only)
+* ファイルは　~/Library/Audio/Sounds/Banks　に配置してあること
+* ファイルが存在しない場合は、Apple DLS Synth 内蔵の DLSファイル(GM1相当)を使う
+* 有効ファイルは .dls/.sf2 のみ
+
+*#dls_synth_font=FluidR3_GM.sf2
+*#dls_synth_font=GeneralUser-GS.sf2
+*#dls_synth_font=SC55_zzdenis_v0.5.sf2
+*#dls_synth_font=SGM-V2.01.sf2
+*#dls_synth_font=Yamaha XG Sound Set.sf2
 
 *=============================================================================
 * X Window 上で動作する場合の font set 名
@@ -230,11 +242,10 @@
 
 *=============================================================================
 * macOS で画面に使用するフォント (NSFont の PostScript 名)
-* 未指定、またはその名前が無いときは同梱の KH-Dot-Kodenmachou-16 を使う
-* Monaco を使う例
-*#mac_font=Monaco
+* 未指定、またはその名前が無いときはアプリケーション内蔵の KH-Dot-Kodenmachou-16 を使う
 
-#mac_font=KH-Dot-Kodenmachou-16
+*#mac_font=Monaco
+*#mac_font=KH-Dot-Kodenmachou-16
 
 *=============================================================================
 * X Window 上で動作する場合のキーボードの設定

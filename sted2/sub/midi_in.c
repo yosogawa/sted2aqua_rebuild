@@ -51,6 +51,12 @@ void close_midi_port( void ) {
 #endif
 }
 
+#if !defined(__APPLE__)
+void set_realtime_recording(int on) {
+  (void)on;
+}
+#endif
+
 int get_midi_data( void ) {
 #if defined(__APPLE__)
   CoreMIDIInitIfNeeded();

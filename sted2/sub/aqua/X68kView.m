@@ -1316,8 +1316,9 @@ XSTed_register_midi_device(const char *str)
 		if (*q == 0)
 			continue;
 		if (input_flag == 0) {
-			CoreMIDISelectDeviceByNameForPort(q, n);
-			[def setValue:[NSString stringWithUTF8String:q] forKey:[NSString stringWithFormat:@"midiout%d", n + 1]];
+			const char *canon = CoreMIDICanonicalOutputName(q);
+			CoreMIDISelectDeviceByNameForPort(canon, n);
+			[def setValue:[NSString stringWithUTF8String:canon] forKey:[NSString stringWithFormat:@"midiout%d", n + 1]];
 		} else if (input_flag == 1) {
 			CoreMIDISelectInputDeviceByName(q);
 			[def setValue:[NSString stringWithUTF8String:q] forKey:@"midiin"];
@@ -1333,6 +1334,12 @@ XSTed_configure_mac_settings(const char *line)
 		XSTed_register_key(line);
 	if (strncasecmp(line, "#MIDI_DEVICE_", 13) == 0)
 		XSTed_register_midi_device(line);
+	if (strncasecmp(line, "#dls_synth_font=", 16) == 0) {
+		const char *p = line + 16;
+		while (*p == ' ' || *p == '\t')
+			p++;
+		CoreMIDISetDLSSynthFont(p);
+	}
 	if (strncasecmp(line, "#mac_font=", 10) == 0) {
 		const char *p = line + 10;
 		char name[256];

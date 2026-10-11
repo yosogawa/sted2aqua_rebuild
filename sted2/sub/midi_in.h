@@ -16,7 +16,12 @@ extern "C" {
 
 int is_coremidi_playing(void);
 void stop_coremidi_rcpplayer(void);
+void set_realtime_recording(int on);
 
+
+#if defined(__APPLE__)
+int coremidi_connected_input_name(char *buf, int buflen);
+#endif
 
 int open_midi_port( char * );
 void close_midi_port( void );
