@@ -759,7 +759,7 @@ static void proc_meta( int meta, uint8_t *text, int length )
       for( i = 2; i < 20; i += 2 ) {
 	entry( 0xf7, 0x00, work[i], work[i+1] );
       }
-      if(length>20){strcpy(text,&text[20]);length-=20;goto next;}
+      if(length>20){memmove(text,&text[20],strlen(&text[20])+1);length-=20;goto next;}
 
       /*		for( i = 2; i < length; i += 2 ) {
 			entry( 0xf7, 0x00, work[i], work[i+1] );

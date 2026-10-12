@@ -39,7 +39,8 @@ static NSRect sGraphInvalRect;     //  ibid
 
 //  Key inputs
 #define kKeyBufferMax 128
-static uint16_t sKeyBuffer[kKeyBufferMax];
+/* Low 16 bits: X68k key. Bits 17-18: Ctrl/Opt consumed by that binding. */
+static uint32_t sKeyBuffer[kKeyBufferMax];
 static int sKeyBufferBase, sKeyBufferCount;
 
 int sTextWidth = 768;   /* session-fixed; do not change after VRAM alloc */
@@ -54,7 +55,9 @@ static int sTextColor = 3;
 static int sGraphColor = 15;
 
 static unsigned int sModifierFlags;
-//static unsigned int sModifierChange;
+/* Ctrl (2) / Opt.1 (4) used to select the binding of the key just taken.
+   The next B_SFTSNS hides those bits once, then clears this. */
+static unsigned int sKeySenseSuppress;
 static uint16_t sLastKeyDown;  //  The last getKeyWithOptions: return value
 
 /* Mouse snapshot for the X68k thread (same contract as xwin_mouse.c). */
@@ -182,29 +185,10 @@ static uint32_t s_x68k_special_key[128] = {
 	(x68k_f8 << 24) + NSF8FunctionKey,
 	(x68k_f9 << 24) + NSF9FunctionKey,
 	(x68k_f10 << 24) + NSF10FunctionKey,
-	(x68k_f1 << 24) + (1 << 17) + '1',  /*  ctrl-1  */
-	(x68k_f2 << 24) + (1 << 17) + '2',
-	(x68k_f3 << 24) + (1 << 17) + '3',
-	(x68k_f4 << 24) + (1 << 17) + '4',
-	(x68k_f5 << 24) + (1 << 17) + '5',
-	(x68k_f6 << 24) + (1 << 17) + '6',
-	(x68k_f7 << 24) + (1 << 17) + '7',
-	(x68k_f8 << 24) + (1 << 17) + '8',
-	(x68k_f9 << 24) + (1 << 17) + '9',
-	(x68k_f10 << 24) + (1 << 17) + '0',
-	/* Option+F1-F5 used to map to XF1-XF5; that stole OPT+F1-F5
-	   (one-touch ST/GT). XF is still Ctrl+Option+1-5. */
-	(x68k_xf1 << 24) + (1 << 17) + (1 << 18) + '1',  /*  ctrl-option-1  */
-	(x68k_xf2 << 24) + (1 << 17) + (1 << 18) + '2',
-	(x68k_xf3 << 24) + (1 << 17) + (1 << 18) + '3',
-	(x68k_xf4 << 24) + (1 << 17) + (1 << 18) + '4',
-	(x68k_xf5 << 24) + (1 << 17) + (1 << 18) + '5',
+	/* ctrl-1..5, option-1..0, end, control-\ come from sted2.cnf.
+	   Shift glyphs and Ctrl+Option+1..5 are not bindings. */
 	(x68k_kigou << 24) + NSF11FunctionKey,   /* X11 / curses: F11 = 記号 */
-	(x68k_kigou << 24) + (1 << 18) + '-',    /* option--  */
-	(x68k_kigou << 24) + (1 << 18) + '_',    /* option-_  */
 	(x68k_touroku << 24) + NSF12FunctionKey, /* X11 / curses: F12 = 登録 */
-	(x68k_touroku << 24) + (1 << 18) + '=',  /* option-=  */
-	(x68k_touroku << 24) + (1 << 18) + '+',  /* option-+  */
 	(x68k_del << 24) + NSDeleteFunctionKey,
 	(x68k_home << 24) + NSHomeFunctionKey,
 	(x68k_rollup << 24) + NSPageUpFunctionKey,
@@ -464,15 +448,16 @@ s_XSTed_ms_store_view_point(NSPoint p, NSUInteger buttons)
 	return YES;
 }
 
-//  Bits 0-7: ASCII code
-//  Bits 8-15: scan code
-//  Bits 16-19: modifier key mask (used internally)
+/*  Bits 0-7: ASCII code
+    Bits 8-15: scan code
+    Bits 16-18: Ctrl/Opt consumed by the matched binding (2 and 4).
+    Shift is never consumed. */
 static uint32_t
 eventToX68kKeyInfo(NSEvent *theEvent)
 {
 	unichar theChar = 0;
 	unsigned int theMask;
-	uint32_t keyCode = 0, keyMask = 0;
+	uint32_t keyCode = 0, keyMask = 0, consumed = 0;
 	unsigned short vk;
 	int i;
 	NSString *chars;
@@ -488,43 +473,28 @@ eventToX68kKeyInfo(NSEvent *theEvent)
 	if (theMask & NSEventModifierFlagCapsLock)
 		keyMask |= 8;   /* Opt.2 */
 
-	/* Option+minus is U+2013, not '-', so match hardware key codes.
-	   0x67 F11, 0x6F F12, 0x1B minus, 0x18 equal, 0x5E JIS '_. */
+	/* F11 = 記号, F12 = 登録. Option+minus / Option+= are not bindings. */
 	vk = [theEvent keyCode];
 	if ((theMask & NSEventModifierFlagCommand) == 0) {
 		if (vk == 0x67)
 			keyCode = (uint32_t)x68k_kigou << 8;
 		else if (vk == 0x6F)
 			keyCode = (uint32_t)x68k_touroku << 8;
-		else if ((keyMask & 6) == 4) {
-			if (vk == 0x18)
-				keyCode = (uint32_t)x68k_touroku << 8;
-			else if (vk == 0x1B)
-				keyCode = (uint32_t)((keyMask & 1) ? x68k_touroku : x68k_kigou) << 8;
-			else if (vk == 0x5E)
-				keyCode = (uint32_t)x68k_kigou << 8;
-		}
-	}
-
-	/* Physical F1-F10 stay F-keys with Option/Shift (one-touch ST/GT). */
-	if (keyCode == 0 && (theMask & NSEventModifierFlagCommand) == 0) {
-		switch (vk) {
-		case 0x7A: keyCode = (uint32_t)x68k_f1 << 8; break;
-		case 0x78: keyCode = (uint32_t)x68k_f2 << 8; break;
-		case 0x63: keyCode = (uint32_t)x68k_f3 << 8; break;
-		case 0x76: keyCode = (uint32_t)x68k_f4 << 8; break;
-		case 0x60: keyCode = (uint32_t)x68k_f5 << 8; break;
-		case 0x61: keyCode = (uint32_t)x68k_f6 << 8; break;
-		case 0x62: keyCode = (uint32_t)x68k_f7 << 8; break;
-		case 0x64: keyCode = (uint32_t)x68k_f8 << 8; break;
-		case 0x65: keyCode = (uint32_t)x68k_f9 << 8; break;
-		case 0x6D: keyCode = (uint32_t)x68k_f10 << 8; break;
-		}
 	}
 
 	if (keyCode == 0) {
-		/* Main-row 1-0: look up '1'-'0', not Shift glyphs ('!'). */
+		/* Physical F1-F10, then main-row 1-0 as '1'-'0' (not '!'). */
 		switch (vk) {
+		case 0x7A: theChar = NSF1FunctionKey; break;
+		case 0x78: theChar = NSF2FunctionKey; break;
+		case 0x63: theChar = NSF3FunctionKey; break;
+		case 0x76: theChar = NSF4FunctionKey; break;
+		case 0x60: theChar = NSF5FunctionKey; break;
+		case 0x61: theChar = NSF6FunctionKey; break;
+		case 0x62: theChar = NSF7FunctionKey; break;
+		case 0x64: theChar = NSF8FunctionKey; break;
+		case 0x65: theChar = NSF9FunctionKey; break;
+		case 0x6D: theChar = NSF10FunctionKey; break;
 		case 0x12: theChar = '1'; break;
 		case 0x13: theChar = '2'; break;
 		case 0x14: theChar = '3'; break;
@@ -543,48 +513,78 @@ eventToX68kKeyInfo(NSEvent *theEvent)
 			break;
 		}
 		if (theChar != 0) {
+			int bestRank = -1;
+			int tie = 0;
+			uint32_t bestCode = 0, bestNeed = 0;
 			for (i = 0; i < (int)(sizeof(s_x68k_special_key) / sizeof(s_x68k_special_key[0])); i++) {
+				uint32_t need;
+				int rank;
 				if (s_x68k_special_key[i] == 0)
 					break;
-				if ((s_x68k_special_key[i] & 0xffff) == theChar
-				&& ((s_x68k_special_key[i] >> 16) & 6) == (keyMask & 6)) {
-					keyCode = (s_x68k_special_key[i] >> 16) & 0xff00;
-					/* SHIFT+OPT+1-0 is not one-touch F-keys. OPT+1 (CNF o-1) stays. */
-					if ((keyMask & 7) == 5
-					    && keyCode >= ((uint32_t)x68k_f1 << 8)
-					    && keyCode <= ((uint32_t)x68k_f10 << 8)
-					    && (vk == 0x12 || vk == 0x13 || vk == 0x14 || vk == 0x15
-						|| vk == 0x16 || vk == 0x17 || vk == 0x19 || vk == 0x1A
-						|| vk == 0x1C || vk == 0x1D))
-						keyCode = 0;
-					break;
+				need = (s_x68k_special_key[i] >> 16) & 6;
+				if ((s_x68k_special_key[i] & 0xffff) != theChar)
+					continue;
+				if ((keyMask & need) != need)
+					continue;
+				rank = (need == 6) ? 2 : (need != 0);
+				if (rank > bestRank) {
+					bestRank = rank;
+					bestCode = (s_x68k_special_key[i] >> 16) & 0xff00;
+					bestNeed = need;
+					tie = 0;
+				} else if (rank == bestRank) {
+					tie = 1;
 				}
+			}
+			/* Equal rank means two bindings claim the chord. Leave it unmatched. */
+			if (bestRank >= 0 && !tie) {
+				keyCode = bestCode;
+				consumed = bestNeed;
 			}
 		}
 	}
 	if (keyCode == 0) {
-		chars = [theEvent characters];
-		if ([chars length] > 0) {
-			theChar = [chars characterAtIndex: 0];
-			if (theChar > 0 && theChar < 128) {
-				if ((theMask & NSEventModifierFlagNumericPad) && theChar < 64) {
-					keyCode = sPadKeyTable[theChar];
-				} else {
-					keyCode = sKeyTable[theChar];
+		/* Unmatched letter. Binding search already ran, so option-1 and
+		   control-1 are untouched. Shift stays in theChar. */
+		unichar base = theChar;
+		int letter = (base >= 'A' && base <= 'Z') || (base >= 'a' && base <= 'z');
+		int optLetter = letter || base == '@';
+
+		if ((keyMask & 2) && letter) {
+			/* Control+A-Z: control code, scan 0. CTRL is not consumed.
+			   Scan stays 0 so Ctrl+E does not also match the E key. */
+			keyCode = base & 0x1f;
+		} else if ((keyMask & 4) && optLetter && base < 128) {
+			/* Option+A-Z/@: uppercase letter, physical scan. OPT.1 stays.
+			   The option menu accepts 'A'-'Z' only. */
+			unichar ascii = base;
+			if (base >= 'a' && base <= 'z')
+				ascii = (unichar)(base - 'a' + 'A');
+			keyCode = ((uint32_t)sKeyTable[ascii] << 8) | ascii;
+		} else {
+			chars = [theEvent characters];
+			if ([chars length] > 0) {
+				theChar = [chars characterAtIndex: 0];
+				if (theChar > 0 && theChar < 128) {
+					if ((theMask & NSEventModifierFlagNumericPad) && theChar < 64) {
+						keyCode = sPadKeyTable[theChar];
+					} else {
+						keyCode = sKeyTable[theChar];
+					}
+					keyCode = (keyCode << 8) + theChar;
 				}
-				keyCode = (keyCode << 8) + theChar;
 			}
 		}
 	}
-	return (keyMask << 16) | keyCode;
+	return (consumed << 16) | keyCode;
 }
 
 //  Register key down event in the ring buffer.
 //  [sLock lock] should have been called.
 static void
-s_RegisterKeyDown(int ch)
+s_RegisterKeyDown(uint32_t ch)
 {
-	if (ch != 0) {
+	if ((ch & 0xffff) != 0) {
 		if (sKeyBufferCount < kKeyBufferMax) {
 			sKeyBuffer[(sKeyBufferBase + sKeyBufferCount) % kKeyBufferMax] = ch;
 			sKeyBufferCount++;
@@ -602,7 +602,7 @@ s_RegisterKeyDown(int ch)
 	flagsChange = (sModifierFlags ^ flags);
 	if ([theEvent type] == NSEventTypeKeyDown) {
 		keyInfo = eventToX68kKeyInfo(theEvent);
-		s_RegisterKeyDown(keyInfo & 0xffff);
+		s_RegisterKeyDown(keyInfo);
 	} else {
 		if (flagsChange != 0) {
 			if (flagsChange & NSEventModifierFlagControl)
@@ -637,16 +637,13 @@ s_RegisterKeyDown(int ch)
 
 	if (vk == 0x67 || vk == 0x6F)
 		take = 1;
-	else if ((flags & NSEventModifierFlagOption) &&
-		 (vk == 0x1B || vk == 0x18 || vk == 0x5E))
-		take = 1;
 	if (!take)
 		return [super performKeyEquivalent:theEvent];
 	if ([theEvent type] == NSEventTypeKeyDown) {
 		uint32_t keyInfo;
 		[sLock lock];
 		keyInfo = eventToX68kKeyInfo(theEvent);
-		s_RegisterKeyDown(keyInfo & 0xffff);
+		s_RegisterKeyDown(keyInfo);
 		[sLock unlock];
 	}
 	return YES;
@@ -736,18 +733,22 @@ s_RegisterKeyDown(int ch)
 
 + (uint16_t)getKeyWithOptions:(int)optionFlags
 {
-	uint16_t ch;
+	uint16_t ch = 0;
+	uint32_t raw;
 	int pt;
 	while (1) {
 		[sLock lock];
+		raw = 0;
 		for (pt = 0; pt < sKeyBufferCount; pt++) {
-			ch = sKeyBuffer[(sKeyBufferBase + pt) % kKeyBufferMax];
+			raw = sKeyBuffer[(sKeyBufferBase + pt) % kKeyBufferMax];
+			ch = (uint16_t)(raw & 0xffff);
 			if ((optionFlags & kGetKeySenseModifiersOption) != 0 || ch < 0x7000)
 				break;
 		}
 		if (pt < sKeyBufferCount) {
 			if ((optionFlags & kGetKeyKeepInBufferOption) == 0) {
-				//  Remove from the buffer
+				/* Hide the binding's Ctrl/Opt on the next B_SFTSNS. */
+				sKeySenseSuppress = (raw >> 16) & 6;
 				sKeyBufferCount -= pt + 1;
 				sKeyBufferBase = (sKeyBufferBase + pt + 1) % kKeyBufferMax;
 			}
@@ -1266,9 +1267,11 @@ XSTed_register_key(const char *str)
 			n = NSDeleteFunctionKey;
 		else if (strcasecmp(q, "home") == 0)
 			n = NSHomeFunctionKey;
+		else if (strcasecmp(q, "end") == 0)
+			n = NSEndFunctionKey;
 		else if (strcasecmp(q, "page_up") == 0)
 			n = NSPageUpFunctionKey;
-		else if (strcasecmp(q, "page_d⁄own") == 0)
+		else if (strcasecmp(q, "page_down") == 0)
 			n = NSPageDownFunctionKey;
 		else if (strcasecmp(q, "clear") == 0)
 			n = NSClearLineFunctionKey;
@@ -2260,10 +2263,12 @@ XSTed_keyinp(void)
 int
 XSTed_sftsns(void)
 {
-	unsigned int modifiers;
+	unsigned int modifiers, suppress;
 	uint16_t ch;
 	[sLock lock];
 	modifiers = sModifierFlags;
+	suppress = sKeySenseSuppress;
+	sKeySenseSuppress = 0;
 	[sLock unlock];
 	ch = 0;
 	if (modifiers & NSEventModifierFlagShift)
@@ -2274,6 +2279,7 @@ XSTed_sftsns(void)
 		ch |= 4;
 	if (modifiers & NSEventModifierFlagCapsLock)
 		ch |= 8;
+	ch &= (uint16_t)~suppress;
 //	printf("XSTed_sftsns\n");
 	return ch;
 }

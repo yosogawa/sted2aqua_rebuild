@@ -317,28 +317,27 @@
 *#key_opt1  = Opt1
 *#key_opt2  = Opt2
 
-* for Mac OS X (Jun.21.2003 Toshi Nagata)
+* for macOS
 * 半角スペースで区切って複数のキーを指定できる
-* option-1 と option-! の両方を指定しておくと、shift-option-1 が shift-f1 として
-* 認識できる（はず）
+* Shift は別の修飾としてセンスする。Shift で文字が変わるだけの併記はしない
 
-#key_f1     = f1 option-1 option-!
-#key_f2     = f2 option-2 option-@
-#key_f3     = f3 option-3 option-#
-#key_f4     = f4 option-4 option-$
-#key_f5     = f5 option-5 option-%
-#key_f6     = f6 option-6 option-^
-#key_f7     = f7 option-7 option-&
-#key_f8     = f8 option-8 option-*
-#key_f9     = f9 option-9 option-(
-#key_f10    = f10 option-0 option-)
-#key_xf1    = control-1 control-!
-#key_xf2    = control-2 control-@
-#key_xf3    = control-3 control-#
-#key_xf4    = control-4 control-$
-#key_xf5    = control-5 control-%
-#key_kigo   = f11 option-- option-_
-#key_toroku = f12 option-= option-+
+#key_f1     = f1 option-1
+#key_f2     = f2 option-2
+#key_f3     = f3 option-3
+#key_f4     = f4 option-4
+#key_f5     = f5 option-5
+#key_f6     = f6 option-6
+#key_f7     = f7 option-7
+#key_f8     = f8 option-8
+#key_f9     = f9 option-9
+#key_f10    = f10 option-0
+#key_xf1    = control-1
+#key_xf2    = control-2
+#key_xf3    = control-3
+#key_xf4    = control-4
+#key_xf5    = control-5
+#key_kigo   = f11
+#key_toroku = f12
 #key_ins    = control-\
 #key_del    = delete
 #key_home   = home
