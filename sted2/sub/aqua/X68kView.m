@@ -59,6 +59,9 @@ static unsigned int sModifierFlags;
    The next B_SFTSNS hides those bits once, then clears this. */
 static unsigned int sKeySenseSuppress;
 static uint16_t sLastKeyDown;  //  The last getKeyWithOptions: return value
+/* Group 7 bits that follow keyUp: ROLL DOWN, ROLL UP, UNDO, UP, DOWN.
+   Other scans stay on sLastKeyDown. */
+static unsigned int sHeldGroup7;
 
 /* Mouse snapshot for the X68k thread (same contract as xwin_mouse.c). */
 static int sMsX, sMsY, sMsButtons;
@@ -579,6 +582,20 @@ eventToX68kKeyInfo(NSEvent *theEvent)
 	return (consumed << 16) | keyCode;
 }
 
+/* Bit in BITSNS(7) while this scan is physically down. 0 if not one of the five. */
+static unsigned int
+s_group7_hold_bit(uint32_t keyInfo)
+{
+	switch ((keyInfo >> 8) & 0xff) {
+	case x68k_rolldown: return 1;
+	case x68k_rollup:   return 2;
+	case x68k_undo:     return 4;
+	case x68k_up:       return 16;
+	case x68k_down:     return 64;
+	default:            return 0;
+	}
+}
+
 //  Register key down event in the ring buffer.
 //  [sLock lock] should have been called.
 static void
@@ -601,8 +618,24 @@ s_RegisterKeyDown(uint32_t ch)
 	flags = [theEvent modifierFlags];
 	flagsChange = (sModifierFlags ^ flags);
 	if ([theEvent type] == NSEventTypeKeyDown) {
+		unsigned int scan;
+		int repeat;
 		keyInfo = eventToX68kKeyInfo(theEvent);
-		s_RegisterKeyDown(keyInfo);
+		scan = (keyInfo >> 8) & 0xff;
+		repeat = [theEvent isARepeat];
+		/* XF3/XF4 are RUN/STOP. The editor reads the queue later, one key
+		   per redraw, so a queued STOP is applied again after RUN and the
+		   player stays paused. Repeats are ignored. XF5 stays queued:
+		   full stop is the editor's all_note_off. */
+		if (scan == x68k_xf3 || scan == x68k_xf4) {
+			if (!repeat && rcd != NULL)
+				*(volatile int32_t *)&rcd->sts = (scan == x68k_xf4) ? 1 : 0;
+		} else
+			s_RegisterKeyDown(keyInfo);
+		sHeldGroup7 |= s_group7_hold_bit(keyInfo);
+	} else if ([theEvent type] == NSEventTypeKeyUp) {
+		keyInfo = eventToX68kKeyInfo(theEvent);
+		sHeldGroup7 &= ~s_group7_hold_bit(keyInfo);
 	} else {
 		if (flagsChange != 0) {
 			if (flagsChange & NSEventModifierFlagControl)
@@ -2288,12 +2321,14 @@ XSTed_sftsns(void)
 /*  Examine which keys in the specified key group are pressed  */
 /*  Complete implementation is very difficult, so it is partially implemented
     as follows; for shift, control, opt1 (option) and opt2 (caps lock) are
-    implemented by use of the modifier flags, and other keys are recognized
-    as 'pressed' when the last return value of getKeyWithOptions matches that key.  */
+    implemented by use of the modifier flags. ROLL DOWN, ROLL UP, UNDO, UP and
+    DOWN follow keyUp. Other keys are recognized as 'pressed' when the last
+    return value of getKeyWithOptions matches that key.  */
 int
 XSTed_bitsns(int group)
 {
 	int ret = 0;
+	unsigned int held;
 	if (group == 14) {
 		/*  shift, ctrl, opt1, opt2  */
 		unsigned int mflags = sModifierFlags;
@@ -2307,10 +2342,18 @@ XSTed_bitsns(int group)
 			ret |= 16;
 		return ret;
 	}
+	[sLock lock];
+	held = sHeldGroup7;
+	[sLock unlock];
 	ret = (sLastKeyDown >> 8) & 0xff;  //  Scan code
 	if (ret / 8 == group)
 		ret = (1 << (ret % 8));
 	else ret = 0;
+	if (group == 7) {
+		/* Drop the sticky copy of the five live scans, then apply keyUp state. */
+		ret &= ~(1 | 2 | 4 | 16 | 64);
+		ret |= held;
+	}
 //	printf("XSTed_bitsns %d\n", group);
 	return ret;
 }
