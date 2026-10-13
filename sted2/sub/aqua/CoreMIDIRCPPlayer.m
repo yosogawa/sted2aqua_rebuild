@@ -27,6 +27,9 @@
 #import <AVFAudio/AVAudioFormat.h>
 #import <AVFAudio/AVAudioMixerNode.h>
 #import <AVFAudio/AVAudioUnit.h>
+#import <AVFAudio/AVAudioUnitEQ.h>
+#import <AVFAudio/AVAudioUnitReverb.h>
+#import <AVFAudio/AVAudioUnitEffect.h>
 
 #include "sted.h"
 
@@ -183,6 +186,12 @@ static double sSampleRate[2];
 static double sHostTicksPerSecond;
 static pthread_mutex_t sSynthLock = PTHREAD_MUTEX_INITIALIZER;
 static char sDLSFontFile[PATH_MAX];
+static AVAudioMixerNode *sSum = nil;
+static AVAudioUnitEQ *sEQ = nil;
+static AVAudioUnitReverb *sReverb = nil;
+static AVAudioUnitEffect *sLimiter = nil;
+static int sAppliedReverbPreset = -1;
+static DLSEffectSettings sEffects = { 0.0f, 0.0f, 3, 0.0f, 0.0f, 1.0f };
 
 /*  Render thread publishes, player thread reads. seqlock: odd means a write is in progress. */
 typedef struct {
@@ -393,6 +402,68 @@ ClearAnchors(void)
 	}
 }
 
+static DLSEffectSettings ClampEffects(DLSEffectSettings s);
+
+/*  Caller holds sSynthLock. Frequencies stay fixed; only the stored gains move. */
+static void
+ApplyEffectsLocked(void)
+{
+	if (sEQ != nil && [sEQ.bands count] >= 2) {
+		AVAudioUnitEQFilterParameters *low = [sEQ.bands objectAtIndex:0];
+		AVAudioUnitEQFilterParameters *high = [sEQ.bands objectAtIndex:1];
+		low.filterType = AVAudioUnitEQFilterTypeLowShelf;
+		low.frequency = 60.0;
+		low.bandwidth = 1.0;
+		low.gain = sEffects.bassGain;
+		low.bypass = NO;
+		high.filterType = AVAudioUnitEQFilterTypeHighShelf;
+		high.frequency = 5500.0;
+		high.bandwidth = 1.0;
+		high.gain = sEffects.trebleGain;
+		high.bypass = NO;
+	}
+	if (sReverb != nil) {
+		if (sAppliedReverbPreset != sEffects.reverbPreset) {
+			[sReverb loadFactoryPreset:(AVAudioUnitReverbPreset)sEffects.reverbPreset];
+			sAppliedReverbPreset = sEffects.reverbPreset;
+		}
+		sReverb.wetDryMix = sEffects.reverbMix;
+	}
+	if (sLimiter != nil)
+		AudioUnitSetParameter(sLimiter.audioUnit, kLimiterParam_PreGain,
+			kAudioUnitScope_Global, 0, sEffects.limiterBoost, 0);
+	if (sEngine != nil)
+		sEngine.mainMixerNode.outputVolume = sEffects.volume;
+}
+
+static void
+ReleaseEffectNodes(void)
+{
+	[sSum release];
+	[sEQ release];
+	[sReverb release];
+	[sLimiter release];
+	sSum = nil;
+	sEQ = nil;
+	sReverb = nil;
+	sLimiter = nil;
+	sAppliedReverbPreset = -1;
+}
+
+static BOOL
+ConnectNode(AVAudioEngine *engine, AVAudioNode *src, AVAudioNode *dst, AVAudioNodeBus bus, NSError **err)
+{
+	if (@available(macOS 27.0, *))
+		return [engine connect:src to:dst fromBus:0 toBus:bus format:nil error:err];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+	[engine connect:src to:dst fromBus:0 toBus:bus format:nil];
+#pragma clang diagnostic pop
+	if (err != NULL)
+		*err = nil;
+	return YES;
+}
+
 /*  Caller holds sSynthLock. Render callbacks do not take that lock. */
 static void
 StopInternalSynthEngine(void)
@@ -417,6 +488,7 @@ StopInternalSynthEngine(void)
 	sDLSUnit[0] = nil;
 	sDLSUnit[1] = nil;
 	sEngine = nil;
+	ReleaseEffectNodes();
 	[engine release];
 	[u0 release];
 	[u1 release];
@@ -444,41 +516,80 @@ StartInternalSynthEngine(void)
 	}
 	LoadDLSSoundBank(u0.audioUnit);
 	LoadDLSSoundBank(u1.audioUnit);
+	AVAudioMixerNode *sum;
+	AVAudioUnitEQ *eq;
+	AVAudioUnitReverb *reverb;
+	AVAudioUnitEffect *limiter;
+	NSError *connectErr = nil;
+	BOOL connected = NO;
+	AVAudioNodeBus outBus;
+
+	/*  Both DLS units share one chain: sum → EQ → reverb → limiter → main mixer. */
 	sEngine = [[AVAudioEngine alloc] init];
+	sum = [[AVAudioMixerNode alloc] init];
+	eq = [[AVAudioUnitEQ alloc] initWithNumberOfBands:2];
+	reverb = [[AVAudioUnitReverb alloc] init];
+	{
+		AudioComponentDescription limDesc;
+		memset(&limDesc, 0, sizeof limDesc);
+		limDesc.componentType = kAudioUnitType_Effect;
+		limDesc.componentSubType = kAudioUnitSubType_PeakLimiter;
+		limDesc.componentManufacturer = kAudioUnitManufacturer_Apple;
+		limiter = [[AVAudioUnitEffect alloc] initWithAudioComponentDescription:limDesc];
+	}
 	[sEngine attachNode:u0];
 	[sEngine attachNode:u1];
+	[sEngine attachNode:sum];
+	[sEngine attachNode:eq];
+	[sEngine attachNode:reverb];
+	[sEngine attachNode:limiter];
 	AudioUnitSetProperty(u0.audioUnit, kAudioUnitProperty_HostMIDIProtocol,
 		kAudioUnitScope_Global, 0, &proto, sizeof proto);
 	AudioUnitSetProperty(u1.audioUnit, kAudioUnitProperty_HostMIDIProtocol,
 		kAudioUnitScope_Global, 0, &proto, sizeof proto);
-	{
-		AVAudioNodeBus bus0 = sEngine.mainMixerNode.nextAvailableInputBus;
-		AVAudioNodeBus bus1;
-		NSError *connectErr = nil;
-		BOOL connected = NO;
-		if (@available(macOS 27.0, *)) {
-			connected = [sEngine connect:u0 to:sEngine.mainMixerNode fromBus:0 toBus:bus0 format:nil error:&connectErr];
-			bus1 = sEngine.mainMixerNode.nextAvailableInputBus;
-			if (connected)
-				connected = [sEngine connect:u1 to:sEngine.mainMixerNode fromBus:0 toBus:bus1 format:nil error:&connectErr];
-		} else {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-			[sEngine connect:u0 to:sEngine.mainMixerNode fromBus:0 toBus:bus0 format:nil];
-			bus1 = sEngine.mainMixerNode.nextAvailableInputBus;
-			[sEngine connect:u1 to:sEngine.mainMixerNode fromBus:0 toBus:bus1 format:nil];
-#pragma clang diagnostic pop
-			connected = YES;
-		}
-		if (!connected) {
-			NSLog(@"internal synth connect failed: %@", connectErr);
-			[sEngine release];
-			sEngine = nil;
-			[u0 release];
-			[u1 release];
-			return;
-		}
+	sum.outputVolume = 1.0;
+	if (sum == nil || eq == nil || reverb == nil || limiter == nil) {
+		NSLog(@"internal synth effect unit missing");
+		[sEngine release];
+		sEngine = nil;
+		[u0 release];
+		[u1 release];
+		[sum release];
+		[eq release];
+		[reverb release];
+		[limiter release];
+		return;
 	}
+	connected = ConnectNode(sEngine, u0, sum, 0, &connectErr);
+	if (connected)
+		connected = ConnectNode(sEngine, u1, sum, 1, &connectErr);
+	if (connected)
+		connected = ConnectNode(sEngine, sum, eq, 0, &connectErr);
+	if (connected)
+		connected = ConnectNode(sEngine, eq, reverb, 0, &connectErr);
+	if (connected)
+		connected = ConnectNode(sEngine, reverb, limiter, 0, &connectErr);
+	if (connected) {
+		outBus = sEngine.mainMixerNode.nextAvailableInputBus;
+		connected = ConnectNode(sEngine, limiter, sEngine.mainMixerNode, outBus, &connectErr);
+	}
+	if (!connected) {
+		NSLog(@"internal synth connect failed: %@", connectErr);
+		[sEngine release];
+		sEngine = nil;
+		[u0 release];
+		[u1 release];
+		[sum release];
+		[eq release];
+		[reverb release];
+		[limiter release];
+		return;
+	}
+	sSum = sum;
+	sEQ = eq;
+	sReverb = reverb;
+	sLimiter = limiter;
+	ApplyEffectsLocked();
 	CacheScheduleBlock(0, u0);
 	CacheScheduleBlock(1, u1);
 	AudioUnitAddRenderNotify(u0.audioUnit, InternalSynthRenderNotify, (void *)(intptr_t)0);
@@ -489,6 +600,7 @@ StartInternalSynthEngine(void)
 		AudioUnitRemoveRenderNotify(u0.audioUnit, InternalSynthRenderNotify, (void *)(intptr_t)0);
 		AudioUnitRemoveRenderNotify(u1.audioUnit, InternalSynthRenderNotify, (void *)(intptr_t)1);
 		ReleaseScheduleBlocks();
+		ReleaseEffectNodes();
 		[sEngine release];
 		sEngine = nil;
 		[u0 release];
@@ -647,6 +759,85 @@ CoreMIDISetDLSSynthFont(const char *filename)
 			free(path);
 		});
 	}
+}
+
+static DLSEffectSettings
+ClampEffects(DLSEffectSettings s)
+{
+	if (s.bassGain < -6.0f)
+		s.bassGain = -6.0f;
+	if (s.bassGain > 12.0f)
+		s.bassGain = 12.0f;
+	if (s.trebleGain < -6.0f)
+		s.trebleGain = -6.0f;
+	if (s.trebleGain > 12.0f)
+		s.trebleGain = 12.0f;
+	if (s.reverbPreset < 0)
+		s.reverbPreset = 0;
+	if (s.reverbPreset > 12)
+		s.reverbPreset = 12;
+	if (s.reverbMix < 0.0f)
+		s.reverbMix = 0.0f;
+	if (s.reverbMix > 100.0f)
+		s.reverbMix = 100.0f;
+	if (s.limiterBoost < 0.0f)
+		s.limiterBoost = 0.0f;
+	if (s.limiterBoost > 6.0f)
+		s.limiterBoost = 6.0f;
+	if (s.volume < 0.0f)
+		s.volume = 0.0f;
+	if (s.volume > 1.0f)
+		s.volume = 1.0f;
+	return s;
+}
+
+static void
+ApplyEffectsNow(DLSEffectSettings s)
+{
+	pthread_mutex_lock(&sSynthLock);
+	sEffects = ClampEffects(s);
+	ApplyEffectsLocked();
+	pthread_mutex_unlock(&sSynthLock);
+}
+
+void
+CoreMIDIGetDLSEffects(DLSEffectSettings *settings)
+{
+	if (settings == NULL)
+		return;
+	pthread_mutex_lock(&sSynthLock);
+	*settings = sEffects;
+	pthread_mutex_unlock(&sSynthLock);
+}
+
+void
+CoreMIDISetDLSEffects(const DLSEffectSettings *settings)
+{
+	DLSEffectSettings s;
+	if (settings == NULL)
+		return;
+	s = *settings;
+	if ([NSThread isMainThread])
+		ApplyEffectsNow(s);
+	else
+		dispatch_sync(dispatch_get_main_queue(), ^{ ApplyEffectsNow(s); });
+}
+
+const char *
+CoreMIDIDLSSynthFontFilename(void)
+{
+	static char name[256];
+	const char *base;
+
+	pthread_mutex_lock(&sSynthLock);
+	base = strrchr(sDLSFontFile, '/');
+	if (base != NULL)
+		base++;
+	else
+		base = sDLSFontFile;
+	strlcpy(name, base, sizeof name);
+	pthread_mutex_unlock(&sSynthLock);
+	return name;
 }
 #endif
 

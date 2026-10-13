@@ -8,6 +8,7 @@
 // #import "X68kWindow.h"
 #import "CoreMIDIRCPPlayer.h"
 #import "MyDialogController.h"
+#import "DLSSynthPanel.h"
 
 #include <stdlib.h>
 
@@ -55,6 +56,7 @@ extern void sted_redraw_midi_in(void);
 	[xview setNeedsDisplay:YES];
 	XSTed_init_window();
 	[self installViewMenu];
+	[self installDLSSynthMenu];
 	{
 		NSInteger percent = [[NSUserDefaults standardUserDefaults] integerForKey:@"DisplayScalePercent"];
 		[X68kView applyDisplayScalePercent:(int)percent toView:xview];
@@ -120,9 +122,44 @@ extern void sted_redraw_midi_in(void);
 	}
 }
 
+- (IBAction)dlsSynthDialog:(id)sender
+{
+	[DLSSynthPanel run];
+}
+
 - (IBAction)allSoundOff:(id)sender
 {
 	CoreMIDIAllSoundOff();
+}
+
+- (void)installDLSSynthMenu
+{
+	NSMenu *mainMenu = [NSApp mainMenu];
+	NSMenu *midiMenu = nil;
+	NSMenuItem *item;
+	NSInteger i, n;
+
+	if (mainMenu == nil)
+		return;
+	n = [mainMenu numberOfItems];
+	for (i = 0; i < n; i++) {
+		NSMenuItem *top = [mainMenu itemAtIndex:i];
+		if ([[top title] isEqualToString:@"MIDI"]) {
+			midiMenu = [top submenu];
+			break;
+		}
+	}
+	if (midiMenu == nil)
+		return;
+	item = [[NSMenuItem alloc] initWithTitle:@"DLS Synth..."
+					  action:@selector(dlsSynthDialog:)
+				   keyEquivalent:@""];
+	[item setTarget:self];
+	if ([midiMenu numberOfItems] > 0)
+		[midiMenu insertItem:item atIndex:1];
+	else
+		[midiMenu addItem:item];
+	[item release];
 }
 
 - (void)installViewMenu
@@ -154,6 +191,13 @@ extern void sted_redraw_midi_in(void);
 		[viewMenu addItem:item];
 		[item release];
 	}
+	[viewMenu addItem:[NSMenuItem separatorItem]];
+	item = [[NSMenuItem alloc] initWithTitle:@"Toggle FullScreen"
+					  action:@selector(toggleVisibleFrame:)
+				   keyEquivalent:@""];
+	[item setTarget:self];
+	[viewMenu addItem:item];
+	[item release];
 	viewTop = [[NSMenuItem alloc] initWithTitle:@"View" action:nil keyEquivalent:@""];
 	[viewTop setSubmenu:viewMenu];
 	[mainMenu insertItem:viewTop atIndex:insertAt];
@@ -166,12 +210,40 @@ extern void sted_redraw_midi_in(void);
 	[X68kView applyDisplayScalePercent:(int)[sender tag] toView:[myWindow contentView]];
 }
 
+static BOOL sFilledVisibleFrame;
+static NSRect sFrameBeforeFill;
+
+- (IBAction)toggleVisibleFrame:(id)sender
+{
+	NSScreen *screen;
+	(void)sender;
+	if (myWindow == nil)
+		return;
+	if (sFilledVisibleFrame) {
+		[myWindow setFrame:sFrameBeforeFill display:YES animate:YES];
+		sFilledVisibleFrame = NO;
+		return;
+	}
+	screen = [myWindow screen];
+	if (screen == nil)
+		screen = [NSScreen mainScreen];
+	if (screen == nil)
+		return;
+	sFrameBeforeFill = [myWindow frame];
+	[myWindow setFrame:[screen visibleFrame] display:YES animate:YES];
+	sFilledVisibleFrame = YES;
+}
+
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem
 {
 	if ([menuItem action] == @selector(setDisplayScale:)) {
 		[menuItem setState:(([menuItem tag] == [X68kView displayScalePercent])
 				    ? NSOnState : NSOffState)];
 		return YES;
+	}
+	if ([menuItem action] == @selector(toggleVisibleFrame:)) {
+		[menuItem setState:(sFilledVisibleFrame ? NSOnState : NSOffState)];
+		return myWindow != nil;
 	}
 	return YES;
 }

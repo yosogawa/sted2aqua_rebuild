@@ -25,6 +25,19 @@ void CoreMIDISelectDeviceForPort(int index, int port);
 const char *CoreMIDICanonicalOutputName(const char *name);
 void CoreMIDISelectDeviceByNameForPort(const char *name, int port);
 void CoreMIDISetDLSSynthFont(const char *filename);
+const char *CoreMIDIDLSSynthFontFilename(void);
+
+typedef struct {
+	float bassGain;       /* dB, -6 .. +12. LowShelf at 60 Hz. */
+	float trebleGain;     /* dB, -6 .. +12. HighShelf at 5500 Hz. */
+	int reverbPreset;     /* AVAudioUnitReverbPreset, 0 .. 12. */
+	float reverbMix;      /* wet/dry percent, 0 .. 100. */
+	float limiterBoost;   /* dB, 0 .. 6. Peak limiter preGain. */
+	float volume;         /* main mixer outputVolume, 0 .. 1. */
+} DLSEffectSettings;
+
+void CoreMIDIGetDLSEffects(DLSEffectSettings *settings);
+void CoreMIDISetDLSEffects(const DLSEffectSettings *settings);
 void CoreMIDISelectInputDeviceByName(const char *name);
 void CoreMIDIAllSoundOff(void);
 

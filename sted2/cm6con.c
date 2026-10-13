@@ -1090,7 +1090,12 @@ char	*cm6_tone_name(int mo,int i)
   }
 
   b_striS(tmp1,128,n+1);strcpy(tmp0,"000");strcat(tmp0,tmp1);
-  strcpy(tmp0,&tmp0[strlen(tmp0)-4]);tmp0[0]=tone_hed[nn];
+#if 0
+  strcpy(tmp0,&tmp0[strlen(tmp0)-4]);
+#else
+  memmove(tmp0,&tmp0[strlen(tmp0)-4], strlen(&tmp0[strlen(tmp0)-4])+1);
+#endif
+  tmp0[0]=tone_hed[nn];
   strcat(tmp0," ");strcat(tmp0,spadd(tim_name[i0],10));
   cm6_tone_name_tmp = tmp0;
   return(cm6_tone_name_tmp);

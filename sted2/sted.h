@@ -321,5 +321,6 @@ void tpl(int a);
 #endif
 
 void XSTed_configure_mac_settings(const char *line);
+int XSTed_save_dls_settings(void);
 
 #endif /* _STED_H_ */

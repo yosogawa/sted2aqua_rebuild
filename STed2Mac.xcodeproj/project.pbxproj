@@ -72,6 +72,7 @@
 		E44B2A4E1AC6B44C00910C7B /* STed2_help in Resources */ = {isa = PBXBuildFile; fileRef = E44B2A421AC6B44C00910C7B /* STed2_help */; };
 		E44E7DDA1AC4C83B00F71120 /* MIDISettings.xib in Resources */ = {isa = PBXBuildFile; fileRef = E44E7DD81AC4C83B00F71120 /* MIDISettings.xib */; };
 		E44E7DFD1AC4C94E00F71120 /* MyDialogController.m in Sources */ = {isa = PBXBuildFile; fileRef = E44E7DFC1AC4C94E00F71120 /* MyDialogController.m */; };
+		A1DLS0D12F0A4B0100DLS0D1 /* DLSSynthPanel.m in Sources */ = {isa = PBXBuildFile; fileRef = A1DLS0B12F0A4B0100DLS0B1 /* DLSSynthPanel.m */; };
 		E47C191F1AC55B8700A70D36 /* conf in Resources */ = {isa = PBXBuildFile; fileRef = E47C19141AC55B8700A70D36 /* conf */; };
 		E4DBA7B81ABB1F1E0070024F /* X68kView.m in Sources */ = {isa = PBXBuildFile; fileRef = E4DBA7B71ABB1F1E0070024F /* X68kView.m */; };
 		E4F8616F1AC7D306007DF49E /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E4F8616E1AC7D306007DF49E /* main.m */; };
@@ -212,6 +213,8 @@
 		E44E7DD91AC4C83B00F71120 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MIDISettings.xib; sourceTree = "<group>"; };
 		E44E7DFB1AC4C94E00F71120 /* MyDialogController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyDialogController.h; sourceTree = "<group>"; };
 		E44E7DFC1AC4C94E00F71120 /* MyDialogController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyDialogController.m; sourceTree = "<group>"; };
+		A1DLS0B12F0A4B0100DLS0B1 /* DLSSynthPanel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DLSSynthPanel.m; sourceTree = "<group>"; };
+		A1DLS0C12F0A4B0100DLS0C1 /* DLSSynthPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DLSSynthPanel.h; sourceTree = "<group>"; };
 		E47C19121AC55B7600A70D36 /* STed2Mac-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "STed2Mac-Info.plist"; sourceTree = "<group>"; };
 		E47C19141AC55B8700A70D36 /* conf */ = {isa = PBXFileReference; lastKnownFileType = folder; name = conf; path = sted2/conf; sourceTree = "<group>"; };
 		E47C192A1AC55C1A00A70D36 /* STed2Mac_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = STed2Mac_Prefix.pch; sourceTree = "<group>"; };
@@ -517,6 +520,8 @@
 				E4DBA7B71ABB1F1E0070024F /* X68kView.m */,
 				E44E7DFB1AC4C94E00F71120 /* MyDialogController.h */,
 				E44E7DFC1AC4C94E00F71120 /* MyDialogController.m */,
+				A1DLS0C12F0A4B0100DLS0C1 /* DLSSynthPanel.h */,
+				A1DLS0B12F0A4B0100DLS0B1 /* DLSSynthPanel.m */,
 			);
 			path = aqua;
 			sourceTree = "<group>";
@@ -659,6 +664,7 @@
 				E40E962F1ABA41ED0072AA0B /* visual.c in Sources */,
 				E4DBA7B81ABB1F1E0070024F /* X68kView.m in Sources */,
 				E44E7DFD1AC4C94E00F71120 /* MyDialogController.m in Sources */,
+				A1DLS0D12F0A4B0100DLS0D1 /* DLSSynthPanel.m in Sources */,
 				E4F8616F1AC7D306007DF49E /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

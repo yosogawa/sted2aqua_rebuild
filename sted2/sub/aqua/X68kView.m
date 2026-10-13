@@ -1363,6 +1363,59 @@ XSTed_register_midi_device(const char *str)
 	}
 }
 
+static float
+parse_dot_float(const char *s)
+{
+	int sign = 1;
+	double v = 0.0;
+	double place = 0.1;
+
+	if (s == NULL)
+		return 0.0f;
+	while (*s == ' ' || *s == '\t')
+		s++;
+	if (*s == '+')
+		s++;
+	else if (*s == '-') {
+		sign = -1;
+		s++;
+	}
+	while (*s >= '0' && *s <= '9') {
+		v = v * 10.0 + (double)(*s - '0');
+		s++;
+	}
+	if (*s == '.') {
+		s++;
+		while (*s >= '0' && *s <= '9') {
+			v += (double)(*s - '0') * place;
+			place *= 0.1;
+			s++;
+		}
+	}
+	return (float)(sign * v);
+}
+
+static NSString *
+DotFloat(double v, int decimals)
+{
+	int scale = 1;
+	int i, neg, whole, frac;
+	double a;
+
+	for (i = 0; i < decimals; i++)
+		scale *= 10;
+	neg = v < 0.0;
+	a = neg ? -v : v;
+	a = floor(a * (double)scale + 0.5);
+	whole = (int)(a / (double)scale);
+	frac = (int)a - whole * scale;
+	if (decimals <= 1)
+		return [NSString stringWithFormat:@"%s%d.%d", neg ? "-" : "", whole, frac];
+	if (decimals >= 3)
+		return [NSString stringWithFormat:@"%s%d.%03d", neg ? "-" : "", whole, frac];
+	return [NSString stringWithFormat:@"%s%d.%02d", neg ? "-" : "", whole, frac];
+}
+
 void
 XSTed_configure_mac_settings(const char *line)
 {
@@ -1375,6 +1428,28 @@ XSTed_configure_mac_settings(const char *line)
 		while (*p == ' ' || *p == '\t')
 			p++;
 		CoreMIDISetDLSSynthFont(p);
+	}
+	if (strncasecmp(line, "#dls_bass_gain=", 15) == 0
+	 || strncasecmp(line, "#dls_treble_gain=", 17) == 0
+	 || strncasecmp(line, "#dls_reverb_type=", 17) == 0
+	 || strncasecmp(line, "#dls_reverb_mix=", 16) == 0
+	 || strncasecmp(line, "#dls_limiter_boost=", 19) == 0
+	 || strncasecmp(line, "#dls_volume=", 12) == 0) {
+		DLSEffectSettings fx;
+		CoreMIDIGetDLSEffects(&fx);
+		if (strncasecmp(line, "#dls_bass_gain=", 15) == 0)
+			fx.bassGain = parse_dot_float(line + 15);
+		else if (strncasecmp(line, "#dls_treble_gain=", 17) == 0)
+			fx.trebleGain = parse_dot_float(line + 17);
+		else if (strncasecmp(line, "#dls_reverb_type=", 17) == 0)
+			fx.reverbPreset = atoi(line + 17);
+		else if (strncasecmp(line, "#dls_reverb_mix=", 16) == 0)
+			fx.reverbMix = parse_dot_float(line + 16);
+		else if (strncasecmp(line, "#dls_limiter_boost=", 19) == 0)
+			fx.limiterBoost = parse_dot_float(line + 19);
+		else
+			fx.volume = parse_dot_float(line + 12);
+		CoreMIDISetDLSEffects(&fx);
 	}
 	if (strncasecmp(line, "#mac_font=", 10) == 0) {
 		const char *p = line + 10;
@@ -1391,6 +1466,176 @@ XSTed_configure_mac_settings(const char *line)
 		name[n] = 0;
 		s_use_mac_font(name);
 	}
+}
+
+static int
+cnf_is_file(const char *path)
+{
+	struct stat st;
+	return path != NULL && path[0] != 0 && stat(path, &st) == 0 && S_ISREG(st.st_mode);
+}
+
+/*  Same search as defload: beside the executable, then Application Support. */
+static int
+resolve_sted2_cnf(char *path, size_t pathSize)
+{
+	char tmp[PATHLEN];
+	const char *argv0;
+	const char *base;
+
+	argv0 = (sted_saved_argc > 0 && sted_saved_argv != NULL && sted_saved_argv[0] != NULL)
+		? sted_saved_argv[0] : "sted2";
+	strmfe(tmp, argv0, "cnf");
+	if (cnf_is_file(tmp)) {
+		strlcpy(path, tmp, pathSize);
+		return 1;
+	}
+	if (s_sted_default_path[0] != 0) {
+		base = strrchr(tmp, '/');
+		snprintf(path, pathSize, "%s/%s", s_sted_default_path, base != NULL ? base + 1 : tmp);
+		if (cnf_is_file(path))
+			return 1;
+	}
+	path[0] = 0;
+	return 0;
+}
+
+/*  keys[0] is the sound bank. allowComment accepts a leading '*'. */
+static int
+cnf_line_key(const char *s, const char *const *keys, int nkeys, int allowComment)
+{
+	int k;
+
+	if (s == NULL)
+		return -1;
+	while (*s == ' ' || *s == '\t')
+		s++;
+	if (*s == '*') {
+		if (!allowComment)
+			return -1;
+		s++;
+		while (*s == ' ' || *s == '\t')
+			s++;
+	}
+	for (k = 0; k < nkeys; k++) {
+		if (strncasecmp(s, keys[k], strlen(keys[k])) == 0)
+			return k;
+	}
+	return -1;
+}
+
+int
+XSTed_save_dls_settings(void)
+{
+	char path[PATHLEN];
+	NSString *filePath;
+	NSError *err = nil;
+	NSStringEncoding enc = 0;
+	NSString *text, *out;
+	NSMutableArray *lines, *kept;
+	DLSEffectSettings fx;
+	const char *font;
+	NSString *values[7];
+	static const char *keys[7] = {
+		"#dls_synth_font=",
+		"#dls_bass_gain=",
+		"#dls_treble_gain=",
+		"#dls_reverb_type=",
+		"#dls_reverb_mix=",
+		"#dls_limiter_boost=",
+		"#dls_volume=",
+	};
+	NSInteger commentAnchor = -1;
+	NSInteger activeAnchor = -1;
+	NSInteger anchor = -1;
+	NSUInteger i, n, insertAt, anchorOut;
+	int k;
+	int anchorIsComment;
+
+	if (!resolve_sted2_cnf(path, sizeof path)) {
+		NSLog(@"sted2.cnf was not found; DLS settings were not saved");
+		return -1;
+	}
+	filePath = [NSString stringWithUTF8String:path];
+	text = [NSString stringWithContentsOfFile:filePath usedEncoding:&enc error:&err];
+	if (text == nil) {
+		enc = NSUTF8StringEncoding;
+		err = nil;
+		text = [NSString stringWithContentsOfFile:filePath encoding:NSUTF8StringEncoding error:&err];
+	}
+	if (text == nil) {
+		NSLog(@"could not read %@: %@", filePath, err);
+		return -1;
+	}
+	CoreMIDIGetDLSEffects(&fx);
+	font = CoreMIDIDLSSynthFontFilename();
+	if (font == NULL)
+		font = "";
+	values[0] = [NSString stringWithFormat:@"#dls_synth_font=%s", font];
+	values[1] = [NSString stringWithFormat:@"#dls_bass_gain=%@", DotFloat(fx.bassGain, 1)];
+	values[2] = [NSString stringWithFormat:@"#dls_treble_gain=%@", DotFloat(fx.trebleGain, 1)];
+	values[3] = [NSString stringWithFormat:@"#dls_reverb_type=%d", fx.reverbPreset];
+	values[4] = [NSString stringWithFormat:@"#dls_reverb_mix=%@", DotFloat(fx.reverbMix, 1)];
+	values[5] = [NSString stringWithFormat:@"#dls_limiter_boost=%@", DotFloat(fx.limiterBoost, 1)];
+	values[6] = [NSString stringWithFormat:@"#dls_volume=%@", DotFloat(fx.volume, 3)];
+	text = [text stringByReplacingOccurrencesOfString:@"\r\n" withString:@"\n"];
+	text = [text stringByReplacingOccurrencesOfString:@"\r" withString:@"\n"];
+	lines = [NSMutableArray arrayWithArray:[text componentsSeparatedByString:@"\n"]];
+	n = [lines count];
+	for (i = 0; i < n; i++) {
+		const char *s = [[lines objectAtIndex:i] UTF8String];
+		if (cnf_line_key(s, keys, 7, 1) != 0)
+			continue;
+		if (cnf_line_key(s, keys, 7, 0) == 0)
+			activeAnchor = (NSInteger)i;
+		else
+			commentAnchor = (NSInteger)i;
+	}
+	/*  Commented examples mark the sound-bank section. An active line is the fallback. */
+	anchor = commentAnchor >= 0 ? commentAnchor : activeAnchor;
+	anchorIsComment = commentAnchor >= 0;
+	kept = [NSMutableArray array];
+	anchorOut = NSNotFound;
+	for (i = 0; i < n; i++) {
+		NSString *line = [lines objectAtIndex:i];
+		const char *s = [line UTF8String];
+		int active = cnf_line_key(s, keys, 7, 0);
+		if (anchor >= 0 && i == (NSUInteger)anchor) {
+			anchorOut = [kept count];
+			[kept addObject:line];
+			continue;
+		}
+		if (active >= 0)
+			continue;
+		if ([line isEqualToString:@"* Apple DLS Synth effect settings (DLS Synth dialog)"])
+			continue;
+		[kept addObject:line];
+	}
+	if (anchorOut == NSNotFound) {
+		insertAt = [kept count];
+		if (insertAt > 0 && [[kept lastObject] length] == 0)
+			insertAt--;
+	} else if (anchorIsComment) {
+		insertAt = anchorOut + 1;
+	} else {
+		[kept replaceObjectAtIndex:anchorOut withObject:values[0]];
+		insertAt = anchorOut + 1;
+	}
+	if (anchorIsComment || anchorOut == NSNotFound)
+		[kept insertObject:values[0] atIndex:insertAt++];
+	for (k = 1; k < 7; k++)
+		[kept insertObject:values[k] atIndex:insertAt++];
+	out = [kept componentsJoinedByString:@"\n"];
+	if (![out hasSuffix:@"\n"])
+		out = [out stringByAppendingString:@"\n"];
+	if (enc == 0)
+		enc = NSUTF8StringEncoding;
+	err = nil;
+	if (![out writeToFile:filePath atomically:YES encoding:enc error:&err]) {
+		NSLog(@"could not write %@: %@", filePath, err);
+		return -1;
+	}
+	return 0;
 }
 
 #pragma mark "=== Graphic functions ==="
