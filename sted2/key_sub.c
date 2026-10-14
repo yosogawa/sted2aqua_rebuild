@@ -427,7 +427,7 @@ int	ret_chord(int ad)
 /***************************/
 int	chord_sel(int key,int ad)
 {
-  int	po,i,ke,kc,sh,exc=0,no=0,d,okey;
+  int	po,i,ke,kc,sh=0,exc=0,no=0,d,okey;
   char	temp[16];
 
   chord_dis(0);okey=key;po=chord_ten(key,0);
@@ -440,6 +440,9 @@ int	chord_sel(int key,int ad)
     if(grpmode!=0){
       if(chord_ins(ad,po)==0){
 	gra(ad,0);trk_delete(ad,po*4-4);snsclr();
+	if(grpmode==4){
+	  if((sh&1)!=0){chord_dis(10);}else{chord_dis(0);}
+	}
       }
     }
 
@@ -489,6 +492,7 @@ int	chord_sel(int key,int ad)
     if(kc==7 && edit_scr==0){
       noed_cls();
       grpmode++;if(grpmode>4){grpmode=0;}
+      if((sh&1)!=0){chord_dis(10);}else{chord_dis(0);}
     }
     if(kc=='M'||kc=='m'||ke==0x55 ||ke==0x3a){
       if(chord_ins(ad,po)==0){

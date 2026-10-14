@@ -2003,8 +2003,8 @@ XSTed_gfill(int x1, int y1, int x2, int y2, int col)
 	if (y2 >= sGraphHeight)
 		y2 = sGraphHeight - 1;
 	[sLock lock];
-	for (y = y1; y < y2; y++) {
-		for (x = x1; x < x2; x++) {
+	for (y = y1; y <= y2; y++) {
+		for (x = x1; x <= x2; x++) {
 			sGraphVram[y * sGraphWidth + x] = col;
 		}
 	}
@@ -2037,10 +2037,11 @@ XSTed_gline(int x1, int y1, int x2, int y2, int col, int ls)
 		dy = -1;
 	} else dy = 1;
 	[sLock lock];
-	if (wx == wy) {
+	if (wx == 0 && wy == 0) {
 		if (x1 >= 0 && x1 < sGraphWidth && y1 >= 0 && y1 < sGraphHeight)
 			sGraphVram[y1 * sGraphWidth + x1] = col;
-	} else if (wx > wy) {
+	} else if (wx >= wy) {
+		/* 45-degree lines have wx == wy and must walk the whole span. */
 		//  Proceed along the x axis
 		d = dy * (float)wy / wx;
 		for (x = x1, fy = y1, i = 0; i <= wx; x += dx, fy += d, i++) {
@@ -2096,14 +2097,12 @@ XSTed_tg_copy(int edit_scr)
 void
 XSTed_tg_copy2(int edit_scr)
 {
-	//  Copy text screen to the 'sub' graphic screen (i.e. y >= 512)
-	/* (0,6)-(27,29)         (38,6)-(65,29) */
-	//  edit_scr 0: (0,6)-(55,29), 1: (38,6)-(93,29)?
-	//              (0,6)-(27,29)     (38,6)-(65,29)?
+	/* Copy text to the sub graphic page (y >= 512). 56 columns x 24 rows,
+	   same as X11: edit_scr 0 is (0,6)-(55,29), 1 is (38,6)-(93,29). */
 	int x1, x2, y1, y2, x, y;
 	if (edit_scr == 0) {
 		x1 = 0;
-		x2 = 27;
+		x2 = 55;
 		y1 = 6;
 		y2 = 29;
 	} else {
@@ -2118,7 +2117,7 @@ XSTed_tg_copy2(int edit_scr)
 			sGraphVram[(y + 512) * sGraphWidth + x] = sTextVram[y * sTextWidth + x];
 		}
 	}
-	InvalGraphInRect(x1 * 8, y1 * 16, (x2 + 1) * 16, (y2 + 1) * 16);
+	InvalGraphInRect(x1 * 8, 512 + y1 * 16, (x2 + 1) * 8, 512 + (y2 + 1) * 16);
 	[sLock unlock];
 //	 printf("XSTed_tg_copy2 %d\n", edit_scr);
 }

@@ -101,6 +101,7 @@ track_edit_top:
 	last_ontime=ONTIME();
 	rc=tm_lag;
 	gra(ad,0);
+	if(grpmode==4){ed_fnc_guide(B_SFTSNS(),ad,cx);}
       }
     } /* Aug.28.1998 Daisuke nagano */
     rc++;
@@ -109,6 +110,7 @@ track_edit_top:
       ed_fnc_guide(sh,ad,cx);
       trk_free(ad);
       if(grpmode!=0){gra(ad,0);}
+      if(grpmode==4){ed_fnc_guide(sh,ad,cx);}
     }
     mdc=(*rcd->md_get)();
     if(mdc>=0 && mdc<0xf8){
@@ -958,6 +960,7 @@ track_edit_top:
       if(kc==7){
 	grpmode++;if(grpmode>4){grpmode=0;}
 	noed_cls();if(grpmode!=0){rc=tm_lag;gra(ad,0);}
+	ed_fnc_guide(sh,ad,cx);
       }
     }
 

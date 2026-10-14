@@ -223,20 +223,22 @@
 * ファイルが存在しない場合は、Apple DLS Synth 内蔵の DLSファイル(GM1相当)を使う
 * フォント名空欄表現は 内蔵の DLSファイル(GM1相当)の意味
 * 有効ファイルは .dls/.sf2 のみ
-* DLS 本体の QuickTime 互換リバーブバス (CC#91)。後段エフェクトの dls_reverb_type とは別
-* dls_synth_use_reverb は 0 または 1。既定は 1
-* dls_synth_reverbtype は 0 .. 12。既定は 3 (Medium Hall)。番号の意味は下の Reverb type と同じ
 
 *#dls_synth_font=FluidR3_GM.sf2
 *#dls_synth_font=GeneralUser-GS.sf2
 *#dls_synth_font=SC55_zzdenis_v0.5.sf2
 *#dls_synth_font=SGM-V2.01.sf2
 *#dls_synth_font=Yamaha XG Sound Set.sf2
+
+* DLS 本体の QuickTime 互換リバーブバス (CC#91)。後段エフェクトの dls_reverb_type とは別
+* dls_synth_use_reverb は 0 または 1。既定は 1
+* dls_synth_reverbtype は 0 .. 12。既定は 3 (Medium Hall)。番号の意味は下の Reverb type と同じ
+
 #dls_synth_use_reverb=1
 #dls_synth_reverbtype=3
 
 *=============================================================================
-* Apple DLS Synth のエフェクト (macOS only)
+* Apple DLS Synth のトータルエフェクト (macOS only)
 * 信号の順: DLS (1 と 2 を合算) → EQ → Reverb → Peak Limiter → 音量
 * dls_total_effect は 0 または 1。1 で EQ、Reverb、Limiter を通す。0 でその3つをバイパスする。既定は 1
 * 音量はどちらのときも有効。QuickTime 互換リバーブバスはこのスイッチの外

@@ -531,7 +531,8 @@ void	trk_no(void)
 void	sdis(int x,int y,char *s,int c,int c1,int c2)
 {
   x=x*8;
-  if( c2>=0 ){fill(x-1,y-1,x+c*8,y+15,c2);}
+  /* x+c*8 is the pixel after the last cell. Leave it so a flush box edge stays. */
+  if( c2>=0 ){fill(x-1,y-1,x+c*8-1,y+15,c2);}
   g_print(x,y,s,c1);
 }
 
@@ -539,7 +540,7 @@ void	sdis(int x,int y,char *s,int c,int c1,int c2)
 void	sdis2(int x,int y,char *s,int c,int c1,int c2)
 {
   x=x*8;
-  if( c2>=0 ){fill(x-1,y,x+c*8,y+15,c2);}
+  if( c2>=0 ){fill(x-1,y,x+c*8-1,y+15,c2);}
   g_print(x,y,s,c1);
 }
 
@@ -547,7 +548,7 @@ void	sdis2(int x,int y,char *s,int c,int c1,int c2)
 void	sdis3(int x,int y,char *s,int c,int c1,int c2)
 {
   x=x*8;
-  if( c2>=0 ){fill(x-1,y,x+c*8,y+7,c2);}
+  if( c2>=0 ){fill(x-1,y,x+c*8-1,y+7,c2);}
   g_print2(x,y,s,c1);
 }
 
