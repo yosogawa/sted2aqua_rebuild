@@ -3,9 +3,11 @@
 
 #include "sted.h"
 
+#include <math.h>
+
 enum {
 	kPanelW = 468,
-	kPanelH = 306,
+	kPanelH = 450,
 	kMargin = 20,
 	kLabelW = 112,
 	kValueW = 78,
@@ -58,6 +60,50 @@ PlainNumber(double v, int decimals, NSString *suffix)
 	return [NSString stringWithFormat:@"%d.%d%@", whole, frac, suffix];
 }
 
+/*  15A: y = exp(a*(p-1)), a = ln(0.15)/(0.5-1). Center is 15% (−16.5 dB).
+    The left stop is silence; the curve itself bottoms near −33 dB. */
+static double
+ACurveA(void)
+{
+	return log(0.15) / (0.5 - 1.0);
+}
+
+static double
+ACurveGain(double p)
+{
+	if (p <= 0.0)
+		return 0.0;
+	if (p >= 1.0)
+		return 1.0;
+	return exp(ACurveA() * (p - 1.0));
+}
+
+static double
+ACurvePosition(double linear)
+{
+	double floorGain = exp(-ACurveA());
+	double p;
+
+	if (linear <= floorGain)
+		return 0.0;
+	if (linear >= 1.0)
+		return 1.0;
+	p = 1.0 + log(linear) / ACurveA();
+	if (p < 0.0)
+		return 0.0;
+	if (p > 1.0)
+		return 1.0;
+	return p;
+}
+
+static NSString *
+VolumeDBLabel(double linear)
+{
+	if (linear <= 0.0)
+		return @"-∞";
+	return SignedDB(20.0 * log10(linear));
+}
+
 static NSString *
 ReverbMixLabel(double v)
 {
@@ -70,16 +116,57 @@ ReverbMixLabel(double v)
 	return PlainNumber(v, 1, @" %");
 }
 
+@interface ResetLabel : NSTextField
+@end
+
+@implementation ResetLabel
+- (void)mouseDown:(NSEvent *)event
+{
+	(void)event;
+	if (![self isEnabled])
+		return;
+	if ([self target] != nil && [self action] != NULL)
+		[[self target] performSelector:[self action] withObject:self];
+}
+@end
+
+@interface ResetSlider : NSSlider
+@end
+
+@implementation ResetSlider
+- (void)mouseDown:(NSEvent *)event
+{
+	if (![self isEnabled])
+		return;
+	if ([event clickCount] >= 2) {
+		[[self target] performSelector:@selector(resetToUnity:) withObject:self];
+		return;
+	}
+	[super mouseDown:event];
+}
+@end
+
 @implementation DLSSynthPanel
 {
 	NSWindow *window;
 	NSPopUpButton *bankPopup;
+	NSButton *useReverbCheck;
+	NSPopUpButton *roomPopup;
+	NSButton *totalEffectCheck;
+	NSTextField *trimLabel;
+	NSTextField *bassLabel;
+	NSTextField *trebleLabel;
+	NSTextField *reverbLabel;
+	NSTextField *mixLabel;
+	NSTextField *limitLabel;
 	NSPopUpButton *reverbPopup;
+	NSSlider *trimSlider;
 	NSSlider *bassSlider;
 	NSSlider *trebleSlider;
 	NSSlider *mixSlider;
 	NSSlider *limitSlider;
 	NSSlider *volumeSlider;
+	NSTextField *trimValue;
 	NSTextField *bassValue;
 	NSTextField *trebleValue;
 	NSTextField *mixValue;
@@ -116,12 +203,17 @@ static const char *kReverbNames[13] = {
 {
 	[window setDelegate:nil];
 	[bankPopup release];
+	[useReverbCheck release];
+	[roomPopup release];
+	[totalEffectCheck release];
 	[reverbPopup release];
+	[trimSlider release];
 	[bassSlider release];
 	[trebleSlider release];
 	[mixSlider release];
 	[limitSlider release];
 	[volumeSlider release];
+	[trimValue release];
 	[bassValue release];
 	[trebleValue release];
 	[mixValue release];
@@ -133,7 +225,7 @@ static const char *kReverbNames[13] = {
 
 - (NSTextField *)addLabel:(NSString *)title y:(CGFloat)y
 {
-	NSTextField *field = [[NSTextField alloc] initWithFrame:NSMakeRect(kMargin, y, kLabelW, kRowH)];
+	NSTextField *field = [[ResetLabel alloc] initWithFrame:NSMakeRect(kMargin, y, kLabelW, kRowH)];
 	[field setStringValue:title];
 	[field setBezeled:NO];
 	[field setBordered:NO];
@@ -150,7 +242,7 @@ static const char *kReverbNames[13] = {
 - (NSTextField *)addValueAtY:(CGFloat)y
 {
 	CGFloat x = kPanelW - kMargin - kValueW;
-	NSTextField *field = [[NSTextField alloc] initWithFrame:NSMakeRect(x, y, kValueW, kRowH)];
+	NSTextField *field = [[ResetLabel alloc] initWithFrame:NSMakeRect(x, y, kValueW, kRowH)];
 	[field setFrameOrigin:NSMakePoint(x, CenteredLabelY(y, [field font]))];
 	[field setBezeled:NO];
 	[field setBordered:NO];
@@ -166,7 +258,7 @@ static const char *kReverbNames[13] = {
 {
 	CGFloat x = kMargin + kLabelW + 8;
 	CGFloat valueX = kPanelW - kMargin - kValueW;
-	NSSlider *slider = [[NSSlider alloc] initWithFrame:NSMakeRect(x, y, valueX - 8 - x, kRowH)];
+	NSSlider *slider = [[ResetSlider alloc] initWithFrame:NSMakeRect(x, y, valueX - 8 - x, kRowH)];
 	[slider setMinValue:min];
 	[slider setMaxValue:max];
 	[slider setDoubleValue:value];
@@ -184,6 +276,81 @@ static const char *kReverbNames[13] = {
 	NSPopUpButton *popup = [[NSPopUpButton alloc] initWithFrame:NSMakeRect(x, y - 2, w, kRowH) pullsDown:NO];
 	[[window contentView] addSubview:popup];
 	return popup;
+}
+
+/*  Left edge of a right-aligned label in the Sound Bank column, in window coordinates. */
+- (CGFloat)rightAlignedLabelTextLeft:(NSString *)title font:(NSFont *)font
+{
+	NSTextFieldCell *cell = [[NSTextFieldCell alloc] initTextCell:title];
+	NSRect titleRect;
+	NSDictionary *attrs;
+	CGFloat textW;
+
+	[cell setFont:font];
+	[cell setAlignment:NSTextAlignmentRight];
+	[cell setBordered:NO];
+	[cell setBezeled:NO];
+	[cell setDrawsBackground:NO];
+	titleRect = [cell titleRectForBounds:NSMakeRect(0, 0, kLabelW, kRowH)];
+	attrs = [NSDictionary dictionaryWithObject:font forKey:NSFontAttributeName];
+	textW = [title sizeWithAttributes:attrs].width;
+	[cell release];
+	return kMargin + NSMaxX(titleRect) - textW;
+}
+
+- (void)addWideLabel:(NSString *)title y:(CGFloat)y
+{
+	NSTextField *field = [[NSTextField alloc] initWithFrame:NSZeroRect];
+	NSRect titleRect;
+	CGFloat glyphX, x, w;
+
+	[field setStringValue:title];
+	[field setBezeled:NO];
+	[field setBordered:NO];
+	[field setDrawsBackground:NO];
+	[field setEditable:NO];
+	[field setSelectable:NO];
+	[field setAlignment:NSTextAlignmentLeft];
+	glyphX = [self rightAlignedLabelTextLeft:@"Sound Bank" font:[field font]];
+	titleRect = [[field cell] titleRectForBounds:NSMakeRect(0, 0, kPanelW, kRowH)];
+	x = glyphX - NSMinX(titleRect);
+	w = kPanelW - kMargin - x;
+	[field setFrame:NSMakeRect(x, CenteredLabelY(y, [field font]), w, kRowH)];
+	[[window contentView] addSubview:field];
+	[field release];
+}
+
+- (NSButton *)addUseCheckboxAtY:(CGFloat)y on:(BOOL)on
+{
+	NSButton *box = [[NSButton alloc] initWithFrame:NSZeroRect];
+	CGFloat x;
+
+	[box setButtonType:NSButtonTypeSwitch];
+	[box setTitle:@"Use"];
+	[box setState:on ? NSControlStateValueOn : NSControlStateValueOff];
+	[box setTarget:self];
+	[box setAction:@selector(useReverbChanged:)];
+	x = [self rightAlignedLabelTextLeft:@"Sound Bank" font:[box font]];
+	[box setFrame:NSMakeRect(x, y - 1, 64, kRowH)];
+	[[window contentView] addSubview:box];
+	return box;
+}
+
+- (NSButton *)addTotalEffectCheckboxAtY:(CGFloat)y on:(BOOL)on
+{
+	NSButton *box = [[NSButton alloc] initWithFrame:NSZeroRect];
+	CGFloat x;
+
+	[box setButtonType:NSButtonTypeSwitch];
+	[box setTitle:@"Total Effect"];
+	[box sizeToFit];
+	[box setState:on ? NSControlStateValueOn : NSControlStateValueOff];
+	[box setTarget:self];
+	[box setAction:@selector(totalEffectChanged:)];
+	x = [self rightAlignedLabelTextLeft:@"Sound Bank" font:[box font]];
+	[box setFrame:NSMakeRect(x, y - 1, [box frame].size.width + 4, kRowH)];
+	[[window contentView] addSubview:box];
+	return box;
 }
 
 - (void)addSeparatorBeforeRowAtY:(CGFloat)rowY
@@ -255,11 +422,12 @@ static const char *kReverbNames[13] = {
 
 - (void)refreshValueLabels
 {
+	[trimValue setStringValue:SignedDB([trimSlider doubleValue])];
 	[bassValue setStringValue:SignedDB([bassSlider doubleValue])];
 	[trebleValue setStringValue:SignedDB([trebleSlider doubleValue])];
 	[mixValue setStringValue:ReverbMixLabel([mixSlider doubleValue])];
 	[limitValue setStringValue:PlainNumber([limitSlider doubleValue], 1, @" dB")];
-	[volumeValue setStringValue:PlainNumber([volumeSlider doubleValue], 2, @"")];
+	[volumeValue setStringValue:VolumeDBLabel(ACurveGain([volumeSlider doubleValue]))];
 }
 
 - (void)saveSettings
@@ -273,13 +441,112 @@ static const char *kReverbNames[13] = {
 	[alert release];
 }
 
+enum {
+	kResetTrim = 1,
+	kResetBass,
+	kResetTreble,
+	kResetMix,
+	kResetLimit,
+	kResetVolume
+};
+
+- (void)armReset:(NSInteger)tag label:(NSTextField *)label slider:(NSSlider *)slider value:(NSTextField *)value phrase:(NSString *)phrase
+{
+	NSString *clickTip = [NSString stringWithFormat:@"Click to %@", phrase];
+	[label setTag:tag];
+	[value setTag:tag];
+	[slider setTag:tag];
+	[label setToolTip:clickTip];
+	[value setToolTip:clickTip];
+	[slider setToolTip:[NSString stringWithFormat:@"Double-click to %@", phrase]];
+	[label setTarget:self];
+	[label setAction:@selector(resetToUnity:)];
+	[value setTarget:self];
+	[value setAction:@selector(resetToUnity:)];
+}
+
+- (void)resetToUnity:(id)sender
+{
+	DLSEffectSettings s;
+
+	switch ([sender tag]) {
+	case kResetTrim:
+		[trimSlider setDoubleValue:0.0];
+		break;
+	case kResetBass:
+		[bassSlider setDoubleValue:0.0];
+		break;
+	case kResetTreble:
+		[trebleSlider setDoubleValue:0.0];
+		break;
+	case kResetMix:
+		[mixSlider setDoubleValue:0.0];
+		break;
+	case kResetLimit:
+		[limitSlider setDoubleValue:0.0];
+		break;
+	case kResetVolume:
+		[volumeSlider setDoubleValue:1.0];
+		break;
+	default:
+		return;
+	}
+	[self refreshValueLabels];
+	s = [self settingsFromControls];
+	CoreMIDISetDLSEffects(&s);
+	[self saveSettings];
+}
+
+- (void)fillRoomPopup:(int)preset
+{
+	int i;
+	[roomPopup removeAllItems];
+	for (i = 0; i < 13; i++) {
+		[roomPopup addItemWithTitle:[NSString stringWithUTF8String:kReverbNames[i]]];
+		[[roomPopup lastItem] setTag:i];
+	}
+	if (preset < 0 || preset > 12)
+		preset = 3;
+	[roomPopup selectItemWithTag:preset];
+}
+
+- (DLSInternalReverb)internalReverbFromControls
+{
+	DLSInternalReverb s;
+	s.useReverb = [useReverbCheck state] == NSControlStateValueOn;
+	s.roomType = (int)[roomPopup selectedTag];
+	return s;
+}
+
+- (void)applyInternalReverb
+{
+	DLSInternalReverb s = [self internalReverbFromControls];
+	[roomPopup setEnabled:s.useReverb != 0];
+	CoreMIDISetDLSInternalReverb(&s);
+	[self saveSettings];
+}
+
+- (void)useReverbChanged:(id)sender
+{
+	(void)sender;
+	[self applyInternalReverb];
+}
+
+- (void)roomTypeChanged:(id)sender
+{
+	(void)sender;
+	[self applyInternalReverb];
+}
+
 - (void)buildWindow
 {
 	DLSEffectSettings fx;
+	DLSInternalReverb bus;
 	NSPanel *panel;
 	CGFloat y = kPanelH - 16 - kRowH;
 
 	CoreMIDIGetDLSEffects(&fx);
+	CoreMIDIGetDLSInternalReverb(&bus);
 	panel = [[NSPanel alloc] initWithContentRect:NSMakeRect(0, 0, kPanelW, kPanelH)
 					   styleMask:(NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskUtilityWindow)
 					     backing:NSBackingStoreBuffered
@@ -298,52 +565,126 @@ static const char *kReverbNames[13] = {
 	[bankPopup setTarget:self];
 	[bankPopup setAction:@selector(bankChanged:)];
 	[self fillBankPopup];
+	y -= kRowStep;
+
+	[self addWideLabel:@"QuickTime Compatible Reverb BUS (CC#91 enable)" y:y];
+	y -= kRowStep;
+	useReverbCheck = [self addUseCheckboxAtY:y on:bus.useReverb != 0];
+	roomPopup = [self addPopupAtY:y];
+	[roomPopup setTarget:self];
+	[roomPopup setAction:@selector(roomTypeChanged:)];
+	[self fillRoomPopup:bus.roomType];
+	[roomPopup setEnabled:bus.useReverb != 0];
 	y -= kRowStep + kSepSpace;
 	[self addSeparatorBeforeRowAtY:y];
 
-	[self addLabel:@"Bass Gain" y:y];
-	bassSlider = [self addSliderAtY:y min:-6.0 max:12.0 value:fx.bassGain];
-	bassValue = [self addValueAtY:y];
+	totalEffectCheck = [self addTotalEffectCheckboxAtY:y on:fx.totalEffect != 0];
 	y -= kRowStep;
 
-	[self addLabel:@"Treble Gain" y:y];
-	trebleSlider = [self addSliderAtY:y min:-6.0 max:12.0 value:fx.trebleGain];
-	trebleValue = [self addValueAtY:y];
+	trimLabel = [self addLabel:@"Trim" y:y];
+	[self armReset:kResetTrim
+		label:trimLabel
+	       slider:(trimSlider = [self addSliderAtY:y min:-36.0 max:0.0 value:fx.globalGain])
+		value:(trimValue = [self addValueAtY:y])
+	       phrase:@"set 0 dB"];
 	y -= kRowStep;
 
-	[self addLabel:@"Reverb Type" y:y];
+	bassLabel = [self addLabel:@"Bass Gain" y:y];
+	[self armReset:kResetBass
+		label:bassLabel
+	       slider:(bassSlider = [self addSliderAtY:y min:-6.0 max:12.0 value:fx.bassGain])
+		value:(bassValue = [self addValueAtY:y])
+	       phrase:@"set 0 dB"];
+	y -= kRowStep;
+
+	trebleLabel = [self addLabel:@"Treble Gain" y:y];
+	[self armReset:kResetTreble
+		label:trebleLabel
+	       slider:(trebleSlider = [self addSliderAtY:y min:-6.0 max:12.0 value:fx.trebleGain])
+		value:(trebleValue = [self addValueAtY:y])
+	       phrase:@"set 0 dB"];
+	y -= kRowStep;
+
+	reverbLabel = [self addLabel:@"Reverb Type" y:y];
 	reverbPopup = [self addPopupAtY:y];
 	[reverbPopup setTarget:self];
 	[reverbPopup setAction:@selector(reverbChanged:)];
 	[self fillReverbPopup:fx.reverbPreset];
 	y -= kRowStep;
 
-	[self addLabel:@"Reverb Mix" y:y];
-	mixSlider = [self addSliderAtY:y min:0.0 max:100.0 value:fx.reverbMix];
-	mixValue = [self addValueAtY:y];
+	mixLabel = [self addLabel:@"Reverb Mix" y:y];
+	[self armReset:kResetMix
+		label:mixLabel
+	       slider:(mixSlider = [self addSliderAtY:y min:0.0 max:100.0 value:fx.reverbMix])
+		value:(mixValue = [self addValueAtY:y])
+	       phrase:@"set dry"];
 	y -= kRowStep;
 
-	[self addLabel:@"Limiter Boost" y:y];
-	limitSlider = [self addSliderAtY:y min:0.0 max:6.0 value:fx.limiterBoost];
-	limitValue = [self addValueAtY:y];
+	limitLabel = [self addLabel:@"Limiter Boost" y:y];
+	[self armReset:kResetLimit
+		label:limitLabel
+	       slider:(limitSlider = [self addSliderAtY:y min:0.0 max:6.0 value:fx.limiterBoost])
+		value:(limitValue = [self addValueAtY:y])
+	       phrase:@"set 0 dB"];
 	y -= kRowStep + kSepSpace;
 	[self addSeparatorBeforeRowAtY:y];
 
-	[self addLabel:@"Total Volume" y:y];
-	volumeSlider = [self addSliderAtY:y min:0.0 max:1.0 value:fx.volume];
-	volumeValue = [self addValueAtY:y];
+	[self armReset:kResetVolume
+		label:[self addLabel:@"Total Volume" y:y]
+	       slider:(volumeSlider = [self addSliderAtY:y min:0.0 max:1.0 value:ACurvePosition(fx.volume)])
+		value:(volumeValue = [self addValueAtY:y])
+	       phrase:@"set 0 dB"];
 	[self refreshValueLabels];
+	[self setEffectControlsEnabled:fx.totalEffect != 0];
+}
+
+- (void)setEffectControlsEnabled:(BOOL)on
+{
+	NSControl *controls[17];
+	int i, n;
+
+	controls[0] = trimLabel;
+	controls[1] = trimSlider;
+	controls[2] = trimValue;
+	controls[3] = bassLabel;
+	controls[4] = bassSlider;
+	controls[5] = bassValue;
+	controls[6] = trebleLabel;
+	controls[7] = trebleSlider;
+	controls[8] = trebleValue;
+	controls[9] = reverbLabel;
+	controls[10] = reverbPopup;
+	controls[11] = mixLabel;
+	controls[12] = mixSlider;
+	controls[13] = mixValue;
+	controls[14] = limitLabel;
+	controls[15] = limitSlider;
+	controls[16] = limitValue;
+	n = 17;
+	for (i = 0; i < n; i++)
+		[controls[i] setEnabled:on];
+}
+
+- (void)totalEffectChanged:(id)sender
+{
+	DLSEffectSettings s = [self settingsFromControls];
+	(void)sender;
+	[self setEffectControlsEnabled:s.totalEffect != 0];
+	CoreMIDISetDLSEffects(&s);
+	[self saveSettings];
 }
 
 - (DLSEffectSettings)settingsFromControls
 {
 	DLSEffectSettings s;
+	s.globalGain = (float)[trimSlider doubleValue];
 	s.bassGain = (float)[bassSlider doubleValue];
 	s.trebleGain = (float)[trebleSlider doubleValue];
 	s.reverbPreset = (int)[reverbPopup selectedTag];
 	s.reverbMix = (float)[mixSlider doubleValue];
 	s.limiterBoost = (float)[limitSlider doubleValue];
-	s.volume = (float)[volumeSlider doubleValue];
+	s.volume = (float)ACurveGain([volumeSlider doubleValue]);
+	s.totalEffect = [totalEffectCheck state] == NSControlStateValueOn;
 	return s;
 }
 

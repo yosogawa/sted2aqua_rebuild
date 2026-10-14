@@ -191,7 +191,9 @@ static AVAudioUnitEQ *sEQ = nil;
 static AVAudioUnitReverb *sReverb = nil;
 static AVAudioUnitEffect *sLimiter = nil;
 static int sAppliedReverbPreset = -1;
-static DLSEffectSettings sEffects = { 0.0f, 0.0f, 3, 0.0f, 0.0f, 1.0f };
+static DLSEffectSettings sEffects = { 0.0f, 0.0f, 0.0f, 3, 0.0f, 0.0f, 1.0f, 1 };
+static int sUseInternalReverb = 1;
+static int sReverbRoomType = 3;
 
 /*  Render thread publishes, player thread reads. seqlock: odd means a write is in progress. */
 typedef struct {
@@ -408,30 +410,39 @@ static DLSEffectSettings ClampEffects(DLSEffectSettings s);
 static void
 ApplyEffectsLocked(void)
 {
-	if (sEQ != nil && [sEQ.bands count] >= 2) {
-		AVAudioUnitEQFilterParameters *low = [sEQ.bands objectAtIndex:0];
-		AVAudioUnitEQFilterParameters *high = [sEQ.bands objectAtIndex:1];
-		low.filterType = AVAudioUnitEQFilterTypeLowShelf;
-		low.frequency = 60.0;
-		low.bandwidth = 1.0;
-		low.gain = sEffects.bassGain;
-		low.bypass = NO;
-		high.filterType = AVAudioUnitEQFilterTypeHighShelf;
-		high.frequency = 5500.0;
-		high.bandwidth = 1.0;
-		high.gain = sEffects.trebleGain;
-		high.bypass = NO;
+	BOOL bypass = sEffects.totalEffect == 0;
+
+	if (sEQ != nil) {
+		sEQ.bypass = bypass;
+		sEQ.globalGain = sEffects.globalGain;
+		if ([sEQ.bands count] >= 2) {
+			AVAudioUnitEQFilterParameters *low = [sEQ.bands objectAtIndex:0];
+			AVAudioUnitEQFilterParameters *high = [sEQ.bands objectAtIndex:1];
+			low.filterType = AVAudioUnitEQFilterTypeLowShelf;
+			low.frequency = 60.0;
+			low.bandwidth = 1.0;
+			low.gain = sEffects.bassGain;
+			low.bypass = NO;
+			high.filterType = AVAudioUnitEQFilterTypeHighShelf;
+			high.frequency = 5500.0;
+			high.bandwidth = 1.0;
+			high.gain = sEffects.trebleGain;
+			high.bypass = NO;
+		}
 	}
 	if (sReverb != nil) {
+		sReverb.bypass = bypass;
 		if (sAppliedReverbPreset != sEffects.reverbPreset) {
 			[sReverb loadFactoryPreset:(AVAudioUnitReverbPreset)sEffects.reverbPreset];
 			sAppliedReverbPreset = sEffects.reverbPreset;
 		}
 		sReverb.wetDryMix = sEffects.reverbMix;
 	}
-	if (sLimiter != nil)
+	if (sLimiter != nil) {
+		sLimiter.bypass = bypass;
 		AudioUnitSetParameter(sLimiter.audioUnit, kLimiterParam_PreGain,
 			kAudioUnitScope_Global, 0, sEffects.limiterBoost, 0);
+	}
 	if (sEngine != nil)
 		sEngine.mainMixerNode.outputVolume = sEffects.volume;
 }
@@ -496,6 +507,37 @@ StopInternalSynthEngine(void)
 
 static void LoadDLSSoundBank(AudioUnit au);
 
+static int
+ClampReverbRoomType(int room)
+{
+	if (room < 0 || room > 12)
+		return 3;
+	return room;
+}
+
+/*  Caller holds sSynthLock. use is written first so the room type lands while reverb is on. */
+static void
+ApplyDLSInternalReverbToUnit(AudioUnit au)
+{
+	UInt32 use, room;
+
+	if (au == NULL)
+		return;
+	use = sUseInternalReverb ? 1u : 0u;
+	room = (UInt32)sReverbRoomType;
+	AudioUnitSetProperty(au, kMusicDeviceProperty_UsesInternalReverb,
+		kAudioUnitScope_Global, 0, &use, sizeof use);
+	AudioUnitSetProperty(au, kAudioUnitProperty_ReverbRoomType,
+		kAudioUnitScope_Global, 0, &room, sizeof room);
+}
+
+static void
+ApplyInternalReverbLocked(void)
+{
+	ApplyDLSInternalReverbToUnit(sDLS[0]);
+	ApplyDLSInternalReverbToUnit(sDLS[1]);
+}
+
 /*  Caller holds sSynthLock. */
 static void
 StartInternalSynthEngine(void)
@@ -516,6 +558,8 @@ StartInternalSynthEngine(void)
 	}
 	LoadDLSSoundBank(u0.audioUnit);
 	LoadDLSSoundBank(u1.audioUnit);
+	ApplyDLSInternalReverbToUnit(u0.audioUnit);
+	ApplyDLSInternalReverbToUnit(u1.audioUnit);
 	AVAudioMixerNode *sum;
 	AVAudioUnitEQ *eq;
 	AVAudioUnitReverb *reverb;
@@ -619,6 +663,7 @@ StartInternalSynthEngine(void)
 	sDLSUnit[1] = u1;
 	sDLS[0] = u0.audioUnit;
 	sDLS[1] = u1.audioUnit;
+	ApplyInternalReverbLocked();
 }
 
 static int
@@ -764,6 +809,10 @@ CoreMIDISetDLSSynthFont(const char *filename)
 static DLSEffectSettings
 ClampEffects(DLSEffectSettings s)
 {
+	if (s.globalGain < -36.0f)
+		s.globalGain = -36.0f;
+	if (s.globalGain > 0.0f)
+		s.globalGain = 0.0f;
 	if (s.bassGain < -6.0f)
 		s.bassGain = -6.0f;
 	if (s.bassGain > 12.0f)
@@ -788,6 +837,7 @@ ClampEffects(DLSEffectSettings s)
 		s.volume = 0.0f;
 	if (s.volume > 1.0f)
 		s.volume = 1.0f;
+	s.totalEffect = s.totalEffect != 0;
 	return s;
 }
 
@@ -821,6 +871,42 @@ CoreMIDISetDLSEffects(const DLSEffectSettings *settings)
 		ApplyEffectsNow(s);
 	else
 		dispatch_sync(dispatch_get_main_queue(), ^{ ApplyEffectsNow(s); });
+}
+
+static void
+ApplyInternalReverbNow(int useReverb, int roomType)
+{
+	pthread_mutex_lock(&sSynthLock);
+	sUseInternalReverb = useReverb != 0;
+	sReverbRoomType = ClampReverbRoomType(roomType);
+	ApplyInternalReverbLocked();
+	pthread_mutex_unlock(&sSynthLock);
+}
+
+void
+CoreMIDIGetDLSInternalReverb(DLSInternalReverb *settings)
+{
+	if (settings == NULL)
+		return;
+	pthread_mutex_lock(&sSynthLock);
+	settings->useReverb = sUseInternalReverb;
+	settings->roomType = sReverbRoomType;
+	pthread_mutex_unlock(&sSynthLock);
+}
+
+void
+CoreMIDISetDLSInternalReverb(const DLSInternalReverb *settings)
+{
+	DLSInternalReverb s;
+	if (settings == NULL)
+		return;
+	s = *settings;
+	if ([NSThread isMainThread])
+		ApplyInternalReverbNow(s.useReverb, s.roomType);
+	else
+		dispatch_sync(dispatch_get_main_queue(), ^{
+			ApplyInternalReverbNow(s.useReverb, s.roomType);
+		});
 }
 
 const char *

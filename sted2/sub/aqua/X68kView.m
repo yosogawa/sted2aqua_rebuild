@@ -1429,7 +1429,19 @@ XSTed_configure_mac_settings(const char *line)
 			p++;
 		CoreMIDISetDLSSynthFont(p);
 	}
-	if (strncasecmp(line, "#dls_bass_gain=", 15) == 0
+	if (strncasecmp(line, "#dls_synth_use_reverb=", 22) == 0
+	 || strncasecmp(line, "#dls_synth_reverbtype=", 22) == 0) {
+		DLSInternalReverb bus;
+		CoreMIDIGetDLSInternalReverb(&bus);
+		if (strncasecmp(line, "#dls_synth_use_reverb=", 22) == 0)
+			bus.useReverb = atoi(line + 22);
+		else
+			bus.roomType = atoi(line + 22);
+		CoreMIDISetDLSInternalReverb(&bus);
+	}
+	if (strncasecmp(line, "#dls_total_effect=", 18) == 0
+	 || strncasecmp(line, "#dls_eq_global_gain=", 20) == 0
+	 || strncasecmp(line, "#dls_bass_gain=", 15) == 0
 	 || strncasecmp(line, "#dls_treble_gain=", 17) == 0
 	 || strncasecmp(line, "#dls_reverb_type=", 17) == 0
 	 || strncasecmp(line, "#dls_reverb_mix=", 16) == 0
@@ -1437,7 +1449,11 @@ XSTed_configure_mac_settings(const char *line)
 	 || strncasecmp(line, "#dls_volume=", 12) == 0) {
 		DLSEffectSettings fx;
 		CoreMIDIGetDLSEffects(&fx);
-		if (strncasecmp(line, "#dls_bass_gain=", 15) == 0)
+		if (strncasecmp(line, "#dls_total_effect=", 18) == 0)
+			fx.totalEffect = atoi(line + 18);
+		else if (strncasecmp(line, "#dls_eq_global_gain=", 20) == 0)
+			fx.globalGain = parse_dot_float(line + 20);
+		else if (strncasecmp(line, "#dls_bass_gain=", 15) == 0)
 			fx.bassGain = parse_dot_float(line + 15);
 		else if (strncasecmp(line, "#dls_treble_gain=", 17) == 0)
 			fx.trebleGain = parse_dot_float(line + 17);
@@ -1534,10 +1550,15 @@ XSTed_save_dls_settings(void)
 	NSString *text, *out;
 	NSMutableArray *lines, *kept;
 	DLSEffectSettings fx;
+	DLSInternalReverb bus;
 	const char *font;
-	NSString *values[7];
-	static const char *keys[7] = {
+	NSString *values[11];
+	static const char *keys[11] = {
 		"#dls_synth_font=",
+		"#dls_synth_use_reverb=",
+		"#dls_synth_reverbtype=",
+		"#dls_total_effect=",
+		"#dls_eq_global_gain=",
 		"#dls_bass_gain=",
 		"#dls_treble_gain=",
 		"#dls_reverb_type=",
@@ -1568,25 +1589,30 @@ XSTed_save_dls_settings(void)
 		return -1;
 	}
 	CoreMIDIGetDLSEffects(&fx);
+	CoreMIDIGetDLSInternalReverb(&bus);
 	font = CoreMIDIDLSSynthFontFilename();
 	if (font == NULL)
 		font = "";
 	values[0] = [NSString stringWithFormat:@"#dls_synth_font=%s", font];
-	values[1] = [NSString stringWithFormat:@"#dls_bass_gain=%@", DotFloat(fx.bassGain, 1)];
-	values[2] = [NSString stringWithFormat:@"#dls_treble_gain=%@", DotFloat(fx.trebleGain, 1)];
-	values[3] = [NSString stringWithFormat:@"#dls_reverb_type=%d", fx.reverbPreset];
-	values[4] = [NSString stringWithFormat:@"#dls_reverb_mix=%@", DotFloat(fx.reverbMix, 1)];
-	values[5] = [NSString stringWithFormat:@"#dls_limiter_boost=%@", DotFloat(fx.limiterBoost, 1)];
-	values[6] = [NSString stringWithFormat:@"#dls_volume=%@", DotFloat(fx.volume, 3)];
+	values[1] = [NSString stringWithFormat:@"#dls_synth_use_reverb=%d", bus.useReverb ? 1 : 0];
+	values[2] = [NSString stringWithFormat:@"#dls_synth_reverbtype=%d", bus.roomType];
+	values[3] = [NSString stringWithFormat:@"#dls_total_effect=%d", fx.totalEffect ? 1 : 0];
+	values[4] = [NSString stringWithFormat:@"#dls_eq_global_gain=%@", DotFloat(fx.globalGain, 1)];
+	values[5] = [NSString stringWithFormat:@"#dls_bass_gain=%@", DotFloat(fx.bassGain, 1)];
+	values[6] = [NSString stringWithFormat:@"#dls_treble_gain=%@", DotFloat(fx.trebleGain, 1)];
+	values[7] = [NSString stringWithFormat:@"#dls_reverb_type=%d", fx.reverbPreset];
+	values[8] = [NSString stringWithFormat:@"#dls_reverb_mix=%@", DotFloat(fx.reverbMix, 1)];
+	values[9] = [NSString stringWithFormat:@"#dls_limiter_boost=%@", DotFloat(fx.limiterBoost, 1)];
+	values[10] = [NSString stringWithFormat:@"#dls_volume=%@", DotFloat(fx.volume, 3)];
 	text = [text stringByReplacingOccurrencesOfString:@"\r\n" withString:@"\n"];
 	text = [text stringByReplacingOccurrencesOfString:@"\r" withString:@"\n"];
 	lines = [NSMutableArray arrayWithArray:[text componentsSeparatedByString:@"\n"]];
 	n = [lines count];
 	for (i = 0; i < n; i++) {
 		const char *s = [[lines objectAtIndex:i] UTF8String];
-		if (cnf_line_key(s, keys, 7, 1) != 0)
+		if (cnf_line_key(s, keys, 11, 1) != 0)
 			continue;
-		if (cnf_line_key(s, keys, 7, 0) == 0)
+		if (cnf_line_key(s, keys, 11, 0) == 0)
 			activeAnchor = (NSInteger)i;
 		else
 			commentAnchor = (NSInteger)i;
@@ -1599,7 +1625,7 @@ XSTed_save_dls_settings(void)
 	for (i = 0; i < n; i++) {
 		NSString *line = [lines objectAtIndex:i];
 		const char *s = [line UTF8String];
-		int active = cnf_line_key(s, keys, 7, 0);
+		int active = cnf_line_key(s, keys, 11, 0);
 		if (anchor >= 0 && i == (NSUInteger)anchor) {
 			anchorOut = [kept count];
 			[kept addObject:line];
@@ -1623,7 +1649,7 @@ XSTed_save_dls_settings(void)
 	}
 	if (anchorIsComment || anchorOut == NSNotFound)
 		[kept insertObject:values[0] atIndex:insertAt++];
-	for (k = 1; k < 7; k++)
+	for (k = 1; k < 11; k++)
 		[kept insertObject:values[k] atIndex:insertAt++];
 	out = [kept componentsJoinedByString:@"\n"];
 	if (![out hasSuffix:@"\n"])
