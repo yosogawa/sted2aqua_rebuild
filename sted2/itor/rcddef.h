@@ -1,6 +1,8 @@
 #ifndef _RCDDEF_H_
 #define _RCDDEF_H_
 
+#include <limits.h>
+
 /*--------------------------------------------------------------*/
 /* rcddef.h							*/
 /*--------------------------------------------------------------*/
@@ -61,8 +63,8 @@ struct RCD_HEAD {
 	int	basetempo;		/* 元のテンポ		*/
 
 	int	totalcount;		/* 音符ファイル長	*/
-	char	filename[30];		/* 音符ファイル名	*/
-	char	tonename[30];		/* 音色ファイル名	*/
+	char	filename[PATH_MAX];	/* 音符ファイル名	*/
+	char	tonename[PATH_MAX];	/* 音色ファイル名	*/
 
 	char	dummy2[ 72 ];
 
@@ -113,7 +115,7 @@ struct RCD_HEAD {
 	uint8_t	tim_all;		/* timbre trans mode	*/
 
 	uint8_t	gsd_valid;		/* GSD Õ≠∯˙ª˛ 1		*/  /*(v2.92)*/
-	char	gsdname[30];		/* GSD•’•°•§•ÎÃæ	*/
+	char	gsdname[PATH_MAX];	/* GSD•’•°•§•ÎÃæ	*/
 
 	int	wordcap;		/* word •–•√•’•°Õ∆ŒÃ	*/  /*(v2.92)*/
 

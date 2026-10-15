@@ -666,7 +666,7 @@ int	bufload()
       tr_len[i]=size;trk[i][size-4]=0xfe;
       if( size2>0){msg(_("Track buffer exhausted."));bpo=bpo+(size2-size);}
     }
-    strcpy(rcp_file,rcd->filename);
+    strlcpy(rcp_file,rcd->filename,sizeof rcp_file);
     if(rcp_file[0]!=0){
       if(max==18){
 	if(str_search(rcp_file,".R36")==0 && str_search(rcp_file,".r36")==0){
@@ -714,9 +714,9 @@ int	bufset()
   rcd->tone_valid=0;rcd->gsd_valid=0;
   if(cm6_file[0]!=0){tim_buf_trns();}
   if(gsd_file[0]!=0){gsd_buf_trns();}
-  strcpy(rcd->filename,rcp_file);
-  strcpy(rcd->tonename,cm6_file);
-  strcpy(rcd->gsdname,gsd_file);
+  strlcpy(rcd->filename,rcp_file,sizeof rcd->filename);
+  strlcpy(rcd->tonename,cm6_file,sizeof rcd->tonename);
+  strlcpy(rcd->gsdname,gsd_file,sizeof rcd->gsdname);
   return(0);
 }
 
@@ -826,9 +826,9 @@ start:
       rcd->word_adr[bpo]=26;rcd->word_valid=1;
     }
   resm:
-    strcpy(rcd->filename,rcp_file);
-    strcpy(rcd->tonename,cm6_file);
-    strcpy(rcd->gsdname,gsd_file);
+    strlcpy(rcd->filename,rcp_file,sizeof rcd->filename);
+    strlcpy(rcd->tonename,cm6_file,sizeof rcd->tonename);
+    strlcpy(rcd->gsdname,gsd_file,sizeof rcd->gsdname);
 
     fnc_dis(-1);C_FNKMOD(0);dpl(0);B_COLOR(3);
     if(mplay[mo][0]=='%' || mplay[mo][0]=='&'){
@@ -1251,13 +1251,13 @@ int	lsp_wait_chack(int meas)
 /***************************/
 void	tim_buf_trns()
 {
-  memcpy(rcd->tone_adr,cm6,22601);strcpy(rcd->tonename,cm6_file);
+  memcpy(rcd->tone_adr,cm6,22601);strlcpy(rcd->tonename,cm6_file,sizeof rcd->tonename);
   rcd->fmt=2;rcd->tone_valid=1;
 }
 
 void	tim_var_read()
 {
-  memcpy(cm6,rcd->tone_adr,22601);strcpy(cm6_file,rcd->tonename);
+  memcpy(cm6,rcd->tone_adr,22601);strlcpy(cm6_file,rcd->tonename,sizeof cm6_file);
   tim_name_read();
 }
 
@@ -1273,13 +1273,13 @@ void	tim_name_read()
 
 void	gsd_buf_trns()
 {
-  memcpy(rcd->gsd_adr,gsd,4096);strcpy(rcd->gsdname,gsd_file);
+  memcpy(rcd->gsd_adr,gsd,4096);strlcpy(rcd->gsdname,gsd_file,sizeof rcd->gsdname);
   rcd->fmt=2;rcd->gsd_valid=1;
 }
 
 void	gsd_var_read(void)
 {
-  memcpy(gsd,rcd->gsd_adr,4096);strcpy(gsd_file,rcd->gsdname);
+  memcpy(gsd,rcd->gsd_adr,4096);strlcpy(gsd_file,rcd->gsdname,sizeof gsd_file);
 }
 
 /***************************/
