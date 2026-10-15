@@ -127,8 +127,11 @@ int	main(int argc,char *argv[])
 	    i++;
 	  continue;
 	}
-	if (strcmp(cmd, "--tty")==0 || strcmp(cmd, "--curses")==0 ||
-	    strcmp(cmd, "--gui")==0)
+#ifdef USE_CURSES
+	if (strcmp(cmd, "--tty")==0 || strcmp(cmd, "--curses")==0)
+	  continue;
+#endif
+	if (strcmp(cmd, "--gui")==0)
 	  continue;
 	switch(cmd[1]){
 
@@ -182,9 +185,11 @@ int	main(int argc,char *argv[])
 	case 'g':
 	  break;
 
+#ifdef USE_CURSES
 	case 'N':
 	case 'n':
 	  break;
+#endif
 
 	default:f=1;break;
 	}
@@ -211,7 +216,9 @@ int	main(int argc,char *argv[])
     B_PRINT( _("\t-P\t\t Set panel displaying as default playing command\n") );
     B_PRINT( _("\t-L\t\t Read the data in RCD buffer at boot time\n") );
     B_PRINT( _("\t-S\t\t Don't copy the data to RCD buffer when exit\n") );
+#ifdef USE_CURSES
     B_PRINT( _("\t-nw\t\t Start in console (curses) mode\n") );
+#endif
     B_PRINT( _("\t-g\t\t Start in GUI mode\n\n") );
     exit(1);
   }

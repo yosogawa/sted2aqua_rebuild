@@ -26,6 +26,8 @@ int x68_scancode[]={
 # include "config.h"
 #endif /* HAVE_CONFIG_H */
 
+#include <stdint.h>
+
 #if defined(USE_CURSES) && defined(HAS_CURSES)
 
 #if defined(USE_NCURSES) && !defined(RENAMED_NCURSES)

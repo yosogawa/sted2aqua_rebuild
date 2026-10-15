@@ -232,12 +232,14 @@ sted_strieq(const char *a, const char *b)
   return *a == *b;
 }
 
+#ifdef USE_CURSES
 static int
 sted_arg_is_curses(const char *a)
 {
   return strcmp(a, "-nw") == 0 || strcmp(a, "-NW") == 0 ||
     strcmp(a, "--tty") == 0 || strcmp(a, "--curses") == 0;
 }
+#endif
 
 static int
 sted_arg_is_gui(const char *a)
@@ -246,12 +248,14 @@ sted_arg_is_gui(const char *a)
     strcmp(a, "--gui") == 0;
 }
 
+#ifdef USE_CURSES
 static int
 sted_env_is_curses(const char *s)
 {
   return sted_strieq(s, "curses") || sted_strieq(s, "tty") ||
     sted_strieq(s, "console") || sted_strieq(s, "nw");
 }
+#endif
 
 static int
 sted_env_is_gui(const char *s)
@@ -283,7 +287,7 @@ sted_host_arg_takes_value(const char *a)
 /*
   Decide console vs GUI before Cocoa starts.
 
-  Priority: -nw/--tty  -g/--gui  STED_UI  then platform default
+  Priority: -nw/--tty (USE_CURSES)  -g/--gui  STED_UI  then platform default
   (macOS = GUI, Unix = DISPLAY ? GUI : curses).
   Last explicit argv flag wins. UI flags are removed from argv.
 */
@@ -306,10 +310,12 @@ sted_select_ui(int *argc, char ***argv)
   if (av != NULL && ac > 0) {
     o = 1;
     for (i = 1; i < ac; i++) {
+#ifdef USE_CURSES
       if (sted_arg_is_curses(av[i])) {
 	want = 1;
 	continue;
       }
+#endif
       if (sted_arg_is_gui(av[i])) {
 	want = 0;
 	continue;
@@ -329,9 +335,12 @@ sted_select_ui(int *argc, char ***argv)
   if (want < 0) {
     ui = getenv("STED_UI");
     if (ui != NULL && ui[0] != '\0') {
+#ifdef USE_CURSES
       if (sted_env_is_curses(ui))
 	want = 1;
-      else if (sted_env_is_gui(ui))
+      else
+#endif
+      if (sted_env_is_gui(ui))
 	want = 0;
     }
   }
@@ -339,10 +348,12 @@ sted_select_ui(int *argc, char ***argv)
   if (want < 0) {
 #ifdef __APPLE__
     want = 0;
-#elif defined(__unix__)
+#elif defined(USE_CURSES) && defined(__unix__)
     want = (getenv("DISPLAY") == NULL) ? 1 : 0;
-#else
+#elif defined(USE_CURSES)
     want = 1;
+#else
+    want = 0;
 #endif
   }
 
