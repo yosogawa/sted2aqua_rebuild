@@ -245,7 +245,17 @@ void	sttrc(int *po,int *cy,int flg)
 	trk_dis(6+yy,ad3,-1);}
       }
 
-      if(jj!=jjj){jjj=jj;if(grpmode!=0){gra(ad,md);md|=16;}}
+      if(jj!=jjj){
+	jjj=jj;
+	/*
+	  Bar changed: refresh the MEAS header from the playhead.
+	  trk_free also redraws CH, USED, and the top FREE/USED line.
+	  Cases not considered here may still exist. If this misbehaves,
+	  delete the trk_free call to restore the previous behavior.
+	*/
+	trk_free(ad);
+	if(grpmode!=0){gra(ad,md);md|=16;}
+      }
 
       if(grpmode!=0){gra_c(ad);}
       while(jj==rcd->bar[track] && (ii==rcd->step[track] ||i<0)){

@@ -23,6 +23,34 @@ static int    retkey(int);
 static int    retkey2(int);
 static void ed_fnc_guide(int sh, int ad, int cx);
 
+/*
+  True when meas_no(old_ad) and meas_no(new_ad) differ.
+  Walks only the events between the two addresses, same marks as meas_no
+  (byte >= 0xfc, or the next event is 0xfc). Does not scan from the track start.
+  Fallback for the stopped-cursor MEAS refresh below. Remove together with
+  that block if the refresh misbehaves.
+*/
+static int
+meas_span_differs(int old_ad, int new_ad)
+{
+  int j, lo, hi;
+
+  if (old_ad == new_ad)
+    return 0;
+  if (old_ad < new_ad) {
+    lo = old_ad;
+    hi = new_ad;
+  } else {
+    lo = new_ad;
+    hi = old_ad;
+  }
+  for (j = lo; j < hi; j += 4) {
+    if (trk[track][j] >= 0xfc || trk[track][j + 4] == 0xfc)
+      return 1;
+  }
+  return 0;
+}
+
 /***************************/
 void	trk_ed()
 {
@@ -30,11 +58,13 @@ void	trk_ed()
   int	r_ad,r_ln;
   char	tmp0[256];
   int   last_ontime=0; /* Aug.28.1998 Daisuke nagano */
+  int   meas_seen=-1;
 
   track1=track;track2=track;
   midi_clr();;LEDMOD(0,0);LEDMOD(2,0);inmd_disp();home2(512);
 
 track_edit_top:
+  meas_seen=-1;
   size_max(track);
 
   trk_cluc();cplen=0;cons_md(1);B_CLR_AL();edfield(1);fnc_dis(0);rc=tm_lag;
@@ -45,6 +75,20 @@ track_edit_top:
   while( 1){
     if(rcd->act!=0 || (B_SFTSNS()&16)!=0){sttrc(&po,&cy,0);}
     ad=real_ad(po,cy);
+    /*
+      Stopped cursor: refresh the MEAS header when the moved span crosses
+      a measure mark. trk_free also redraws CH, USED, and the top FREE/USED
+      line. Cases not considered here may still exist. If this misbehaves,
+      delete this block and meas_span_differs to restore the previous behavior.
+    */
+    if(meas_seen<0){
+      meas_seen=ad;
+    }else if(ad!=meas_seen){
+      int dist=ad-meas_seen;
+      if(dist<0){dist=-dist;}
+      if(dist>512 || meas_span_differs(meas_seen,ad)){trk_free(ad);}
+      meas_seen=ad;
+    }
 
     r_ad=0;r_ln=-1;
     if(cplen<0){
