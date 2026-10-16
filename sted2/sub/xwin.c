@@ -238,6 +238,10 @@ void Close_STed_Window ( void ) {
   return;
 }
 
+void XSTed_present_main_window( void )
+{
+}
+
 void XSTed_init_window( void ) {
 
   if ( iswindowopened ) return;

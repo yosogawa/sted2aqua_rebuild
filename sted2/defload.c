@@ -1274,7 +1274,7 @@ int	def_bload(char *fi,int md)
 
     }
     /*fclose(fp);return(-2);*/
-    fclose(fp);exit(1);
+    fclose(fp);sted_show_main_window();exit(1);
   }
 
   memcpy(module,&dat[0x0010],32);					/*module*/

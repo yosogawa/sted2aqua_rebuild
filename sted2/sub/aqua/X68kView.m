@@ -311,6 +311,20 @@ s_XSTed_ms_store_view_point(NSPoint p, NSUInteger buttons)
 		for (i = 0; i < 16; i++)
 			sGraphPalette[i] = NSSwapHostIntToBig(sGraphPalette[i]);
 	}
+
+	/* Visible-at-launch would show the copyright line on an empty window.
+	   Stay hidden until XSTed_present_main_window(). The timer must run
+	   anyway: file dialogs wait on it. */
+	sMainView = self;
+	[[self window] setAlphaValue:0];
+	[[self window] orderOut:nil];
+	if (sTimer == nil) {
+		sTimer = [NSTimer scheduledTimerWithTimeInterval:0.05
+						  target:self
+						selector:@selector(timerHandler:)
+						userInfo:nil
+						 repeats:YES];
+	}
 }
 
 + (void)initializeX68k
@@ -1185,6 +1199,45 @@ XSTed_start_main(int (*mainPtr)(int, char **), int argc, char **argv)
 	[thread start];
 }
 
+
+static int sMainWindowShown;
+
+static void
+s_present_main_window_main(void)
+{
+	NSWindow *w;
+
+	if (sMainWindowShown || sMainView == nil)
+		return;
+	w = [sMainView window];
+	if (w == nil || sTextVram == nil || sGraphVram == nil || sCompositeBitmap == nil)
+		return;
+
+	sTextInvalRect = NSMakeRect(0, 0, sTextWidth, sTextHeight);
+	sGraphInvalRect = sTextInvalRect;
+	[sMainView timerHandler:nil];
+
+	[w setAlphaValue:0];
+	[NSApp activateIgnoringOtherApps:YES];
+	[w makeKeyAndOrderFront:nil];
+	[w display];
+	[w setAlphaValue:1];
+	sMainWindowShown = 1;
+}
+
+void
+XSTed_present_main_window(void)
+{
+	if (isconsole || sMainWindowShown || sMainView == nil)
+		return;
+	if ([NSThread isMainThread]) {
+		s_present_main_window_main();
+		return;
+	}
+	dispatch_sync(dispatch_get_main_queue(), ^{
+		s_present_main_window_main();
+	});
+}
 
 void
 XSTed_init_window(void)

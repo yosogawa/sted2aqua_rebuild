@@ -54,6 +54,13 @@ int	cmdflagold,used_u=0;
 
 static int   paraexe(char *,int,int,int,int);
 
+static void
+sted_fail(int code)
+{
+  sted_show_main_window();
+  exit(code);
+}
+
 static char version_id[1024];
 
 #define	Trap14		(0x002e)	/*TRAP	#14ǻȤ٥*/
@@ -222,21 +229,21 @@ int	main(int argc,char *argv[])
     B_PRINT( _("\t-nw\t\t Start in console (curses) mode\n") );
 #endif
     B_PRINT( _("\t-g\t\t Start in GUI mode\n\n") );
-    exit(1);
+    sted_fail(1);
   }
 
   if( rcd == NULL ) {
-    B_PRINT(_("RCD is not running.\n"));exit(1);
+    B_PRINT(_("RCD is not running.\n"));sted_fail(1);
   }else{
     if( strcmp(rcd_version,"3.01")<0 || strcmp(rcd_version,"3.09")>0 ){
       B_PRINT(_("Invalid RCD version.\n"));
-      exit(1);
+      sted_fail(1);
     }
   }
 
   if( card_no[0]<0 || card_no[0]>16 || TRACK_SIZE<32 || TRACK_SIZE>256 ||
       buff_max<64*1024 || buff_max>256*36*1024 ){
-    B_PRINT(_("Invalid options.\n"));exit(1);
+    B_PRINT(_("Invalid options.\n"));sted_fail(1);
   }
 
   TRACK_SIZE=TRACK_SIZE*1024-48;buff_size=TRACK_SIZE*36;
@@ -322,7 +329,7 @@ realc:
 
     if(!(fp= fopen2(rcp_file,"rb"))){
       B_PRINT(sted_filename_for_font(rcp_file));
-      B_PRINT(_(": File not found.\n"));exit(1);
+      B_PRINT(_(": File not found.\n"));sted_fail(1);
     }
     fclose(fp);
     path_cut(rcp_path,rcp_file);
@@ -331,7 +338,7 @@ realc:
   definit();
   strmfe(tmp0,argv[0],"cnf");
   if(defload(tmp0,2)!=0){
-    B_PRINT(tmp0);B_PRINT(_(": File not found.\n"));exit(1);}
+    B_PRINT(tmp0);B_PRINT(_(": File not found.\n"));sted_fail(1);}
 
   strmfe(tmp0,argv[0],"cf2");defload(tmp0,2);
   /*		1997-07-20	STed2.cf2Фɤ߹褦ˤ*/
@@ -372,7 +379,7 @@ realc:
 	if(i!=0){
 	  if(lvl==2){lvl--;goto loop;}
 	  if(i==-1){B_PRINT(def_file);B_PRINT(_(": File not found.\n"));}
-	  exit(1);}
+	  sted_fail(1);}
       }
       strcpy(def_file,tmp0);
     }else{
@@ -428,7 +435,7 @@ realc:
     strcpy(tmp0,rcp_path);strcat(tmp0,rcp_file);
     strcpy(tmp,"lzm -x ");strcat(tmp,tmp0);ec=exe(tmp);
     if(ec<0){tmp[2]='z';ec=exe(tmp);}
-    if(ec!=0 && ec<32){FNCKEYST(0,fnckey0);fonset(fonbuf);exit(1);}
+    if(ec!=0 && ec<32){FNCKEYST(0,fnckey0);fonset(fonbuf);sted_fail(1);}
     cmdflag|=0x8;
   }
 
@@ -1115,6 +1122,8 @@ void	sinit()
   B_CLR_AL();dpl(1);tpl(1);logo(0);logo(512);sdis2(30+9,0,module,22,15,8);
   box(0,43,96,99,14,65535);
   for(i=0;i<18;i++){sdis(1,112+i*21,menu1[i],8,15,8);}
+  /* Copyright line is already cleared. Show the window with this screen. */
+  sted_show_main_window();
 }
 
 /***************************/
@@ -1440,7 +1449,7 @@ void	fonload(char *fi)
     strcat( tmp0, "/" );
     strcat( tmp0, (strrchr(fi,'/')==NULL)?fi:(strrchr(fi,'/')+1) );
     if (!(fp=fopen2( tmp0, "rb" ))) {
-      B_PRINT(fi);B_PRINT(_(": File not found.\n"));exit(1);
+      B_PRINT(fi);B_PRINT(_(": File not found.\n"));sted_fail(1);
     }
   } /* Oct.13.1998 by Daisuke Nagano */
   fread(dat,1,12*1024,fp);fclose(fp);

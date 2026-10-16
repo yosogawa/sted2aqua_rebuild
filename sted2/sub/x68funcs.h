@@ -63,6 +63,9 @@ extern void symbol( int, int, char *, char, char, char, int, char );
 extern FILE *fopen2( char *, char * );
 extern void STed_system_initialize( int *, char *** );
 extern void sted_select_ui( int *, char *** );
+/* Show the Aqua window once the main screen is drawn. No-op until then. */
+extern void XSTed_present_main_window( void );
+extern void sted_show_main_window( void );
 extern int sted_is_host_arg( const char * );
 extern int sted_saved_argc;
 extern char **sted_saved_argv;

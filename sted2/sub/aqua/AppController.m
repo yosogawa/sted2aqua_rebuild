@@ -24,6 +24,13 @@ extern void sted_redraw_midi_in(void);
 
 - (void)applicationWillFinishLaunching:(NSNotification *)notification
 {
+	(void)notification;
+	/* Nib load can still order the window front. Keep it hidden until
+	   the main screen is drawn. */
+	if (!isconsole && myWindow != nil) {
+		[myWindow setAlphaValue:0];
+		[myWindow orderOut:nil];
+	}
 }
 
 - (BOOL)applicationSupportsSecureRestorableState:(NSApplication *)app

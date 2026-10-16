@@ -426,3 +426,12 @@ void STed_system_initialize( int *argc, char ***argv ) {
 
   return;
 }
+
+void
+sted_show_main_window(void)
+{
+#ifdef __APPLE__
+  if (isGUI)
+    XSTed_present_main_window();
+#endif
+}

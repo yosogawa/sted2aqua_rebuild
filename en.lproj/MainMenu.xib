@@ -786,7 +786,7 @@
 					<string>{{335, 218}, {768, 512}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>{{335, 218}, {768, 512}}</string>
-					<integer value="1"/>
+					<integer value="0"/>
 					<string>{{33, 99}, {480, 360}}</string>
 					<string>{3.40282e+38, 3.40282e+38}</string>
 					<string>X68kView</string>
