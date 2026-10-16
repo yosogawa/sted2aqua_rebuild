@@ -95,7 +95,8 @@ void txcur( int a, int b, int c1, int c2, int cs ) {
 
   int i;
 
-  if ( edit_scr ) a+=56;
+  /* Right track pane only. Rhythm edit sets edit_scr to 2. */
+  if ( edit_scr==1 ) a+=56;
   if ( isconsole ) {
     for ( i=0 ; i<c2 ; i++ )
       curses_trev( a, b+i, c1, cs );
