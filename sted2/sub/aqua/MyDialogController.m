@@ -13,10 +13,10 @@
 + (BOOL)runDialogWithNibName:(NSString *)nibName
 {
 	MyDialogController *cont = [[MyDialogController alloc] initWithWindowNibName:nibName];
-	int result = [NSApp runModalForWindow:[cont window]];
+	NSModalResponse result = [NSApp runModalForWindow:[cont window]];
 	[cont close];
 	[cont release];
-	return (result == NSRunStoppedResponse);
+	return (result == NSModalResponseStop);
 }
 
 - (IBAction)okPressed:(id)sender

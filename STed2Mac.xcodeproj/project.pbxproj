@@ -14,6 +14,7 @@
 		A1F0E0121AC55B8700A70D02 /* OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = A1F0E0141AC55B8700A70D04 /* OFL.txt */; };
 		A1C0E51215A7C00100E50F14 /* sted.icns in Resources */ = {isa = PBXBuildFile; fileRef = A1C0E51115A7C00100E50F13 /* sted.icns */; };
 		A1F0E0311AC55B8700A70D21 /* AVFAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1F0E0321AC55B8700A70D22 /* AVFAudio.framework */; };
+		A1UT1F011AC55B8700A70D31 /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1UT1F021AC55B8700A70D32 /* UniformTypeIdentifiers.framework */; };
 		E40E95C41ABA41ED0072AA0B /* assign.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E951C1ABA41ED0072AA0B /* assign.c */; };
 		E40E95C51ABA41ED0072AA0B /* cm6con.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E951D1ABA41ED0072AA0B /* cm6con.c */; };
 		E40E95C61ABA41ED0072AA0B /* cm64.def in Resources */ = {isa = PBXBuildFile; fileRef = E40E95201ABA41ED0072AA0B /* cm64.def */; };
@@ -90,6 +91,7 @@
 		A1F0E0141AC55B8700A70D04 /* OFL.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = OFL.txt; path = sted2/fonts/OFL.txt; sourceTree = "<group>"; };
 		A1C0E51115A7C00100E50F13 /* sted.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = sted.icns; sourceTree = "<group>"; };
 		A1F0E0321AC55B8700A70D22 /* AVFAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFAudio.framework; path = /System/Library/Frameworks/AVFAudio.framework; sourceTree = "<absolute>"; };
+		A1UT1F021AC55B8700A70D32 /* UniformTypeIdentifiers.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UniformTypeIdentifiers.framework; path = /System/Library/Frameworks/UniformTypeIdentifiers.framework; sourceTree = "<absolute>"; };
 		AFCF00FA307B7FC20040EB6F /* edit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = edit.h; sourceTree = "<group>"; };
 		E40E951C1ABA41ED0072AA0B /* assign.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = assign.c; sourceTree = "<group>"; };
 		E40E951D1ABA41ED0072AA0B /* cm6con.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = cm6con.c; sourceTree = "<group>"; };
@@ -230,6 +232,7 @@
 			files = (
 				E40E96551ABA451B0072AA0B /* AudioToolbox.framework in Frameworks */,
 				A1F0E0311AC55B8700A70D21 /* AVFAudio.framework in Frameworks */,
+				A1UT1F011AC55B8700A70D31 /* UniformTypeIdentifiers.framework in Frameworks */,
 				8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */,
 				E40E965D1ABA455D0072AA0B /* CoreAudio.framework in Frameworks */,
 				E40E964D1ABA44F60072AA0B /* CoreAudioKit.framework in Frameworks */,
@@ -253,6 +256,7 @@
 				E40E965C1ABA455D0072AA0B /* CoreAudio.framework */,
 				E40E96541ABA451B0072AA0B /* AudioToolbox.framework */,
 				A1F0E0321AC55B8700A70D22 /* AVFAudio.framework */,
+				A1UT1F021AC55B8700A70D32 /* UniformTypeIdentifiers.framework */,
 				E40E964C1ABA44F60072AA0B /* CoreAudioKit.framework */,
 				E40E96441ABA44D70072AA0B /* CoreMIDI.framework */,
 				1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */,

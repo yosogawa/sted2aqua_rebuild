@@ -760,16 +760,19 @@ ResolveDLSFontPath(const char *filename, char *path, size_t pathSize)
 static void
 LoadDLSSoundBank(AudioUnit au)
 {
-	FSRef ref;
+	CFURLRef url;
+	OSStatus sts;
 	if (au == NULL || sDLSFontFile[0] == 0)
 		return;
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-	if (FSPathMakeRef((const UInt8 *)sDLSFontFile, &ref, NULL) != noErr)
+	url = CFURLCreateFromFileSystemRepresentation(kCFAllocatorDefault,
+		(const UInt8 *)sDLSFontFile, (CFIndex)strlen(sDLSFontFile), false);
+	if (url == NULL)
 		return;
-	AudioUnitSetProperty(au, kMusicDeviceProperty_SoundBankFSRef,
-		kAudioUnitScope_Global, 0, &ref, sizeof ref);
-#pragma clang diagnostic pop
+	sts = AudioUnitSetProperty(au, kMusicDeviceProperty_SoundBankURL,
+		kAudioUnitScope_Global, 0, &url, sizeof url);
+	CFRelease(url);
+	if (sts != noErr)
+		NSLog(@"DLS sound bank load failed: %d", (int)sts);
 }
 
 static void

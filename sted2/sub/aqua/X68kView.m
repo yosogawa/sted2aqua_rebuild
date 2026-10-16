@@ -6,6 +6,7 @@
 #import "X68kView.h"
 #import "CoreMIDIRCPPlayer.h"
 #import <CoreText/CoreText.h>
+#import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 
 #include "sted.h"
 
@@ -758,9 +759,11 @@ s_RegisterKeyDown(uint32_t ch)
 			} else {
 				mes = @"The string includes non-Shift-JIS characters.";
 			}
-			NSAlert *alert = [NSAlert alertWithMessageText:nil defaultButton:nil alternateButton:nil otherButton:nil informativeTextWithFormat:@"%@", mes];
-			[alert setAlertStyle:2];
+			NSAlert *alert = [[NSAlert alloc] init];
+			[alert setInformativeText:mes];
+			[alert setAlertStyle:NSAlertStyleCritical];
 			[alert runModal];
+			[alert release];
 			return YES;
 		}
 	} else if (command == @selector(cancelOperation:)) {
@@ -826,7 +829,7 @@ XSTed_setup_default_path(void)
 	pathString = [@"~/Library/Application Support/sted" stringByExpandingTildeInPath];
 	if (![fileManager fileExistsAtPath: pathString]) {
 		rsrcPathString = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent: @"conf"];
-		[fileManager copyPath: rsrcPathString toPath: pathString handler: nil];
+		[fileManager copyItemAtPath:rsrcPathString toPath:pathString error:NULL];
 	}
 	if (![pathString getFileSystemRepresentation: s_sted_default_path maxLength: 1000])
 		s_sted_default_path[0] = 0;
@@ -2889,7 +2892,19 @@ s_MacSelectFile(void **args)
 		}
 		free(pp);
 	} else filetypes = nil;
-	[panel setAllowedFileTypes:filetypes];
+	if (filetypes == nil) {
+		[panel setAllowedContentTypes:@[]];
+	} else {
+		NSMutableArray *contentTypes = [NSMutableArray arrayWithCapacity:[filetypes count]];
+		NSString *extString;
+		UTType *type;
+		for (extString in filetypes) {
+			type = [UTType typeWithFilenameExtension:extString];
+			if (type != nil)
+				[contentTypes addObject:type];
+		}
+		[panel setAllowedContentTypes:contentTypes];
+	}
 	if (mes != NULL) {
 		title = [NSString stringWithFormat:@"%s %s File", (is_save ? "Save" : "Load"), mes];
 		[panel setTitle:title];
@@ -2914,9 +2929,11 @@ s_MacErrorBox(void **args)
 {
 	const char *mes = (const char *)args[0];
 	int icon = (int)(intptr_t)args[1];
-	NSAlert *alert = [NSAlert alertWithMessageText:nil defaultButton:nil alternateButton:nil otherButton:nil informativeTextWithFormat:@"%s", mes];
+	NSAlert *alert = [[NSAlert alloc] init];
+	[alert setInformativeText:[NSString stringWithUTF8String:mes]];
 	[alert setAlertStyle:icon]; /* 0: warning, 1: information, 2: critical */
 	[alert runModal];
+	[alert release];
 	sRequestAppKitCall = 0;
 }
 
