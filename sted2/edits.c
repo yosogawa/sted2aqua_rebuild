@@ -73,7 +73,7 @@ void	poplay(int po,int md)
 /***************************/
 void	partf(int a,int ad)
 {
-  char	path2[PATHLEN],tmp0[PATHLEN];
+  char	path2[PATHLEN + PATH_DRIVE_EXTRA],tmp0[PATHLEN * 2];
   int	ex;
   int	e=edit_scr;
 
@@ -292,8 +292,8 @@ int	replace(int po,int ln,int sh,int v)
   int	i,j,cl,ct,ctl,cd,nm,a,b,c,d,ln2;
   int	trg[8],trg2[8],ftg[8],ftg2[8];
   double	ml;
-  char	rep[8][256];
-  char	li[256],li2[256],tmp0[256],tmp1[256];
+  char	rep[8][PATHLEN];
+  char	li[PATHLEN],li2[PATHLEN],tmp0[PATHLEN],tmp1[PATHLEN];
   char	si,rcvf,addf;
   uint8_t	*ptr=trk[track];
 
@@ -301,12 +301,12 @@ int	replace(int po,int ln,int sh,int v)
 
   if(sh==0){strcpy(li2,repl);}else{if(sh==1){strcpy(li2,delt);}else{strcpy(li2,srch);}}
 
-  while( (i=str_search(li2,"$<")) ){strcpy(&li2[i-1],&li2[i]);}
+  while( (i=str_search(li2,"$<")) ){memmove(&li2[i-1],&li2[i],strlen(&li2[i])+1);}
 top:
   if((c=str_search(li2,"|"))==0){
     strcpy(li,li2);li2[0]=0;
   }else{
-    strcpy(li,li2);li[c-1]=0;strcpy(li2,&li2[c]);
+    strcpy(li,li2);li[c-1]=0;memmove(li2,&li2[c],strlen(&li2[c])+1);
   }
 
   /*if(li[0]==0){goto top;}*/
@@ -319,21 +319,21 @@ top:
 
 
   strcat(li,",");nm=0;tmp1[0]=0;
-  if(li[0]=='@'){strcpy(li,&li[1]);rcvf=1;}
-  if(li[0]=='%'){strcpy(li,&li[1]);addf=1;}
+  if(li[0]=='@'){memmove(li,&li[1],strlen(&li[1])+1);rcvf=1;}
+  if(li[0]=='%'){memmove(li,&li[1],strlen(&li[1])+1);addf=1;}
   while( nm<4 ){
     c=str_search(li,",");if( c==0 ){break;}
-    strcpy(tmp0,li);tmp0[c-1]=0;strcpy(li,&li[c]);
+    strcpy(tmp0,li);tmp0[c-1]=0;memmove(li,&li[c],strlen(&li[c])+1);
 
     if(tmp0[0]=='/' && nm==0){strcpy(tmp1,tmp0);jstrupr(tmp1);}
     if(tmp0[0]==':'||tmp0[0]==0){ftg[nm]=-1;}
 
     d=str_search(tmp0,":");if(d>0){strcpy(rep[nm],&tmp0[d]);tmp0[d-1]=0;}
 
-    if( tmp0[0]=='!'){ftg2[nm]|=1;strcpy(tmp0,&tmp0[1]);}
-    if( tmp0[0]=='&'){ftg2[2]|=2;ftg[2]=99;strcpy(tmp0,&tmp0[1]);}
-    if( tmp0[0]=='+'){ftg2[1]|=4;strcpy(tmp0,&tmp0[1]);}
-    if( tmp0[0]=='-'){ftg2[1]|=8;strcpy(tmp0,&tmp0[1]);}
+    if( tmp0[0]=='!'){ftg2[nm]|=1;memmove(tmp0,&tmp0[1],strlen(&tmp0[1])+1);}
+    if( tmp0[0]=='&'){ftg2[2]|=2;ftg[2]=99;memmove(tmp0,&tmp0[1],strlen(&tmp0[1])+1);}
+    if( tmp0[0]=='+'){ftg2[1]|=4;memmove(tmp0,&tmp0[1],strlen(&tmp0[1])+1);}
+    if( tmp0[0]=='-'){ftg2[1]|=8;memmove(tmp0,&tmp0[1],strlen(&tmp0[1])+1);}
 
     if( tmp0[0]!=0){
       ftg[nm]=0;
@@ -514,16 +514,16 @@ skip2:
 	    while(tmp0[0]!=0){
 	      si=tmp0[0];
 	      if(si=='+'||si=='-'||si=='*'||si=='/'||si=='%'){
-		strcpy(tmp0,&tmp0[1]);
+		memmove(tmp0,&tmp0[1],strlen(&tmp0[1])+1);
 		if(tmp0[0]==0){break;}
 		ml=val(tmp0);
 
 
 		while(tmp0[0]>=0x30 && tmp0[0]<=0x39){
-		  strcpy(tmp0,&tmp0[1]);
+		  memmove(tmp0,&tmp0[1],strlen(&tmp0[1])+1);
 		}
 		if(tmp0[0]=='_'){
-		  strcpy(tmp0,&tmp0[1]);
+		  memmove(tmp0,&tmp0[1],strlen(&tmp0[1])+1);
 		  ml=(rand()*(val(tmp0)-ml+1)/32767)+ml;
 		}
 
@@ -544,12 +544,12 @@ skip2:
 		  if(si=='+'||si=='-'||si=='*'||si=='/'||si=='%'){cl=ct+1;break;}
 		}
 		if(cl!=255){
-		  strcpy(tmp0,&tmp0[cl-1]);
+		  memmove(tmp0,&tmp0[cl-1],strlen(&tmp0[cl-1])+1);
 		}else{
 		  tmp0[0]=0;
 		}
 	      }else{
-		if(tmp0[0]=='^'){strcpy(tmp0,&tmp0[1]);}
+		if(tmp0[0]=='^'){memmove(tmp0,&tmp0[1],strlen(&tmp0[1])+1);}
 		if(j==0 && a<128){
 		  ct=ctc(60,tmp0,0);
 		  if(ct>=0){cd=ct;}
@@ -812,19 +812,19 @@ int	chd_check(int tr,int ad,int md)
 int	find(int po,int h)
 {
   int	i,j,ct,mo=0,im=0;
-  char	tmp0[256],tmp1[256];
+  char	tmp0[PATHLEN],tmp1[PATHLEN];
 
   strcpy(tmp0,srch);
 
   if( (i=str_search(tmp0,"$<"))){
-    strcpy(&tmp0[i-1],&tmp0[i]);
+    memmove(&tmp0[i-1],&tmp0[i],strlen(&tmp0[i])+1);
   }
 
   jstrupr(tmp0);
   if(srch[0]!=0){mo=1;}
 
   if(tmp0[0]=='$'||tmp0[0]==0){
-    if(tmp0[0]!=0){strcpy(tmp0,&tmp0[1]);strcpy(tmp1,&srch[1]);}
+    if(tmp0[0]!=0){memmove(tmp0,&tmp0[1],strlen(&tmp0[1])+1);strcpy(tmp1,&srch[1]);}
 
     if(tmp0[0]=='S'&&tmp0[1]=='T'&&tmp0[2]=='!'&&tmp0[3]=='='){
       mo=2;if(tmp0[4]!=0){im=str_val(&tmp0[4]);}else{

@@ -926,7 +926,7 @@ void	fsel(char *fna,char *pth,int w)
       if( fna[1]==':'){
 	if(drvchk(fna)<0){nm=0;goto reinp;}
 
-	strcpy(pth,fna);pth[2]=0;strcpy(fna,&fna[2]);
+	strcpy(pth,fna);pth[2]=0;memmove(fna,&fna[2],strlen(&fna[2])+1);
 	strcat(pth,"/");CURDIR(drv_code(pth),tmp0);
 	if(tmp0[0]!=0){strcat(pth,tmp0);strcat(pth,"/");}
       }
@@ -935,7 +935,7 @@ void	fsel(char *fna,char *pth,int w)
 	if(fna[1]=='.'){
 	  if(fna[2]=='/'||fna[2]==0){
 	    path_down(pth);
-	    if(fna[2]!=0 && fna[3]!=0){strcpy(fna,&fna[3]);}else{fna[0]=0;}
+	    if(fna[2]!=0 && fna[3]!=0){memmove(fna,&fna[3],strlen(&fna[3])+1);}else{fna[0]=0;}
 	  }else{goto reinp;}
 	}else{goto reinp;}
       }
@@ -1108,8 +1108,8 @@ void	fsel(char *fna,char *pth,int w)
   msg_clr();
 
   spcut(fna);if( fna[0]!=0 && str_search(fna,".")==0){
-    char etmp[256];
-    strcpy(etmp,exts);etmp[3]=0;
+    char etmp[4];
+    strlcpy(etmp,exts,sizeof etmp);
     strmfe(fna,fna,etmp);
   }
   if(es==0){strcpy(tmp0,pth);strcat(tmp0,fna);
@@ -1139,7 +1139,7 @@ void	str_change(char *s)
 
   while(1){
     j=str_search(ss,"//");if(j==0){break;}
-    strcpy(&ss[j-1],&ss[j]);
+    memmove(&ss[j-1],&ss[j],strlen(&ss[j])+1);
   }
 
 }
@@ -1148,7 +1148,7 @@ void	str_change(char *s)
 void	path_cut(char *fpath,char *fname)
 {
   int	j;
-  char	tmp0[128];
+  char	tmp0[PATHLEN * 2 + PATH_DRIVE_EXTRA];
 
   fpath[0]=0;
   while(1){
@@ -1174,12 +1174,18 @@ void	path_down(char *pth)
 /***************************/
 void	path_set(char *pth)
 {
-  char	tmp0[128],tmp2[128];
+#if PATH_DRIVE_EXTRA
+  char	tmp0[PATHLEN * 2 + PATH_DRIVE_EXTRA];
+#endif
+  char	tmp2[128];
 
+#if PATH_DRIVE_EXTRA
+  /* "A:" is two bytes. Callers reserve PATH_DRIVE_EXTRA for this prefix. */
   if( pth[0]==0 || knck(pth,0) || pth[1]!=':' ){
     strcpy(tmp0,pth);strcpy(pth," :");
     pth[0]=CURDRV()+'A';strcat(pth,tmp0);
   }
+#endif
   if( pth[2]==0 ){
     strcat(pth,"/");CURDIR(drv_code(pth),tmp2);
     if(tmp2[0]!=0){strcat(pth,tmp2);}

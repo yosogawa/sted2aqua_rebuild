@@ -285,7 +285,7 @@ ass_ret:
     }
 
     if( a=='L' ){
-      char	tmp0[PATHLEN],tmp1[PATHLEN],path2[PATHLEN];
+      char	tmp0[PATHLEN * 2],tmp1[PATHLEN],path2[PATHLEN + PATH_DRIVE_EXTRA];
 
       C_CLS_AL();
 
@@ -301,7 +301,7 @@ ass_ret:
       goto top;
     }
     if( a=='S' ){
-      char	tmp0[PATHLEN],tmp1[PATHLEN],path2[PATHLEN];
+      char	tmp0[PATHLEN * 2],tmp1[PATHLEN],path2[PATHLEN + PATH_DRIVE_EXTRA];
 
       C_CLS_AL();
 

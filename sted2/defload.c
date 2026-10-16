@@ -216,7 +216,7 @@ void	definit()
 
 int	defload(char *fi,int md)
 {
-  char	tmp0[2048],tmp1[1024],li[1024],li2[1024];
+  char	tmp0[PATHLEN * 2],tmp1[1024],li[1024],li2[1024];
   int	ad,nm,ln,n,i0=0,i1=0,f,mutef=0,initf=0;
   int	last_no=4*128,last_co=0;
   FILE	*fp;
@@ -282,7 +282,7 @@ int	defload(char *fi,int md)
       if( str_search(li2,"#END")>0 ){break;}
 
 #if	STED
-      if( str_search(li2,"#COMMENT=")>0 ){strcpy(comment,&li[9]);}
+      if( str_search(li2,"#COMMENT=")>0 ){strlcpy(comment,&li[9],sizeof comment);}
 
       if( str_search(li2,"#DEF_FILE=")>0 ){
 	if(def_file[0]==0){strcpy(def_file,&li[10]);}}
@@ -410,7 +410,7 @@ int	defload(char *fi,int md)
 
 #endif
 
-      if( str_search(li2,"#MODULE=")>0 ){strcpy(module,&li[8]);}
+      if( str_search(li2,"#MODULE=")>0 ){strlcpy(module,&li[8],sizeof module);}
 
       if( str_search(li2,"#ID=")>0 ){
 	strcpy(tmp1,&li2[4]);
@@ -467,8 +467,8 @@ int	defload(char *fi,int md)
 	  while(n<2){
 	    c=str_search(tmp1,",");if( c==0 ){break;}
 	    strcpy(tmp0,tmp1);tmp0[c-1]=0;
-	    if(n==0){strcpy(tim_head[ch],tmp0);}
-	    else{strcpy(tim_sym[ch],tmp0);}
+	    if(n==0){strlcpy(tim_head[ch],tmp0,sizeof tim_head[ch]);}
+	    else{strlcpy(tim_sym[ch],tmp0,sizeof tim_sym[ch]);}
         memmove(tmp1, &tmp1[c], strlen(&tmp1[c]) + 1);
         n++;
 	  }
@@ -499,7 +499,7 @@ int	defload(char *fi,int md)
 	  while(i<c && j<24 && tmp0[i]!=0){
 	    int	a;
 	    if(tmp0[i]==32){i++;}else{
-	      strcpy(tmp9,&tmp0[i]);
+	      strlcpy(tmp9,&tmp0[i],3);
 	      if(tmp9[1]==0){
 		tmp9[1]='H';tmp9[2]=0;
 	      }else{
@@ -532,7 +532,7 @@ int	defload(char *fi,int md)
 	  strcpy(tmp0,tmp1);tmp0[c-1]=0;ch=str_val(tmp0);
 	  strcpy(tmp0,&tmp1[c]);
 	  if(ch>0 && ch<17){
-	    strcpy(card_name[ch],tmp0);
+	    strlcpy(card_name[ch],tmp0,sizeof card_name[ch]);
 	    nm=(ch+15)*128;
 
 	    if(last_no<80*128-1){
@@ -640,37 +640,37 @@ int	defload(char *fi,int md)
 	}
 #else
       if ( str_search(li2, "#KEY_XF1=")>0 )
-	strcpy( KEY_XF1, &li[9]);
+	strlcpy( KEY_XF1, &li[9], sizeof KEY_XF1);
       if ( str_search(li2, "#KEY_XF2=")>0 )
-	strcpy( KEY_XF2, &li[9]);
+	strlcpy( KEY_XF2, &li[9], sizeof KEY_XF2);
       if ( str_search(li2, "#KEY_XF3=")>0 )
-	strcpy( KEY_XF3, &li[9]);
+	strlcpy( KEY_XF3, &li[9], sizeof KEY_XF3);
       if ( str_search(li2, "#KEY_XF4=")>0 )
-	strcpy( KEY_XF4, &li[9]);
+	strlcpy( KEY_XF4, &li[9], sizeof KEY_XF4);
       if ( str_search(li2, "#KEY_XF5=")>0 )
-	strcpy( KEY_XF5, &li[9]);
+	strlcpy( KEY_XF5, &li[9], sizeof KEY_XF5);
       if ( str_search(li2, "#KEY_KANA=")>0 )
-	strcpy( KEY_KANA, &li[10]);
+	strlcpy( KEY_KANA, &li[10], sizeof KEY_KANA);
       if ( str_search(li2, "#KEY_KIGO=")>0 )
-	strcpy( KEY_KIGO, &li[10]);
+	strlcpy( KEY_KIGO, &li[10], sizeof KEY_KIGO);
       if ( str_search(li2, "#KEY_TOROKU=")>0 )
-	strcpy( KEY_TOROKU, &li[12]);
+	strlcpy( KEY_TOROKU, &li[12], sizeof KEY_TOROKU);
       if ( str_search(li2, "#KEY_INS=")>0 )
-	strcpy( KEY_INS, &li[9]);
+	strlcpy( KEY_INS, &li[9], sizeof KEY_INS);
       if ( str_search(li2, "#KEY_DEL=")>0 )
-	strcpy( KEY_DEL, &li[9]);
+	strlcpy( KEY_DEL, &li[9], sizeof KEY_DEL);
       if ( str_search(li2, "#KEY_HOME=")>0 )
-	strcpy( KEY_HOME, &li[10]);
+	strlcpy( KEY_HOME, &li[10], sizeof KEY_HOME);
       if ( str_search(li2, "#KEY_UNDO=")>0 )
-	strcpy( KEY_UNDO, &li[10]);
+	strlcpy( KEY_UNDO, &li[10], sizeof KEY_UNDO);
       if ( str_search(li2, "#KEY_RUP=")>0 )
-	strcpy( KEY_RUP, &li[9]);
+	strlcpy( KEY_RUP, &li[9], sizeof KEY_RUP);
       if ( str_search(li2, "#KEY_RDOWN=")>0 )
-	strcpy( KEY_RDOWN, &li[11]);
+	strlcpy( KEY_RDOWN, &li[11], sizeof KEY_RDOWN);
       if ( str_search(li2, "#KEY_OPT1=")>0 )
-	strcpy( KEY_OPT1, &li[10]);
+	strlcpy( KEY_OPT1, &li[10], sizeof KEY_OPT1);
       if ( str_search(li2, "#KEY_OPT2=")>0 )
-	strcpy( KEY_OPT2, &li[10]);
+	strlcpy( KEY_OPT2, &li[10], sizeof KEY_OPT2);
 #endif
 
     }else{
@@ -808,7 +808,7 @@ void	cnf_prog(char *li,char *li2,int md)
 
       if(c>1 && tmp1[c-2]=='\\'){
 	int d;
-	strcpy(&tmp1[c-2],&tmp1[c-1]);
+	memmove(&tmp1[c-2],&tmp1[c-1],strlen(&tmp1[c-1])+1);
 
 	d=str_search(&tmp1[c-1],",");if( d==0 ){break;}
 	c+=d-1;
@@ -847,9 +847,9 @@ void	cnf_repl(char *li,char *li2,int md)
     strcpy(tmp1,&li[c/*+2*/]);
     c=str_search(tmp1,",");if( c==0 ){return;}
     strcpy(tmp0,tmp1);tmp0[c-1]=0;spcut(tmp0);
-    strcpy(tmp1,&tmp1[c]);spcut(tmp1);
+    memmove(tmp1,&tmp1[c],strlen(&tmp1[c])+1);spcut(tmp1);
 
-    while(tmp1[0]==32){strcpy(tmp1,&tmp1[1]);}
+    while(tmp1[0]==32){memmove(tmp1,&tmp1[1],strlen(&tmp1[1])+1);}
 
     tmp0[35]=0;strcpy(repl_t[i+md*52],tmp0);
     tmp1[35]=0;strcpy(repl_d[i+md*52],tmp1);
@@ -1243,7 +1243,7 @@ int	def_bload(char *fi,int md)
   strmfe(fi,fi,"dfb");
   /*if(!(fp=fopen2(fi,"rb"))){return(-1);}*/
   if (!(fp=fopen2(fi,"rb"))) {
-    char tmp0[1024];
+    char tmp0[PATHLEN * 2];
     /*strcpy( tmp0, STED_DEFAULT_PATH );*/
 	strcpy( tmp0, s_sted_default_path ); /* Jun.01.2003 by Toshi Nagata */
     strcat( tmp0, "//" );

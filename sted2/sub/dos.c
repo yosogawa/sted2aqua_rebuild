@@ -38,9 +38,9 @@ int  XSTed_keyin(int);
 
 static char *name_conv( char *, const char * );
 
-static char Name[1024];           /* convert buffer */
+static char Name[PATHLEN * 2];    /* convert buffer */
 static DIR *_dos_dir=NULL;        /* dirent:handle */
-static char _dos_node[1024];      /* dirent:directory */
+static char _dos_node[PATHLEN * 2]; /* dirent:directory */
 
 
 /* console-oriented functions */
@@ -241,7 +241,7 @@ int _dos_drvctrl( int mode, int drive ) {
 
 int _dos_rename( const char *name, const char *nname ) {
 
-  char nName[1024];
+  char nName[PATHLEN * 2];
 
   name_conv( Name, name );
   name_conv( nName, nname );
@@ -257,7 +257,7 @@ int _dos_super( int stack ) {
 int _dos_files (struct _x68_filbuf *buff, const char *name, int atr ) {
 
   struct dirent *d;
-  char *a,filename[1100];
+  char *a,filename[PATHLEN * 2 + 256];
   struct stat *stt,tmp;
   struct tm *asc;
 
@@ -300,7 +300,7 @@ int _dos_files (struct _x68_filbuf *buff, const char *name, int atr ) {
 int _dos_nfiles( struct _x68_filbuf *buff ) {
 
   struct dirent *d;
-  char filename[1024];
+  char filename[PATHLEN * 2 + 256];
   struct stat *stt,tmp;
   struct tm *asc;
 

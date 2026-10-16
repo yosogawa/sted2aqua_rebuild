@@ -119,20 +119,27 @@ extern char rcd_version[];
 /* May.26.2003 Toshi Nagata: add _extern to avoid multiple definition of variables */
 /* 2015.3.21. Toshi Nagata: path length 128 -> PATHLEN */
 #define PATHLEN 4096
+/* path_set prefixes a drive letter ("A:", 2 bytes) on Human68k-style OSes.
+   macOS paths have no drive letter, so the prefix and the extra bytes are off. */
+#if defined(__APPLE__)
+#define PATH_DRIVE_EXTRA 0
+#else
+#define PATH_DRIVE_EXTRA 2
+#endif
 #ifdef DEFINE_EXTERN_VARIABLES
 #define _extern
 #else
 #define _extern extern
 #endif
-_extern char	hlp_path[PATHLEN];			/* help file path & name	*/
-_extern char	fon_path[PATHLEN];			/* font file path & name	*/
+_extern char	hlp_path[PATHLEN * 2];			/* help file path & name	*/
+_extern char	fon_path[PATHLEN * 2];			/* font file path & name	*/
 
-_extern char	def_path[PATHLEN];			/* .def path name		*/
-_extern char	rcp_path[PATHLEN];			/* .rcp path name		*/
-_extern char	prt_path[PATHLEN];			/* .prt path name		*/
-_extern char	trk_path[PATHLEN];			/* .trk path name		*/
+_extern char	def_path[PATHLEN * 2 + PATH_DRIVE_EXTRA];	/* .def path name		*/
+_extern char	rcp_path[PATHLEN + PATH_DRIVE_EXTRA];	/* .rcp path name		*/
+_extern char	prt_path[PATHLEN + PATH_DRIVE_EXTRA];	/* .prt path name		*/
+_extern char	trk_path[PATHLEN + PATH_DRIVE_EXTRA];	/* .trk path name		*/
 
-_extern char	def_file[PATHLEN];			/* .def file name		*/
+_extern char	def_file[PATHLEN * 2 + PATH_DRIVE_EXTRA];	/* .def file name		*/
 _extern char	rcp_file[PATHLEN];			/* .rcp file name		*/
 _extern char	prt_file[PATHLEN];			/* .prt file name		*/
 _extern char	trk_file[PATHLEN];			/* .trk file name		*/

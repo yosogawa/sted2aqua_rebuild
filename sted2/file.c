@@ -764,7 +764,7 @@ int	bufset_trk(int tr)
 void	dplay(int mo,int tr,int meas)
 {
   int	bpo,i,f;
-  char	tmp1[256];
+  char	tmp1[PATHLEN * 2];
   FILE	*fp;
 
   if((cmdflag&0x8000)!=0 && mo<2){mo=1-mo;}

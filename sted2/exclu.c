@@ -187,7 +187,7 @@ redis:
     }
 
     if( ke==0x6b ){
-      char	tmp0[PATHLEN],tmp1[PATHLEN],path2[PATHLEN];
+      char	tmp0[PATHLEN * 2],tmp1[PATHLEN],path2[PATHLEN + PATH_DRIVE_EXTRA];
 
       C_CLS_AL();
 
@@ -210,7 +210,7 @@ redis:
       goto top;
     }
     if( ke==0x6c ){
-      char	tmp0[PATHLEN],tmp1[PATHLEN],path2[PATHLEN];
+      char	tmp0[PATHLEN * 2],tmp1[PATHLEN],path2[PATHLEN + PATH_DRIVE_EXTRA];
 
       C_CLS_AL();
 
@@ -443,7 +443,7 @@ top:
     }
 
     if( ke==0x6b ){
-      char	tmp0[PATHLEN],tmp1[PATHLEN],path2[PATHLEN];
+      char	tmp0[PATHLEN * 2],tmp1[PATHLEN],path2[PATHLEN + PATH_DRIVE_EXTRA];
 
       txerase(cx*8,4*16,53*8,26*16);
 
@@ -462,7 +462,7 @@ top:
       goto top;
     }
     if( ke==0x6c ){
-      char	tmp0[PATHLEN],tmp1[PATHLEN],path2[PATHLEN];
+      char	tmp0[PATHLEN * 2],tmp1[PATHLEN],path2[PATHLEN + PATH_DRIVE_EXTRA];
 
       txerase(cx*8,4*16,53*8,26*16);
 
@@ -743,7 +743,7 @@ int	exc_load(char *fna)
       while(i<strlen(tmp0)){
 	int	a;
 	if(tmp0[i]==32){i++;}else{
-	  strcpy(tmp9,&tmp0[i]);
+	  strlcpy(tmp9,&tmp0[i],3);
 	  if(tmp9[1]==0){
 	    tmp9[1]='H';tmp9[2]=0;
 	  }else{

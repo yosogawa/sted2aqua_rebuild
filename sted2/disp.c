@@ -100,7 +100,7 @@ void	sinput(char *sb,int ln)
 
   if((exc&0x100)!=0){
     int c=str_search(sb,"$<");
-    if(c){p=c-1;strcpy(&sb[c-1],&sb[c+1]);}
+    if(c){p=c-1;memmove(&sb[c-1],&sb[c+1],strlen(&sb[c+1])+1);}
   }
 
   xx=x*8;if(edit_scr==1){xx=xx+56*8;}
@@ -136,7 +136,7 @@ void	sinput(char *sb,int ln)
 
     if( a==0x10 ){p=sln;}
     if( a==0x11 ){p=0;}
-    if( a==0x15 ){strcpy(st,&st[p]);p=0;}
+    if( a==0x15 ){memmove(st,&st[p],strlen(&st[p])+1);p=0;}
 
     if( p>sln ){p=sln;}
 

@@ -566,7 +566,7 @@ int	ctc(int da,char *s,int skey)
   i=0;while(s[i]!=0){
     a=s[i++];
     if( a=='H' ){ct=0;break;}
-    if( a=='$' ){strcpy(s,&s[1]);ct=0;break;}
+    if( a=='$' ){memmove(s,&s[1],strlen(&s[1])+1);ct=0;break;}
 
     if( a=='C' ){ct=1;}
     if( a=='D' ){ct=3;}

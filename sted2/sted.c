@@ -38,8 +38,8 @@ static uint8_t	fnckey[12]={
 uint8_t	fnckey0[712],fnckey1[712];
 uint8_t	fonbuf[188*32];
 
-char	env_opt[32][128];
-char	rc_path[256];
+char	env_opt[32][PATHLEN];
+char	rc_path[PATHLEN];
 
 int	cmdflagold,used_u=0;
 
@@ -62,7 +62,7 @@ static char version_id[1024];
 int	main(int argc,char *argv[])
 {
   int	i,f=0,lzf=0,work_size2=0,eoptc=0;
-  char	tmp0[1024],tmp1[1024],cmdline[2048],cmd[1024];
+  char	tmp0[PATHLEN * 2],tmp1[PATHLEN * 2],cmdline[2048],cmd[PATHLEN];
   char	*p;
   FILE	*fp;
 
@@ -95,19 +95,21 @@ int	main(int argc,char *argv[])
 
   cnfinit();
 
+  /* Cap copies. Paths keep a byte for '/'; PATH_DRIVE_EXTRA is path_set's "A:" off macOS.
+     cmdline keeps a byte for the space option_read appends. */
   if ((p=getenv("RCP_DIR"))==(char*)0) p=getenv("rcp_dir");
-  if (p!=(char*)0){strcpy(rcp_path,p);}
+  if (p!=(char*)0){strlcpy(rcp_path,p,sizeof rcp_path-PATH_DRIVE_EXTRA-1);}
 
   if ((p=getenv("PRT_DIR"))==(char*)0) p=getenv("prt_dir");
-  if (p!=(char*)0){strcpy(prt_path,p);}
+  if (p!=(char*)0){strlcpy(prt_path,p,sizeof prt_path-PATH_DRIVE_EXTRA-1);}
 
   if ((p=getenv("RC_PATH"))==(char*)0) p=getenv("rc_path");
-  if (p!=(char*)0){strcpy(rc_path,p);}
+  if (p!=(char*)0){strlcpy(rc_path,p,sizeof rc_path-1);}
 
   if ((p=getenv("STED2"))==(char*)0) p=getenv("sted2");
-  if (p!=(char*)0){strcpy(cmdline,p);eoptc=option_read(cmdline);}
+  if (p!=(char*)0){strlcpy(cmdline,p,sizeof cmdline-1);eoptc=option_read(cmdline);}
 
-  i=snprintf(tmp0,1024,"MIDI Music Composer STed %s Copyright 1990-97 TURBO\r\n",version_id);
+  i=snprintf(tmp0,sizeof tmp0,"MIDI Music Composer STed %s Copyright 1990-97 TURBO\r\n",version_id);
   if ( i > 0 ) {
     B_PRINT( tmp0 );
   }
@@ -115,7 +117,7 @@ int	main(int argc,char *argv[])
   /*B_PRINT("X68k MIDI Sequencer STed v2.07m Copyright 1990-97 TURBO\r\n");*/
 
   if( argc>1 ){
-    for(i=1;i<argc;i++){if(eoptc<32){strcpy(env_opt[eoptc++],argv[i]);}}
+    for(i=1;i<argc;i++){if(eoptc<32){strlcpy(env_opt[eoptc],argv[i],sizeof env_opt[0]);eoptc++;}}
 
     for(i=0;i<eoptc;i++){
       strcpy(cmd,env_opt[i]);
@@ -421,7 +423,7 @@ realc:
 
   dinit();
   if(lzf){
-    char	tmp[128];int	ec;
+    char	tmp[PATHLEN * 2 + 16];int	ec;
 
     strcpy(tmp0,rcp_path);strcat(tmp0,rcp_file);
     strcpy(tmp,"lzm -x ");strcat(tmp,tmp0);ec=exe(tmp);
@@ -503,7 +505,7 @@ void	rst_errvect()
 void	com_sel()
 {
   int	ke,sh,cy=0,i;
-  char	tmp0[PATHLEN],tmp1[PATHLEN],path2[PATHLEN];
+  char	tmp0[PATHLEN * 2 + PATH_DRIVE_EXTRA],tmp1[PATHLEN * 2 + PATH_DRIVE_EXTRA],path2[PATHLEN * 2 + PATH_DRIVE_EXTRA];
 
   for(i=0;i<18;i++){sdis(1,112+i*21,menu1[i],8,15,8);}
 
@@ -623,7 +625,7 @@ void	com_sel()
 /***************************/
 void	load_sub(int sh)
 {
-  char	tmp0[PATHLEN],tmp1[PATHLEN],path2[PATHLEN];
+  char	tmp0[PATHLEN * 2],tmp1[PATHLEN],path2[PATHLEN + PATH_DRIVE_EXTRA];
 
   strcpy(tmp1,rcp_file);
   strcpy(path2,rcp_path);fsel(tmp1,path2,0x001);
@@ -655,7 +657,7 @@ void	load_sub(int sh)
 
 void	save_sub(int sh)
 {
-  char	tmp0[PATHLEN],tmp1[PATHLEN],path2[PATHLEN];
+  char	tmp0[PATHLEN * 2],tmp1[PATHLEN],path2[PATHLEN + PATH_DRIVE_EXTRA];
 
   strcpy(tmp1,rcp_file);
 
@@ -735,7 +737,7 @@ int	option(int md,int sm)
 {
   int	ke,i,y=0,ex=0,gy=scyp;
   int	cmd=0;
-  char	path2[PATHLEN],tmp0[PATHLEN],tmp1[PATHLEN],tmp2[PATHLEN];
+  char	path2[PATHLEN + PATH_DRIVE_EXTRA],tmp0[PATHLEN + PATH_DRIVE_EXTRA],tmp1[PATHLEN],tmp2[PATHLEN];
 
   /*  2015.3.27. Toshi Nagata  */
 	MacErrorBox("No optional functions are available yet.", 0);
@@ -810,7 +812,7 @@ int	option22(int md,int sm,int ad,int ew)
 {
   int	ke,i,y=0,ex=0,gy=scyp,cx,gx;
   int	cmd=0;
-  char	path2[PATHLEN],tmp0[PATHLEN],tmp1[PATHLEN],tmp2[PATHLEN];
+  char	path2[PATHLEN + PATH_DRIVE_EXTRA],tmp0[PATHLEN + PATH_DRIVE_EXTRA],tmp1[PATHLEN],tmp2[PATHLEN];
 
   if(ew==0){cx=41+16-16;gx=327+128-128;}else{cx=1+16-2;gx=7+128-16;}
 
@@ -903,7 +905,7 @@ inline int	option2(int md,int sm,int ad,int ew)
 {
   int	y,ex=0,gy;
   int	cmd=0;
-  char	path2[PATHLEN],tmp0[PATHLEN],tmp1[PATHLEN],tmp2[PATHLEN];
+  char	path2[PATHLEN + PATH_DRIVE_EXTRA],tmp0[PATHLEN + PATH_DRIVE_EXTRA],tmp1[PATHLEN],tmp2[PATHLEN];
   gy=scyp;y=md+26;
 
   if( chcom_s[y][1][0]!=0 ){
@@ -1430,7 +1432,7 @@ void	tpl(int a)
 void	fonload(char *fi)
 {
   FILE	*fp;
-  char tmp0[1024];
+  char tmp0[PATHLEN * 2];
 
   if(!(fp= fopen2(fi,"rb"))){
     /*strcpy( tmp0, STED_DEFAULT_PATH ); */
@@ -1483,7 +1485,7 @@ int	option_read(char *env_option)
 	env_opt[nn][s]=0;nn++;s=0;if(nn>31){break;}
       }
     }else{
-      env_opt[nn][s]=env_option[i];s++;
+      if(s<PATHLEN-1){env_opt[nn][s]=env_option[i];s++;}
     }
     i++;
   }
@@ -1494,7 +1496,7 @@ int	option_read(char *env_option)
 int	exe(char *cl)
 {
   int	ec,er,use;
-  char	tmp0[128];
+  char	tmp0[PATHLEN * 3 + 16];
 
   rst_errvect();
   size_ref();

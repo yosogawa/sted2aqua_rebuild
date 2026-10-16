@@ -561,7 +561,7 @@ void	trk_set(int md)
 
     if( ke=='L' ){
       if((sh&1)==0){
-	char	tmp0[PATHLEN],path2[PATHLEN];
+	char	tmp0[PATHLEN * 2],path2[PATHLEN + PATH_DRIVE_EXTRA];
 
 	track=i;
 	trk_no_dis();
@@ -579,7 +579,7 @@ void	trk_set(int md)
     }
     if( ke=='S' ){
       if((sh&1)==0){
-	char	tmp0[PATHLEN],path2[PATHLEN];
+	char	tmp0[PATHLEN * 2],path2[PATHLEN + PATH_DRIVE_EXTRA];
 
 	track=i;
 	trk_no_dis();

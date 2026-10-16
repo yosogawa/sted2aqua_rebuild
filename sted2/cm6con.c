@@ -252,7 +252,8 @@ uint8_t	trf[64];
 void	cm64_con()
 {
   int	ke,sh,ex,smo=0,i;
-  char	tmp0[PATHLEN],path2[PATHLEN];
+  char	tmp0[PATHLEN + PATH_DRIVE_EXTRA],path2[PATHLEN + PATH_DRIVE_EXTRA];
+  char	name[PATHLEN];
 
   tkey=60;tvel=127;
   fill(0,544,767,1023,0);pfil();home2(512);trns_check();
@@ -292,7 +293,8 @@ void	cm64_con()
     }
 
     if( ke==0xf5 ){
-      B_CLR_AL();strcpy(path2,rcp_path);fsel(cm6_file,path2,0x002);
+      B_CLR_AL();strcpy(path2,rcp_path);fsel(name,path2,0x002);
+      strlcpy(cm6_file,name,sizeof cm6_file);
       if( cm6_file[0]==0 ){cminit();timtra();}
       if( cm6_file[0]!=0 && es==0 ){
 	strcpy(tmp0,path2);strcat(tmp0,cm6_file);
@@ -305,7 +307,8 @@ void	cm64_con()
       sdis2(53,64,sted_filename_for_font(cm6_file),15,15,0);pfil();
     }
     if( ke==0xf6 ){
-      B_CLR_AL();strcpy(path2,rcp_path);fsel(cm6_file,path2,0x102);
+      B_CLR_AL();strcpy(path2,rcp_path);fsel(name,path2,0x102);
+      strlcpy(cm6_file,name,sizeof cm6_file);
       if( cm6_file[0]!=0 && es==0 ){
 	strcpy(tmp0,path2);strcat(tmp0,cm6_file);
 	if(timsave(tmp0)==0){
@@ -1090,11 +1093,7 @@ char	*cm6_tone_name(int mo,int i)
   }
 
   b_striS(tmp1,128,n+1);strcpy(tmp0,"000");strcat(tmp0,tmp1);
-#if 0
-  strcpy(tmp0,&tmp0[strlen(tmp0)-4]);
-#else
   memmove(tmp0,&tmp0[strlen(tmp0)-4], strlen(&tmp0[strlen(tmp0)-4])+1);
-#endif
   tmp0[0]=tone_hed[nn];
   strcat(tmp0," ");strcat(tmp0,spadd(tim_name[i0],10));
   cm6_tone_name_tmp = tmp0;
