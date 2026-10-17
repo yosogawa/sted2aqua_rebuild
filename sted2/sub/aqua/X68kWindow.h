@@ -36,7 +36,7 @@ int XSTed_SetGCol(int col);
 void XSTed_curon(void);
 void XSTed_curoff(void);
 void XSTed_tlocate(int x, int y);
-void XSTed_tputs(char *message);
+void XSTed_tputs(const char *message);
 void XSTed_gputs(int x0, int y0, const char *message);
 void XSTed_cls_eol(void);
 void XSTed_cls_ed(void);

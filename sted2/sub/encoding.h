@@ -13,13 +13,12 @@ char *jstrupr(char *st);
   SJIS, JIS.
 */
 
-extern char *encoding_convert(char *si, char *so, int maxsize,
-			      char *in_mode, char *out_mode);
-extern int sted_looks_like_utf8(const char *s, int len);
-extern void sted_ensure_sjis(char *buf, int bufsize);
+char *encoding_convert(char *si, char *so, int maxsize, char *in_mode, char *out_mode);
+int sted_looks_like_utf8(const char *s, int len);
+void sted_ensure_sjis(char *buf, int bufsize);
 /* Host UTF-8 (APFS) filename → SJIS for kanji-ROM / STed text.
    Does not modify the source. SJIS/ASCII names are returned as-is. */
-extern const char *sted_filename_for_font(const char *name);
+const char *sted_filename_for_font(const char *name);
 
 #ifdef __cplusplus
 }

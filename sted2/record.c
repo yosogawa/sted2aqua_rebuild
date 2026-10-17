@@ -9,16 +9,14 @@ int	trch,lastptr,pt,tr,len,cmd,d_byte;
 int	step,barlen,barunit,stepsum,midi_ch,exc_no,exc_id;
 int	nbuf[16], vbuf[16], gbuf[16];
 
-int	metoro_trk,metoro_sw,topmeas,recmeas,btmmeas,ecount_sw;
-
-
-
-
-
-
+int metoro_trk;
+int metoro_sw; /* 0:ON 1:OFF */
+int topmeas;
+int recmeas;
+int btmmeas;
+int ecount_sw; /* 0:INT 1:EXT */
 
 static void	mix_two();
-
 
 /***************************/
 int	real_record()
@@ -427,7 +425,7 @@ void	rec_mt_change(int md)
 /***************************/
 void	rec_sy_change()
 {
-  ecount_sw=1-ecount_sw;
+  ecount_sw=1-ecount_sw; /* Toggle */
   rec_ch_disp();
 }
 
