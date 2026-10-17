@@ -14,3 +14,4 @@ SDL3.xcframework/
 .DS_Store
 *.timestamp
 /build/DerivedData
+.cursor/
