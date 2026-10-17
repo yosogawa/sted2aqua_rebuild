@@ -53,6 +53,7 @@ int	cmdflagold,used_u=0;
 
 
 static int   paraexe(char *,int,int,int,int);
+static void  mdin_fit(char *dst, const char *src, int cells);
 
 static void
 sted_fail(int code)
@@ -1213,7 +1214,11 @@ void	rcp_dat2(int n,int m)
   if(n==5 || n<0){sdis2(20,128,scale_str(bkey),13,c1,c2);}
   if(n==6 || n<0){vdis(22,144,beat1,2,c1,c2);vdis(26,144,beat2,2,c1,c2);}
   if(n==7 || n<0){vdis(45,96,tbase,3,c1,c2);}
-  if(n==8 || n<0){sdis2(44,144,mdinport(),8,c1,c2);}
+  if(n==8 || n<0){
+    char shown[16];
+    mdin_fit(shown, mdinport(), 8);
+    sdis2(44,144,shown,8,c1,c2);
+  }
 }
 
 void
@@ -1400,14 +1405,9 @@ char	*mdinport()
   */
 
 #if defined(__APPLE__)
-  {
-    char raw[64];
-    if (coremidi_connected_input_name(raw, (int)sizeof raw))
-      mdin_fit(tmp0, raw, 8);
-    else
-      strcpy(tmp0, "NoConnect");
-    return tmp0;
-  }
+  if (!coremidi_connected_input_name(tmp0, (int)sizeof tmp0))
+    strcpy(tmp0, "NoConnect");
+  return tmp0;
 #else
   if ( midi_port_name[0] != 0 ) {  /* Sep.02.1998 Daisuke Nagano */
     a = strrchr( midi_port_name, '/' );

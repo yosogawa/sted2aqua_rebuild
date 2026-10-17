@@ -2,5 +2,5 @@
 
 CFBundleName = "STed2";
 CFBundleShortVersionString = "Version 2.07";
-CFBundleGetInfoString = "Version 2.07, Copyright 1990-1997 TURBO, 1998-1999 Daisuke Nagano, 2000-2015 Toshi Nagata.";
-NSHumanReadableCopyright = "Copyright 1990-1997 TURBO, 1998-1999 Daisuke Nagano, 2000-2015 Toshi Nagata.";
+CFBundleGetInfoString = "Version 2.07, Copyright 1990-1997 TURBO, 1998-1999 Daisuke Nagano, 2000-2015 Toshi Nagata, 2026 Yoshinori Ogawa.";
+NSHumanReadableCopyright = "Copyright 1990-1997 TURBO, 1998-1999 Daisuke Nagano, 2000-2015 Toshi Nagata, 2026 Yoshinori Ogawa.";

@@ -1596,6 +1596,128 @@ cnf_line_key(const char *s, const char *const *keys, int nkeys, int allowComment
 	return -1;
 }
 
+/* Replace the value of an active #thrumode= line. Returns nil if this line is not one. */
+static NSString *
+ReplaceThruModeLine(NSString *line, int on, int *matched)
+{
+	NSUInteger i, n, valAt, valEnd;
+	unichar c;
+	NSString *key;
+
+	*matched = 0;
+	n = [line length];
+	i = 0;
+	while (i < n) {
+		c = [line characterAtIndex:i];
+		if (c != ' ' && c != '\t')
+			break;
+		i++;
+	}
+	if (i < n && [line characterAtIndex:i] == '*')
+		return nil;
+	if (n - i < 9)
+		return nil;
+	key = [line substringWithRange:NSMakeRange(i, 9)];
+	if ([key caseInsensitiveCompare:@"#thrumode"] != NSOrderedSame)
+		return nil;
+	i += 9;
+	while (i < n) {
+		c = [line characterAtIndex:i];
+		if (c != ' ' && c != '\t')
+			break;
+		i++;
+	}
+	if (i >= n || [line characterAtIndex:i] != '=')
+		return nil;
+	i++;
+	while (i < n) {
+		c = [line characterAtIndex:i];
+		if (c != ' ' && c != '\t')
+			break;
+		i++;
+	}
+	valAt = i;
+	while (i < n) {
+		c = [line characterAtIndex:i];
+		if (c == ' ' || c == '\t' || c == '*')
+			break;
+		i++;
+	}
+	valEnd = i;
+	*matched = 1;
+	return [NSString stringWithFormat:@"%@%@%@",
+		[line substringToIndex:valAt],
+		on ? @"on" : @"off",
+		[line substringFromIndex:valEnd]];
+}
+
+int
+XSTed_save_thrumode(int on)
+{
+	char path[PATHLEN];
+	NSString *filePath;
+	NSError *err = nil;
+	NSStringEncoding enc = 0;
+	NSString *text, *out, *nl;
+	NSMutableArray *lines;
+	NSUInteger i, n;
+	int matched = 0;
+	int any = 0;
+
+	on = on ? 1 : 0;
+	thrumode = (char)on;
+	if (!resolve_sted2_cnf(path, sizeof path)) {
+		NSLog(@"sted2.cnf was not found; THRU mode was not saved");
+		return -1;
+	}
+	filePath = [NSString stringWithUTF8String:path];
+	text = [NSString stringWithContentsOfFile:filePath usedEncoding:&enc error:&err];
+	if (text == nil) {
+		enc = NSUTF8StringEncoding;
+		err = nil;
+		text = [NSString stringWithContentsOfFile:filePath encoding:NSUTF8StringEncoding error:&err];
+	}
+	if (text == nil) {
+		NSLog(@"could not read %@: %@", filePath, err);
+		return -1;
+	}
+	if ([text rangeOfString:@"\r\n"].location != NSNotFound)
+		nl = @"\r\n";
+	else if ([text rangeOfString:@"\r"].location != NSNotFound)
+		nl = @"\r";
+	else
+		nl = @"\n";
+	text = [text stringByReplacingOccurrencesOfString:@"\r\n" withString:@"\n"];
+	text = [text stringByReplacingOccurrencesOfString:@"\r" withString:@"\n"];
+	lines = [NSMutableArray arrayWithArray:[text componentsSeparatedByString:@"\n"]];
+	n = [lines count];
+	for (i = 0; i < n; i++) {
+		NSString *replaced = ReplaceThruModeLine([lines objectAtIndex:i], on, &matched);
+		if (replaced == nil)
+			continue;
+		any = 1;
+		[lines replaceObjectAtIndex:i withObject:replaced];
+	}
+	if (!any) {
+		NSString *added = [NSString stringWithFormat:@"#thrumode=%s", on ? "on" : "off"];
+		if (n > 0 && [[lines lastObject] length] == 0)
+			[lines insertObject:added atIndex:n - 1];
+		else
+			[lines addObject:added];
+	}
+	out = [lines componentsJoinedByString:nl];
+	if (![out hasSuffix:nl])
+		out = [out stringByAppendingString:nl];
+	if (enc == 0)
+		enc = NSUTF8StringEncoding;
+	err = nil;
+	if (![out writeToFile:filePath atomically:YES encoding:enc error:&err]) {
+		NSLog(@"could not write %@: %@", filePath, err);
+		return -1;
+	}
+	return 0;
+}
+
 int
 XSTed_save_dls_settings(void)
 {

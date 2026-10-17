@@ -19,6 +19,8 @@ extern int isconsole;
 extern int sted_saved_argc;
 extern char **sted_saved_argv;
 extern void sted_redraw_midi_in(void);
+extern char thrumode;
+extern int XSTed_save_thrumode(int on);
 
 @implementation AppController
 
@@ -64,6 +66,7 @@ extern void sted_redraw_midi_in(void);
 	XSTed_init_window();
 	[self installViewMenu];
 	[self installDLSSynthMenu];
+	[self installThruModeMenu];
 	{
 		NSInteger percent = [[NSUserDefaults standardUserDefaults] integerForKey:@"DisplayScalePercent"];
 		[X68kView applyDisplayScalePercent:(int)percent toView:xview];
@@ -169,6 +172,43 @@ extern void sted_redraw_midi_in(void);
 	[item release];
 }
 
+- (void)installThruModeMenu
+{
+	NSMenu *mainMenu = [NSApp mainMenu];
+	NSMenu *midiMenu = nil;
+	NSMenuItem *item;
+	NSInteger i, n, at;
+
+	if (mainMenu == nil)
+		return;
+	n = [mainMenu numberOfItems];
+	for (i = 0; i < n; i++) {
+		NSMenuItem *top = [mainMenu itemAtIndex:i];
+		if ([[top title] isEqualToString:@"MIDI"]) {
+			midiMenu = [top submenu];
+			break;
+		}
+	}
+	if (midiMenu == nil)
+		return;
+	item = [[NSMenuItem alloc] initWithTitle:@"THRU MODE"
+					  action:@selector(toggleThruMode:)
+				   keyEquivalent:@""];
+	[item setTarget:self];
+	at = [midiMenu indexOfItemWithTitle:@"DLS Synth..."];
+	if (at != NSNotFound)
+		[midiMenu insertItem:item atIndex:at + 1];
+	else
+		[midiMenu addItem:item];
+	[item release];
+}
+
+- (IBAction)toggleThruMode:(id)sender
+{
+	(void)sender;
+	XSTed_save_thrumode(thrumode ? 0 : 1);
+}
+
 - (void)installViewMenu
 {
 	NSMenu *mainMenu = [NSApp mainMenu];
@@ -251,6 +291,10 @@ static NSRect sFrameBeforeFill;
 	if ([menuItem action] == @selector(toggleVisibleFrame:)) {
 		[menuItem setState:(sFilledVisibleFrame ? NSOnState : NSOffState)];
 		return myWindow != nil;
+	}
+	if ([menuItem action] == @selector(toggleThruMode:)) {
+		[menuItem setState:(thrumode ? NSOnState : NSOffState)];
+		return YES;
 	}
 	return YES;
 }

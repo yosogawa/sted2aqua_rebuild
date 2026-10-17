@@ -16,6 +16,7 @@
 - (IBAction)midiSettingsDialog:(id)sender;
 - (IBAction)dlsSynthDialog:(id)sender;
 - (IBAction)allSoundOff:(id)sender;
+- (IBAction)toggleThruMode:(id)sender;
 - (IBAction)setDisplayScale:(id)sender;
 - (IBAction)toggleVisibleFrame:(id)sender;
 @end
