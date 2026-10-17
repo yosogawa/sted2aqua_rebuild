@@ -87,8 +87,8 @@ static void CoreMIDIReadProc(const MIDIPacketList *pktlist, void *readProcRefCon
 }
 
 static CoreMIDIRCPPlayer *sCurrentPlayer;
-static MIDIClientRef	sMIDIClientRef = NULL;
-static MIDIPortRef		sMIDIOutputPortRef = NULL;
+static MIDIClientRef	sMIDIClientRef = 0;
+static MIDIPortRef		sMIDIOutputPortRef = 0;
 static MIDIEndpointRef	sDest[kMaxNumberOfPorts];
 
 static MIDISysexSendRequest sSysexRequest[kMaxNumberOfPorts];
@@ -936,17 +936,17 @@ void
 CoreMIDIInitIfNeeded(void)
 {
 	int i;
-	if (sMIDIClientRef == NULL) {
+	if (sMIDIClientRef == 0) {
 		MIDIClientCreate(CFSTR("STed2 Mac"), NULL, NULL, &sMIDIClientRef);
-		if (sMIDIOutputPortRef == NULL)
+		if (sMIDIOutputPortRef == 0)
 			MIDIOutputPortCreate(sMIDIClientRef, CFSTR("STed2 output port"), &sMIDIOutputPortRef);
-		if (sMIDIInputPortRef == NULL)
+		if (sMIDIInputPortRef == 0)
 			MIDIInputPortCreate(sMIDIClientRef, CFSTR("STed2 input port"), CoreMIDIReadProc, NULL, &sMIDIInputPortRef);
 #ifdef USE_INTERNALSYNTH
 		CreateInternalDestinations();
 #endif
 		for (i = 0; i < sizeof(sDest) / sizeof(sDest[0]); i++)
-			sDest[i] = NULL;
+			sDest[i] = 0;
 
 		CoreMIDIConnectDefaultInputs();
 	}
@@ -986,9 +986,9 @@ CoreMIDIEndpointDisplayName(MIDIEndpointRef eref)
 	} else {
 		MIDIObjectGetStringProperty(eref, kMIDIPropertyName, &name);
 		if (MIDIEndpointGetEntity(eref, &enref) == noErr
-			&& enref != NULL
+			&& enref != 0
 			&& MIDIEntityGetDevice(enref, &dref) == noErr
-			&& dref != NULL) {
+			&& dref != 0) {
 			if (MIDIObjectGetStringProperty(dref, kMIDIPropertyName, &name2) != noErr)
 				name2 = NULL;
 		}
@@ -1146,7 +1146,7 @@ CoreMIDISend(uint8_t *ptr, int length, int port, MIDITimeStamp atTime)
 	MIDIPacket *	packetPtr;
 	OSStatus sts;
 	port = port % kMaxNumberOfPorts;
-	if (length <= 0 || sDest[port] == NULL)
+	if (length <= 0 || sDest[port] == 0)
 		return 0;
 #ifdef USE_INTERNALSYNTH
 	if (sDest[port] == sInternalDest[0] || sDest[port] == sInternalDest[1]) {
@@ -1325,7 +1325,7 @@ CoreMIDIAllSoundOff(void)
 	int port, ch;
 	
 	/*  Flush all output that are scheduled for future delivery  */
-	MIDIFlushOutput(NULL);
+	MIDIFlushOutput(0);
 	/*  All sound off  */
 	for (port = 0; port < 2; port++) {
 		for (ch = 0; ch < 16; ch++) {
@@ -1402,7 +1402,8 @@ static void rcpplayer_update_clock(void)
 	now = AudioGetCurrentHostTime();
 	if (now >= sStartTimeStamp) {
 		UInt64 elapsed_micros = AudioConvertHostTimeToNanos(now - sStartTimeStamp) / 1000;
-		int32_t current_step = rcpplayer_microseconds_to_step(elapsed_micros);
+		/* rcpplayer_microseconds_to_step takes uint32_t. The value wraps after 2^32 us (about 71.6 minutes). */
+		int32_t current_step = rcpplayer_microseconds_to_step((uint32_t)elapsed_micros);
 		if (rcd != NULL) {
 			rcd->stepcount = current_step;
 			rcd->act = 1;

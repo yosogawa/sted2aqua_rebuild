@@ -298,7 +298,7 @@ int rcptomid_read_rcp_header( RCP_DATA *rcp ) {
     rcp->rcp = FLAG_TRUE;
     rcp->g36 = FLAG_FALSE;
   } else if ( strncmp( ptr, STEDDATA_HEADER_STRING, 8 ) ==0 &&
-	      strncmp( ptr+12, STEDDATA_HEADER_STRING+12, 16 ) ==0 ) {
+	      strncmp( ptr+12, &STEDDATA_HEADER_STRING[12], 16 ) ==0 ) {
     rcp->steddata = FLAG_TRUE;
     rcp->rcp = FLAG_TRUE;
     rcp->g36 = FLAG_FALSE;
@@ -841,7 +841,7 @@ static int set_tempo_track ( RCP_DATA *rcp ) {
   if ( rcp->enable_converter_notice == FLAG_TRUE ) {
     int *len;
 
-    sprintf( buf,"\nThis file was converted by %s version %s (%s - %s).\nOriginal RCP file is \"%s\" (%s, %d bytes).",
+    sprintf( buf,"\nThis file was converted by %s version %s (%s - %s).\nOriginal RCP file is \"%s\" (%s, %zu bytes).",
 	     (rcp->command_name!=NULL)?rcp->command_name:rcptomid_name,
 	     VERSION_ID, VERSION_TEXT1, VERSION_TEXT2,
 	     (rcp->file_name!=NULL)?rcp->file_name:undefined_filename,

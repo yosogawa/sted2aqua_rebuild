@@ -45,7 +45,8 @@ static char     sted_id[] = "STEDDATAx.xxDedicatedToTURBO\r\n"; /* 30bytes */
 
 /* ================================================== file */
 static int smfload( char *fna ) {
-  int  i,j,size,size2,ln,md2=0,stra=0,max;
+  int  i,j,size2,ln,md2=0,stra=0,max;
+  long size;
   FILE *fp;
   uint8_t *smfbuf, *rcpbuf;
   size_t ptr;
@@ -83,21 +84,21 @@ static int smfload( char *fna ) {
   for(i=stra;i<max;i++){
     memmove(hed,rcpbuf+ptr,44);size=thedread(i);size2=0;
     ptr+=44;
-    if( size>TRACK_SIZE ){size2=size;size=TRACK_SIZE;}
+    if( size>TRACK_SIZE ){size2=(int)size;size=TRACK_SIZE;}
 
-    if(size_change(i,size)){break;}
-    ln=size;
+    if(size_change(i,(int)size)){break;}
+    ln=(int)size;
     memmove(trk[i],rcpbuf+ptr,size);
     if( rcpsize<ptr+size ) ln=0;
     ptr+=size;
 
     if( ln!=size ){if(i==18){break;}msg(_("Invalid file."));size=ln;break;}
 
-    size=gomi_cut(trk[i],size);
-    tr_len[i]=size;trk[i][size-4]=0xfe;
+    size=gomi_cut(trk[i],(int)size);
+    tr_len[i]=(int)size;trk[i][size-4]=0xfe;
 
     if( size2>0){
-      msg(_("Track buffer exhausted."));size2-=size;
+      msg(_("Track buffer exhausted."));size2-=(int)size;
       while( size2>0 ){
 	if( size2>TRACK_SIZE ){j=TRACK_SIZE;}else{j=size2;}
 	memmove(dat,rcpbuf+ptr,j);ptr+=j;

@@ -73,7 +73,7 @@ static void **sRequestAppKitArgs;
 
 //  End of shared memory variables
 
-static NSView *sMainView;
+static X68kView *sMainView;
 static NSTimer *sTimer;
 static int sDisplayScalePercent = 100;
 

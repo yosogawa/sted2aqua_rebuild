@@ -10,7 +10,7 @@ extern int sTextHeight;  /* text visible height in pixels; session-fixed, defaul
 #define sGraphWidth 1024
 #define sGraphHeight 1024
 
-@interface X68kView : NSView
+@interface X68kView : NSView <NSTextFieldDelegate>
 {
 	//  These bitmaps must be recreated every time the bitmap content is updated
 	NSBitmapImageRep *bitmapRep;

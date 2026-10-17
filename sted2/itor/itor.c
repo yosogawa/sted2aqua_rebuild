@@ -917,66 +917,68 @@ static void proc_excl( uint8_t *text, int length ,int code)
   }
 
 static int proc_next( void )
-  {
-    int meta, code, length,last;
-    uint8_t text[4096];
+{
+  int meta, code, length,last;
+  uint8_t text[4096];
 
-    last = std_trk.length;
-    cmd = 0x00;
-    step = stepx = 0;
+  last = std_trk.length;
+  cmd = 0x00;
+  step = stepx = 0;
 
-    while(pt<last) {
+  while(pt<last) {
 
-      proc_dummy( get_delta(pt) );
+    proc_dummy( get_delta(pt) );
+    pt += d_byte;
+
+    if( ( code = buf[pt] ) == 0xff ) {
+      pt++;
+      meta = buf[pt++];
+      length = get_delta(pt);
       pt += d_byte;
-
-      if( ( code = buf[pt] ) == 0xff ) {
-	pt++;
-	meta = buf[pt++];
-	length = get_delta(pt);
-	pt += d_byte;
-	strncpy0( text, buf + pt, length );
-	if( fmt == 1 || trk == 0 ) {
-	  proc_meta( meta, text, length );
-	}
-	pt += length;
-	if( meta == 0x2f ) {
-	  return 0;
-	}
-      } else {
-	switch( code & 0xf0 ) {
-	case 0x80: /*check( buf[pt] ); note_off(pt+1);*/
-	  cmd = buf[pt] & 0xf0;
-	  pt += 3; break;
-	case 0x90: check( buf[pt] ); note_on(pt+1);  pt += 3; break;
-	case 0xa0: check( buf[pt] ); aft_key(pt+1);  pt += 3; break;
-	case 0xb0: check( buf[pt] ); ctl_chg(pt+1);  pt += 3; break;
-	case 0xc0: check( buf[pt] ); prg_chg(pt+1);  pt += 2; break;
-	case 0xd0: check( buf[pt] ); aft_tch(pt+1);  pt += 2; break;
-	case 0xe0: check( buf[pt] ); pt_bend(pt+1);  pt += 3; break;
-	case 0xf0:
-	  if( code != 0xf0 && code != 0xf7 ) {
-	    fprintf( stderr, "Invalid MIDI message (%02X)\n", code );
-	    return 1;
-	  }
-	  pt++;
-	  length = get_delta(pt);
-	  pt += d_byte;
-	  if( fmt == 1 || trk == 0 ) {
-	    if(length<32*1024){
-	      strncpy0( exc_buf, buf + pt, length );
-	      proc_excl( exc_buf, length ,code);
-	    }
-	  }
-	  pt += length;
-	  break;
-	default :  run_sts(pt); pt += 2;
-	  if(cmd>=0xc0 && cmd<=0xdf){pt--;}
-	  break;
-	}
+      strncpy0( text, buf + pt, length );
+      if( fmt == 1 || trk == 0 ) {
+        proc_meta( meta, text, length );
+      }
+      pt += length;
+      if( meta == 0x2f ) {
+        return 0;
+      }
+    } else {
+      switch( code & 0xf0 ) {
+      case 0x80: /*check( buf[pt] ); note_off(pt+1);*/
+        cmd = buf[pt] & 0xf0;
+        pt += 3; break;
+      case 0x90: check( buf[pt] ); note_on(pt+1);  pt += 3; break;
+      case 0xa0: check( buf[pt] ); aft_key(pt+1);  pt += 3; break;
+      case 0xb0: check( buf[pt] ); ctl_chg(pt+1);  pt += 3; break;
+      case 0xc0: check( buf[pt] ); prg_chg(pt+1);  pt += 2; break;
+      case 0xd0: check( buf[pt] ); aft_tch(pt+1);  pt += 2; break;
+      case 0xe0: check( buf[pt] ); pt_bend(pt+1);  pt += 3; break;
+      case 0xf0:
+        if( code != 0xf0 && code != 0xf7 ) {
+          fprintf( stderr, "Invalid MIDI message (%02X)\n", code );
+          return 1;
+        }
+        pt++;
+        length = get_delta(pt);
+        pt += d_byte;
+        if( fmt == 1 || trk == 0 ) {
+          if(length<32*1024){
+            strncpy0( exc_buf, buf + pt, length );
+            proc_excl( exc_buf, length ,code);
+          }
+        }
+        pt += length;
+        break;
+      default :  run_sts(pt); pt += 2;
+        if(cmd>=0xc0 && cmd<=0xdf){pt--;}
+        break;
       }
     }
   }
+  /* MTrk の長さまで読み終えた。End of Track (0x2F) が無くても、ここは変換成功。 */
+  return 0;
+}
 
 static void track_end( void )
 {
