@@ -236,8 +236,7 @@ AmySynthSendMIDI(const uint8_t *bytes, int length, uint64_t atTime)
 		if (length < 3)
 			return;
 		if (data1 == 0) {
-			/* Bank 0 is Juno, bank 1 is DX7, bank 3 is the Gamma9001 kits. */
-			sBank[channel] = (data2 == 1 || data2 == 3) ? data2 : 0;
+			sBank[channel] = data2;
 			return;
 		}
 		if (data1 == 64) {

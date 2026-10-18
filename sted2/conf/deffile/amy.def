@@ -1,0 +1,105 @@
+*--------------------------------------------------------------------------------------
+* amy.def : STed2 tone list from AMY patches.h comments
+*           Each name is at most 12 characters, the DEF tone-name width.
+*           Bank 0 is Juno (patches 0-127). Bank 1 is DX7 (patches 128-255).
+*           The extra part is patches 256-258. Bank 3 programs 0-6 are patches 384-390.
+*           Patches 259-383 are reserved in patches.h and are not listed.
+*--------------------------------------------------------------------------------------
+
+* 使用する音源の機種名(表示用=module/内部処理用=id)
+#module= MODULE: AMY Synthesizer
+
+#id=AMY
+
+*======================================================================================
+* 音色名定義 (音色名は12文字まで)
+
+* [No.]-[Title(16byte) ][header]
+#part=16, AMY Juno 106  , AMY:
+*--------------------------------------------------------------------------------------
+A11 Brass Se,A12 Brass Sw,A13 Trumpet ,A14 Flutes  
+A15 Moving S,A16 Brass & ,A17 Choir   ,A18 Piano I 
+A21 Organ I ,A22 Organ II,A23 Combo Or,A24 Calliope
+A25 Donald P,A26 Celeste*,A27 Elect. P,A28 Elect. P
+A31 Clock Ch,A32 Steel Dr,A33 Xylophon,A34 Brass II
+A35 Fanfare ,A36 String I,A37 Pizzicat,A38 High Str
+A41 Bass cla,A42 English ,A43 Brass En,A44 Guitar  
+A45 Koto    ,A46 Dark Plu,A47 Funky I ,A48 Synth Ba
+A51 Lead I  ,A52 Lead II ,A53 Lead III,A54 Funky II
+A55 Synth Ba,A56 Funky II,A57 Thud Wah,A58 Going Up
+A61 Piano II,A62 Clav    ,A63 Frontier,A64 Snare Dr
+A65 Tom Toms,A66 Timpani ,A67 Shaker  ,A68 Synth Pa
+A71 Sweep I ,A72 Pluck Sw,A73 Repeater,A74 Sweep II
+A75 Pluck Be,A76 Dark Syn,A77 Sustaine,A78 Wah Rele
+A81 Gong    ,A82 Resonanc,A83 Drum Boo,A84 Dust Sto
+A85 Rocket M,A86 Hand Cla,A87 FX Sweep,A88 Caverns 
+B11 Strings ,B12 Violin  ,B13 Chorus V,B14 Organ 1 
+B15 Harpsich,B16 Recorder,B17 Perc. Pl,B18 Noise Sw
+B21 Space Ch,B22 Nylon Gu,B23 Orchestr,B24 Bright P
+B25 Organ Be,B26 Accordio,B27 FX Rise ,B28 FX Rise 
+B31 Brass   ,B32 Helicopt,B33 Lute    ,B34 Chorus F
+B35 Tomita  ,B36 FX Sweep,B37 Sharp Re,B38 Bass Plu
+B41 Resonant,B42 Harpsich,B43 Dark Ens,B44 Contact 
+B45 Noise Sw,B46 Glassy W,B47 Phase En,B48 Chorused
+B51 Clav    ,B52 Organ 2 ,B53 Bassoon ,B54 Auto Rel
+B55 Brass En,B56 Ethereal,B57 Chorus B,B58 Blizzard
+B61 E. Piano,B62 Clarinet,B63 Thunder ,B64 Reedy Or
+B65 Flute / ,B66 Toy Rhod,B67 Surf's U,B68 OW Bass 
+B71 Piccolo ,B72 Melodic ,B73 Meow Bra,B74 Violin  
+B75 High Bel,B76 Rolling ,B77 Ping Bel,B78 Brassy O
+B81 Low Dark,B82 Piccolo ,B83 Cello   ,B84 High Str
+B85 Rocket M,B86 Forbidde,B87 Froggy  ,B88 Owgan   
+*--------------------------------------------------------------------------------------
+#defoff
+* Bank 1. Program 0 is patch 128.
+#part=17, AMY DX7       , AMY:
+*--------------------------------------------------------------------------------------
+BRASS   1   ,BRASS   2   ,BRASS   3   ,STRINGS 1   
+STRINGS 2   ,STRINGS 3   ,ORCHESTRA   ,PIANO   1   
+PIANO   2   ,PIANO   3   ,E.PIANO 1   ,GUITAR  1   
+GUITAR  2   ,SYN-LEAD 1  ,BASS    1   ,BASS    2   
+E.ORGAN 1   ,PIPES   1   ,HARPSICH 1  ,CLAV    1   
+VIBE    1   ,MARIMBA     ,KOTO        ,FLUTE   1   
+ORCH-CHIME  ,TUB BELLS   ,STEEL DRUM  ,TIMPANI     
+REFS WHISL  ,VOICE   1   ,TRAIN       ,TAKE OFF    
+PIANO   4   ,PIANO   5   ,E.PIANO 2   ,E.PIANO 3   
+E.PIANO 4   ,PIANO 5THS  ,CELESTE     ,TOY PIANO   
+HARPSICH 2  ,HARPSICH 3  ,CLAV    2   ,CLAV    3   
+E.ORGAN 2   ,E.ORGAN 3   ,E.ORGAN 4   ,E.ORGAN 5   
+PIPES   2   ,PIPES   3   ,PIPES   4   ,CALIOPE     
+ACCORDION   ,SITAR       ,GUITAR  3   ,GUITAR  4   
+GUITAR  5   ,GUITAR  6   ,LUTE        ,BANJO       
+HARP    1   ,HARP    2   ,BASS    3   ,BASS    4   
+PICCOLO     ,FLUTE   2   ,OBOE        ,CLARINET    
+SAX BC      ,BASSOON     ,STRINGS 4   ,STRINGS 5   
+STRINGS 6   ,STRINGS 7   ,STRINGS 8   ,BRASS   4   
+BRASS   5   ,BRASS 6 BC  ,BRASS   7   ,BRASS   8   
+RECORDER    ,HARMONICA1  ,HRMNCA2 BC  ,VOICE   2   
+VOICE   3   ,GLOKENSPL   ,VIBE    2   ,XYLOPHONE   
+CHIMES      ,GONG    1   ,GONG    2   ,BELLS       
+COW BELL    ,BLOCK       ,FLEXATONE   ,LOG DRUM    
+SYN-LEAD 2  ,SYN-LEAD 3  ,SYN-LEAD 4  ,SYN-LEAD 5  
+SYN-CLAV 1  ,SYN-CLAV 2  ,SYN-CLAV 3  ,SYN-PIANO   
+SYNBRASS 1  ,SYNBRASS 2  ,SYNORGAN 1  ,SYNORGAN 2  
+SYN-VOX     ,SYN-ORCH    ,SYN-BASS 1  ,SYN-BASS 2  
+HARP-FLUTE  ,BELL-FLUTE  ,E.P-BRS BC  ,T.BL-EXPA   
+CHIME-STRG  ,B.DRM-SNAR  ,SHIMMER     ,EVOLUTION   
+WATER GDN   ,WASP STING  ,LASER GUN   ,DESCENT     
+OCTAVE WAR  ,GRAND PRIX  ,ST.HELENS   ,EXPLOSION   
+*--------------------------------------------------------------------------------------
+#defoff
+* Patches 256-258. Not a MIDI bank; listed as programs 0-2.
+#part=18, AMY extra     , AMY:
+*--------------------------------------------------------------------------------------
+dpwe piano  ,amyboard def,MIDI drums  
+*--------------------------------------------------------------------------------------
+#defoff
+* Bank 3. Program 0 is patch 384.
+#part=19, AMY drum kits , AMY:
+*--------------------------------------------------------------------------------------
+0 TR-808    ,1 TR-909    ,2 Linn 9000 ,3 MR-12     
+4 Tokyo Synt,5 Power     ,6 Percussion
+*--------------------------------------------------------------------------------------
+#defoff
+
+#end

@@ -42,6 +42,7 @@
 		A1UT1F011AC55B8700A70D31 /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1UT1F021AC55B8700A70D32 /* UniformTypeIdentifiers.framework */; };
 		E40E95C41ABA41ED0072AA0B /* assign.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E951C1ABA41ED0072AA0B /* assign.c */; };
 		E40E95C51ABA41ED0072AA0B /* cm6con.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E951D1ABA41ED0072AA0B /* cm6con.c */; };
+		A1DEF0012F0A4B0100E0E101 /* amy.def in Resources */ = {isa = PBXBuildFile; fileRef = A1DEF0022F0A4B0100E0E102 /* amy.def */; };
 		E40E95C61ABA41ED0072AA0B /* cm64.def in Resources */ = {isa = PBXBuildFile; fileRef = E40E95201ABA41ED0072AA0B /* cm64.def */; };
 		E40E95C71ABA41ED0072AA0B /* sc55.def in Resources */ = {isa = PBXBuildFile; fileRef = E40E95211ABA41ED0072AA0B /* sc55.def */; };
 		E40E95C81ABA41ED0072AA0B /* sc55mk2.def in Resources */ = {isa = PBXBuildFile; fileRef = E40E95221ABA41ED0072AA0B /* sc55mk2.def */; };
@@ -155,6 +156,7 @@
 		AFCF00FA307B7FC20040EB6F /* edit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = edit.h; sourceTree = "<group>"; };
 		E40E951C1ABA41ED0072AA0B /* assign.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = assign.c; sourceTree = "<group>"; };
 		E40E951D1ABA41ED0072AA0B /* cm6con.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = cm6con.c; sourceTree = "<group>"; };
+		A1DEF0022F0A4B0100E0E102 /* amy.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = amy.def; sourceTree = "<group>"; };
 		E40E95201ABA41ED0072AA0B /* cm64.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cm64.def; sourceTree = "<group>"; };
 		E40E95211ABA41ED0072AA0B /* sc55.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = sc55.def; sourceTree = "<group>"; };
 		E40E95221ABA41ED0072AA0B /* sc55mk2.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = sc55mk2.def; sourceTree = "<group>"; };
@@ -478,6 +480,7 @@
 		E40E951F1ABA41ED0072AA0B /* deffile */ = {
 			isa = PBXGroup;
 			children = (
+				A1DEF0022F0A4B0100E0E102 /* amy.def */,
 				E40E95201ABA41ED0072AA0B /* cm64.def */,
 				E40E95211ABA41ED0072AA0B /* sc55.def */,
 				E40E95221ABA41ED0072AA0B /* sc55mk2.def */,
@@ -781,6 +784,7 @@
 			files = (
 				8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */,
 				1DDD58160DA1D0A300B32029 /* MainMenu.xib in Resources */,
+				A1DEF0012F0A4B0100E0E101 /* amy.def in Resources */,
 				E40E95C61ABA41ED0072AA0B /* cm64.def in Resources */,
 				E40E95C71ABA41ED0072AA0B /* sc55.def in Resources */,
 				E40E95C81ABA41ED0072AA0B /* sc55mk2.def in Resources */,
