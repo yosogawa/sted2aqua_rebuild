@@ -1,5 +1,5 @@
 #import "DLSSynthPanel.h"
-#import "CoreMIDIRCPPlayer.h"
+#import "InternalSynth.h"
 
 #include "sted.h"
 

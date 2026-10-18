@@ -46,6 +46,8 @@
 		E40E96101ABA41ED0072AA0B /* AppController.m in Sources */ = {isa = PBXBuildFile; fileRef = E40E95841ABA41ED0072AA0B /* AppController.m */; };
 		E40E96111ABA41ED0072AA0B /* CoreMIDIRCPPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = E40E95861ABA41ED0072AA0B /* CoreMIDIRCPPlayer.m */; };
 		E40E96121ABA41ED0072AA0B /* rcp_player.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E95871ABA41ED0072AA0B /* rcp_player.c */; };
+		A1E0E0032F0A4B0100E0E003 /* rcp_player_engine.c in Sources */ = {isa = PBXBuildFile; fileRef = A1E0E0012F0A4B0100E0E001 /* rcp_player_engine.c */; };
+		A1E0E0132F0A4B0100E0E013 /* InternalSynth.m in Sources */ = {isa = PBXBuildFile; fileRef = A1E0E0112F0A4B0100E0E011 /* InternalSynth.m */; };
 		E40E96141ABA41ED0072AA0B /* basic.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E958B1ABA41ED0072AA0B /* basic.c */; };
 		E40E96151ABA41ED0072AA0B /* curses.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E958C1ABA41ED0072AA0B /* curses.c */; };
 		E40E96161ABA41ED0072AA0B /* dos.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E958D1ABA41ED0072AA0B /* dos.c */; };
@@ -168,6 +170,10 @@
 		E40E95861ABA41ED0072AA0B /* CoreMIDIRCPPlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CoreMIDIRCPPlayer.m; sourceTree = "<group>"; };
 		E40E95871ABA41ED0072AA0B /* rcp_player.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = rcp_player.c; sourceTree = "<group>"; };
 		E40E95881ABA41ED0072AA0B /* rcp_player.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rcp_player.h; sourceTree = "<group>"; };
+		A1E0E0012F0A4B0100E0E001 /* rcp_player_engine.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = rcp_player_engine.c; sourceTree = "<group>"; };
+		A1E0E0022F0A4B0100E0E002 /* rcp_player_engine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rcp_player_engine.h; sourceTree = "<group>"; };
+		A1E0E0112F0A4B0100E0E011 /* InternalSynth.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InternalSynth.m; sourceTree = "<group>"; };
+		A1E0E0122F0A4B0100E0E012 /* InternalSynth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InternalSynth.h; sourceTree = "<group>"; };
 		E40E958B1ABA41ED0072AA0B /* basic.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = basic.c; sourceTree = "<group>"; };
 		E40E958C1ABA41ED0072AA0B /* curses.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = curses.c; sourceTree = "<group>"; };
 		E40E958D1ABA41ED0072AA0B /* dos.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dos.c; sourceTree = "<group>"; };
@@ -495,6 +501,8 @@
 				A1F0E0601AC55B8700A70D60 /* X11 */,
 				A1F0E0621AC55B8700A70D62 /* curses */,
 				E40E95821ABA41ED0072AA0B /* aqua */,
+				A1E0E0212F0A4B0100E0E021 /* macos */,
+				A1E0E0222F0A4B0100E0E022 /* rcp_player */,
 				E40E958B1ABA41ED0072AA0B /* basic.c */,
 				E40E958D1ABA41ED0072AA0B /* dos.c */,
 				E40E958E1ABA41ED0072AA0B /* doslib.h */,
@@ -530,19 +538,37 @@
 			children = (
 				E40E95831ABA41ED0072AA0B /* AppController.h */,
 				E40E95841ABA41ED0072AA0B /* AppController.m */,
-				E40E95851ABA41ED0072AA0B /* CoreMIDIRCPPlayer.h */,
-				E40E95861ABA41ED0072AA0B /* CoreMIDIRCPPlayer.m */,
-				E40E95871ABA41ED0072AA0B /* rcp_player.c */,
-				E40E95881ABA41ED0072AA0B /* rcp_player.h */,
 				E4DBA7B61ABB1F1E0070024F /* X68kView.h */,
 				E4DBA7B71ABB1F1E0070024F /* X68kView.m */,
 				A1F0E0511AC55B8700A70D51 /* X68kWindow.h */,
 				E44E7DFB1AC4C94E00F71120 /* MyDialogController.h */,
 				E44E7DFC1AC4C94E00F71120 /* MyDialogController.m */,
+			);
+			path = aqua;
+			sourceTree = "<group>";
+		};
+		A1E0E0212F0A4B0100E0E021 /* macos */ = {
+			isa = PBXGroup;
+			children = (
+				E40E95851ABA41ED0072AA0B /* CoreMIDIRCPPlayer.h */,
+				E40E95861ABA41ED0072AA0B /* CoreMIDIRCPPlayer.m */,
+				A1E0E0122F0A4B0100E0E012 /* InternalSynth.h */,
+				A1E0E0112F0A4B0100E0E011 /* InternalSynth.m */,
 				A1DLS0C12F0A4B0100DLS0C1 /* DLSSynthPanel.h */,
 				A1DLS0B12F0A4B0100DLS0B1 /* DLSSynthPanel.m */,
 			);
-			path = aqua;
+			path = macos;
+			sourceTree = "<group>";
+		};
+		A1E0E0222F0A4B0100E0E022 /* rcp_player */ = {
+			isa = PBXGroup;
+			children = (
+				E40E95871ABA41ED0072AA0B /* rcp_player.c */,
+				E40E95881ABA41ED0072AA0B /* rcp_player.h */,
+				A1E0E0012F0A4B0100E0E001 /* rcp_player_engine.c */,
+				A1E0E0022F0A4B0100E0E002 /* rcp_player_engine.h */,
+			);
+			path = rcp_player;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -661,6 +687,8 @@
 				E40E96101ABA41ED0072AA0B /* AppController.m in Sources */,
 				E40E96111ABA41ED0072AA0B /* CoreMIDIRCPPlayer.m in Sources */,
 				E40E96121ABA41ED0072AA0B /* rcp_player.c in Sources */,
+				A1E0E0032F0A4B0100E0E003 /* rcp_player_engine.c in Sources */,
+				A1E0E0132F0A4B0100E0E013 /* InternalSynth.m in Sources */,
 				E40E96141ABA41ED0072AA0B /* basic.c in Sources */,
 				E40E96151ABA41ED0072AA0B /* curses.c in Sources */,
 				E40E96161ABA41ED0072AA0B /* dos.c in Sources */,

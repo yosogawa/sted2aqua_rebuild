@@ -9,7 +9,7 @@
 #include "sted.h"
 
 #if defined(__APPLE__)
-#include "aqua/CoreMIDIRCPPlayer.h"
+#include "macos/CoreMIDIRCPPlayer.h"
 #endif
 
 static int midi_dev = -1;

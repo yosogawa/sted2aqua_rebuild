@@ -5,6 +5,7 @@
 
 #import "X68kView.h"
 #import "CoreMIDIRCPPlayer.h"
+#import "InternalSynth.h"
 #import <CoreText/CoreText.h>
 #import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 

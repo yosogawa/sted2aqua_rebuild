@@ -15,9 +15,9 @@
 
 #define kMaxMIDIMessageLength 256
 
-extern double rcpplayer_step_to_microseconds(int32_t step);
-extern int32_t rcpplayer_microseconds_to_step(uint32_t micros);
-extern int rcpplayer_next_midi_event(int32_t *step, uint8_t **ptr, int *length, int *port);
-extern int rcpplayer_init(uint8_t *data_ptr, size_t data_length);
+double rcpplayer_step_to_microseconds(int32_t step);
+int32_t rcpplayer_microseconds_to_step(uint32_t micros);
+int rcpplayer_next_midi_event(int32_t *step, uint8_t **ptr, int *length, int *port);
+int rcpplayer_init(uint8_t *data_ptr, size_t data_length);
 
 #endif

@@ -4,7 +4,6 @@
 /* Copyright 2003 Toshi Nagata. All rights reserved. */
 
 #import "X68kWindow.h"
-#import "CoreMIDIRCPPlayer.h"
 
 #include "sted.h"
 
