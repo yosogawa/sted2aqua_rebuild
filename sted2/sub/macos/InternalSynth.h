@@ -9,6 +9,8 @@ extern "C" {
 
 void InternalSynthCreateDestinations(MIDIClientRef client);
 int InternalSynthAnyDestination(const MIDIEndpointRef *dests);
+int InternalSynthIsAmyDestination(MIDIEndpointRef dest);
+void InternalSynthApplyAmyPort(const MIDIEndpointRef *dests);
 void InternalSynthEnsureRunning(void);
 void InternalSynthEnsureStopped(void);
 int InternalSynthSchedule(MIDIEndpointRef dest, const uint8_t *bytes, int length,

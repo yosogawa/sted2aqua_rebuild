@@ -7,6 +7,21 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#ifdef GAMMA9001
+#include "amy.h"
+extern const int16_t *gamma9001_pcm_data;
+void
+amy_host_use_gamma9001_drums(void)
+{
+	amy_set_gamma9001_pcm(gamma9001_pcm_data);
+}
+#else
+void
+amy_host_use_gamma9001_drums(void)
+{
+}
+#endif
+
 void amy_platform_init(void) {}
 void amy_platform_deinit(void) {}
 void amy_update_tasks(void) {}

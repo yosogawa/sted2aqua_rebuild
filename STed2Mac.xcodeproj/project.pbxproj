@@ -29,6 +29,7 @@
 		A1AMY2012F0A4B0100E00020 /* transfer.c in Sources */ = {isa = PBXBuildFile; fileRef = A1AMY1012F0A4B0100E00020 /* transfer.c */; };
 		A1AMY2012F0A4B0100E00021 /* amy_midi.c in Sources */ = {isa = PBXBuildFile; fileRef = A1AMY1012F0A4B0100E00021 /* amy_midi.c */; };
 		A1AMY2012F0A4B0100E00023 /* amy_platform.c in Sources */ = {isa = PBXBuildFile; fileRef = A1AMY1012F0A4B0100E00023 /* amy_platform.c */; };
+		A1AMY2012F0A4B0100E00024 /* gamma9001_pcm.c in Sources */ = {isa = PBXBuildFile; fileRef = A1AMY1012F0A4B0100E00024 /* gamma9001_pcm.c */; };
 		A1AMY00D2F0A4B0100E0E00D /* libamy.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A1AMY0022F0A4B0100E0E002 /* libamy.a */; };
 		1DDD58160DA1D0A300B32029 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1DDD58140DA1D0A300B32029 /* MainMenu.xib */; };
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
@@ -71,6 +72,7 @@
 		E40E96121ABA41ED0072AA0B /* rcp_player.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E95871ABA41ED0072AA0B /* rcp_player.c */; };
 		A1E0E0032F0A4B0100E0E003 /* rcp_player_engine.c in Sources */ = {isa = PBXBuildFile; fileRef = A1E0E0012F0A4B0100E0E001 /* rcp_player_engine.c */; };
 		A1E0E0132F0A4B0100E0E013 /* InternalSynth.m in Sources */ = {isa = PBXBuildFile; fileRef = A1E0E0112F0A4B0100E0E011 /* InternalSynth.m */; };
+		A1AMY3032F0A4B0100E0E033 /* AmySynth.m in Sources */ = {isa = PBXBuildFile; fileRef = A1AMY3012F0A4B0100E0E031 /* AmySynth.m */; };
 		E40E96141ABA41ED0072AA0B /* basic.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E958B1ABA41ED0072AA0B /* basic.c */; };
 		E40E96151ABA41ED0072AA0B /* curses.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E958C1ABA41ED0072AA0B /* curses.c */; };
 		E40E96161ABA41ED0072AA0B /* dos.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E958D1ABA41ED0072AA0B /* dos.c */; };
@@ -122,11 +124,14 @@
 		A1AMY1012F0A4B0100E00015 /* oscillators.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = oscillators.c; sourceTree = "<group>"; };
 		A1AMY1012F0A4B0100E00016 /* parse.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = parse.c; sourceTree = "<group>"; };
 		A1AMY1012F0A4B0100E00017 /* patches.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = patches.c; sourceTree = "<group>"; };
+		A1AMY1012F0A4B0100E00022 /* patches.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = patches.h; sourceTree = "<group>"; };
 		A1AMY1012F0A4B0100E00018 /* pcm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pcm.c; sourceTree = "<group>"; };
 		A1AMY1012F0A4B0100E00019 /* sequencer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sequencer.c; sourceTree = "<group>"; };
 		A1AMY1012F0A4B0100E00020 /* transfer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = transfer.c; sourceTree = "<group>"; };
 		A1AMY1012F0A4B0100E00021 /* amy_midi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = amy_midi.c; sourceTree = "<group>"; };
 		A1AMY1012F0A4B0100E00023 /* amy_platform.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = amy_platform.c; sourceTree = "<group>"; };
+		A1AMY1012F0A4B0100E00024 /* gamma9001_pcm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = gamma9001_pcm.c; sourceTree = "<group>"; };
+		A1AMY1012F0A4B0100E00025 /* gamma9001_pcm.bin */ = {isa = PBXFileReference; lastKnownFileType = file; path = gamma9001_pcm.bin; sourceTree = "<group>"; };
 		A1AMY0022F0A4B0100E0E002 /* libamy.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libamy.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		089C165DFE840E0CC02AAC07 /* en */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
@@ -219,6 +224,8 @@
 		A1E0E0012F0A4B0100E0E001 /* rcp_player_engine.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = rcp_player_engine.c; sourceTree = "<group>"; };
 		A1E0E0022F0A4B0100E0E002 /* rcp_player_engine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rcp_player_engine.h; sourceTree = "<group>"; };
 		A1E0E0112F0A4B0100E0E011 /* InternalSynth.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InternalSynth.m; sourceTree = "<group>"; };
+		A1AMY3012F0A4B0100E0E031 /* AmySynth.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AmySynth.m; sourceTree = "<group>"; };
+		A1AMY3022F0A4B0100E0E032 /* AmySynth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AmySynth.h; sourceTree = "<group>"; };
 		A1E0E0122F0A4B0100E0E012 /* InternalSynth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InternalSynth.h; sourceTree = "<group>"; };
 		E40E958B1ABA41ED0072AA0B /* basic.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = basic.c; sourceTree = "<group>"; };
 		E40E958C1ABA41ED0072AA0B /* curses.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = curses.c; sourceTree = "<group>"; };
@@ -610,6 +617,8 @@
 				E40E95861ABA41ED0072AA0B /* CoreMIDIRCPPlayer.m */,
 				A1E0E0122F0A4B0100E0E012 /* InternalSynth.h */,
 				A1E0E0112F0A4B0100E0E011 /* InternalSynth.m */,
+				A1AMY3022F0A4B0100E0E032 /* AmySynth.h */,
+				A1AMY3012F0A4B0100E0E031 /* AmySynth.m */,
 				A1DLS0C12F0A4B0100DLS0C1 /* DLSSynthPanel.h */,
 				A1DLS0B12F0A4B0100DLS0B1 /* DLSSynthPanel.m */,
 			);
@@ -647,6 +656,7 @@
 				A1AMY1012F0A4B0100E00015 /* oscillators.c */,
 				A1AMY1012F0A4B0100E00016 /* parse.c */,
 				A1AMY1012F0A4B0100E00017 /* patches.c */,
+				A1AMY1012F0A4B0100E00022 /* patches.h */,
 				A1AMY1012F0A4B0100E00018 /* pcm.c */,
 				A1AMY1012F0A4B0100E00019 /* sequencer.c */,
 				A1AMY1012F0A4B0100E00020 /* transfer.c */,
@@ -667,6 +677,8 @@
 			isa = PBXGroup;
 			children = (
 				A1AMY1012F0A4B0100E00023 /* amy_platform.c */,
+				A1AMY1012F0A4B0100E00024 /* gamma9001_pcm.c */,
+				A1AMY1012F0A4B0100E00025 /* gamma9001_pcm.bin */,
 			);
 			path = amy_host;
 			sourceTree = "<group>";
@@ -830,6 +842,7 @@
 				A1AMY2012F0A4B0100E00020 /* transfer.c in Sources */,
 				A1AMY2012F0A4B0100E00021 /* amy_midi.c in Sources */,
 				A1AMY2012F0A4B0100E00023 /* amy_platform.c in Sources */,
+				A1AMY2012F0A4B0100E00024 /* gamma9001_pcm.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -863,6 +876,7 @@
 				E40E96121ABA41ED0072AA0B /* rcp_player.c in Sources */,
 				A1E0E0032F0A4B0100E0E003 /* rcp_player_engine.c in Sources */,
 				A1E0E0132F0A4B0100E0E013 /* InternalSynth.m in Sources */,
+				A1AMY3032F0A4B0100E0E033 /* AmySynth.m in Sources */,
 				E40E96141ABA41ED0072AA0B /* basic.c in Sources */,
 				E40E96151ABA41ED0072AA0B /* curses.c in Sources */,
 				E40E96161ABA41ED0072AA0B /* dos.c in Sources */,
@@ -942,6 +956,7 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = "";
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/third_party/amy/src";
 				OTHER_LDFLAGS = (
 					"-liconv",
 					"-framework",
@@ -972,6 +987,7 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = "";
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/third_party/amy/src";
 				OTHER_LDFLAGS = (
 					"-liconv",
 					"-framework",
@@ -1023,8 +1039,9 @@
 				GCC_WARN_UNUSED_VARIABLE = NO;
 				HEADER_SEARCH_PATHS = "$(SRCROOT)/third_party/amy/src";
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
-				ONLY_ACTIVE_ARCH = YES;
+				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (
+					"-DGAMMA9001",
 					"-DAMY_WAVETABLE",
 					"-DAMY_NO_MINIAUDIO",
 					"-pthread",
@@ -1056,6 +1073,7 @@
 				HEADER_SEARCH_PATHS = "$(SRCROOT)/third_party/amy/src";
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
 				OTHER_CFLAGS = (
+					"-DGAMMA9001",
 					"-DAMY_WAVETABLE",
 					"-DAMY_NO_MINIAUDIO",
 					"-pthread",

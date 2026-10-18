@@ -119,8 +119,17 @@ extern int XSTed_save_thrumode(int on);
 		[def setValue:[NSString stringWithUTF8String:CoreMIDICanonicalOutputName([outdevice2 UTF8String])] forKey:@"midiout2"];
 
 	if ([MyDialogController runDialogWithNibName:@"MIDISettings"]) {
-		CoreMIDISelectDeviceByNameForPort([[def valueForKey:@"midiout1"] UTF8String], 0);
-		CoreMIDISelectDeviceByNameForPort([[def valueForKey:@"midiout2"] UTF8String], 1);
+		NSString *chosen;
+		if (CoreMIDISelectDeviceByNameForPort([[def valueForKey:@"midiout1"] UTF8String], 0) < 0)
+			CoreMIDISelectDeviceByNameForPort("Apple DLS Synth", 0);
+		if (CoreMIDISelectDeviceByNameForPort([[def valueForKey:@"midiout2"] UTF8String], 1) < 0)
+			CoreMIDISelectDeviceByNameForPort("Apple DLS Synth 2", 1);
+		chosen = CoreMIDISelectedOutputName(0);
+		if (chosen != nil)
+			[def setValue:chosen forKey:@"midiout1"];
+		chosen = CoreMIDISelectedOutputName(1);
+		if (chosen != nil)
+			[def setValue:chosen forKey:@"midiout2"];
 		if ([def valueForKey:@"midiin"] != nil) {
 			CoreMIDISelectInputDeviceByName([[def valueForKey:@"midiin"] UTF8String]);
 		}

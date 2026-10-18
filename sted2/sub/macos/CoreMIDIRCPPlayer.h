@@ -23,7 +23,10 @@ void exit_coremidi_rcpplayer(void);
 void CoreMIDIInitIfNeeded(void);
 void CoreMIDISelectDeviceForPort(int index, int port);
 const char *CoreMIDICanonicalOutputName(const char *name);
-void CoreMIDISelectDeviceByNameForPort(const char *name, int port);
+/* 1 if the named destination was selected. 0 if the name was not found.
+ * -1 if the name is AMY and the other port already owns the only instance.
+ */
+int CoreMIDISelectDeviceByNameForPort(const char *name, int port);
 void CoreMIDISelectInputDeviceByName(const char *name);
 void CoreMIDIAllSoundOff(void);
 
@@ -49,6 +52,7 @@ int send_midi_message(uint8_t *data, int length);
 
 NSString *CoreMIDIDeviceNameAtIndex(int index);
 NSString *CoreMIDIInDeviceNameAtIndex(int index);
+NSString *CoreMIDISelectedOutputName(int port);
 #endif
 
 #endif
