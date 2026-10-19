@@ -16,6 +16,7 @@
 #include <string.h>
 
 #include "sted.h"
+#include "rcp_transport.h"
 
 extern int STed_InitMeasureConversion(void);
 
@@ -106,9 +107,7 @@ static uint8_t *sRCPDebugBuffer;
 	rcpplayer_engine();
 	playing = NO;
 	rcpplayer_clear_stop();
-	if (rcd != NULL) {
-		rcd->act = 0;
-	}
+	rcp_transport_set_active(0);
 }
 
 - (BOOL)isPlaying
@@ -557,9 +556,10 @@ stop_coremidi_rcpplayer(void)
 			usleep(100000);
 	}
 	rcpplayer_send_pending_note_offs();
-	if (rcd != NULL) {
-		rcd->act = 0;
-	}
+	rcp_transport_set_active(0);
+	/* The player thread has exited. Recording Stopped now keeps a live
+	   Held thread from taking the continue path. */
+	rcp_transport_full_stop();
 	
 #if DEBUG_RCP
 	dump_debug_rcp();
@@ -581,10 +581,7 @@ play_coremidi_rcpplayer(uint8_t *rcp_data_ptr, int data_length)
 	if ([player isPlaying]) {
 		stop_coremidi_rcpplayer();
 	}
-	/* Born running. sts == 1 is the idle default and would pause the new play.
-	   sts == 2 (SEARCH) is left for a later change. */
-	if (rcd != NULL && rcd->sts != 2)
-		rcd->sts = 0;
+	rcp_transport_start();
 	rcpplayer_reset_last_timestamp();
 	[NSThread detachNewThreadSelector:@selector(startPlaying:) toTarget:player withObject:nil];
 }

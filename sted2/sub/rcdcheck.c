@@ -8,6 +8,7 @@
 */
 
 #include "sted.h"
+#include "rcp_transport.h"
 #include <signal.h>
 
 #ifndef NO_SHM
@@ -189,10 +190,7 @@ void rcd_check( void ) {
   rcd->md_put2 = null_func_char;
   rcd->mix_out = request_midi_data;
 
-  rcd->act = 0;
-  rcd->sts = 1;
-  rcd->tar_trk = 0;
-  rcd->tar_bar = 0;
+  rcp_transport_attach();
 
   rcd->dummy1[0] = 0;
 

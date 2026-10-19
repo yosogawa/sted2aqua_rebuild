@@ -3,6 +3,7 @@
  */
 
 #include	"sted.h"
+#include	"rcp_transport.h"
 
 uint8_t	fnc_dat[9*10][9]={
 
@@ -205,9 +206,9 @@ int	inkey3(void)
     ex=BITSNS(0xa);
     if( (ex&32)!=0 ){ke=0xe0;}
     if( (ex&64)!=0 ){ke=0xe1;}
-    if( (ex&128)!=0 && sh==0){rcd->sts=0;}
+    if( (ex&128)!=0 && sh==0){rcp_transport_continue();}
     ex=BITSNS(0xb);
-    if( (ex&1)!=0 && sh==0){rcd->sts=1;}
+    if( (ex&1)!=0 && sh==0){rcp_transport_stop();}
     if( (ex&2)!=0 && sh==0){all_note_off(1);}
     ex=BITSNS(0xc);
     if( (ex&8)!=0 ){ke=0xf0;}

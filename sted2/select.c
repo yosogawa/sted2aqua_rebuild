@@ -3,6 +3,7 @@
  */
 
 #include	"sted.h"
+#include	"rcp_transport.h"
 
 
 static char	*fsel_ext[]={
@@ -599,7 +600,7 @@ void	s_test(int ch,int bank,int prg,int note,int velo)
 
   if(B_SFTSNS()&1){m_keyb(ch,bank,prg,velo);return;}
 
-  if(rcd->act==0){all_note_off(0);}
+  if(!rcp_transport_is_active()){all_note_off(0);}
   bnk_l=bank>>8;bnk_m=bank&0xff;ch=(ch-1)&31;ch2=ch&15;
   pm=rcd->put_mode;rcd->put_mode=rcd->ch_port[ch];
   twait(5);

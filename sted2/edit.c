@@ -3,6 +3,7 @@
  */
 
 #include	"sted.h"
+#include	"rcp_transport.h"
 
 static char	*inmd[6]={
   "EDIT","EDIT SOUND","EDIT MIDI IN(Mono)","EDIT MIDI IN(Poly)",
@@ -73,7 +74,7 @@ track_edit_top:
   gra(po,0);
 
   while( 1){
-    if(rcd->act!=0 || (B_SFTSNS()&16)!=0){sttrc(&po,&cy,0);}
+    if(rcp_transport_is_active() || (B_SFTSNS()&16)!=0){sttrc(&po,&cy,0);}
     ad=real_ad(po,cy);
     /*
       Stopped cursor: refresh the MEAS header when the moved span crosses
@@ -125,7 +126,7 @@ track_edit_top:
       mdc=(*rcd->md_get)();
       if(mdc>=0 && mdc<0xf8){
 	if(thrumode){
-	  if(rcd->act){poplay(0,0);}
+	  if(rcp_transport_is_active()){poplay(0,0);}
 	  (*rcd->md_put)(mdc);
 	}
 	if(inpmode>1 && (sh&1)==0){
@@ -159,7 +160,7 @@ track_edit_top:
     mdc=(*rcd->md_get)();
     if(mdc>=0 && mdc<0xf8){
       if(thrumode){
-	if(rcd->act){poplay(0,0);}
+	if(rcp_transport_is_active()){poplay(0,0);}
 	(*rcd->md_put)(mdc);
       }
       if (!((inpmode>1 && (sh&1)==0) &&
@@ -180,7 +181,7 @@ track_edit_top:
 
     if( (sh&6)==0 ){tcp=0;tcs=0;}
     if( ke==0x5a ){
-      if((sh&16)!=0 || rcd->act!=0){sttrc(&po,&cy,0);}
+      if((sh&16)!=0 || rcp_transport_is_active()){sttrc(&po,&cy,0);}
     }
     if( ke==1 ){
       if( cplen<0 ){
@@ -209,8 +210,8 @@ track_edit_top:
 	}else{poplay(ad,5);}
       }
       if(kc=='N' && trk[track][ad]<128){poplay(ad,6);}
-      if( ke==0x57 && (sh&15)==0){rcd->sts=0;}
-      if( ke==0x58 && (sh&15)==0){rcd->sts=1;}
+      if( ke==0x57 && (sh&15)==0){rcp_transport_continue();}
+      if( ke==0x58 && (sh&15)==0){rcp_transport_stop();}
       if( ke==0x59 && (sh&15)==0){poplay(0,0);}
     }
 

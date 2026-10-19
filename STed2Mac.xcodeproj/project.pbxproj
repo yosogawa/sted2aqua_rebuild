@@ -47,6 +47,7 @@
 		E40E96111ABA41ED0072AA0B /* CoreMIDIRCPPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = E40E95861ABA41ED0072AA0B /* CoreMIDIRCPPlayer.m */; };
 		E40E96121ABA41ED0072AA0B /* rcp_player.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E95871ABA41ED0072AA0B /* rcp_player.c */; };
 		A1E0E0032F0A4B0100E0E003 /* rcp_player_engine.c in Sources */ = {isa = PBXBuildFile; fileRef = A1E0E0012F0A4B0100E0E001 /* rcp_player_engine.c */; };
+		A1TR00042F0A4B0100E0E004 /* RcpTransport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1TR00012F0A4B0100E0E001 /* RcpTransport.cpp */; };
 		A1E0E0132F0A4B0100E0E013 /* InternalSynth.m in Sources */ = {isa = PBXBuildFile; fileRef = A1E0E0112F0A4B0100E0E011 /* InternalSynth.m */; };
 		E40E96141ABA41ED0072AA0B /* basic.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E958B1ABA41ED0072AA0B /* basic.c */; };
 		E40E96151ABA41ED0072AA0B /* curses.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E958C1ABA41ED0072AA0B /* curses.c */; };
@@ -172,6 +173,9 @@
 		E40E95881ABA41ED0072AA0B /* rcp_player.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rcp_player.h; sourceTree = "<group>"; };
 		A1E0E0012F0A4B0100E0E001 /* rcp_player_engine.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = rcp_player_engine.c; sourceTree = "<group>"; };
 		A1E0E0022F0A4B0100E0E002 /* rcp_player_engine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rcp_player_engine.h; sourceTree = "<group>"; };
+		A1TR00012F0A4B0100E0E001 /* RcpTransport.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RcpTransport.cpp; sourceTree = "<group>"; };
+		A1TR00022F0A4B0100E0E002 /* RcpTransport.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = RcpTransport.hpp; sourceTree = "<group>"; };
+		A1TR00032F0A4B0100E0E003 /* rcp_transport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rcp_transport.h; sourceTree = "<group>"; };
 		A1E0E0112F0A4B0100E0E011 /* InternalSynth.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InternalSynth.m; sourceTree = "<group>"; };
 		A1E0E0122F0A4B0100E0E012 /* InternalSynth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InternalSynth.h; sourceTree = "<group>"; };
 		E40E958B1ABA41ED0072AA0B /* basic.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = basic.c; sourceTree = "<group>"; };
@@ -567,6 +571,9 @@
 				E40E95881ABA41ED0072AA0B /* rcp_player.h */,
 				A1E0E0012F0A4B0100E0E001 /* rcp_player_engine.c */,
 				A1E0E0022F0A4B0100E0E002 /* rcp_player_engine.h */,
+				A1TR00012F0A4B0100E0E001 /* RcpTransport.cpp */,
+				A1TR00022F0A4B0100E0E002 /* RcpTransport.hpp */,
+				A1TR00032F0A4B0100E0E003 /* rcp_transport.h */,
 			);
 			path = rcp_player;
 			sourceTree = "<group>";
@@ -688,6 +695,7 @@
 				E40E96111ABA41ED0072AA0B /* CoreMIDIRCPPlayer.m in Sources */,
 				E40E96121ABA41ED0072AA0B /* rcp_player.c in Sources */,
 				A1E0E0032F0A4B0100E0E003 /* rcp_player_engine.c in Sources */,
+				A1TR00042F0A4B0100E0E004 /* RcpTransport.cpp in Sources */,
 				A1E0E0132F0A4B0100E0E013 /* InternalSynth.m in Sources */,
 				E40E96141ABA41ED0072AA0B /* basic.c in Sources */,
 				E40E96151ABA41ED0072AA0B /* curses.c in Sources */,
@@ -813,6 +821,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -827,6 +836,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;

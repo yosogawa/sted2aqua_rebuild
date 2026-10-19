@@ -4,6 +4,7 @@
 
 #include	"sted.h"
 #include	"edits.h"
+#include	"rcp_transport.h"
 
 static int	undof[4];
 
@@ -147,13 +148,13 @@ void	sttrc(int *po,int *cy,int flg)
   max=add_set(track,me_ad);
 
   skf=poft>>16;ofs=poft&0xffff;
-  while( rcd->active[track] && rcd->act!=0 ){
+  while( rcd->active[track] && rcp_transport_is_active() ){
     if(B_KEYSNS()!=0){
       int	k=B_KEYINP()>>8,sh=B_SFTSNS();
       if(k==1){break;}
       if((sh&15)==0){
-	if(k==0x57){rcd->sts=0;}
-	if(k==0x58){rcd->sts=1;}
+	if(k==0x57){rcp_transport_continue();}
+	if(k==0x58){rcp_transport_stop();}
 	if(k==0x59){all_note_off(2);break;}
       }
       if( k==0x3b || k==0x3d){

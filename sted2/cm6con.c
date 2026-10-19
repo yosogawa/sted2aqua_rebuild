@@ -3,6 +3,7 @@
  */
 
 #include	"sted.h"
+#include	"rcp_transport.h"
 
 static uint8_t	cm6_info[64]={
   0x43,0x4F,0x4D,0x45,0x20,0x4F,0x4E,0x20,0x4D,0x55,0x53,0x49,0x43,0x00,0x00,0x00,
@@ -1061,7 +1062,7 @@ void	all_note_off(int m)
 /***************************/
 void	temporary_set()
 {
-  if(rcd->act==0){
+  if(!rcp_transport_is_active()){
     if((mdlflag&3)==1){
       cm6_write(0x3*128*128,0xa0,144);
       /*cm6_write(0x4*128*128,0x284,1968);*/

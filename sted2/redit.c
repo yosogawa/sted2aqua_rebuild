@@ -4,6 +4,7 @@
 
 #include	"sted.h"
 #include	"redit.h"
+#include	"rcp_transport.h"
 
 static char	rym[10][3]={"- ","1 ","2 ","3 ","4 ","5 ","6 ","7 ","8 ","9 "};
 static char	rym_s[10][4]={"OFF"," 1 "," 2 "," 3 "," 4 "," 5 "," 6 "," 7 "," 8 "," 9 "};
@@ -70,7 +71,7 @@ void rtrk_ed(int md,int sh)
   top:
     yy=0;if(cy==16){yy=16+(cx&1)*16;}
     py=cy+pg;
-    if(rcd->act!=0 || (B_SFTSNS()&16)!=0){rsttrc(&no,&cx,0,pg);}
+    if(rcp_transport_is_active() || (B_SFTSNS()&16)!=0){rsttrc(&no,&cx,0,pg);}
 
     /*
       fill(128+32,cy*16+655+yy,31*16+151+32,cy*16+655+yy,15);
@@ -149,7 +150,7 @@ void rtrk_ed(int md,int sh)
 		if( ke==0xf0 ){fnc_dis(0);}*/
 
     if( ke==0x5a ){
-      if((sh&16)!=0 || rcd->act!=0){pattor(no);rsttrc(&no,&cx,0,pg);}
+      if((sh&16)!=0 || rcp_transport_is_active()){pattor(no);rsttrc(&no,&cx,0,pg);}
     }
 
     if( ke==1 ){pattor(no);break;}
@@ -325,8 +326,8 @@ void rtrk_ed(int md,int sh)
       pattor(no);j=meas_add(no);
       if( (sh&1)==0 ){poplay(j,1);}else{poplay(j,2);}
     }
-    if( ke==0x57 && (sh&15)==0){rcd->sts=0;}
-    if( ke==0x58 && (sh&15)==0){rcd->sts=1;}
+    if( ke==0x57 && (sh&15)==0){rcp_transport_continue();}
+    if( ke==0x58 && (sh&15)==0){rcp_transport_stop();}
     if( ke==0x59 && (sh&15)==0){poplay(0,0);}
 
     if( ke==0x10 && tr_len[track]>4 ){
@@ -669,13 +670,13 @@ void	rsttrc(int *no,int *cx,int flg,int pg)
   max=add_set(track,me_ad);
 
   skf=poft>>16;ofs=poft&0xffff;
-  while( rcd->active[track] && rcd->act!=0 ){
+  while( rcd->active[track] && rcp_transport_is_active() ){
     if(B_KEYSNS()!=0){
       int	k=B_KEYINP()>>8,sh=B_SFTSNS();
       if(k==1){break;}
       if((sh&15)==0){
-	if(k==0x57){rcd->sts=0;}
-	if(k==0x58){rcd->sts=1;}
+	if(k==0x57){rcp_transport_continue();}
+	if(k==0x58){rcp_transport_stop();}
 	if(k==0x59){all_note_off(2);break;}
       }
     }

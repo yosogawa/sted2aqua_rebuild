@@ -14,6 +14,7 @@
 #include	"iocslib.h"
 #include	"doslib.h"
 #include	"sted.h"
+#include	"rcp_transport.h"
 
 #include        "rcpconv.h"
 
@@ -770,7 +771,7 @@ void	dplay(int mo,int tr,int meas)
 
   if((cmdflag&0x8000)!=0 && mo<2){mo=1-mo;}
 
-  if(rcd->act!=0 && mo!=0 && meas==0){
+  if(rcp_transport_is_active() && mo!=0 && meas==0){
     mo+=8;
     if(mplay[mo][0]=='&'){goto start;}
     if(mplay[mo][0]=='%'){goto resm;}
@@ -834,7 +835,7 @@ start:
     fnc_dis(-1);C_FNKMOD(0);dpl(0);B_COLOR(3);
     if(mplay[mo][0]=='%' || mplay[mo][0]=='&'){
       strcpy(tmp1,&mplay[mo][1]);
-      if(rcd->act==0 || mplay[mo][0]=='&'){(*rcd->begin)();}
+      if(!rcp_transport_is_active() || mplay[mo][0]=='&'){(*rcd->begin)();}
     }else{strcpy(tmp1,mplay[mo]);}
     f=exe(tmp1);
     B_COLOR(3);fnc_dis(-1);C_FNKMOD(3);B_CLR_AL();C_CUROFF();
@@ -843,10 +844,81 @@ start:
 
     if( f<0 ){msg(_("Cannot start panel display."));}
   }else{
-    if(meas>1){rcd->tar_trk = tr;rcd->tar_bar = meas-1;rcd->sts = 2;}
+    if(meas>1){rcp_transport_search(tr,meas-1);}
     (*rcd->begin)();
   }
   return;
+}
+
+/* Replace dat[at..at+4) with the source measure and a following 0xfd.
+   The bytes after the 0xfc are already the rest of this slice. */
+static int
+paste_measure(int at, int len, int src, int tr)
+{
+  int n,p,tail,room;
+
+  if(src<0){src=0;}
+  n=0;p=src;
+  while(p<tr_len[tr] && trk[tr][p]<0xfc && at+n+8<=work_size){
+    n+=4;p+=4;
+  }
+  tail=len-(at+4);
+  if(tail<0){tail=0;}
+  room=work_size-(at+4+tail);
+  if(room<4){n=0;}
+  else if(n>room){n=room&~3;}
+  if(n>0 && tail>0){
+    memmove(dat+at+4+n,dat+at+4,(size_t)tail);
+  }
+  for(p=0;p<n;p+=4){
+    dat[at+p]=trk[tr][src];dat[at+p+1]=trk[tr][src+1];
+    dat[at+p+2]=trk[tr][src+2];dat[at+p+3]=trk[tr][src+3];
+    src+=4;
+  }
+  if(at+n+4<=work_size){
+    dat[at+n]=0xfd;dat[at+n+1]=0;dat[at+n+2]=0;dat[at+n+3]=0;
+  }
+  return(len+n);
+}
+
+/* 0xfc still holds the original measure index. The player jumps by a byte
+   offset, so rewrite that only after the slice is complete. A target ahead
+   of the write position does not exist yet, and a failed lookup must not
+   become an offset. lead_fd is the extra 0xfd inserted when po>0. */
+int
+resolve_same_measures(int len, int meas, int lead_fd, int tr, int *me_ad)
+{
+  int at,same,index,me,ad;
+
+  at=0;
+  while(at+4<=len && at+4<work_size){
+    if(dat[at]!=0xfc){at+=4;continue;}
+    same=dat[at+1]+(dat[at+2]&3)*256;
+    if(meas<same+1){at+=4;continue;}
+    len=paste_measure(at,len,me_ad[same],tr);
+    while(at+4<=len && dat[at]!=0xfd){at+=4;}
+    if(at+4<=len){at+=4;}
+  }
+
+  at=0;
+  while(at+4<=len && at+4<work_size){
+    if(dat[at]!=0xfc){at+=4;continue;}
+    same=dat[at+1]+(dat[at+2]&3)*256;
+    index=same;
+    if(lead_fd){index++;}
+    me=index+2-meas;
+    ad=dat_add(len,me);
+    if(ad<0){
+      len=paste_measure(at,len,me_ad[same],tr);
+      while(at+4<=len && dat[at]!=0xfd){at+=4;}
+      if(at+4<=len){at+=4;}
+      continue;
+    }
+    ad+=44;
+    dat[at+2]=ad&0xff;dat[at+3]=ad>>8;
+    at+=4;
+  }
+  return(len);
 }
 
 /************************** meas play */
@@ -895,25 +967,6 @@ void	cdplay(int tr,int po,int ln,int md)
 	while(ln>0){
 	  dat[co]=trk[i][j];dat[co+1]=trk[i][j+1];
 	  dat[co+2]=trk[i][j+2];dat[co+3]=trk[i][j+3];
-	  if(dat[co]==0xfc){
-	    int	same,ad;
-	    same=dat[co+1]+(dat[co+2]&3)*256;
-	    if(meas<same+1){
-	      if(po>0){same++;}
-	      ad=dat_add(co+4,same+1+1-meas);
-	      if(ad>co){goto sameext;}
-	      ad+=44;dat[co+2]=ad&0xff;dat[co+3]=ad>>8;
-	    }else{
-	    sameext:
-	      ad=me_ad[same];
-	      while(trk[i][ad]<0xfc && co<work_size){
-		dat[co]=trk[i][ad];dat[co+1]=trk[i][ad+1];
-		dat[co+2]=trk[i][ad+2];dat[co+3]=trk[i][ad+3];
-		co=co+4;ad=ad+4;
-	      }
-	      dat[co]=0xfd;
-	    }
-	  }
 	  if(dat[co]==0x98){
 	    while(trk[i][j+4]==0xf7 && co<work_size){
 	      co+=4;j+=4;ln-=4;
@@ -926,6 +979,7 @@ void	cdplay(int tr,int po,int ln,int md)
 	  if(trk[i][j]<0xfc && trk[i][j+4]==0xfc){dat[co]=0xfd;co=co+4;}
 	  ln=ln-4;j=j+4;
 	}
+	co=resolve_same_measures(co,meas,po>0,i,me_ad);
       }
     }
     dat[co]=0xfe;co=co+4;
@@ -978,25 +1032,6 @@ void	cntplay(int tr,int po)
       while(1){
 	dat[co]=trk[i][j];dat[co+1]=trk[i][j+1];
 	dat[co+2]=trk[i][j+2];dat[co+3]=trk[i][j+3];
-	if(dat[co]==0xfc){
-	  int	same,ad;
-	  same=dat[co+1]+(dat[co+2]&3)*256;
-	  if(meas<(same+1)){
-	    if(po>0){same++;}
-	    ad=dat_add(co+4,same+1+1-meas);
-	    if(ad>co){goto sameext;}
-	    ad+=44;dat[co+2]=ad&0xff;dat[co+3]=ad>>8;
-	  }else{
-	  sameext:
-	    ad=me_ad[same];
-	    while(trk[i][ad]<0xfc && co<work_size){
-	      dat[co]=trk[i][ad];dat[co+1]=trk[i][ad+1];
-	      dat[co+2]=trk[i][ad+2];dat[co+3]=trk[i][ad+3];
-	      co=co+4;ad=ad+4;
-	    }
-	    dat[co]=0xfd;
-	  }
-	}
 	if(dat[co]==0x98){
 	  while(trk[i][j+4]==0xf7 && co<work_size){
 	    co+=4;j+=4;
@@ -1009,6 +1044,7 @@ void	cntplay(int tr,int po)
 	if(trk[i][j]<0xfc && trk[i][j+4]==0xfc){dat[co]=0xfd;co=co+4;}
 	j=j+4;
       }
+      co=resolve_same_measures(co,meas,po>0,i,me_ad);
     }
     dat[co]=0xfe;co=co+4;
     thedset(i,co+44);bpo=rcp_buf_put(hed,bpo,44);

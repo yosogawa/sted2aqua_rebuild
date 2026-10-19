@@ -44,6 +44,7 @@ int  bufset_trk(int tr);
 void dplay(int mo, int tr, int meas);
 void cdplay(int tr, int po, int ln, int md);
 void cntplay(int tr, int po);
+int  resolve_same_measures(int len, int meas, int lead_fd, int tr, int *me_ad);
 int  last_tempo(int meas);
 int  lsp_para_set(int tr, int po, int *me_ad, int wcc);
 int  lsp_wait_chack(int meas);

@@ -559,25 +559,6 @@ int	countstart(int md,int smeas)
 	while(1){
 	  dat[co]=trk[i][j];dat[co+1]=trk[i][j+1];
 	  dat[co+2]=trk[i][j+2];dat[co+3]=trk[i][j+3];
-	  if(dat[co]==0xfc){
-	    int	same,ad;
-	    same=dat[co+1]+(dat[co+2]&3)*256;
-	    if(meas<(same+1)){
-	      if(po>0){same++;}
-	      ad=dat_add(co+4,same+2-meas);
-	      if(ad>co){goto sameext;}
-	      ad+=44;dat[co+2]=ad&0xff;dat[co+3]=ad>>8;
-	    }else{
-	    sameext:
-	      ad=me_ad[same];
-	      while(trk[i][ad]<0xfc && co<work_size){
-		dat[co]=trk[i][ad];dat[co+1]=trk[i][ad+1];
-		dat[co+2]=trk[i][ad+2];dat[co+3]=trk[i][ad+3];
-		co=co+4;ad=ad+4;
-	      }
-	      dat[co]=0xfd;
-	    }
-	  }
 	  if(dat[co]==0x98){
 	    while(trk[i][j+4]==0xf7 && co<work_size){
 	      co+=4;j+=4;
@@ -590,6 +571,7 @@ int	countstart(int md,int smeas)
 	  if(trk[i][j]<0xfc && trk[i][j+4]==0xfc){dat[co]=0xfd;co=co+4;}
 	  j=j+4;
 	}
+	co=resolve_same_measures(co,meas,po>0,i,me_ad);
 	dat[co]=0xfe;co=co+4;
 
 	/*same_cluc(i,0);*/thedset(i,co+44);

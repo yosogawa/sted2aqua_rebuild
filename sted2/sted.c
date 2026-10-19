@@ -9,6 +9,7 @@
 #define main sted2_main /* May.26.2003 Toshi Nagata  */
 
 #include	"sted.h"
+#include	"rcp_transport.h"
 
 static char	menu1[18][9]={
   "LOAD    ","SAVE    ","EDIT&SET","PLAY    ","RECORD  ","FILTER  ",
@@ -468,7 +469,9 @@ realc:
       }
     }
   }
-  form();timtra();/*key_vect_set();*/com_sel();/*key_vect_reset();*/
+  form();timtra();/*key_vect_set();*/
+  rcp_transport_set_valid();
+  com_sel();/*key_vect_reset();*/
 
   end_proc();exit(0);
 }
@@ -476,6 +479,7 @@ realc:
 /***************************/
 void	end_proc()
 {
+  rcp_transport_clear_valid();
   /*  msg_clr();tpl(0);G_CLR_ON();CRTMOD(16);C_FNKMOD(0);C_CURON();LEDMOD(4,0);*/ /* Aug.09.1998 Daisuke Nagano */
   msg_clr();tpl(0);G_CLR_ON();CRTMOD(17);C_FNKMOD(0);C_CURON();LEDMOD(4,0);
   if(!(cmdflag&0x10)){bufset();}

@@ -10,6 +10,7 @@
 #import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 
 #include "sted.h"
+#include "rcp_transport.h"
 
 NSString *STed2ScreenRedrawNotification = @"STed2 screen redraw";
 
@@ -644,8 +645,12 @@ s_RegisterKeyDown(uint32_t ch)
 		   player stays paused. Repeats are ignored. XF5 stays queued:
 		   full stop is the editor's all_note_off. */
 		if (scan == x68k_xf3 || scan == x68k_xf4) {
-			if (!repeat && rcd != NULL)
-				*(volatile int32_t *)&rcd->sts = (scan == x68k_xf4) ? 1 : 0;
+			if (!repeat && rcd != NULL) {
+				if (scan == x68k_xf4)
+					rcp_transport_stop();
+				else
+					rcp_transport_continue();
+			}
 		} else
 			s_RegisterKeyDown(keyInfo);
 		sHeldGroup7 |= s_group7_hold_bit(keyInfo);
@@ -739,6 +744,38 @@ s_RegisterKeyDown(uint32_t ch)
 - (void)rightMouseUp:(NSEvent *)theEvent
 {
 	[self updateMouseFromEvent:theEvent];
+}
+
+/* One wheel notch becomes one UP or DOWN key. The hold bit stays clear,
+   so roll_up / roll_down do not keep running. */
+static CGFloat sWheelAccumY;
+
+- (void)scrollWheel:(NSEvent *)theEvent
+{
+	CGFloat unit;
+	CGFloat dy;
+
+	if ([theEvent momentumPhase] != NSEventPhaseNone)
+		return;
+	dy = [theEvent scrollingDeltaY];
+	if ([theEvent hasPreciseScrollingDeltas])
+		unit = 24.0;
+	else
+		unit = 1.0;
+	sWheelAccumY += dy;
+	while (sWheelAccumY >= unit || sWheelAccumY <= -unit) {
+		uint32_t key;
+		if (sWheelAccumY >= unit) {
+			sWheelAccumY -= unit;
+			key = (uint32_t)x68k_up << 8;
+		} else {
+			sWheelAccumY += unit;
+			key = (uint32_t)x68k_down << 8;
+		}
+		[sLock lock];
+		s_RegisterKeyDown(key);
+		[sLock unlock];
+	}
 }
 
 - (BOOL)control:(NSControl *)control textView:(NSTextView *)textView doCommandBySelector:(SEL)command
