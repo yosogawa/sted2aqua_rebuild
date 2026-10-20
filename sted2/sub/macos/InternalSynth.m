@@ -1,4 +1,5 @@
 #import "InternalSynth.h"
+#import "AmySynth.h"
 
 #include <CoreAudio/CoreAudio.h>
 #include <AudioToolbox/AudioToolbox.h>
@@ -15,6 +16,7 @@
 #import <AVFAudio/AVAudioEngine.h>
 #import <AVFAudio/AVAudioFormat.h>
 #import <AVFAudio/AVAudioMixerNode.h>
+#import <AVFAudio/AVAudioSourceNode.h>
 #import <AVFAudio/AVAudioUnit.h>
 #import <AVFAudio/AVAudioUnitEQ.h>
 #import <AVFAudio/AVAudioUnitReverb.h>
@@ -26,6 +28,9 @@ static AVAudioEngine *sEngine = nil;
 static AVAudioUnit *sDLSUnit[2];
 static AudioUnit sDLS[2];
 static MIDIEndpointRef sInternalDest[2];
+static MIDIEndpointRef sAmyDest = 0;
+static int sAmyPort = -1;
+static AVAudioSourceNode *sAmyNode = nil;
 static MIDIClientRef sSynthMIDIClient = 0;
 static AUScheduleMIDIEventBlock sScheduleMIDI[2];
 static double sSampleRate[2];
@@ -155,7 +160,35 @@ SynthSampleRate(AudioUnit au, AVAudioEngine *engine)
 	return sr;
 }
 
+static OSStatus ScheduleToInternalSynth(int synth, const uint8_t *bytes, int length, MIDITimeStamp atTime);
+
 /*  Playback prefetches at most one second. Timestamps farther out are not from that clock. */
+int
+InternalSynthSchedule(MIDIEndpointRef dest, const uint8_t *bytes, int length,
+	MIDITimeStamp atTime, OSStatus *status)
+{
+	int synth;
+
+	if (dest == 0 || bytes == NULL || length <= 0)
+		return 0;
+	if (dest == sAmyDest) {
+		if (status != NULL)
+			*status = noErr;
+		AmySynthSendMIDI(bytes, length, atTime);
+		return 1;
+	}
+	synth = -1;
+	if (dest == sInternalDest[0])
+		synth = 0;
+	else if (dest == sInternalDest[1])
+		synth = 1;
+	if (synth < 0)
+		return 0;
+	if (status != NULL)
+		*status = ScheduleToInternalSynth(synth, bytes, length, atTime);
+	return 1;
+}
+
 static OSStatus
 ScheduleToInternalSynth(int synth, const uint8_t *bytes, int length, MIDITimeStamp atTime)
 {
@@ -219,20 +252,20 @@ InstantiateDLS(void)
 }
 
 static int
-AddInternalDestination(int port, CFStringRef name)
+AddInternalDestination(MIDIEndpointRef *dest, CFStringRef name)
 {
 	OSStatus sts;
 	/*  The name stays visible as a destination. Playback does not arrive here:
-	    CoreMIDISend writes the DLS unit directly so host time is not mistaken
-	    for a sample offset. */
+	    CoreMIDISend writes the chosen synth directly so host time is not
+	    mistaken for a sample offset. */
 	sts = MIDIDestinationCreateWithProtocol(sSynthMIDIClient, name, kMIDIProtocol_1_0,
-		&sInternalDest[port], ^(const MIDIEventList *evtlist, void *srcConnRefCon) {
+		dest, ^(const MIDIEventList *evtlist, void *srcConnRefCon) {
 			(void)evtlist;
 			(void)srcConnRefCon;
 		});
 	if (sts != noErr) {
 		NSLog(@"MIDI destination %@ failed: %d", name, (int)sts);
-		sInternalDest[port] = 0;
+		*dest = 0;
 		return 0;
 	}
 	return 1;
@@ -300,10 +333,12 @@ ReleaseEffectNodes(void)
 	[sEQ release];
 	[sReverb release];
 	[sLimiter release];
+	[sAmyNode release];
 	sSum = nil;
 	sEQ = nil;
 	sReverb = nil;
 	sLimiter = nil;
+	sAmyNode = nil;
 	sAppliedReverbPreset = -1;
 }
 
@@ -328,8 +363,10 @@ StopInternalSynthEngine(void)
 	AVAudioEngine *engine;
 	AVAudioUnit *u0, *u1;
 
-	if (sEngine == nil)
+	if (sEngine == nil) {
+		AmySynthStop();
 		return;
+	}
 	engine = sEngine;
 	u0 = sDLSUnit[0];
 	u1 = sDLSUnit[1];
@@ -346,6 +383,7 @@ StopInternalSynthEngine(void)
 	sDLSUnit[1] = nil;
 	sEngine = nil;
 	ReleaseEffectNodes();
+	AmySynthStop();
 	[engine release];
 	[u0 release];
 	[u1 release];
@@ -438,7 +476,34 @@ StartInternalSynthEngine(void)
 	AudioUnitSetProperty(u1.audioUnit, kAudioUnitProperty_HostMIDIProtocol,
 		kAudioUnitScope_Global, 0, &proto, sizeof proto);
 	sum.outputVolume = 1.0;
-	if (sum == nil || eq == nil || reverb == nil || limiter == nil) {
+	if (sAmyPort == 0 || sAmyPort == 1) {
+		AVAudioFormat *fmt = [[AVAudioFormat alloc] initStandardFormatWithSampleRate:AMY_SYNTH_SAMPLE_RATE channels:2];
+		sAmyNode = [[AVAudioSourceNode alloc] initWithFormat:fmt renderBlock:^OSStatus(
+			BOOL *isSilence, const AudioTimeStamp *timestamp, AVAudioFrameCount frameCount, AudioBufferList *outputData) {
+			uint64_t hostTime = 0;
+			float *left;
+			float *right;
+			int stride;
+			if (timestamp != NULL && (timestamp->mFlags & kAudioTimeStampHostTimeValid) != 0)
+				hostTime = timestamp->mHostTime;
+			if (outputData->mNumberBuffers >= 2) {
+				left = outputData->mBuffers[0].mData;
+				right = outputData->mBuffers[1].mData;
+				stride = 1;
+			} else {
+				left = outputData->mBuffers[0].mData;
+				right = left + 1;
+				stride = 2;
+			}
+			AmySynthFill(left, right, stride, (int)frameCount, hostTime);
+			if (isSilence != NULL)
+				*isSilence = NO;
+			return noErr;
+		}];
+		[sEngine attachNode:sAmyNode];
+		[fmt release];
+	}
+	if (sum == nil || eq == nil || reverb == nil || limiter == nil || (sAmyPort >= 0 && sAmyNode == nil)) {
 		NSLog(@"internal synth effect unit missing");
 		[sEngine release];
 		sEngine = nil;
@@ -448,11 +513,27 @@ StartInternalSynthEngine(void)
 		[eq release];
 		[reverb release];
 		[limiter release];
+		[sAmyNode release];
+		sAmyNode = nil;
 		return;
 	}
-	connected = ConnectNode(sEngine, u0, sum, 0, &connectErr);
-	if (connected)
+	connected = YES;
+	if (sAmyPort != 0)
+		connected = ConnectNode(sEngine, u0, sum, 0, &connectErr);
+	if (connected && sAmyPort != 1)
 		connected = ConnectNode(sEngine, u1, sum, 1, &connectErr);
+	if (connected && sAmyNode != nil) {
+		AVAudioFormat *fmt = [[AVAudioFormat alloc] initStandardFormatWithSampleRate:AMY_SYNTH_SAMPLE_RATE channels:2];
+		if (@available(macOS 27.0, *))
+			connected = [sEngine connect:sAmyNode to:sum fromBus:0 toBus:(AVAudioNodeBus)sAmyPort format:fmt error:&connectErr];
+		else {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+			[sEngine connect:sAmyNode to:sum fromBus:0 toBus:(AVAudioNodeBus)sAmyPort format:fmt];
+#pragma clang diagnostic pop
+		}
+		[fmt release];
+	}
 	if (connected)
 		connected = ConnectNode(sEngine, sum, eq, 0, &connectErr);
 	if (connected)
@@ -473,6 +554,8 @@ StartInternalSynthEngine(void)
 		[eq release];
 		[reverb release];
 		[limiter release];
+		[sAmyNode release];
+		sAmyNode = nil;
 		return;
 	}
 	sSum = sum;
@@ -485,12 +568,15 @@ StartInternalSynthEngine(void)
 	AudioUnitAddRenderNotify(u0.audioUnit, InternalSynthRenderNotify, (void *)(intptr_t)0);
 	AudioUnitAddRenderNotify(u1.audioUnit, InternalSynthRenderNotify, (void *)(intptr_t)1);
 	sHostTicksPerSecond = AudioGetHostClockFrequency();
+	if (sAmyPort >= 0)
+		AmySynthStart();
 	if (![sEngine startAndReturnError:&err]) {
 		NSLog(@"internal synth start failed: %@", err);
 		AudioUnitRemoveRenderNotify(u0.audioUnit, InternalSynthRenderNotify, (void *)(intptr_t)0);
 		AudioUnitRemoveRenderNotify(u1.audioUnit, InternalSynthRenderNotify, (void *)(intptr_t)1);
 		ReleaseScheduleBlocks();
 		ReleaseEffectNodes();
+		AmySynthStop();
 		[sEngine release];
 		sEngine = nil;
 		[u0 release];
@@ -513,18 +599,61 @@ StartInternalSynthEngine(void)
 }
 
 int
+InternalSynthIsAmyDestination(MIDIEndpointRef dest)
+{
+	return dest != 0 && dest == sAmyDest;
+}
+
+int
 InternalSynthAnyDestination(const MIDIEndpointRef *dests)
 {
 	int i, j;
 	for (i = 0; i < kMaxNumberOfPorts; i++) {
 		if (dests[i] == 0)
 			continue;
+		if (dests[i] == sAmyDest)
+			return 1;
 		for (j = 0; j < 2; j++) {
 			if (sInternalDest[j] != 0 && dests[i] == sInternalDest[j])
 				return 1;
 		}
 	}
 	return 0;
+}
+
+static void
+ApplyAmyPortLocked(int port)
+{
+	if (sAmyPort == port)
+		return;
+	sAmyPort = port;
+	if (sEngine != nil) {
+		StopInternalSynthEngine();
+		StartInternalSynthEngine();
+	}
+}
+
+static void
+ApplyAmyPortMain(const MIDIEndpointRef *dests)
+{
+	int port = -1;
+	int i;
+	for (i = 0; i < kMaxNumberOfPorts; i++) {
+		if (dests[i] != 0 && dests[i] == sAmyDest)
+			port = i;
+	}
+	pthread_mutex_lock(&sSynthLock);
+	ApplyAmyPortLocked(port);
+	pthread_mutex_unlock(&sSynthLock);
+}
+
+void
+InternalSynthApplyAmyPort(const MIDIEndpointRef *dests)
+{
+	if ([NSThread isMainThread])
+		ApplyAmyPortMain(dests);
+	else
+		dispatch_sync(dispatch_get_main_queue(), ^{ ApplyAmyPortMain(dests); });
 }
 
 static void
@@ -567,9 +696,11 @@ InternalSynthCreateDestinations(MIDIClientRef client)
 {
 	sSynthMIDIClient = client;
 	if (sInternalDest[0] == 0)
-		AddInternalDestination(0, CFSTR("Apple DLS Synth"));
+		AddInternalDestination(&sInternalDest[0], CFSTR("Apple DLS Synth"));
 	if (sInternalDest[1] == 0)
-		AddInternalDestination(1, CFSTR("Apple DLS Synth 2"));
+		AddInternalDestination(&sInternalDest[1], CFSTR("Apple DLS Synth 2"));
+	if (sAmyDest == 0)
+		AddInternalDestination(&sAmyDest, CFSTR("AMY Synthesizer"));
 }
 
 static int
@@ -774,25 +905,4 @@ CoreMIDIDLSSynthFontFilename(void)
 	strlcpy(name, base, sizeof name);
 	pthread_mutex_unlock(&sSynthLock);
 	return name;
-}
-
-int
-InternalSynthSchedule(MIDIEndpointRef dest, const uint8_t *bytes, int length,
-	MIDITimeStamp atTime, OSStatus *status)
-{
-	int synth;
-	OSStatus sts;
-
-	if (dest == 0)
-		return 0;
-	if (dest == sInternalDest[0])
-		synth = 0;
-	else if (dest == sInternalDest[1])
-		synth = 1;
-	else
-		return 0;
-	sts = ScheduleToInternalSynth(synth, bytes, length, atTime);
-	if (status != NULL)
-		*status = sts;
-	return 1;
 }

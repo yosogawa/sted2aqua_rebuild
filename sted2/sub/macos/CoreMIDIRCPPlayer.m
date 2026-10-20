@@ -214,9 +214,13 @@ CoreMIDISelectDeviceForPort(int index, int port)
 	CoreMIDIInitIfNeeded();
 	port = port % kMaxNumberOfPorts;
 	dest = MIDIGetDestination(index);
+	if (InternalSynthIsAmyDestination(dest)
+		&& InternalSynthIsAmyDestination(sDest[(port + 1) % kMaxNumberOfPorts]))
+		return;
 	for (i = 0; i < kMaxNumberOfPorts; i++)
 		next[i] = sDest[i];
 	next[port] = dest;
+	InternalSynthApplyAmyPort(next);
 	if (InternalSynthAnyDestination(next))
 		InternalSynthEnsureRunning();
 	sDest[port] = dest;
@@ -236,7 +240,7 @@ CoreMIDICanonicalOutputName(const char *name)
 	return name;
 }
 
-void
+int
 CoreMIDISelectDeviceByNameForPort(const char *name, int port)
 {
 	int n;
@@ -244,16 +248,34 @@ CoreMIDISelectDeviceByNameForPort(const char *name, int port)
 	CoreMIDIInitIfNeeded();
 	name = CoreMIDICanonicalOutputName(name);
 	if (name == NULL)
-		return;
+		return 0;
+	port = port % kMaxNumberOfPorts;
 	n = 0;
 	while ((str = CoreMIDIDeviceNameAtIndex(n)) != nil) {
 		if (strcasecmp(name, [str UTF8String]) == 0) {
+			MIDIEndpointRef dest = MIDIGetDestination(n);
+			MIDIEndpointRef other = sDest[1 - port];
+			if (InternalSynthIsAmyDestination(dest) && InternalSynthIsAmyDestination(other))
+				return -1;
 			CoreMIDISelectDeviceForPort(n, port);
-			return;
+			return 1;
 		}
 		n++;
 	}
+	return 0;
 }
+
+#ifdef __OBJC__
+NSString *
+CoreMIDISelectedOutputName(int port)
+{
+	CoreMIDIInitIfNeeded();
+	port = port % kMaxNumberOfPorts;
+	if (sDest[port] == 0)
+		return nil;
+	return CoreMIDIEndpointDisplayName(sDest[port]);
+}
+#endif
 
 NSString *
 CoreMIDIInDeviceNameAtIndex(int index)

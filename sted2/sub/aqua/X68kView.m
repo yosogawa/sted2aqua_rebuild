@@ -1447,8 +1447,16 @@ XSTed_register_midi_device(const char *str)
 			continue;
 		if (input_flag == 0) {
 			const char *canon = CoreMIDICanonicalOutputName(q);
-			CoreMIDISelectDeviceByNameForPort(canon, n);
-			[def setValue:[NSString stringWithUTF8String:canon] forKey:[NSString stringWithFormat:@"midiout%d", n + 1]];
+			NSString *chosen;
+			if (CoreMIDISelectDeviceByNameForPort(canon, n) < 0) {
+				canon = (n == 0) ? "Apple DLS Synth" : "Apple DLS Synth 2";
+				CoreMIDISelectDeviceByNameForPort(canon, n);
+			}
+			chosen = CoreMIDISelectedOutputName(n);
+			if (chosen == nil && canon != NULL)
+				chosen = [NSString stringWithUTF8String:canon];
+			if (chosen != nil)
+				[def setValue:chosen forKey:[NSString stringWithFormat:@"midiout%d", n + 1]];
 		} else if (input_flag == 1) {
 			CoreMIDISelectInputDeviceByName(q);
 			[def setValue:[NSString stringWithUTF8String:q] forKey:@"midiin"];
