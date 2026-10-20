@@ -219,10 +219,14 @@ _extern int16_t	gs_mode[18];			/* gs bank mode    (8+1 group)	*/
 /* XG expand / GM2 expand
  * Address table from the def file. CC#0 (MSB) and CC#32 (LSB) select a
  * 128-name part. GS defs leave expand_map at 0 and keep using gs_bank.
+ * expand_owner is the melody part (7/9/11/13) that may see the row.
+ * 0 means every melody part, which is what a one-port def writes.
+ * Two ports do not share a bank number: part 7 and part 9 can both have 0.
  */
 #define EXPAND_BANK_MAX 128
 _extern unsigned char	expand_msb[EXPAND_BANK_MAX];
 _extern unsigned char	expand_lsb[EXPAND_BANK_MAX];
+_extern unsigned char	expand_owner[EXPAND_BANK_MAX];
 _extern int16_t		expand_part[EXPAND_BANK_MAX];	/* 1-based part	*/
 _extern int		expand_bank_n;
 _extern int		expand_map;		/* 1 once #bank or #rbank is seen */

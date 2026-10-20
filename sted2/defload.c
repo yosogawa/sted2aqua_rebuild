@@ -142,15 +142,22 @@ static int	expand_ints(char *s,int *v,int maxn)
   return(n);
 }
 
-int	expand_part_of(int msb,int lsb)
+int	expand_part_of(int owner,int msb,int lsb)
 {
-  int	i;
+  int	i,any;
 
+  /* XG expand / GM2 expand: a row belongs to one melody part.
+   * The part's own row wins. A row with no part (owner 0) is the
+   * fallback used by defs that put every channel on the same part.
+   */
   if(msb<0 || lsb<0 || msb>127 || lsb>127){return(0);}
+  any=0;
   for(i=0;i<expand_bank_n;i++){
-    if(expand_msb[i]==msb && expand_lsb[i]==lsb){return(expand_part[i]);}
+    if(expand_msb[i]!=msb || expand_lsb[i]!=lsb){continue;}
+    if(expand_owner[i]==owner){return(expand_part[i]);}
+    if(expand_owner[i]==0 && any==0){any=expand_part[i];}
   }
-  return(0);
+  return(any);
 }
 
 void	expand_write_lsb(int ad)
@@ -172,17 +179,26 @@ void	expand_write_lsb(int ad)
 
 static void	expand_bank_add(char *s)
 {
-  int	v[4],n,msb,lsb,part;
+  int	v[4],n,msb,lsb,part,owner;
 
-  /* XG expand / GM2 expand: #bank= CC#0, CC#32, name-list part */
-  n=expand_ints(s,v,3);
+  /* XG expand / GM2 expand: #bank= CC#0, CC#32, name-list part [, melody part].
+   * The 4th field is 7, 9, 11, or 13. That row is shown only on that part,
+   * so two ports can both use CC#0=0. Omitting it keeps the old file: the
+   * row is visible on every melody part.
+   */
+  n=expand_ints(s,v,4);
   if(n<3){return;}
-  msb=v[0];lsb=v[1];part=v[2];
+  msb=v[0];lsb=v[1];part=v[2];owner=0;
+  if(n>=4){
+    owner=v[3];
+    if(owner!=7 && owner!=9 && owner!=11 && owner!=13){return;}
+  }
   if(msb<0 || msb>127 || lsb<0 || lsb>127){return;}
   if(part<1 || part>=400){return;}
   if(expand_bank_n>=EXPAND_BANK_MAX){return;}
   expand_msb[expand_bank_n]=msb;
   expand_lsb[expand_bank_n]=lsb;
+  expand_owner[expand_bank_n]=(unsigned char)owner;
   expand_part[expand_bank_n]=part;
   expand_bank_n++;
   expand_map=1;
@@ -190,22 +206,33 @@ static void	expand_bank_add(char *s)
 
 static void	expand_rbank_add(char *s)
 {
-  int	v[4],n,msb,lsb,prog,part,slot;
+  int	v[5],n,msb,lsb,prog,part,slot,owner;
 
-  /* XG expand / GM2 expand: #rbank= CC#0, CC#32, program, key-name part.
-   * Kit choice in the rhythm screens is the program number. CC#32 stays 0
-   * in the GM2 and XG specifications.
+  /* XG expand / GM2 expand: #rbank= CC#0, CC#32, program, key-name part
+   * [, rhythm part]. The 5th field is 8, 10, 12, or 14. The kit list stays
+   * on that part, so a bank change does not step onto the other port.
+   * Omitting it keeps the old file: the first new CC#0 takes part 8, then
+   * 10, 12, 14. Kit choice is the program number.
    */
-  n=expand_ints(s,v,4);
+  n=expand_ints(s,v,5);
   if(n<4){return;}
-  msb=v[0];lsb=v[1];prog=v[2];part=v[3];
+  msb=v[0];lsb=v[1];prog=v[2];part=v[3];owner=0;
+  if(n>=5){
+    owner=v[4];
+    if(owner!=8 && owner!=10 && owner!=12 && owner!=14){return;}
+  }
   if(msb<0 || msb>127 || prog<0 || prog>127){return;}
   if(part<1 || part>=400){return;}
   (void)lsb;
   slot=expand_rhy_slot[msb];
+  if(owner!=0 && slot!=0 && slot!=owner){return;}
   if(slot==0){
-    if(expand_rhy_used>=4){return;}
-    slot=expand_rhy_ids[expand_rhy_used++];
+    if(owner!=0){
+      slot=owner;
+    }else{
+      if(expand_rhy_used>=4){return;}
+      slot=expand_rhy_ids[expand_rhy_used++];
+    }
     expand_rhy_slot[msb]=(unsigned char)slot;
     gs_bank[17*128+msb]=slot;
     gs_mode[17]|=128;

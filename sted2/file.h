@@ -207,7 +207,7 @@ void fsel(char *fna, char *pth, int w);
 void s_test(int ch, int bank, int prg, int note, int velo);
 int  yn_sel(void);
 
-int  expand_part_of(int msb, int lsb);
+int  expand_part_of(int owner, int msb, int lsb);
 void expand_write_lsb(int ad);
 int  timsel(int bmode, int bank, int gx, int prog);
 int  timsel2(int ch, int bank, int gx, int prog);

@@ -15,7 +15,8 @@ static int sPos = AMY_BLOCK_SIZE;
 static int64_t sGenerated = 0;
 static _Atomic int64_t sAnchorSample = 0;
 static _Atomic uint64_t sAnchorHost = 0;
-static uint8_t sBank[17];
+/* -1 until this channel receives CC#0. 0 is Juno, so it cannot mean "unset". */
+static int sBank[17];
 
 extern void amy_host_use_gamma9001_drums(void);
 
@@ -26,7 +27,8 @@ ResetRenderQueue(void)
 	sGenerated = 0;
 	atomic_store_explicit(&sAnchorSample, 0, memory_order_relaxed);
 	atomic_store_explicit(&sAnchorHost, 0, memory_order_relaxed);
-	memset(sBank, 0, sizeof sBank);
+	for (int i = 0; i < 17; i++)
+		sBank[i] = -1;
 }
 
 void
@@ -199,7 +201,12 @@ AmySynthSendMIDI(const uint8_t *bytes, int length, uint64_t atTime)
 	data2 = length > 2 ? bytes[2] : 0;
 	event = amy_default_event();
 	event.synth = channel;
-	event.note_source_channel = channel;
+	/* Note-ons must not claim they already came through AMY's MIDI map.
+	 * Drum kits use that map (one sample per note). Marking the source
+	 * channel skips it, and every key pitches the same sample.
+	 */
+	if (status != 0x80 && status != 0x90)
+		event.note_source_channel = channel;
 	if (status == 0x80 || (status == 0x90 && data2 == 0)) {
 		if (length < 2)
 			return;
@@ -217,9 +224,27 @@ AmySynthSendMIDI(const uint8_t *bytes, int length, uint64_t atTime)
 		return;
 	}
 	if (status == 0xc0) {
+		int bank, patch;
 		if (length < 2)
 			return;
-		event.patch_number = (uint16_t)(data1 + 128 * sBank[channel]);
+		/* A program change with no CC#0 stays in the bank already sounding.
+		 * Channel 10 starts on patch 384, so a bare PC keeps the drum kits
+		 * instead of falling through to Juno at bank 0.
+		 */
+		bank = sBank[channel];
+		if (bank < 0)
+			bank = instrument_bank_number(channel);
+		if (bank < 0) {
+			patch = instrument_get_patch_number(channel);
+			if (patch >= 0)
+				bank = (patch & 0xFF80) >> 7;
+			else
+				bank = 0;
+			/* Patches 256-383 are not a full bank. AMY treats that as Juno. */
+			if (bank == 2)
+				bank = 0;
+		}
+		event.patch_number = (uint16_t)(data1 + 128 * bank);
 		SendEvent(&event, atTime);
 		return;
 	}
@@ -236,7 +261,11 @@ AmySynthSendMIDI(const uint8_t *bytes, int length, uint64_t atTime)
 		if (length < 3)
 			return;
 		if (data1 == 0) {
+			/* The part's own bank table already picked this number.
+			 * Port A and port B do not share it, so nothing is rewritten.
+			 */
 			sBank[channel] = data2;
+			instrument_set_bank_number(channel, data2);
 			return;
 		}
 		if (data1 == 64) {

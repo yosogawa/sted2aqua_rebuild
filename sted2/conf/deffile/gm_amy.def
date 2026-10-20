@@ -1,0 +1,368 @@
+*--------------------------------------------------------------------------------------
+* gm_amy.def : ポート A は GM、ポート B は AMY
+* 出力先の機器は MIDI ポートの設定で選ぶ。このファイルは PART ASSIGN の初期値だけを分ける。
+* A1-A9, A11-A16 は part 7 (GM)。A10 は part 8 (GM Drums)。
+* B1-B9, B11-B16 は part 9 (AMY)。B10 は part 10 (AMY Drums)。
+* バンク番号はパートに属する。トラックに書いた CC#0 を、そのままそのポートへ送る。
+* 音色名は 14 文字で切れる。
+*--------------------------------------------------------------------------------------
+
+* 使用する音源の機種名(表示用=module/内部処理用=id)
+#module= MODULE: GM+AMY
+
+#id=GM+AMY
+
+* 演奏時のラストパラメータ送信のウエイト
+#lsp_wait=1	* (0～16= wait×0～16 / -1=パラメータを送信しない)
+
+*======================================================================================
+* レコーディングの設定
+
+* メトロノームで使用するノート(click&bell)
+*        ch prg  key gt vel  key gt vel
+#rec_met=10,  0,  37, 2,106,  56, 2,120
+
+* RHYTHM ASSIGN は 32 枠が一つ。キットでは切り替わらない。
+*        ch prog bank ,, vel   bank は CC#0。0 は GM キット。
+#rhy_as=10,0,0,,127
+*--------------------------------------------------------------------------------------
+Hand Clap     , 39, 1,Mute Hi Conga , 62, 1,Open Hi Conga , 63, 1,Low Conga     , 64, 1
+Crash Cymbal 1, 49, 1,Ride Cymbal 1 , 51, 1,Pedal Hi-Hat  , 44, 1,Open Hi-Hat   , 46, 1
+Closed Hi-Hat , 42, 1,Hi-Mid Tom    , 48, 1,Low Tom       , 45, 1,Low Floor Tom , 41, 1
+Side Stick    , 37, 1,Electric Snare, 40, 1,Acoustic Snare, 38, 1,Bass Drum 1   , 36, 1
+AcousBassDrum , 35, 1,Low-Mid Tom   , 47, 1,High Tom      , 50, 1,Splash Cymbal , 55, 1
+Ride Bell     , 53, 1,Cowbell       , 56, 1,Tambourine    , 54, 1,Hi Bongo      , 60, 1
+High Timbale  , 65, 1,Low Timbale   , 66, 1,Cabasa        , 69, 1,Maracas       , 70, 1
+Claves        , 75, 1,Short Whistle , 71, 1,Mute Triangle , 80, 1,Open Triangle , 81, 1
+* 入れなかったノート: 43,52,57,59,61,67,68,72,76,77 は多くのキットで同じサンプル。
+* 58,73,74,78,79 はどのキットにも音が無い。
+*--------------------------------------------------------------------------------------
+#defoff
+
+*======================================================================================
+* チャンネルごとの音色リスト
+
+#group_a=7,7,7,7,7,7,7,7,7,8,7,7,7,7,7,7	* (ch.A1-16) GM
+#group_b=9,9,9,9,9,9,9,9,9,10,9,9,9,9,9,9	* (ch.B1-16) AMY
+
+#gs_mode=2	* bit 0 = キャピタル落ち 0:off 1:on
+		* bit 1 = rhythm         0:off 1:on
+		* bit 2 = bank mode      0:bank msb 1:bank lsb
+
+* part 7 の CC#0=0。GM のピアノ。part 9 の 0 とは別の行。
+#gs_pbank	* バンク 0 → part 16
+16
+#defoff
+
+* part 9 に #bank が無い番号では、フラットな名前を出さない。
+#gm_mode=2
+
+* #bank= CC#0, CC#32, 名前表のパート, この行を出すパート
+* 4番目は 7 / 9 / 11 / 13。省くと全メロディパートに出て、ピアノと Juno が混ざる。
+#bank=0,0,20,9	* Juno。パッチ 0-127
+#bank=1,0,17,9	* DX7。パッチ 128-255
+#bank=2,0,18,9	* 追加。パッチ 256-258。プログラム 0-2
+#bank=3,0,19,9	* キット名。メロディチャンネルで選ぶとき
+
+* #rbank= CC#0, CC#32, プログラム, 鍵盤名のパート, リズムパート
+* 5番目は 8 / 10 / 12 / 14。同じ CC#0 を二つのリズムパートには書けない。
+#rbank=0,0,0,38,8	* GM Standard
+#rbank=3,0,0,26,10	* TR-808
+#rbank=3,0,1,27,10	* TR-909
+#rbank=3,0,2,28,10	* Linn 9000
+#rbank=3,0,3,29,10	* MR-12
+#rbank=3,0,4,30,10	* Tokyo Synthetics
+#rbank=3,0,5,31,10	* Power
+#rbank=3,0,6,32,10	* Percussion
+
+#part=7, GM           , GM:
+*--------------------------------------------------------------------------------------
+#part=16, GM           , GM:
+*--------------------------------------------------------------------------------------
+Piano 1     ,Piano 2     ,Piano 3     ,Honky-tonk
+E.Piano 1   ,E.Piano 2   ,Harpsichord ,Clav.
+Celesta     ,Glockenspiel,Music Box   ,Vibraphone
+Marimba     ,Xylophone   ,Tubular-bell,Santur
+Organ 1     ,Organ 2     ,Organ 3     ,Church Org.1
+Reed Organ  ,Accordion Fr,Harmonica   ,Bandoneon
+Nylon-str.Gt,Steel-str.Gt,Jazz Gt.    ,Clean Gt.
+Muted Gt.   ,Overdrive Gt,DistortionGt,Gt.Harmonics
+Acoustic Bs.,Fingered Bs.,Picked Bass ,Fretless Bs.
+Slap Bass 1 ,Slap Bass 2 ,Synth Bass 1,Synth Bass 2
+Violin      ,Viola       ,Cello       ,Contrabass
+Tremolo Str ,PizzicatoStr,Harp        ,Timpani
+Strings     ,Slow Strings,Syn.Strings1,Syn.Strings2
+Choir Aahs  ,Voice Oohs  ,SynVox      ,OrchestraHit
+Trumpet     ,Trombone    ,Tuba        ,MutedTrumpet
+French Horns,Brass 1     ,Synth Brass1,Synth Brass2
+Soprano Sax ,Alto Sax    ,Tenor Sax   ,Baritone Sax
+Oboe        ,English Horn,Bassoon     ,Clarinet
+Piccolo     ,Flute       ,Recorder    ,Pan Flute
+Bottle Blow ,Shakuhachi  ,Whistle     ,Ocarina
+Square Wave ,Saw Wave    ,Syn.Calliope,Chiffer Lead
+Charang     ,Solo Vox    ,5th Saw Wave,Bass & Lead
+Fantasia    ,Warm Pad    ,Polysynth   ,Space Voice
+Bowed Glass ,Metal Pad   ,Halo Pad    ,Sweep Pad
+Ice Rain    ,Soundtrack  ,Crystal     ,Atmosphere
+Brightness  ,Goblin      ,Echo Drops  ,Star Theme
+Sitar       ,Banjo       ,Shamisen    ,Koto
+Kalimba     ,Bagpipe     ,Fiddle      ,Shanai
+Tinkle Bell ,Agogo       ,Steel Drums ,Woodblock
+Taiko       ,Melo. Tom 1 ,Synth Drum  ,Reverse Cym.
+Gt.FretNoise,Breath Noise,Seashore    ,Bird
+Telephone 1 ,Helicopter  ,Applause    ,Gun Shot
+*--------------------------------------------------------------------------------------
+#defoff
+
+#part=8, GM Drums     , GM:
+*--------------------------------------------------------------------------------------
+STANDARD
+*--------------------------------------------------------------------------------------
+#defoff
+
+#part=9, AMY           , AMY:
+#defoff
+
+#part=10, AMY Drums    , AMY:
+*--------------------------------------------------------------------------------------
+TR-808,TR-909,Linn 9000,MR-12
+TKO Synthetics,Power,Percussion
+*--------------------------------------------------------------------------------------
+#defoff
+
+* TR-808。ノート 35 から 77。58 と 71-74 は音が無い。
+#part=26, TR-808        , AMY:,35
+*--------------------------------------------------------------------------------------
+808 BD 1,808 BD 3,808 Rimshot,808 Snare 1
+808 Clap,808 Snare 3,808 Tom Lo,808 Hat Clsd
+808 Tom Lo,808 Hat Clsd,808 Tom Lo,808 Hat Open
+808 Tom Hi,808 Tom Hi,808 Cymbal,808 Tom Hi
+808 Cymbal,808 Cymbal,808 Cowbell,808 Shaker
+808 Cymbal,808 Cowbell,808 Cymbal
+,808 Cymbal,808 Conga Hi,808 Conga Hi
+808 Conga Mid,808 Conga Hi,808 Conga Lo,808 Tom Hi
+808 Tom Lo,808 Cowbell,808 Cowbell,808 Shaker
+808 Shaker
+,,,
+808 Clave,808 Clave,808 Clave
+*--------------------------------------------------------------------------------------
+#defoff
+
+* TR-909。ノート 35 から 81。58, 73, 74, 78, 79 は音が無い。
+#part=27, TR-909        , AMY:,35
+*--------------------------------------------------------------------------------------
+909 BD Lo,909 BD,909 Rim,909 Snare
+909 Clap,909 SD Short,909 Tom Lo,909 Hat
+909 Tom Lo,909 Hat Short,909 Tom Mid,909 Hat Open
+909 Tom Mid,909 Tom Hi,909 Crash,909 Tom Hi
+909 Ride,909 Crash,909 Ride,Tamb Short
+909 Crash,Linn Cowbell,909 Crash
+,909 Ride,Bongo 003,Bongo 003
+Afr Conga 003,Conga 001,Conga 001,Timbales 001
+Timbales 004,Linn Cowbell,Linn Cowbell,Shaker
+Shaker 002,Whistle,Whistle
+,,808 Clave,808 Clave
+808 Clave,,,Triangle 1
+Triangle 2
+*--------------------------------------------------------------------------------------
+#defoff
+
+* Linn 9000。ノート 35 から 81。58, 73, 74, 78, 79 は音が無い。
+#part=28, Linn 9000     , AMY:,35
+*--------------------------------------------------------------------------------------
+Linn BD,Linn BD,Linn Rim,Linn Snare
+808 Clap,Linn Snare,Linn Tom,Linn Hat Clsd
+Linn Tom,Linn Hat Clsd,Linn Tom,Linn Hat Open
+Linn Tom,Linn Tom,Linn Cymbal,Linn Tom
+Linn Cymbal,Linn Cymbal,Linn Cowbell,Linn Tamb
+Linn Cymbal,Linn Cowbell,Linn Cymbal
+,Linn Cymbal,Linn Bongo,Linn Bongo
+Afr Conga 003,Conga 001,Conga 001,Timbales 001
+Timbales 004,Linn Cowbell,Linn Cowbell,Shaker
+Shaker 002,Whistle,Whistle
+,,808 Clave,808 Clave
+808 Clave,,,Triangle 1
+Triangle 2
+*--------------------------------------------------------------------------------------
+#defoff
+
+* Univox Micro Rythmer 12。ノート 35 から 81。58, 73, 74, 78, 79 は音が無い。
+#part=29, MR-12         , AMY:,35
+*--------------------------------------------------------------------------------------
+MR-12 Kick,MR-12 Kick,MR-12 Snare,MR-12 Snare
+MR-12 Snare,MR-12 Snare,MR-12 Kick,MR-12 Hat C
+MR-12 Kick,MR-12 Hat C,MR-12 Kick,MR-12 Hat O
+MR-12 Kick,MR-12 Kick,MR-12 Hat O,MR-12 Kick
+MR-12 Hat O,MR-12 Hat O,MR-12 Hat C,Tamb Short
+MR-12 Hat O,Linn Cowbell,MR-12 Hat O
+,MR-12 Hat O,Bongo 003,Bongo 003
+Afr Conga 003,Conga 001,Conga 001,Timbales 001
+Timbales 004,Linn Cowbell,Linn Cowbell,Shaker
+Shaker 002,Whistle,Whistle
+,,808 Clave,808 Clave
+808 Clave,,,Triangle 1
+Triangle 2
+*--------------------------------------------------------------------------------------
+#defoff
+
+* Tokyo Synthetics。ノート 35 から 81。58, 73, 74, 78, 79 は音が無い。
+#part=30, TKO Synthetics , AMY:,35
+*--------------------------------------------------------------------------------------
+Tokyo Deep,Tokyo Jet,Click 07,Static 07
+Wooden 03,Hizz 06,Blop 02,Click 05
+Blop 02,Click 06,Blop 02,Pew 03
+Boink 04,Boink 04,Metallic 09,Boink 04
+Metallic 16,Metallic 09,Metallic 16,Tamb Short
+Metallic 09,Wooden 01,Metallic 09
+,Metallic 16,Bongo 003,Bongo 003
+Afr Conga 003,Conga 001,Conga 001,Timbales 001
+Timbales 004,Linn Cowbell,Linn Cowbell,Shaker
+Shaker 002,Whistle,Whistle
+,,808 Clave,808 Clave
+808 Clave,,,Triangle 1
+Triangle 2
+*--------------------------------------------------------------------------------------
+#defoff
+
+* Power。ノート 35 から 81。58, 73, 74, 78, 79 は音が無い。
+#part=31, Power         , AMY:,35
+*--------------------------------------------------------------------------------------
+Real Kick,Metal Kick,Side Stick,Power Snare
+Hand Claps,Gated Snare,Proc Tom 1,Tight Hat
+Proc Tom 2,Pedal Hat,Proc Tom 3,Open Hat
+Proc Tom 4,Proc Tom 5,Crash Cymbal,Proc Tom 6
+Ride Edge,Crash Cymbal,Ride Cup,Tamb Short
+Splash Cym,Cowbell,Crash Cymbal
+,Ride Edge,Bongo 003,Bongo 003
+Afr Conga 003,Conga 001,Conga 001,Timbales 001
+Timbales 004,Linn Cowbell,Linn Cowbell,Shaker
+Shaker 002,Whistle,Whistle
+,,808 Clave,808 Clave
+808 Clave,,,Triangle 1
+Triangle 2
+*--------------------------------------------------------------------------------------
+#defoff
+
+* Percussion。ノート 35 から 81。58, 73, 74, 78, 79 は音が無い。
+#part=32, Percussion    , AMY:,35
+*--------------------------------------------------------------------------------------
+Noice Kick,Noice Kick,Tabla 002,Old Snare
+Tamp 002,Old Snare,Timpani 001,Shaker
+Timpani 001,Shaker,Timpani 001,Shaker 002
+Tabla 003,Tabla 003,Triangle 2,Tabla 003
+Triangle 2,Timpani 002,Triangle 1,Tamb Short
+Triangle 2,Linn Cowbell,Triangle 2
+,Triangle 1,Bongo 003,Bongo 003
+Afr Conga 003,Conga 001,Conga 001,Timbales 001
+Timbales 004,Linn Cowbell,Linn Cowbell,Shaker
+Shaker 002,Whistle,Whistle
+,,808 Clave,808 Clave
+808 Clave,,,Triangle 1
+Triangle 2
+*--------------------------------------------------------------------------------------
+#defoff
+
+#part=20, AMY Juno 106  , AMY:
+*--------------------------------------------------------------------------------------
+A11 Brass Se,A12 Brass Sw,A13 Trumpet ,A14 Flutes  
+A15 Moving S,A16 Brass & ,A17 Choir   ,A18 Piano I 
+A21 Organ I ,A22 Organ II,A23 Combo Or,A24 Calliope
+A25 Donald P,A26 Celeste\*,A27 Elect. P,A28 Elect. P
+A31 Clock Ch,A32 Steel Dr,A33 Xylophon,A34 Brass II
+A35 Fanfare ,A36 String I,A37 Pizzicat,A38 High Str
+A41 Bass cla,A42 English ,A43 Brass En,A44 Guitar  
+A45 Koto    ,A46 Dark Plu,A47 Funky I ,A48 Synth Ba
+A51 Lead I  ,A52 Lead II ,A53 Lead III,A54 Funky II
+A55 Synth Ba,A56 Funky II,A57 Thud Wah,A58 Going Up
+A61 Piano II,A62 Clav    ,A63 Frontier,A64 Snare Dr
+A65 Tom Toms,A66 Timpani ,A67 Shaker  ,A68 Synth Pa
+A71 Sweep I ,A72 Pluck Sw,A73 Repeater,A74 Sweep II
+A75 Pluck Be,A76 Dark Syn,A77 Sustaine,A78 Wah Rele
+A81 Gong    ,A82 Resonanc,A83 Drum Boo,A84 Dust Sto
+A85 Rocket M,A86 Hand Cla,A87 FX Sweep,A88 Caverns 
+B11 Strings ,B12 Violin  ,B13 Chorus V,B14 Organ 1 
+B15 Harpsich,B16 Recorder,B17 Perc. Pl,B18 Noise Sw
+B21 Space Ch,B22 Nylon Gu,B23 Orchestr,B24 Bright P
+B25 Organ Be,B26 Accordio,B27 FX Rise ,B28 FX Rise 
+B31 Brass   ,B32 Helicopt,B33 Lute    ,B34 Chorus F
+B35 Tomita  ,B36 FX Sweep,B37 Sharp Re,B38 Bass Plu
+B41 Resonant,B42 Harpsich,B43 Dark Ens,B44 Contact 
+B45 Noise Sw,B46 Glassy W,B47 Phase En,B48 Chorused
+B51 Clav    ,B52 Organ 2 ,B53 Bassoon ,B54 Auto Rel
+B55 Brass En,B56 Ethereal,B57 Chorus B,B58 Blizzard
+B61 E. Piano,B62 Clarinet,B63 Thunder ,B64 Reedy Or
+B65 Flute / ,B66 Toy Rhod,B67 Surf's U,B68 OW Bass 
+B71 Piccolo ,B72 Melodic ,B73 Meow Bra,B74 Violin  
+B75 High Bel,B76 Rolling ,B77 Ping Bel,B78 Brassy O
+B81 Low Dark,B82 Piccolo ,B83 Cello   ,B84 High Str
+B85 Rocket M,B86 Forbidde,B87 Froggy  ,B88 Owgan   
+*--------------------------------------------------------------------------------------
+#defoff
+#part=17, AMY DX7       , AMY:
+*--------------------------------------------------------------------------------------
+BRASS   1   ,BRASS   2   ,BRASS   3   ,STRINGS 1   
+STRINGS 2   ,STRINGS 3   ,ORCHESTRA   ,PIANO   1   
+PIANO   2   ,PIANO   3   ,E.PIANO 1   ,GUITAR  1   
+GUITAR  2   ,SYN-LEAD 1  ,BASS    1   ,BASS    2   
+E.ORGAN 1   ,PIPES   1   ,HARPSICH 1  ,CLAV    1   
+VIBE    1   ,MARIMBA     ,KOTO        ,FLUTE   1   
+ORCH-CHIME  ,TUB BELLS   ,STEEL DRUM  ,TIMPANI     
+REFS WHISL  ,VOICE   1   ,TRAIN       ,TAKE OFF    
+PIANO   4   ,PIANO   5   ,E.PIANO 2   ,E.PIANO 3   
+E.PIANO 4   ,PIANO 5THS  ,CELESTE     ,TOY PIANO   
+HARPSICH 2  ,HARPSICH 3  ,CLAV    2   ,CLAV    3   
+E.ORGAN 2   ,E.ORGAN 3   ,E.ORGAN 4   ,E.ORGAN 5   
+PIPES   2   ,PIPES   3   ,PIPES   4   ,CALIOPE     
+ACCORDION   ,SITAR       ,GUITAR  3   ,GUITAR  4   
+GUITAR  5   ,GUITAR  6   ,LUTE        ,BANJO       
+HARP    1   ,HARP    2   ,BASS    3   ,BASS    4   
+PICCOLO     ,FLUTE   2   ,OBOE        ,CLARINET    
+SAX BC      ,BASSOON     ,STRINGS 4   ,STRINGS 5   
+STRINGS 6   ,STRINGS 7   ,STRINGS 8   ,BRASS   4   
+BRASS   5   ,BRASS 6 BC  ,BRASS   7   ,BRASS   8   
+RECORDER    ,HARMONICA1  ,HRMNCA2 BC  ,VOICE   2   
+VOICE   3   ,GLOKENSPL   ,VIBE    2   ,XYLOPHONE   
+CHIMES      ,GONG    1   ,GONG    2   ,BELLS       
+COW BELL    ,BLOCK       ,FLEXATONE   ,LOG DRUM    
+SYN-LEAD 2  ,SYN-LEAD 3  ,SYN-LEAD 4  ,SYN-LEAD 5  
+SYN-CLAV 1  ,SYN-CLAV 2  ,SYN-CLAV 3  ,SYN-PIANO   
+SYNBRASS 1  ,SYNBRASS 2  ,SYNORGAN 1  ,SYNORGAN 2  
+SYN-VOX     ,SYN-ORCH    ,SYN-BASS 1  ,SYN-BASS 2  
+HARP-FLUTE  ,BELL-FLUTE  ,E.P-BRS BC  ,T.BL-EXPA   
+CHIME-STRG  ,B.DRM-SNAR  ,SHIMMER     ,EVOLUTION   
+WATER GDN   ,WASP STING  ,LASER GUN   ,DESCENT     
+OCTAVE WAR  ,GRAND PRIX  ,ST.HELENS   ,EXPLOSION   
+*--------------------------------------------------------------------------------------
+#defoff
+#part=18, AMY extra     , AMY:
+*--------------------------------------------------------------------------------------
+dpwe piano  ,amyboard def,MIDI drums  
+*--------------------------------------------------------------------------------------
+#defoff
+* キットの名前だけ。鍵盤の中身は part 26-32。
+#part=19, AMY drum kits , AMY:
+*--------------------------------------------------------------------------------------
+TR-808,TR-909,Linn 9000,MR-12
+TKO Synthetics,Power,Percussion
+*--------------------------------------------------------------------------------------
+#defoff
+
+* GM の鍵盤名。最初の名前がノート 35。
+#part=38, GM Standard  , GM: ,35
+*--------------------------------------------------------------------------------------
+AcousBassDrum ,Bass Drum 1   ,Side Stick    ,AcousticSnare
+Hand Clap     ,ElectricSnare ,Low Floor Tom ,Closed Hi-Hat
+High Floor Tom,Pedal Hi-Hat  ,Low Tom       ,Open Hi-Hat
+Low-Mid Tom   ,Hi-Mid Tom    ,Crash Cymbal 1,High Tom
+Ride Cymbal 1 ,Chinese Cymbal,Ride Bell     ,Tambourine
+Splash Cymbal ,Cowbell       ,Crash Cymbal 2,Vibraslap
+Ride Cymbal 2 ,Hi Bongo      ,Low Bongo     ,Mute Hi Conga
+Open Hi Conga ,Low Conga     ,High Timbale  ,Low Timbale
+High Agogo    ,Low Agogo     ,Cabasa        ,Maracas
+Short Whistle ,Long Whistle  ,Short Guiro   ,Long Guiro
+Claves        ,Hi Wood Block ,Low Wood Block,Mute Cuica
+Open Cuica    ,Mute Triangle ,Open Triangle
+*--------------------------------------------------------------------------------------
+#defoff
+
+#end

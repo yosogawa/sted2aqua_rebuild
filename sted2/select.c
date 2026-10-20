@@ -88,10 +88,13 @@ int	timsel(int bmode,int bank,int gx,int prog)
     */
   if((gs_mode[16]&4)!=0){
     if((gs_mode[16]&128)!=0 && as==7){as=gs_bank[16*128+bank_l];}
-    if((gs_mode[17]&128)!=0 && as==8){as=gs_bank[17*128+bank_l];}
+    /* XG expand / GM2 expand: the channel part stays. A CC#0 on the
+     * other port must not open that port's rhythm list.
+     */
+    if(!expand_map && (gs_mode[17]&128)!=0 && as==8){as=gs_bank[17*128+bank_l];}
   }else{
     if((gs_mode[16]&128)!=0 && as==7){as=gs_bank[16*128+bank];}
-    if((gs_mode[17]&128)!=0 && as==8){as=gs_bank[17*128+bank];}
+    if(!expand_map && (gs_mode[17]&128)!=0 && as==8){as=gs_bank[17*128+bank];}
   }
   /* XG expand / GM2 expand: an empty group must not drop the channel part. */
   if(expand_map && as==0){as=tim_asin[ch];}
@@ -213,7 +216,21 @@ top:
 	  if(md!=0){
 	    int oft=0;
 	    if(as==2){oft=24;}
-	    s_test(ch,bank_l*256,bank,prog+oft,tvel);
+	    if(expand_map && (as==8||as==10||as==12||as==14)){
+	      /* XG expand / GM2 expand: the caller packed CC#0 in the high byte. */
+	      s_test(ch,bank_l,bank,prog+oft,tvel);
+	    }else{
+	      s_test(ch,bank_l*256,bank,prog+oft,tvel);
+	    }
+	  }else if(expand_map && (as==8||as==10||as==12||as==14)){
+	    /* XG expand / GM2 expand: CC#0 is bank. A track still on 0 would
+	     * audition Juno under the kit names, so use the MSB that owns this slot.
+	     */
+	    int msb=bank,i;
+	    if(gs_bank[17*128+(msb&127)]!=as){
+	      for(i=0;i<128;i++){if(gs_bank[17*128+i]==as){msb=i;break;}}
+	    }
+	    s_test(ch,bank_l*256+msb,prog,tkey,tvel);
 	  }else{
 	    s_test(ch,bank_l*256,prog,tkey,tvel);
 	  }
@@ -240,22 +257,24 @@ top:
 	    int i=bank,guard=0,l;
 	    do{
 	      if(a==0x13){i--;if(i<0){i=127;}}else{i++;if(i>127){i=0;}}
-	      for(l=0;l<128;l++){if(expand_part_of(i,l)){break;}}
+	      for(l=0;l<128;l++){if(expand_part_of(as,i,l)){break;}}
 	      if(l<128){break;}
 	    }while(++guard<128 && i!=bank);
 	    bank=i;
-	    if(!expand_part_of(bank,bank_l)){bank_l=0;}
+	    if(!expand_part_of(as,bank,bank_l)){bank_l=0;}
 	    expand_lsb_pick=bank_l;
 	    goto top;
 	  }
 	  if(expand_map && (as==8||as==10||as==12||as==14)){
-	    /* XG expand / GM2 expand: drum category is CC#0. */
+	    /* XG expand / GM2 expand: drum CC#0 stays on this part.
+	     * The other port's bank numbers are not in this list.
+	     */
 	    int i=bank,guard=0;
 	    do{
 	      if(a==0x13){i--;if(i<0){i=127;}}else{i++;if(i>127){i=0;}}
-	      if(gs_bank[17*128+i]>0){break;}
+	      if(gs_bank[17*128+i]==as){break;}
 	    }while(++guard<128 && i!=bank);
-	    if(gs_bank[17*128+i]>0){bank=i;as=gs_bank[17*128+i];}
+	    if(gs_bank[17*128+i]==as){bank=i;}
 	    goto top;
 	  }
 	  if(gs_mode[16]&&(as==7 || as==9 ||as==11 || as==13)){
@@ -310,7 +329,7 @@ top:
 	      i=bank_l;
 	      do{
 		if(a==0x13){i--;if(i<0){i=127;}}else{i++;if(i>127){i=0;}}
-		if(expand_part_of(bank,i)){break;}
+		if(expand_part_of(as,bank,i)){break;}
 	      }while(++guard<128 && i!=bank_l);
 	      bank_l=i;
 	      expand_lsb_pick=bank_l;
@@ -398,6 +417,18 @@ skip:
   txerase(dx+40*8,5*16,(18+wd)*8,25*16);
   fill(dx+316,601,dx+453+wd*8,997,0);
   if(md){bank=0;}
+  else if(expand_map && (as==8 || as==10 || as==12 || as==14)){
+    /* XG expand / GM2 expand: the kit list belongs to one CC#0.
+     * Confirming a kit writes that MSB.
+     */
+    int	i,own;
+    own=gs_bank[17*128+(bank&127)];
+    if(own!=as){
+      for(i=0;i<128;i++){
+	if(gs_bank[17*128+i]==as){bank=i;break;}
+      }
+    }
+  }
   if(as==2){prog+=24;}
 
   if( es==0 ){return(prog+bank*256);}else{return(-2);}
@@ -587,18 +618,18 @@ int	varia(char *pname,int bank,int prg,int md)
    */
   if(expand_map && (md==7||md==9||md==11||md==13)){
     int	part,cap,nexp,lsb_used;
-    part=expand_part_of(bank,bank_l);
+    part=expand_part_of(md,bank,bank_l);
     lsb_used=bank_l;
     nexp=(part>0)? part*128-128+prg : -1;
     if(part<=0 || nexp<0 || tim_names(nexp)[0]==0){
-      cap=expand_part_of(bank,0);
+      cap=expand_part_of(md,bank,0);
       if(cap>0){
 	part=cap;
 	nexp=cap*128-128+prg;
 	lsb_used=0;
       }
     }
-    if(part>0 && nexp>=0 && expand_part_of(bank,0)>0){
+    if(part>0 && nexp>=0 && expand_part_of(md,bank,0)>0){
       pname[0]=(lsb_used!=bank_l)? '#' : ':';
       pname[1]=0;
       strcat(pname,tim_names(nexp));

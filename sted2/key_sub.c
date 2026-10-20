@@ -830,10 +830,11 @@ char	*prog_name(int ch,int bank,int prog,int h)
     */
   if((gs_mode[16]&4)!=0 ){
     if((gs_mode[16]&128)!=0 && i==7){i=gs_bank[16*128+bank_l];}
-    if((gs_mode[17]&128)!=0 && i==8){i=gs_bank[17*128+bank_l];}
+    /* XG expand / GM2 expand: the channel part stays. */
+    if(!expand_map && (gs_mode[17]&128)!=0 && i==8){i=gs_bank[17*128+bank_l];}
   }else{
     if((gs_mode[16]&128)!=0 && i==7){i=gs_bank[16*128+bank_m];}
-    if((gs_mode[17]&128)!=0 && i==8){i=gs_bank[17*128+bank_m];}
+    if(!expand_map && (gs_mode[17]&128)!=0 && i==8){i=gs_bank[17*128+bank_m];}
   }
 
 
