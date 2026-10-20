@@ -93,6 +93,9 @@ int	timsel(int bmode,int bank,int gx,int prog)
     if((gs_mode[16]&128)!=0 && as==7){as=gs_bank[16*128+bank];}
     if((gs_mode[17]&128)!=0 && as==8){as=gs_bank[17*128+bank];}
   }
+  /* XG expand / GM2 expand: an empty group must not drop the channel part. */
+  if(expand_map && as==0){as=tim_asin[ch];}
+  if(expand_map){expand_lsb_pick=bank_l;}
 
   if((as==7||as==9||as==11||as==13)&&(gs_mode[as]&4)!=0){bank=bank_l;}
 
@@ -125,7 +128,11 @@ int	timsel(int bmode,int bank,int gx,int prog)
 top:
   while(1){
     tdis(gx+40,10,tim_head[as-1],18,3);tmp0[0]=0;
-    if(as>=7 && as<=14 && (md!=0 ||(as&1)!=0)){
+    if(expand_map && (as==7||as==9||as==11||as==13)){
+      /* XG expand / GM2 expand */
+      strcpy(tmp0,"CC0=");strcat(tmp0,fstr(bank,3));
+      strcat(tmp0," CC32=");strcat(tmp0,fstr(bank_l,3));
+    }else if(as>=7 && as<=14 && (md!=0 ||(as&1)!=0)){
       i0=gs_bank[as*128+bank];
       if(i0>0){strcpy(tmp0,tim_head[i0-1]);}
     }
@@ -211,7 +218,10 @@ top:
 	    s_test(ch,bank_l*256,prog,tkey,tvel);
 	  }
 	}else{
-	  if((as==7||as==9||as==11||as==13)&&(gs_mode[as]&4)!=0){
+	  if(expand_map && (as==7||as==9||as==11||as==13)){
+	    /* XG expand / GM2 expand: send CC#0 and CC#32 together. */
+	    s_test(ch,bank_l*256+bank,prog,tkey,tvel);
+	  }else if((as==7||as==9||as==11||as==13)&&(gs_mode[as]&4)!=0){
 	    s_test(ch,bank*256,prog,tkey,tvel);
 	  }else{
 	    s_test(ch,bank,prog,tkey,tvel);
@@ -225,6 +235,29 @@ top:
 
 	if(sh&4){
 	  /*BANK G.*/
+	  if(expand_map && (as==7||as==9||as==11||as==13)){
+	    /* XG expand / GM2 expand: shift cycles CC#0, the category. */
+	    int i=bank,guard=0,l;
+	    do{
+	      if(a==0x13){i--;if(i<0){i=127;}}else{i++;if(i>127){i=0;}}
+	      for(l=0;l<128;l++){if(expand_part_of(i,l)){break;}}
+	      if(l<128){break;}
+	    }while(++guard<128 && i!=bank);
+	    bank=i;
+	    if(!expand_part_of(bank,bank_l)){bank_l=0;}
+	    expand_lsb_pick=bank_l;
+	    goto top;
+	  }
+	  if(expand_map && (as==8||as==10||as==12||as==14)){
+	    /* XG expand / GM2 expand: drum category is CC#0. */
+	    int i=bank,guard=0;
+	    do{
+	      if(a==0x13){i--;if(i<0){i=127;}}else{i++;if(i>127){i=0;}}
+	      if(gs_bank[17*128+i]>0){break;}
+	    }while(++guard<128 && i!=bank);
+	    if(gs_bank[17*128+i]>0){bank=i;as=gs_bank[17*128+i];}
+	    goto top;
+	  }
 	  if(gs_mode[16]&&(as==7 || as==9 ||as==11 || as==13)){
 	    int i=bank_l;
 	    while(gs_bank[16*128+i]==0||bank_l==i||as==gs_bank[16*128+i]){
@@ -271,7 +304,17 @@ top:
 	  }else{
 	    /*BANK*/
 	    int i=bank;
-	    if((as>=7 && as<=14)&&(md!=0 || (as&1)!=0 )){
+	    if(expand_map && (as==7||as==9||as==11||as==13)){
+	      /* XG expand / GM2 expand: this key cycles CC#32, the variation. */
+	      int guard=0;
+	      i=bank_l;
+	      do{
+		if(a==0x13){i--;if(i<0){i=127;}}else{i++;if(i>127){i=0;}}
+		if(expand_part_of(bank,i)){break;}
+	      }while(++guard<128 && i!=bank_l);
+	      bank_l=i;
+	      expand_lsb_pick=bank_l;
+	    }else if((as>=7 && as<=14)&&(md!=0 || (as&1)!=0 )){
 	      while(gs_bank[as*128+i]==0 || bank==i){
 		if(a==0x13){
 		  i--;if(i<0){i=127;}
@@ -280,8 +323,8 @@ top:
 		}
 		if(i==bank){break;}
 	      }
+	      bank=i;
 	    }
-	    bank=i;
 	  }
 	  break;
 	}
@@ -537,6 +580,31 @@ int	varia(char *pname,int bank,int prg,int md)
 {
   int	bank2,bank_l,n=0;
   bank_l=(bank>>8)&0xff;bank=bank&0xff;
+
+  /* XG expand / GM2 expand
+   * CC#32 is the variation. An empty variation falls back to CC#32=0,
+   * the capital bank, instead of the GS step of 16.
+   */
+  if(expand_map && (md==7||md==9||md==11||md==13)){
+    int	part,cap,nexp,lsb_used;
+    part=expand_part_of(bank,bank_l);
+    lsb_used=bank_l;
+    nexp=(part>0)? part*128-128+prg : -1;
+    if(part<=0 || nexp<0 || tim_names(nexp)[0]==0){
+      cap=expand_part_of(bank,0);
+      if(cap>0){
+	part=cap;
+	nexp=cap*128-128+prg;
+	lsb_used=0;
+      }
+    }
+    if(part>0 && nexp>=0 && expand_part_of(bank,0)>0){
+      pname[0]=(lsb_used!=bank_l)? '#' : ':';
+      pname[1]=0;
+      strcat(pname,tim_names(nexp));
+      return(lsb_used);
+    }
+  }
 
   /*	if((md==7||md==9||md==11||md==13)&& (gs_mode[md]&4)){bank=bank_l;}
 

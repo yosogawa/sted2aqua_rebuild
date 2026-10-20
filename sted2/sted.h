@@ -216,6 +216,18 @@ _extern char	card_no[2];			/* used pcm card no.		*/
 _extern int16_t	gs_bank[18*128];		/* gs bank part no.(8+1 group)	*/
 _extern int16_t	gs_mode[18];			/* gs bank mode    (8+1 group)	*/
 
+/* XG expand / GM2 expand
+ * Address table from the def file. CC#0 (MSB) and CC#32 (LSB) select a
+ * 128-name part. GS defs leave expand_map at 0 and keep using gs_bank.
+ */
+#define EXPAND_BANK_MAX 128
+_extern unsigned char	expand_msb[EXPAND_BANK_MAX];
+_extern unsigned char	expand_lsb[EXPAND_BANK_MAX];
+_extern int16_t		expand_part[EXPAND_BANK_MAX];	/* 1-based part	*/
+_extern int		expand_bank_n;
+_extern int		expand_map;		/* 1 once #bank or #rbank is seen */
+_extern int		expand_lsb_pick;	/* tone list LSB, -1 if unused */
+
 _extern char	rhy_stest[8];			/* rhythm sound test ch. & para	*/
 _extern char	rec_met[10];			/* recording metoro tone	*/
 

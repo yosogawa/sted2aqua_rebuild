@@ -1,0 +1,126 @@
+*--------------------------------------------------------------------------------------
+* gm.def : General MIDI Level 1
+*         Melodic bank 0 is the 128 GM programs, same order as the DLS capital map.
+*         Channel 10 is the GM rhythm key map (notes 35-81). No variation banks.
+*--------------------------------------------------------------------------------------
+
+* 使用する音源の機種名(表示用=module/内部処理用=id)
+#module= MODULE: GM
+
+#id=GM
+
+* 演奏時のラストパラメータ送信のウエイト
+#lsp_wait=1	* (0～16= wait×0～16 / -1=パラメータを送信しない)
+
+*======================================================================================
+* レコーディングの設定
+
+* メトロノームで使用するノート(click&bell)
+*        ch prg  key gt vel  key gt vel
+#rec_met=10,  0,  37, 2,106,  56, 2,120
+
+*======================================================================================
+* チャンネルごとの音色リスト
+* part 7 がメロディ。バンク 0 だけ GM の 128 音色(part 16)。
+* part 8 がリズム。ch.10。プログラム 0 が GM 標準キット(part 38)。
+
+#group_a=7,7,7,7,7,7,7,7,7,8,7,7,7,7,7,7	* (ch.A1-16)
+#group_b=7,7,7,7,7,7,7,7,7,8,7,7,7,7,7,7	* (ch.B1-16)
+
+#gs_mode=2	* bit 0 = キャピタル落ち 0:off 1:on
+		* bit 1 = rhythm         0:off 1:on
+		* bit 2 = bank mode      0:bank msb 1:bank lsb
+
+#gs_pbank	* バンク 0 → part 16
+16
+#defoff
+
+#gs_rbank	* プログラム 0 → part 38
+38
+#defoff
+
+*======================================================================================
+* リズムアサインの初期データ(1～32) (リズムネームは14文字まで)
+
+* サウンドテスト用の設定
+#rhy_as=10,0,-1,,127	* ch.(1～16),prog.(0～127,-1=off),bank_l(0～127,-1=off),,vel
+*--------------------------------------------------------------------------------------
+*[RHYTHM NAME][KEY,GT][RHYTHM NAME]-[KEY,GT][RHYTHM NAME]-[KEY,GT][RHYTHM NAME]-[KEY,GT]
+Hand Clap     , 39, 1,Mute Hi Conga , 62, 1,Open Hi Conga , 63, 1,Low Conga     , 64, 1
+Crash Cymbal 1, 49, 1,Ride Cymbal 1 , 51, 1,Pedal Hi-Hat  , 44, 1,Open Hi-Hat   , 46, 1
+Closed Hi-Hat , 42, 1,Hi-Mid Tom    , 48, 1,Low Tom       , 45, 1,Low Floor Tom , 41, 1
+Side Stick    , 37, 1,Electric Snare, 40, 1,Acoustic Snare, 38, 1,Bass Drum 1   , 36, 1
+High Timbale  , 65, 1,Low Timbale   , 66, 1,Cowbell       , 56, 1,Hi Bongo      , 60, 1
+Low Bongo     , 61, 1,High Agogo    , 67, 1,Low Agogo     , 68, 1,Tambourine    , 54, 1
+Claves        , 75, 1,Maracas       , 70, 1,Short Whistle , 71, 1,Long Whistle  , 72, 1
+Cabasa        , 69, 1,Short Guiro   , 73, 1,              ,  0, 1,              ,  0, 1
+*--------------------------------------------------------------------------------------
+#defoff
+
+*======================================================================================
+* 音色名定義 (音色名は12文字まで)
+
+#part=7, GM           , GM:
+*--------------------------------------------------------------------------------------
+#part=16, GM           , GM:
+*--------------------------------------------------------------------------------------
+Piano 1     ,Piano 2     ,Piano 3     ,Honky-tonk
+E.Piano 1   ,E.Piano 2   ,Harpsichord ,Clav.
+Celesta     ,Glockenspiel,Music Box   ,Vibraphone
+Marimba     ,Xylophone   ,Tubular-bell,Santur
+Organ 1     ,Organ 2     ,Organ 3     ,Church Org.1
+Reed Organ  ,Accordion Fr,Harmonica   ,Bandoneon
+Nylon-str.Gt,Steel-str.Gt,Jazz Gt.    ,Clean Gt.
+Muted Gt.   ,Overdrive Gt,DistortionGt,Gt.Harmonics
+Acoustic Bs.,Fingered Bs.,Picked Bass ,Fretless Bs.
+Slap Bass 1 ,Slap Bass 2 ,Synth Bass 1,Synth Bass 2
+Violin      ,Viola       ,Cello       ,Contrabass
+Tremolo Str ,PizzicatoStr,Harp        ,Timpani
+Strings     ,Slow Strings,Syn.Strings1,Syn.Strings2
+Choir Aahs  ,Voice Oohs  ,SynVox      ,OrchestraHit
+Trumpet     ,Trombone    ,Tuba        ,MutedTrumpet
+French Horns,Brass 1     ,Synth Brass1,Synth Brass2
+Soprano Sax ,Alto Sax    ,Tenor Sax   ,Baritone Sax
+Oboe        ,English Horn,Bassoon     ,Clarinet
+Piccolo     ,Flute       ,Recorder    ,Pan Flute
+Bottle Blow ,Shakuhachi  ,Whistle     ,Ocarina
+Square Wave ,Saw Wave    ,Syn.Calliope,Chiffer Lead
+Charang     ,Solo Vox    ,5th Saw Wave,Bass & Lead
+Fantasia    ,Warm Pad    ,Polysynth   ,Space Voice
+Bowed Glass ,Metal Pad   ,Halo Pad    ,Sweep Pad
+Ice Rain    ,Soundtrack  ,Crystal     ,Atmosphere
+Brightness  ,Goblin      ,Echo Drops  ,Star Theme
+Sitar       ,Banjo       ,Shamisen    ,Koto
+Kalimba     ,Bagpipe     ,Fiddle      ,Shanai
+Tinkle Bell ,Agogo       ,Steel Drums ,Woodblock
+Taiko       ,Melo. Tom 1 ,Synth Drum  ,Reverse Cym.
+Gt.FretNoise,Breath Noise,Seashore    ,Bird
+Telephone 1 ,Helicopter  ,Applause    ,Gun Shot
+*--------------------------------------------------------------------------------------
+#defoff
+
+#part=8, GM Drums     , GM:
+*--------------------------------------------------------------------------------------
+STANDARD
+*--------------------------------------------------------------------------------------
+#defoff
+
+* GM rhythm keys. Note 35 is the first name.
+#part=38, GM Standard  , GM: ,35
+*--------------------------------------------------------------------------------------
+AcousBassDrum ,Bass Drum 1   ,Side Stick    ,AcousticSnare
+Hand Clap     ,ElectricSnare ,Low Floor Tom ,Closed Hi-Hat
+High Floor Tom,Pedal Hi-Hat  ,Low Tom       ,Open Hi-Hat
+Low-Mid Tom   ,Hi-Mid Tom    ,Crash Cymbal 1,High Tom
+Ride Cymbal 1 ,Chinese Cymbal,Ride Bell     ,Tambourine
+Splash Cymbal ,Cowbell       ,Crash Cymbal 2,Vibraslap
+Ride Cymbal 2 ,Hi Bongo      ,Low Bongo     ,Mute Hi Conga
+Open Hi Conga ,Low Conga     ,High Timbale  ,Low Timbale
+High Agogo    ,Low Agogo     ,Cabasa        ,Maracas
+Short Whistle ,Long Whistle  ,Short Guiro   ,Long Guiro
+Claves        ,Hi Wood Block ,Low Wood Block,Mute Cuica
+Open Cuica    ,Mute Triangle ,Open Triangle
+*--------------------------------------------------------------------------------------
+#defoff
+
+#end

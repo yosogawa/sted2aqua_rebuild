@@ -120,6 +120,102 @@ void	cnfinit()
   for(i=1;i<10;i++){rhy_vel[i]=i*14;}
 }
 #endif
+/* XG expand / GM2 expand: rhythm MSB -> part 8/10/12/14 */
+static unsigned char	expand_rhy_slot[128];
+static int		expand_rhy_used;
+static const int	expand_rhy_ids[4]={8,10,12,14};
+
+static int	expand_ints(char *s,int *v,int maxn)
+{
+  int	n=0;
+
+  while(*s && n<maxn){
+    char	tok[32];
+    int	i=0;
+    while(*s==' ' || *s==','){s++;}
+    if(*s==0){break;}
+    while(*s && *s!=',' && *s!=' ' && i<30){tok[i++]=*s++;}
+    tok[i]=0;
+    if(i==0){break;}
+    v[n++]=str_val(tok);
+  }
+  return(n);
+}
+
+int	expand_part_of(int msb,int lsb)
+{
+  int	i;
+
+  if(msb<0 || lsb<0 || msb>127 || lsb>127){return(0);}
+  for(i=0;i<expand_bank_n;i++){
+    if(expand_msb[i]==msb && expand_lsb[i]==lsb){return(expand_part[i]);}
+  }
+  return(0);
+}
+
+void	expand_write_lsb(int ad)
+{
+  int	j;
+
+  /* XG expand / GM2 expand: keep CC#32 if the track already has one. */
+  if(!expand_map || expand_lsb_pick<0 || expand_lsb_pick>127){return;}
+  j=ad;
+  while(j>0){
+    j-=4;
+    if(j<0){break;}
+    if(trk[track][j]==0xeb && trk[track][j+2]==32){
+      trk[track][j+3]=(uint8_t)expand_lsb_pick;
+      return;
+    }
+  }
+}
+
+static void	expand_bank_add(char *s)
+{
+  int	v[4],n,msb,lsb,part;
+
+  /* XG expand / GM2 expand: #bank= CC#0, CC#32, name-list part */
+  n=expand_ints(s,v,3);
+  if(n<3){return;}
+  msb=v[0];lsb=v[1];part=v[2];
+  if(msb<0 || msb>127 || lsb<0 || lsb>127){return;}
+  if(part<1 || part>=400){return;}
+  if(expand_bank_n>=EXPAND_BANK_MAX){return;}
+  expand_msb[expand_bank_n]=msb;
+  expand_lsb[expand_bank_n]=lsb;
+  expand_part[expand_bank_n]=part;
+  expand_bank_n++;
+  expand_map=1;
+}
+
+static void	expand_rbank_add(char *s)
+{
+  int	v[4],n,msb,lsb,prog,part,slot;
+
+  /* XG expand / GM2 expand: #rbank= CC#0, CC#32, program, key-name part.
+   * Kit choice in the rhythm screens is the program number. CC#32 stays 0
+   * in the GM2 and XG specifications.
+   */
+  n=expand_ints(s,v,4);
+  if(n<4){return;}
+  msb=v[0];lsb=v[1];prog=v[2];part=v[3];
+  if(msb<0 || msb>127 || prog<0 || prog>127){return;}
+  if(part<1 || part>=400){return;}
+  (void)lsb;
+  slot=expand_rhy_slot[msb];
+  if(slot==0){
+    if(expand_rhy_used>=4){return;}
+    slot=expand_rhy_ids[expand_rhy_used++];
+    expand_rhy_slot[msb]=(unsigned char)slot;
+    gs_bank[17*128+msb]=slot;
+    gs_mode[17]|=128;
+    gs_mode[slot]|=128+64;
+    gs_mode[16]&=~4;
+  }
+  gs_bank[slot*128+prog]=part;
+  expand_map=1;
+}
+
 /***************************/
 void	definit()
 {
@@ -139,6 +235,13 @@ void	definit()
   for(i=0;i<18*128;i++){gs_bank[i]=0;}
   for(i=0;i<18;i++){gs_mode[i]=0;}
   gs_mode[16]=4;
+
+  /* XG expand / GM2 expand */
+  expand_bank_n=0;
+  expand_map=0;
+  expand_lsb_pick=-1;
+  expand_rhy_used=0;
+  for(i=0;i<128;i++){expand_rhy_slot[i]=0;}
 
   for(i=0;i<16;i++){rfilt[i][0]=0;rfilt[i][1]=0;rfilt[i+16][0]=128;rfilt[i+16][1]=128;}
 
@@ -542,6 +645,10 @@ int	defload(char *fi,int md)
 	  }
 	}
       }
+
+      /* XG expand / GM2 expand. Checked before the GS bank directives. */
+      if( str_search(li2,"#BANK=") >0 ){expand_bank_add(strchr(li,'=')+1);}
+      if( str_search(li2,"#RBANK=")>0 ){expand_rbank_add(strchr(li,'=')+1);}
 
       if( str_search(li2,"#GS_PBANK")>0 ){gs_mode[ 7]|=128   ;nm=0x10380;}
       if( str_search(li2,"#GS_RBANK")>0 ){gs_mode[ 8]|=128+64;nm=0x10400;}

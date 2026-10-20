@@ -323,6 +323,7 @@ track_edit_top:
 	    if(ct<0){kc='0';goto timnore;}
 	    bank=(ct&0xff00)>>8;ct=ct&0xff;
 	    trk[track][ad+3]=bank;
+	    expand_write_lsb(ad);
 	  }
 	  if(ct<0){ct=0;}
 	  if(ct>127){ct=127;}
@@ -1610,6 +1611,7 @@ void	spcon(int ad,int cy)
 	cons_md(1);
 	if(i>=0){
 	  trk[track][ad+2]=i&0xff;trk[track][ad+3]=i>>8;
+	  expand_write_lsb(ad);
 	  return;}
 	if(i<0){goto spc_timno;}
 	}

@@ -51,7 +51,9 @@
 *#def_file=cm64.def
 *#def_file=sc55.def
 *#def_file=sc55mk2.def
-#def_file=sc88.def
+*#def_file=sc88.def
+*#def_file=amy.def
+#def_file=gm.def
 
 *=============================================================================
 * パレット設定

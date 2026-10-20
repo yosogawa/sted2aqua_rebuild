@@ -1,0 +1,568 @@
+*--------------------------------------------------------------------------------------
+* gm2.def : General MIDI Level 2 (MMA, 1999)
+* 音色は規格の一覧。
+*
+* キャピタルバンク: バリエーション 0。基本の 128 音色。
+*   バリエーション側に名前が無いプログラムは、この音色に戻る（キャピタル落ち）。
+* メロディは CC#0 = 121。バリエーションは CC#32 = 0,1,2,...
+* ドラムは CC#0 = 120、CC#32 = 0。キットはプログラム番号（0 始まり。MIDI の 1 が prog 0）。
+* 音色名は 14 文字で切れる。それより長い正式名は、そのパートの直前に書く。
+* 音色一覧で CC#32 を変えた値は、曲中に CC#32 のイベントがあるときだけ保存される。
+*   バリエーション 0 は CC#32 が無くても CC#32=0 として扱われる。
+*--------------------------------------------------------------------------------------
+* 使用する音源の機種名(表示用=module/内部処理用=id)
+#module= MODULE: GM2
+
+#id=GM2
+
+#lsp_wait=1
+
+*        ch prg  key gt vel  key gt vel
+#rec_met=10,  0,  37, 2,106,  56, 2,120
+
+#group_a=7,7,7,7,7,7,7,7,7,8,7,7,7,7,7,7	* (ch.A1-16)
+#group_b=7,7,7,7,7,7,7,7,7,8,7,7,7,7,7,7	* (ch.B1-16)
+
+* #bank= CC#0, CC#32, 名前表のパート
+* #rbank= CC#0, CC#32, プログラム, 鍵盤名のパート
+
+#bank=121,0,16
+#bank=121,1,17
+#bank=121,2,18
+#bank=121,3,19
+#bank=121,4,20
+#bank=121,5,21
+#bank=121,6,22
+#bank=121,7,23
+#bank=121,8,24
+#bank=121,9,25
+
+#rbank=120,0,0,26	* Standard Kit : GM1 と同じ標準キット
+#rbank=120,0,8,26	* Room Kit : 部屋の残響が付いたドラム
+#rbank=120,0,16,26	* Power Kit : キックとスネアを強くしたキット
+#rbank=120,0,24,26	* Electronic Kit : 電子ドラムのキット
+#rbank=120,0,25,26	* TR-808 Kit : Roland TR-808 に似たアナログキット
+#rbank=120,0,32,26	* Jazz Kit : 標準より柔らかいキックとスネア
+#rbank=120,0,40,26	* Brush Kit : ブラシの音を多く含むキット
+#rbank=120,0,48,26	* Orchestra Kit : コンサート用のドラムとティンパニ
+* prog 56 SFX Kit : 効果音のキット。下の鍵盤名は旋律ドラム用
+
+#part=8, GM2 Drums    , GM2:
+*--------------------------------------------------------------------------------------
+Standard Kit,,,
+,,,
+Room Kit,,,
+,,,
+Power Kit,,,
+,,,
+Electronic Kit,TR-808 Kit,,
+,,,
+Jazz Kit,,,
+,,,
+Brush Kit,,,
+,,,
+Orchestra Kit,,,
+,,,
+SFX Kit,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+*--------------------------------------------------------------------------------------
+#defoff
+
+#part=7, GM2          , GM2:
+
+* GM2 のドラム鍵盤。ノート 27 から。
+* キット 1 から 49（prog 0,8,16,24,25,32,40,48）は初代 GS と同じ鍵盤に、
+*   規格が足した High Q から Metronome Bell（27-34）と Shaker から Open Surdo（82-87）を含む。
+* SFX キット（prog 56）の鍵盤はここには無い。
+#part=26, GM2 Standard , GM2:,27
+*--------------------------------------------------------------------------------------
+High Q,Slap,Scratch Push,Scratch Pull
+Sticks,Square Click,MetronomeClick,Metronome Bell
+AcousBassDrum,Bass Drum 1,Side Stick,AcousticSnare
+Hand Clap,ElectricSnare,Low Floor Tom,Closed Hi-Hat
+High Floor Tom,Pedal Hi-Hat,Low Tom,Open Hi-Hat
+Low-Mid Tom,Hi-Mid Tom,Crash Cymbal 1,High Tom
+Ride Cymbal 1,Chinese Cymbal,Ride Bell,Tambourine
+Splash Cymbal,Cowbell,Crash Cymbal 2,Vibraslap
+Ride Cymbal 2,Hi Bongo,Low Bongo,Mute Hi Conga
+Open Hi Conga,Low Conga,High Timbale,Low Timbale
+High Agogo,Low Agogo,Cabasa,Maracas
+Short Whistle,Long Whistle,Short Guiro,Long Guiro
+Claves,Hi Wood Block,Low Wood Block,Mute Cuica
+Open Cuica,Mute Triangle,Open Triangle,Shaker
+Jingle Bell,Belltree,Castanets,Mute Surdo
+Open Surdo
+*--------------------------------------------------------------------------------------
+#defoff
+
+* CC#0=121 CC#32=0  capital bank
+* キャピタルバンク。GM1 と同じ 128 音色。
+#part=16, GM2 var 0    , GM2:
+*--------------------------------------------------------------------------------------
+* prog 0 : Acoustic Grand Piano
+* prog 1 : Bright Acoustic Piano
+* prog 2 : Electric Grand Piano
+* prog 3 : Honky-Tonk Piano
+* prog 4 : Rhodes Electric Piano
+* prog 5 : Chorused Electric Piano
+* prog 15 : Dulcimer/Santur
+* prog 16 : Drawbar Organ 1
+* prog 17 : Percussive B3 Organ 1
+* prog 21 : French Accordion
+* prog 23 : Tango Accordion
+* prog 24 : Nylon-Strings Guitar 1
+* prog 25 : Steel-Strings Guitar
+* prog 27 : Clean Electric Guitar
+* prog 28 : Muted Electric Guitar
+* prog 29 : Overdriven Guitar
+* prog 30 : Distortion Guitar
+* prog 31 : Guitar Harmonics
+* prog 44 : Tremolo Strings
+* prog 45 : Pizzicato Strings
+* prog 48 : Strings Ensemble
+* prog 49 : Slow Strings Ensemble
+* prog 50 : Synth Strings 1
+* prog 51 : Synth Strings 2
+* prog 59 : Muted Trumpet 1
+* prog 61 : Brass Section 1
+* prog 91 : Space Voice Pad
+* prog 92 : Bowed Glass Pad
+* prog 119 : Reversed Cymbals
+* prog 120 : Guitar Fret Noise
+Acoustic Grand,Bright Acousti,Electric Grand,Honky-Tonk Pia
+Rhodes Electri,Chorused Elect,Harpsichord,Clavinet
+Celesta,Glockenspiel,Music Box,Vibraphone
+Marimba,Xylophone,Tubular Bells,Dulcimer/Santu
+Drawbar Organ,Percussive B3,Rock Organ,Church Organ 1
+Reeds Organ,French Accordi,Harmonica,Tango Accordio
+Nylon-Strings,Steel-Strings,Jazz Guitar,Clean Electric
+Muted Electric,Overdriven Gui,Distortion Gui,Guitar Harmoni
+Acoustic Bass,Fingered Bass,Picked Bass,Fretless Bass
+Slap Bass 1,Slap Bass 2,Synth Bass 1,Synth Bass 2
+Violin,Viola,Cello,Contrabass
+Tremolo String,Pizzicato Stri,Harp,Timpani
+Strings Ensemb,Slow Strings E,Synth Strings,Synth Strings
+Choir Aahs 1,Voice Oohs,Synth Voice,Orchestra Hit
+Trumpet,Trombone 1,Tuba,Muted Trumpet
+French Horns 1,Brass Section,Synth Brass 1,Synth Brass 2
+Soprano Sax,Alto Sax,Tenor Sax,Baritone Sax
+Oboe,English Horn,Bassoon,Clarinet
+Piccolo,Flute,Recorder,Pan Flute
+Bottle Blow,Shakuhachi,Whistle,Ocarina
+Square Lead,Saw Lead,Synth Calliope,Chiffer Lead
+Charang,Solo Synth Vox,5th Saw Wave,Bass & Lead
+Fantasia Pad,Warm Pad,Polysynth Pad,Space Voice Pa
+Bowed Glass Pa,Metal Pad,Halo Pad,Sweep Pad
+Ice Rain,Soundtrack,Crystal,Atmosphere
+Brightness,Goblin,Echo Drops,Star Theme
+Sitar 1,Banjo,Shamisen,Koto
+Kalimba,Bagpipe,Fiddle,Shanai
+Tinkle Bells,Agogo,Steel Drums,Woodblock
+Taiko Drums,Melodic Tom 1,Synth Drums,Reversed Cymba
+Guitar Fret No,Breath Noise,Seashore,Bird
+Telephone 1,Helicopter,Applause,Gunshot
+*--------------------------------------------------------------------------------------
+#defoff
+
+* CC#0=121 CC#32=1  variation 1
+#part=17, GM2 var 1    , GM2:
+*--------------------------------------------------------------------------------------
+* prog 0 : Wide Acoustic Grand Piano
+* prog 1 : Wide Bright Acoustic Piano
+* prog 2 : Wide Electric Grand Piano
+* prog 3 : Wide Honky-Tonk Piano
+* prog 4 : Detuned Electric Piano 1
+* prog 5 : Detuned Electric Piano 2
+* prog 6 : Coupled Harpsichord
+* prog 7 : Pulsed Clavinet
+* prog 16 : Detuned Drawbar Organ
+* prog 17 : Detuned Percussive B3 Organ
+* prog 21 : Italian Accordion
+* prog 25 : 12-Strings Steel Guitar
+* prog 26 : Hawaiian Guitar
+* prog 30 : Feedback Guitar
+* prog 31 : Guitar Feedback
+* prog 33 : Fingered Slap Bass
+* prog 48 : Orchestral Strings
+* prog 50 : Synth Strings 3
+* prog 56 : Dark Trumpet Soft
+* prog 59 : Muted Trumpet 2
+* prog 61 : Brass Section 2
+* prog 116 : Concert Bass Drums
+* prog 120 : Guitar Cut Noise
+* prog 121 : Flute Key Click
+Wide Acoustic,Wide Bright Ac,Wide Electric,Wide Honky-Ton
+Detuned Electr,Detuned Electr,Coupled Harpsi,Pulsed Clavine
+,,,Wet Vibraphone
+Wide Marimba,,Church Bells,
+Detuned Drawba,Detuned Percus,,Church Organ 2
+Puffs Organ,Italian Accord,,
+Ukulele,12-Strings Ste,Hawaiian Guita,Chorus Guitar
+Funky Guitar 1,Guitar Pinch,Feedback Guita,Guitar Feedbac
+,Fingered Slap,,
+,,Synth Bass 101,Synth Bass 4
+Slow Violin,,,
+,,Yangqin,
+Orchestral Str,,Synth Strings,
+Choir Aahs 2,Humming,Analog Voice,Bass Hit
+Dark Trumpet S,Trombone 2,,Muted Trumpet
+French Horns 2,Brass Section,Synth Brass 3,Synth Brass 4
+,,,
+,,,
+,,,
+,,,
+Square Wave,Saw Wave,,
+Wire Lead,,,Delayed Lead
+,Sine Pad,,Itopia
+,,,
+,,Synth Mallet,
+,,Echo Bell,
+Sitar 2,,,Taisho Koto
+,,,
+,,,Castanets
+Concert Bass D,Melodic Tom 2,808 Toms,
+Guitar Cut Noi,Flute Key Clic,Rain,Dog
+Telephone 2,Car Engine,Laughter,Machine Gun
+*--------------------------------------------------------------------------------------
+#defoff
+
+* CC#0=121 CC#32=2  variation 2
+#part=18, GM2 var 2    , GM2:
+*--------------------------------------------------------------------------------------
+* prog 0 : Dark Acoustic Grand Piano
+* prog 4 : Variation Electric Piano 1
+* prog 5 : Variation Electric Piano 2
+* prog 6 : Wide Harpsichord
+* prog 16 : 60's Drawbar Organ
+* prog 17 : Percussive B3 Organ 2
+* prog 24 : Opened Nylon-Strings Guitar
+* prog 27 : Mid Tone Guitar
+* prog 30 : Distortion Rhythm Guitar
+* prog 57 : Bright Trombone
+* prog 81 : Doctor Solo (Roland MT-32 patch 45)
+* prog 118 : Electric Percussion
+Dark Acoustic,,,
+Variation Elec,Variation Elec,Wide Harpsicho,
+,,,
+,,Carillon Bells,
+60's Drawbar O,Percussive B3,,Church Organ 3
+,,,
+Opened Nylon-S,Mandolin,,Mid Tone Guita
+Funky Guitar 2,,Distortion Rhy,
+,,,
+,,Synth Bass 3,Rubber Bass
+,,,
+,,,
+60's Strings,,,
+,,,6th Hit
+,Bright Trombon,,
+,,Analog Brass 1,Analog Brass 2
+,,,
+,,,
+,,,
+,,,
+Sine Wave,Doctor Solo (R,,
+,,,
+,,,
+,,,
+,,,
+,,Echo Pan,
+,,,
+,,,
+,,,
+,,Electric Percu,
+String Slap,,Thunder,Horse Gallop
+Door Creaking,Car Stop,Screaming,Laser Gun
+*--------------------------------------------------------------------------------------
+#defoff
+
+* CC#0=121 CC#32=3  variation 3
+#part=19, GM2 var 3    , GM2:
+*--------------------------------------------------------------------------------------
+* prog 4 : 60's Electric Piano
+* prog 5 : Electric Piano Legend
+* prog 6 : Open Harpsichord
+* prog 16 : Drawbar Organ 2
+* prog 24 : Nylon-Strings Guitar 2
+* prog 25 : Steel-Strings Guitar + Body Tapped Sounds
+,,,
+60's Electric,Electric Piano,Open Harpsicho,
+,,,
+,,,
+Drawbar Organ,,,
+,,,
+Nylon-Strings,Steel-Strings,,
+Jazz Man,,,
+,,,
+,,Clavi Bass,Attack Pulsed
+,,,
+,,,
+,,,
+,,,Euro Hit
+,,,
+,,Jump Brass,
+,,,
+,,,
+,,,
+,,,
+,Natural Lead,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,Wind,Bird 2
+Door Closing,Car Pass,Punch,Explosion
+*--------------------------------------------------------------------------------------
+#defoff
+
+* CC#0=121 CC#32=4  variation 4
+#part=20, GM2 var 4    , GM2:
+*--------------------------------------------------------------------------------------
+* prog 5 : Phaser Electric Piano
+,,,
+,Phaser Electri,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,Hammered Bass,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,Sequenced Saw,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,Stream,
+Scratch,Car Crash,Heartbeat,
+*--------------------------------------------------------------------------------------
+#defoff
+
+* CC#0=121 CC#32=5  variation 5
+#part=21, GM2 var 5    , GM2:
+*--------------------------------------------------------------------------------------
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,Bubble,
+Wind Chimes,Siren,Footsteps,
+*--------------------------------------------------------------------------------------
+#defoff
+
+* CC#0=121 CC#32=6  variation 6
+#part=22, GM2 var 6    , GM2:
+*--------------------------------------------------------------------------------------
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,Train,,
+*--------------------------------------------------------------------------------------
+#defoff
+
+* CC#0=121 CC#32=7  variation 7
+#part=23, GM2 var 7    , GM2:
+*--------------------------------------------------------------------------------------
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,Jet Plane,,
+*--------------------------------------------------------------------------------------
+#defoff
+
+* CC#0=121 CC#32=8  variation 8
+#part=24, GM2 var 8    , GM2:
+*--------------------------------------------------------------------------------------
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,Starship,,
+*--------------------------------------------------------------------------------------
+#defoff
+
+* CC#0=121 CC#32=9  variation 9
+#part=25, GM2 var 9    , GM2:
+*--------------------------------------------------------------------------------------
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,Burst Noise,,
+*--------------------------------------------------------------------------------------
+#defoff
+
+#end
