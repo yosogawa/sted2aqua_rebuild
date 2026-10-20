@@ -61,7 +61,7 @@ Claves        , 75, 1,Short Whistle , 71, 1,Mute Triangle , 80, 1,Open Triangle 
 * 4番目は 7 / 9 / 11 / 13。省くと全メロディパートに出て、ピアノと Juno が混ざる。
 #bank=0,0,20,9	* Juno。パッチ 0-127
 #bank=1,0,17,9	* DX7。パッチ 128-255
-#bank=2,0,18,9	* 追加。パッチ 256-258。プログラム 0-2
+* バンク 2 は載せていない。パッチ 256-258。安定したら戻す。
 #bank=3,0,19,9	* キット名。メロディチャンネルで選ぶとき
 
 * #rbank= CC#0, CC#32, プログラム, 鍵盤名のパート, リズムパート
@@ -332,11 +332,6 @@ HARP-FLUTE  ,BELL-FLUTE  ,E.P-BRS BC  ,T.BL-EXPA
 CHIME-STRG  ,B.DRM-SNAR  ,SHIMMER     ,EVOLUTION   
 WATER GDN   ,WASP STING  ,LASER GUN   ,DESCENT     
 OCTAVE WAR  ,GRAND PRIX  ,ST.HELENS   ,EXPLOSION   
-*--------------------------------------------------------------------------------------
-#defoff
-#part=18, AMY extra     , AMY:
-*--------------------------------------------------------------------------------------
-dpwe piano  ,amyboard def,MIDI drums  
 *--------------------------------------------------------------------------------------
 #defoff
 * キットの名前だけ。鍵盤の中身は part 26-32。

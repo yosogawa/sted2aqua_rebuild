@@ -244,7 +244,14 @@ AmySynthSendMIDI(const uint8_t *bytes, int length, uint64_t atTime)
 			if (bank == 2)
 				bank = 0;
 		}
-		event.patch_number = (uint16_t)(data1 + 128 * bank);
+		patch = data1 + 128 * bank;
+		/* Bank 2 programs 0-2 are patches 256-258. amy.def and gm_amy.def
+		 * do not list them. A track may still contain CC#0=2. Do not load
+		 * these three, and do not substitute another patch.
+		 */
+		if (patch >= 256 && patch <= 258)
+			return;
+		event.patch_number = (uint16_t)patch;
 		SendEvent(&event, atTime);
 		return;
 	}
@@ -273,10 +280,15 @@ AmySynthSendMIDI(const uint8_t *bytes, int length, uint64_t atTime)
 			SendEvent(&event, atTime);
 			return;
 		}
-		if (data1 == 123) {
+		if (data1 == 120 || data1 == 123) {
+			/* All Sound Off and All Notes Off for this channel only.
+			 * Note 0 releases its voices and clears the held-note map.
+			 * all_notes_off() would silence every channel and leave that map.
+			 */
 			event.midi_note = 0;
 			event.velocity = 0;
 			SendEvent(&event, atTime);
+			return;
 		}
 	}
 }
