@@ -40,6 +40,8 @@
 		<string>.r36 — Recomposer 36 tracks</string>
 		<key>public.midi-audio</key>
 		<string>.mid — Standard MIDI</string>
+		<key>com.github.STed2.mid</key>
+		<string>.mid — Standard MIDI</string>
 	</dict>
 	<key>UTExportedTypeDeclarations</key>
 	<array>
@@ -74,6 +76,23 @@
 				<key>public.filename-extension</key>
 				<array>
 					<string>r36</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.github.STed2.mid</string>
+			<key>UTTypeDescription</key>
+			<string>MID</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.midi-audio</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>mid</string>
 				</array>
 			</dict>
 		</dict>
