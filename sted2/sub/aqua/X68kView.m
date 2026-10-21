@@ -236,6 +236,47 @@ s_XSTed_ms_store_view_point(NSPoint p, NSUInteger buttons)
 		sMsButtons |= 0x00ff; /* right, same as X11 Button3Mask */
 }
 
+/* Menu labels for the save panel's format popup. The strings live in
+ * Info.plist under STedSaveFormatNames, keyed by UTType identifier.
+ * panel:displayNameForType: is available on macOS 15 and later.
+ *
+ * Launch Services stores UTI identifiers in lowercase. The plist keys
+ * are com.github.STed2.rcp and com.github.STed2.r36, but the panel
+ * passes com.github.sted2.rcp and com.github.sted2.r36. A case-sensitive
+ * lookup misses those two and the panel falls back to UTTypeDescription
+ * ("RCP", "R36"). public.midi-audio is already lowercase, so it matched.
+ */
+@interface STedSaveFormatDelegate : NSObject <NSOpenSavePanelDelegate>
+@end
+
+@implementation STedSaveFormatDelegate
+- (NSString *)panel:(id)sender displayNameForType:(UTType *)type API_AVAILABLE(macos(15.0))
+{
+	NSDictionary *names;
+	id key;
+	id caption;
+
+	(void)sender;
+	if (type.identifier == nil)
+		return nil;
+	names = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"STedSaveFormatNames"];
+	if (![names isKindOfClass:[NSDictionary class]])
+		return nil;
+	caption = nil;
+	for (key in names) {
+		if (![key isKindOfClass:[NSString class]])
+			continue;
+		if ([(NSString *)key caseInsensitiveCompare:type.identifier] != NSOrderedSame)
+			continue;
+		caption = [names objectForKey:key];
+		break;
+	}
+	if ([caption isKindOfClass:[NSString class]] && [(NSString *)caption length] > 0)
+		return caption;
+	return nil;
+}
+@end
+
 @implementation X68kView
 
 + (int)displayScalePercent
@@ -3033,6 +3074,7 @@ s_MacSelectFile(void **args)
 	int is_save;
 	const char *mes, *ext;
 	id panel;
+	id formatNames = nil;
 	int i;
 	char *p, *pp;
 	NSMutableArray *filetypes;
@@ -3073,6 +3115,17 @@ s_MacSelectFile(void **args)
 		}
 		[panel setAllowedContentTypes:contentTypes];
 	}
+	/* showsContentTypes is available on macOS 15 and later.
+	 * The deployment target stays macOS 12, so the call is checked at runtime.
+	 * On macOS 15+, the save panel lists allowedContentTypes in a format menu.
+	 */
+	if (@available(macOS 15.0, *)) {
+		if (is_save) {
+			[(NSSavePanel *)panel setShowsContentTypes:YES];
+			formatNames = [[STedSaveFormatDelegate alloc] init];
+			[(NSSavePanel *)panel setDelegate:formatNames];
+		}
+	}
 	if (mes != NULL) {
 		title = [NSString stringWithFormat:@"%s %s File", (is_save ? "Save" : "Load"), mes];
 		[panel setTitle:title];
@@ -3088,6 +3141,10 @@ s_MacSelectFile(void **args)
 		strcat(path, "/");
 	} else {
 		fna[0] = 0;
+	}
+	if (formatNames != nil) {
+		[(NSSavePanel *)panel setDelegate:nil];
+		[formatNames release];
 	}
 	sRequestAppKitCall = 0;
 }
