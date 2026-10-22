@@ -21,6 +21,7 @@ int  dsave(char *fna);
 int  part_load(char *fna);
 int  part_save(char *fna, int ln);
 int  trk_load(char *fna);
+int  trk_load_mid(char *fna);
 int  trk_save(char *fna);
 int  part_text_save(char *fna, int ad, int ln);
 void uex_read(int po, int no);

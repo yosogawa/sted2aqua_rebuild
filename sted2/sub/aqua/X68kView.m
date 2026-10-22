@@ -3109,7 +3109,16 @@ s_MacSelectFile(void **args)
 		NSString *extString;
 		UTType *type;
 		for (extString in filetypes) {
-			type = [UTType typeWithFilenameExtension:extString];
+			/* public.midi-audio lists "midi" ahead of "mid", and the save
+			 * panel writes that preferred extension. On save, pass the
+			 * exported type whose only extension is "mid". Opening still
+			 * resolves "mid" through typeWithFilenameExtension:, which
+			 * returns public.midi-audio, so .midi files stay selectable.
+			 */
+			if (is_save && [extString isEqualToString:@"mid"])
+				type = [UTType exportedTypeWithIdentifier:@"com.github.STed2.mid"];
+			else
+				type = [UTType typeWithFilenameExtension:extString];
 			if (type != nil)
 				[contentTypes addObject:type];
 		}

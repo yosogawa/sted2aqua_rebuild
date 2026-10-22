@@ -1,7 +1,12 @@
 *--------------------------------------------------------------------------------------
-* gm.def : General MIDI Level 1
+* gm.def : General MIDI Level 1, drum kits as shipped on GM1 instruments
 *         Melodic bank 0 is the 128 GM programs, same order as the DLS capital map.
-*         Channel 10 is the GM rhythm key map (notes 35-81). No variation banks.
+*         Channel 10 selects a kit by program change on bank 0, not GM2's CC#0=120.
+*         The nine kits use the same program numbers as gm2.def:
+*           0 Standard, 8 Room, 16 Power, 24 Electronic, 25 TR-808,
+*           32 Jazz, 40 Brush, 48 Orchestra, 56 SFX.
+*         Programs 0 through 48 share the GM rhythm key map (notes 35-81).
+*         Program 56 (SFX) has a kit name and no key map.
 *--------------------------------------------------------------------------------------
 
 * 使用する音源の機種名(表示用=module/内部処理用=id)
@@ -22,7 +27,8 @@
 *======================================================================================
 * チャンネルごとの音色リスト
 * part 7 がメロディ。バンク 0 だけ GM の 128 音色(part 16)。
-* part 8 がリズム。ch.10。プログラム 0 が GM 標準キット(part 38)。
+* part 8 がリズム。ch.10。9 キットは gm2 と同じプログラム番号。
+* プログラム 0,8,16,24,25,32,40,48 の鍵盤名は part 38。56 (SFX) は無し。
 
 #group_a=7,7,7,7,7,7,7,7,7,8,7,7,7,7,7,7	* (ch.A1-16)
 #group_b=7,7,7,7,7,7,7,7,7,8,7,7,7,7,7,7	* (ch.B1-16)
@@ -35,8 +41,15 @@
 16
 #defoff
 
-#gs_rbank	* プログラム 0 → part 38
-38
+#gs_rbank	* プログラム番号 → 鍵盤名パート。0 は無し
+38,0,0,0,0,0,0,0	*  0 Standard
+38,0,0,0,0,0,0,0	*  8 Room
+38,0,0,0,0,0,0,0	* 16 Power
+38,38,0,0,0,0,0,0	* 24 Electronic, 25 TR-808
+38,0,0,0,0,0,0,0	* 32 Jazz
+38,0,0,0,0,0,0,0	* 40 Brush
+38,0,0,0,0,0,0,0	* 48 Orchestra
+0,0,0,0,0,0,0,0	* 56 SFX は鍵盤名なし
 #defoff
 
 *======================================================================================
@@ -101,11 +114,33 @@ Telephone 1 ,Helicopter  ,Applause    ,Gun Shot
 
 #part=8, GM Drums     , GM:
 *--------------------------------------------------------------------------------------
-STANDARD
+* GM Level 1 の仕様書ではドラムキットは STANDARD の 1 種類だけ。
+* 実際の GM 音源はここを逸脱し、GM2 と同じ 9 種類を載せている。
+* この定義は仕様書ではなく、そのデファクトに合わせる。
+* プログラム番号は gm2.def の part 8 と同じ。
+*   0 Standard, 8 Room, 16 Power, 24 Electronic, 25 TR-808,
+*   32 Jazz, 40 Brush, 48 Orchestra, 56 SFX。
+* チャンネル 10、バンク 0 のプログラムチェンジで選ぶ。CC#0=120 は使わない。
+Standard Kit,,,
+,,,
+Room Kit,,,
+,,,
+Power Kit,,,
+,,,
+Electronic Kit,TR-808 Kit,,
+,,,
+Jazz Kit,,,
+,,,
+Brush Kit,,,
+,,,
+Orchestra Kit,,,
+,,,
+SFX Kit,,,
 *--------------------------------------------------------------------------------------
 #defoff
 
 * GM rhythm keys. Note 35 is the first name.
+* Kits at programs 0,8,16,24,25,32,40,48 share this map. SFX does not.
 #part=38, GM Standard  , GM: ,35
 *--------------------------------------------------------------------------------------
 AcousBassDrum ,Bass Drum 1   ,Side Stick    ,AcousticSnare

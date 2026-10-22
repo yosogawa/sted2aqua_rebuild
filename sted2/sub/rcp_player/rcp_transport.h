@@ -25,6 +25,15 @@ void rcp_transport_full_stop(void);
 void rcp_transport_search(int track, int bar);
 int rcp_transport_get_phase(void);
 
+/* Musical elapsed time for one play. Transport start() clears it and leaves
+   it stopped. The player starts it at engine entry, which is elapsed zero.
+   PAUSE and full stop freeze it. CONTINUE resumes it. Search resumes it so
+   a search that follows PAUSE keeps playing. Elapsed microseconds advance
+   only while it is running, by the host-time delta since it last started. */
+void rcp_sequence_clock_reset_and_run(void);
+void rcp_sequence_clock_stop(void);
+double rcp_sequence_clock_elapsed_us(void);
+
 #ifdef __cplusplus
 }
 #endif

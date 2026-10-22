@@ -7,7 +7,7 @@
 
 
 static char	*fsel_ext[]={
-  "R36:RCP:MID","RCP:R36:MID","CM6","GSD","DEF:DFB","TRK","PRT","TXT","EXC",
+  "R36:RCP:MID","RCP:R36:MID","CM6","GSD","DEF:DFB","TRK:MID","PRT","TXT","EXC",
   "REX","RES","RAS"};
 
 static char	*fsel_title[]={

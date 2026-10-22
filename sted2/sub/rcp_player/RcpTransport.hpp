@@ -12,7 +12,10 @@
    has exited, so a live Held thread does not observe it.
    attach() records the initial Stopped result once rcd exists. It does not
    open the gate. setActive() records whether the player thread is performing
-   and writes act. Callers read that through active(), not through rcd. */
+   and writes act. Callers read that through active(), not through rcd.
+   start() clears the sequence clock and leaves it stopped. continuePlay()
+   and search() resume it. stop() and fullStop() freeze it. The player
+   samples host time into that clock; it does not own the pause. */
 class RcpTransport {
 public:
 	enum class Phase {

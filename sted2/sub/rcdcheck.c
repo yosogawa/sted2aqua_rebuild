@@ -27,6 +27,7 @@ extern int open_midi_port( char * );
 extern int get_midi_data( void );
 int    step_cluc2(int,int,int);
 int    meas_add(int);
+int    add_set(int tr, int *add);
 
 #define MAX_BAR      2048            /* max size of measure is 2048 */
 int STed_InitMeasureConversion( void );
@@ -500,6 +501,13 @@ static int stp_ad( int t, int measure, int step ) {
   int tr;
   int s;
   uint8_t *bp=trk[t];
+  int me_ad[2048];
+  int max;
+  int retad;
+  int lpad[16];
+  int lpco[16];
+  int lpnn;
+  int jj, ii, ct, depth;
 
   measure+=(poft&0xffff);
   if (( poft&0xffff)==0 ) measure++;
@@ -508,12 +516,44 @@ static int stp_ad( int t, int measure, int step ) {
   po = meas_add(measure);
   track=tr;
 
+  /* Bar length already expands SAME MEAS. Follow that source, and repeat
+     loops inside it the same number of times, so the cursor index moves
+     for the whole bar. Events other than 0xfc are counted as before. */
+  max=add_set(t, me_ad);
+  retad=0;
+  lpnn=0;
+
   s=1;
   while (step>0) {
   redis:
+    if(po<0 || po>=tr_len[t]) break;
     a=bp[po];
     if(a==0xf7){po+=4;goto redis;}
-    if(a>=0xfc ) break;
+    if(a>=0xfc && retad!=0){
+      po=retad;
+      retad=0;
+      lpnn=0;
+      goto redis;
+    }
+    if(a==0xfc){
+      jj=po;
+      for(depth=0; depth<2048; depth++){
+	if(jj<0 || jj+2>=tr_len[t]) break;
+	ct=bp[jj+1]+(bp[jj+2]&3)*256;
+	if(ct<0 || ct>=max) break;
+	ii=me_ad[ct];
+	if(jj==ii) break;
+	jj=ii;
+	if(bp[ii]!=0xfc){
+	  retad=po+4;
+	  po=ii;
+	  lpnn=0;
+	  goto redis;
+	}
+      }
+      break;
+    }
+    if(a>0xfc) break;
 
     if ( a<0xf0 ) {
       step-=bp[po+1];
@@ -521,6 +561,23 @@ static int stp_ad( int t, int measure, int step ) {
     }
     s++;
     po=po+4;
+
+    if(retad==0) continue;
+    if(a==0xf9 && lpnn<16){
+      lpnn++;
+      lpad[lpnn]=po;
+      lpco[lpnn]=0;
+    }
+    if(a==0xf8 && lpnn>0){
+      lpco[lpnn]+=1;
+      ct=bp[po-3];
+      if(ct==0 || ct==255) ct=1;
+      if(lpco[lpnn]<ct){
+	po=lpad[lpnn];
+	goto redis;
+      }
+      lpnn--;
+    }
   }
 
   return s;

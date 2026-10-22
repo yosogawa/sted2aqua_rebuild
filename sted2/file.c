@@ -272,6 +272,110 @@ int	part_save(char *fna,int ln)
   return(0);
 }
 
+/* Body length of one RCP track header. Sizes are a multiple of 4, so the
+ * low 2 bits of the first byte are the high bits of an 18-bit length.
+ */
+static int rcp_body_size(const uint8_t *h)
+{
+  return (h[0] & 0xfc) + (((h[0] & 3) * 256 + h[1]) * 256) - 44;
+}
+
+static int track_has_note(const uint8_t *p, int n)
+{
+  int i;
+
+  for (i = 0; i + 4 <= n; i += 4) {
+    if (p[i] == 0xfe)
+      break;
+    if (p[i] > 0 && p[i] < 0x80)
+      return 1;
+  }
+  return 0;
+}
+
+static int scale_time(int v, int src, int dst)
+{
+  if (v <= 0 || src <= 0 || src == dst)
+    return v;
+  return (int)(((long)v * dst + src / 2) / src);
+}
+
+static int emit4(uint8_t *out, int n, int cap, int a, int b, int c, int d)
+{
+  if (n < 0 || n + 4 > cap)
+    return -1;
+  out[n] = a;
+  out[n + 1] = b;
+  out[n + 2] = c;
+  out[n + 3] = d;
+  return n + 4;
+}
+
+/* Scale step (and, for notes, gate) from the MIDI file's RCP timebase to
+ * the song's. Values that no longer fit in one byte are split. Markers,
+ * same-measure pointers and continuation bytes are left unchanged; same_cluc
+ * rewrites same-measure addresses after the track is installed.
+ */
+static int scale_track(const uint8_t *src, int n, uint8_t *out, int cap,
+		       int tb_src, int tb_dst)
+{
+  int i, o;
+
+  o = 0;
+  for (i = 0; i + 4 <= n; i += 4) {
+    int ev = src[i];
+    int step, gate;
+
+    if (ev == 0xfe) {
+      o = emit4(out, o, cap, 0xfe, 0, 0, 0);
+      return o;
+    }
+    if (ev >= 0xf0) {
+      o = emit4(out, o, cap, ev, src[i + 1], src[i + 2], src[i + 3]);
+      if (o < 0)
+	return -1;
+      continue;
+    }
+    step = scale_time(src[i + 1], tb_src, tb_dst);
+    gate = src[i + 2];
+    if (ev > 0 && ev < 0x80)
+      gate = scale_time(gate, tb_src, tb_dst);
+    while (step > 255) {
+      o = emit4(out, o, cap, 0x00, 255, 0, 0);
+      if (o < 0)
+	return -1;
+      step -= 255;
+    }
+    if (ev > 0 && ev < 0x80) {
+      while (gate > 255) {
+	o = emit4(out, o, cap, ev, step, 255, src[i + 3]);
+	if (o < 0)
+	  return -1;
+	step = 255;
+	gate -= 255;
+      }
+      o = emit4(out, o, cap, ev, step, gate, src[i + 3]);
+    } else {
+      o = emit4(out, o, cap, ev, step, src[i + 2], src[i + 3]);
+    }
+    if (o < 0)
+      return -1;
+  }
+  return emit4(out, o, cap, 0xfe, 0, 0, 0);
+}
+
+static void copy_track_memo(char *dst, const uint8_t *src)
+{
+  int n, i;
+
+  n = 36;
+  while (n > 0 && (src[n - 1] == ' ' || src[n - 1] == 0))
+    n--;
+  for (i = 0; i < n; i++)
+    dst[i] = src[i];
+  dst[n] = 0;
+}
+
 /***************************/
 int	trk_load(char *fna)
 {
@@ -313,6 +417,129 @@ int	trk_save(char *fna)
 
   if( fr!=ln ){msg(_("Cannot write file."));unlink(fna);return(-1);}
   return(0);
+}
+
+/* Load one note track from an SMF into the current track.
+ * itor turns format 0 and 1 into RCP tracks. A format 0 file is split by
+ * MIDI channel. Tempo-only tracks are skipped. Exactly one track that
+ * contains notes is copied. More than one is left alone. The song's
+ * tempo, timebase, beat and the other tracks stay as they are. Steps and
+ * gates are scaled from the file's timebase onto the song's.
+ */
+int	trk_load_mid(char *fna)
+{
+  FILE *fp;
+  long size;
+  int rcpsize, body, notes, tb_src, ch, sz;
+  size_t pos, chosen;
+  uint8_t *smfbuf, *rcpbuf;
+  const uint8_t *hdr;
+
+  fp = fopen2(fna, "rb");
+  if (fp == NULL) {
+    msg(_("File not found."));
+    return -1;
+  }
+  fseek(fp, 0, SEEK_END);
+  size = ftell(fp);
+  fseek(fp, 0, SEEK_SET);
+  if (size <= 0) {
+    fclose(fp);
+    msg(_("Invalid file."));
+    return -1;
+  }
+  smfbuf = (uint8_t *)malloc(sizeof(uint8_t) * size);
+  if (smfbuf == NULL) {
+    fclose(fp);
+    return -1;
+  }
+  if (fread(smfbuf, 1, size, fp) != (size_t)size) {
+    fclose(fp);
+    free(smfbuf);
+    msg(_("Invalid file."));
+    return -1;
+  }
+  fclose(fp);
+
+  rcpbuf = (uint8_t *)malloc(sizeof(uint8_t) * DATA_ADR_SIZE);
+  if (rcpbuf == NULL) {
+    free(smfbuf);
+    return -1;
+  }
+  rcpsize = itor(smfbuf, rcpbuf);
+  free(smfbuf);
+  if (rcpsize == 0 || rcpsize < 1414 ||
+      memcmp(rcpbuf, rcp_id, 30) != 0) {
+    free(rcpbuf);
+    msg(_("Invalid file format."));
+    return -1;
+  }
+
+  tb_src = rcpbuf[0x1c0];
+  if (rcpbuf[0x1e6] != 0)
+    tb_src += rcpbuf[0x1e7] << 8;
+  if (tb_src <= 0)
+    tb_src = 48;
+
+  notes = 0;
+  chosen = 0;
+  pos = 1414;
+  while (pos + 44 <= (size_t)rcpsize) {
+    body = rcp_body_size(rcpbuf + pos);
+    if (body < 4 || pos + 44 + body > (size_t)rcpsize)
+      break;
+    if (track_has_note(rcpbuf + pos + 44, body)) {
+      notes++;
+      chosen = pos;
+    }
+    pos += 44 + (size_t)body;
+  }
+  if (notes == 0) {
+    free(rcpbuf);
+    msg(_("This MIDI file has no note track."));
+    return -1;
+  }
+  if (notes > 1) {
+    free(rcpbuf);
+    msg(_("This MIDI file has more than one note track."));
+    return -1;
+  }
+
+  hdr = rcpbuf + chosen;
+  body = rcp_body_size(hdr);
+  sz = scale_track(hdr + 44, body, dat, work_size, tb_src, tbase);
+  if (sz >= 4)
+    sz = gomi_cut(dat, sz);
+  if (sz < 4) {
+    free(rcpbuf);
+    msg(_("Track buffer exhausted."));
+    return -1;
+  }
+  /* size_change reports "Track buffer exhausted." itself. */
+  if (size_change(track, sz)) {
+    free(rcpbuf);
+    return -1;
+  }
+  memcpy(trk[track], dat, sz);
+  tr_len[track] = sz;
+  trk[track][sz - 4] = 0xfe;
+  same_cluc(track, 0);
+
+  ch = hdr[4] + 1;
+  if (ch > 32)
+    ch = 0;
+  mch[track] = ch;
+  copy_track_memo(trkmemo[track], hdr + 8);
+
+  tr_pos[track][0][0] = 0;
+  tr_pos[track][0][1] = 0;
+  tr_pos[track][0][2] = 0;
+  tr_pos[track][1][0] = 0;
+  tr_pos[track][1][1] = 0;
+  tr_pos[track][1][2] = 0;
+
+  free(rcpbuf);
+  return 0;
 }
 
 /***************************/

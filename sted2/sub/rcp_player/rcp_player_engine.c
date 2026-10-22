@@ -10,7 +10,7 @@
 #include <unistd.h>
 
 #define kMaxNumberOfPorts 2
-#define kMaxPrefetchMicroseconds 1000000
+#define kMaxPrefetchMicroseconds 100000
 #define kMaxMIDIMessageSize 256
 
 extern OSStatus CoreMIDISend(uint8_t *ptr, int length, int port, MIDITimeStamp atTime);
@@ -23,17 +23,9 @@ void set_realtime_recording(int on)
 	sRecording = on ? 1 : 0;
 }
 
-static MIDITimeStamp sStartTimeStamp;
 static MIDITimeStamp sLastTimeStamp;
-/* Held. After leaving it, events are timed from sResumeHost,
-   not from the original song-start host time. */
+/* Latches note release and restore across PAUSE. Musical time is the sequence clock. */
 static int sHoldActive;
-static int sClockFrozen;
-static int sUseResumeClock;
-static MIDITimeStamp sResumeHost;
-static double sResumeUs;
-/* Musical time captured on entry to Held. Resume is measured from here. */
-static double sHeldUs;
 /* Event already taken from the parser. Kept across Held so resume does not skip it. */
 static int sParked;
 static int32_t sParkStep;
@@ -59,21 +51,16 @@ static int sOffsetMIDITime = 1;
 
 static void rcpplayer_update_clock(void)
 {
-	MIDITimeStamp now;
+	double elapsed_us;
+	int32_t current_step;
 
-	/* Pause, and the gap until the first resumed event is anchored.
-	   Advancing here would skip the frozen musical position. */
-	if (sClockFrozen || sHoldActive)
-		return;
-	now = AudioGetCurrentHostTime();
-	if (now >= sStartTimeStamp) {
-		UInt64 elapsed_micros = AudioConvertHostTimeToNanos(now - sStartTimeStamp) / 1000;
-		/* rcpplayer_microseconds_to_step takes uint32_t. The value wraps after 2^32 us (about 71.6 minutes). */
-		int32_t current_step = rcpplayer_microseconds_to_step((uint32_t)elapsed_micros);
-		if (rcd != NULL) {
-			rcd->stepcount = current_step;
-			rcp_transport_set_active(1);
-		}
+	/* PAUSE freezes the sequence clock, so this sample does not move. */
+	elapsed_us = rcp_sequence_clock_elapsed_us();
+	/* rcpplayer_microseconds_to_step takes uint32_t. The value wraps after 2^32 us (about 71.6 minutes). */
+	current_step = rcpplayer_microseconds_to_step((uint32_t)elapsed_us);
+	if (rcd != NULL) {
+		rcd->stepcount = current_step;
+		rcp_transport_set_active(1);
 	}
 }
 
@@ -94,7 +81,7 @@ rcpplayer_us_to_host(double us)
 }
 
 /* Note-offs for whatever this play already sent. Does not stop the engine.
-   The counts are kept in sHeldCount so leaving Held can sound them again. */
+   Counts are kept in sHeldCount. CONTINUE does not send those note-ons again. */
 static void
 rcpplayer_release_held_notes(void)
 {
@@ -150,9 +137,15 @@ rcpplayer_restore_held_notes(void)
 	}
 }
 
+/* An attack that already happened is not sent again on CONTINUE.
+   0 leaves the notes silenced at PAUSE silent. The next unsent event
+   is still sent when the sequence clock reaches it. */
+static int sRestoreHeldNotesOnContinue = 0;
+
 /* Pause only while the phase is Held. Search keeps running.
-   Returns 1 while the clock is held. Leaving Held sounds the held notes
-   again and times the next event from the musical position at entry. */
+   Returns 1 while notes are held. CONTINUE has already resumed the sequence
+   clock. Leaving Held publishes that position. The next event keeps the
+   musical gap it had at PAUSE. */
 static int
 rcpplayer_hold_if_stopped(void)
 {
@@ -160,33 +153,20 @@ rcpplayer_hold_if_stopped(void)
 
 	if (!rcpplayer_is_stop()) {
 		if (sHoldActive) {
-			MIDITimeStamp back;
 			sLastTimeStamp = 0;
 			for (port = 0; port < kMaxNumberOfPorts; port++)
 				sNextEarliestTimeForPort[port] = 0;
 			sHoldActive = 0;
-			sUseResumeClock = 1;
-			sResumeUs = sHeldUs;
-			sResumeHost = AudioGetCurrentHostTime();
-			back = rcpplayer_us_to_host(sResumeUs);
-			if (sResumeHost > back)
-				sStartTimeStamp = sResumeHost - back;
-			sClockFrozen = 0;
-			rcpplayer_restore_held_notes();
+			rcpplayer_update_clock();
+			if (sRestoreHeldNotesOnContinue)
+				rcpplayer_restore_held_notes();
 		}
 		return 0;
 	}
 	if (!sHoldActive) {
-		MIDITimeStamp now = AudioGetCurrentHostTime();
-		uint32_t elapsed = 0;
-		sHeldUs = 0;
-		if (now >= sStartTimeStamp)
-			elapsed = (uint32_t)(AudioConvertHostTimeToNanos(now - sStartTimeStamp) / 1000);
-		/* Same unit as event times. Raw wall time is not. */
-		sHeldUs = rcpplayer_step_to_microseconds(rcpplayer_microseconds_to_step(elapsed));
 		sHoldActive = 1;
-		sClockFrozen = 1;
 		rcpplayer_release_held_notes();
+		rcpplayer_update_clock();
 	}
 	return 1;
 }
@@ -210,26 +190,26 @@ void
 rcpplayer_engine(void)
 {
 	MIDITimeStamp currentTime, nextTime, nextEventTime, offsetTime, prefetchTime;
+	MIDITimeStamp startHost;
 	int32_t step;
 	uint8_t *ptr;
 	int length, port;
 	OSStatus sts;
 	MIDITimeStamp waitPerMIDIByte[kMaxNumberOfPorts];
-	
-	sStartTimeStamp = AudioGetCurrentHostTime();
-	currentTime = sStartTimeStamp;
+
+	startHost = AudioGetCurrentHostTime();
+	currentTime = startHost;
+	/* Elapsed zero is this moment. If PAUSE already won, freeze again. */
+	rcp_sequence_clock_reset_and_run();
+	if (rcp_transport_get_phase() == RCP_TRANSPORT_HELD)
+		rcp_sequence_clock_stop();
 	sHoldActive = 0;
-	sClockFrozen = 0;
-	sUseResumeClock = 0;
-	sResumeHost = 0;
-	sResumeUs = 0;
-	sHeldUs = 0;
 	sParked = 0;
 	memset(sHeldCount, 0, sizeof sHeldCount);
 
 	for (port = 0; port < kMaxNumberOfPorts; port++) {
 		waitPerMIDIByte[port] = ConvertMicrosToHostTime(sWaitPerMIDIByte[port]);
-		sNextEarliestTimeForPort[port] = sStartTimeStamp;
+		sNextEarliestTimeForPort[port] = startHost;
 	}
 	
 	prefetchTime = ConvertMicrosToHostTime(kMaxPrefetchMicroseconds);
@@ -271,23 +251,19 @@ rcpplayer_engine(void)
 			sParked = 1;
 		}
 
-		/* After Held, sResumeUs is the position at entry, not this event.
-		   A future note-off stays in the future by its remaining gate. */
+		/* Musical gap comes from the sequence clock. Host time is only the
+		   delivery stamp, taken at this moment. */
 		rcpplayer_update_clock();
 
-		if (sUseResumeClock) {
+		{
 			double eventUs = rcpplayer_step_to_microseconds(sParkStep);
-			double delta = eventUs - sResumeUs;
-			/* Behind the parser would flush the rest of the song.
-			   Far ahead would wait out the whole position. Either way
-			   XF3 never sounds like a resume. Keep this event's gap. */
-			if (delta < 0 || delta > 30000000.0) {
-				sResumeUs = eventUs;
-				delta = 0;
-			}
-			nextEventTime = sResumeHost + rcpplayer_us_to_host(delta);
-		} else
-			nextEventTime = sStartTimeStamp + rcpplayer_us_to_host(rcpplayer_step_to_microseconds(sParkStep));
+			double deltaUs = eventUs - rcp_sequence_clock_elapsed_us();
+			MIDITimeStamp now = AudioGetCurrentHostTime();
+			if (deltaUs <= 0.0)
+				nextEventTime = now;
+			else
+				nextEventTime = now + rcpplayer_us_to_host(deltaUs);
+		}
 		if (rcpplayer_wait_prefetch(nextEventTime, prefetchTime))
 			continue;
 
@@ -308,6 +284,7 @@ rcpplayer_engine(void)
 		sParked = 0;
 		(void)sts;
 	}
+	rcp_sequence_clock_stop();
 	rcp_transport_set_active(0);
 }
 

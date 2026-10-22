@@ -38,6 +38,8 @@
 		<string>.rcp — Recomposer</string>
 		<key>com.github.STed2.r36</key>
 		<string>.r36 — Recomposer 36 tracks</string>
+		<key>com.github.STed2.trk</key>
+		<string>.trk — Track</string>
 		<key>public.midi-audio</key>
 		<string>.mid — Standard MIDI</string>
 		<key>com.github.STed2.mid</key>
@@ -76,6 +78,23 @@
 				<key>public.filename-extension</key>
 				<array>
 					<string>r36</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.github.STed2.trk</string>
+			<key>UTTypeDescription</key>
+			<string>TRK</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>trk</string>
 				</array>
 			</dict>
 		</dict>
@@ -143,6 +162,18 @@
 			<key>LSItemContentTypes</key>
 			<array>
 				<string>com.github.STed2.r36</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeName</key>
+			<string>TRK</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.github.STed2.trk</string>
 			</array>
 		</dict>
 		<dict>

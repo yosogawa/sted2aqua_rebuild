@@ -228,8 +228,8 @@ AmySynthSendMIDI(const uint8_t *bytes, int length, uint64_t atTime)
 		if (length < 2)
 			return;
 		/* A program change with no CC#0 stays in the bank already sounding.
-		 * Channel 10 starts on patch 384, so a bare PC keeps the drum kits
-		 * instead of falling through to Juno at bank 0.
+		 * Channel 10 starts on patch 384, so a bare PC stays on the TR-808
+		 * kit instead of falling through to Juno at bank 0.
 		 */
 		bank = sBank[channel];
 		if (bank < 0)
@@ -250,6 +250,13 @@ AmySynthSendMIDI(const uint8_t *bytes, int length, uint64_t atTime)
 		 * these three, and do not substitute another patch.
 		 */
 		if (patch >= 256 && patch <= 258)
+			return;
+		/* Patches 385-390 are the extra Gamma9001 kits. The baked TR-808
+		 * at 384 stays. amy.def and gm_amy.def list only that kit. A track
+		 * may still contain the other programs. Do not load them, and do
+		 * not substitute another patch.
+		 */
+		if (patch >= 385 && patch <= 390)
 			return;
 		event.patch_number = (uint16_t)patch;
 		SendEvent(&event, atTime);
