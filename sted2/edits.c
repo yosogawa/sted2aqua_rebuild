@@ -137,7 +137,7 @@ void	partf(int a,int ad)
 /***************************/
 void	sttrc(int *po,int *cy,int flg)
 {
-  int	ad,rad,i,j,ii,jj,jjj=-1,skf,ofs,nn,md=8;
+  int	ad,rad,i,j,ii,jj,jjj=-1,skf,ofs,nn,md=8,last_meas=-1;
   int	me_ad[2048];
   int	max;
   int	lpad[18],lprt[18];
@@ -246,16 +246,20 @@ void	sttrc(int *po,int *cy,int flg)
 	trk_dis(6+yy,ad3,-1);}
       }
 
-      if(jj!=jjj){
-	jjj=jj;
-	/*
-	  Bar changed: refresh the MEAS header from the playhead.
-	  trk_free also redraws CH, USED, and the top FREE/USED line.
-	  Cases not considered here may still exist. If this misbehaves,
-	  delete the trk_free call to restore the previous behavior.
-	*/
-	trk_free(ad);
-	if(grpmode!=0){gra(ad,md);md|=16;}
+      {
+	/* SAME MEAS keeps rcd->bar fixed while the cursor walks the source.
+	   Redraw only the MEAS digits so CH and USED stay as they are. */
+	int meas=meas_no(ad);
+	if(jj!=jjj){
+	  jjj=jj;
+	  trk_free(ad);
+	  if(grpmode!=0){gra(ad,md);md|=16;}
+	}else if(meas!=last_meas && edit_scr<2){
+	  int xx=69+1;
+	  if(edit_scr==0){xx=13+1;}
+	  vdis2(xx,572,meas,4,15,0);
+	}
+	last_meas=meas;
       }
 
       if(grpmode!=0){gra_c(ad);}
