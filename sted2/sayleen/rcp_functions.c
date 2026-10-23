@@ -258,6 +258,8 @@ int rcp_ch_exclusive(RCP_DATA *rcp, int track ){
     if ( data[ptr+2] == 0x83 ) size--;
     if ( data[ptr+3] == 0x83 ) size--;
     ptr+=4;
+    if ( ptr >= rcp->track[track].top + rcp->track[track].size )
+      break;
   }
   l = smf_number_conversion((int32_t)size);
 
@@ -276,6 +278,8 @@ int rcp_ch_exclusive(RCP_DATA *rcp, int track ){
     int d[2],r;
     int i;
     
+    if ( ptr >= rcp->track[track].top + rcp->track[track].size )
+      return 1;
     if ( data[ptr+0] != RCP_2ND_EVENT ) break;
 
     d[0] = data[ptr+2];

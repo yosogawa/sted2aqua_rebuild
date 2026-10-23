@@ -297,16 +297,16 @@ realc:
     }else{
       if(str_search(rcp_file,".")==0){
 	/*
-	  strmfe(rcp_file,rcp_file,'DEF");
+	  strmfe(rcp_file, sizeof rcp_file, rcp_file, 'DEF");
 	  if(!(fp= fopen2(rcp_file,"rb"))){
-	  strmfe(rcp_file,rcp_file,'DFB");
+	  strmfe(rcp_file, sizeof rcp_file, rcp_file, 'DFB");
 	  if(!(fp= fopen2(rcp_file,"rb"))){
 	  */
-	strmfe(rcp_file,rcp_file,"MDF");
+	strmfe(rcp_file, sizeof rcp_file, rcp_file, "MDF");
 	if(!(fp= fopen2(rcp_file,"rb"))){
-	  strmfe(rcp_file,rcp_file,"R36");
+	  strmfe(rcp_file, sizeof rcp_file, rcp_file, "R36");
 	  if(!(fp= fopen2(rcp_file,"rb"))){
-	    strmfe(rcp_file,rcp_file,"RCP");
+	    strmfe(rcp_file, sizeof rcp_file, rcp_file, "RCP");
 	  }else{
 	    fclose(fp);
 	  }
@@ -338,11 +338,11 @@ realc:
   }
 
   definit();
-  strmfe(tmp0,argv[0],"cnf");
+  strmfe(tmp0, sizeof tmp0, argv[0], "cnf");
   if(defload(tmp0,2)!=0){
     B_PRINT(tmp0);B_PRINT(_(": File not found.\n"));sted_fail(1);}
 
-  strmfe(tmp0,argv[0],"cf2");defload(tmp0,2);
+  strmfe(tmp0, sizeof tmp0, argv[0], "cf2");defload(tmp0,2);
   /*		1997-07-20	STed2.cf2Фɤ߹褦ˤ*/
 
   if ( strlen(getenv("HOME")) < sizeof(tmp0)-9 ) {
@@ -356,15 +356,15 @@ realc:
 
   stgt_init();filt_init();
 
-  if(def_file[0]==0){strcpy(def_file,argv[0]);strmfe(def_file,def_file,"def");}
+  if(def_file[0]==0){strcpy(def_file,argv[0]);strmfe(def_file, sizeof def_file, def_file, "def");}
   str_change(def_file);
 
   {
     int lvl=0;
     if(str_search(def_file,".")==0){lvl=2;}
   loop:
-    if(lvl==2){strmfe(def_file,def_file,"dfb");}
-    if(lvl==1){strmfe(def_file,def_file,"def");}
+    if(lvl==2){strmfe(def_file, sizeof def_file, def_file, "dfb");}
+    if(lvl==1){strmfe(def_file, sizeof def_file, def_file, "def");}
 
     i=defload(def_file,0);
     if(i!=0){
@@ -395,21 +395,21 @@ realc:
 
   fonread(fonbuf);
   if(fon_path[0]==0){
-    strmfe(fon_path,argv[0],"fon");
+    strmfe(fon_path, sizeof fon_path, argv[0], "fon");
   }else{
     str_change(fon_path);
     if(str_last(fon_path)!='/'){strcat(fon_path,"/");}
-    strcpy(tmp0,argv[0]);strmfe(tmp0,tmp0,"fon");
+    strcpy(tmp0,argv[0]);strmfe(tmp0, sizeof tmp0, tmp0, "fon");
     path_cut(tmp1,tmp0);strcat(fon_path,tmp0);
   }
   fonload(fon_path);
 
   if(hlp_path[0]==0){
-    strmfe(hlp_path,argv[0],"hlp");
+    strmfe(hlp_path, sizeof hlp_path, argv[0], "hlp");
   }else{
     str_change(hlp_path);
     if(str_last(hlp_path)!='/'){strcat(hlp_path,"/");}
-    strcpy(tmp0,argv[0]);strmfe(tmp0,tmp0,"hlp");
+    strcpy(tmp0,argv[0]);strmfe(tmp0, sizeof tmp0, tmp0, "hlp");
     path_cut(tmp1,tmp0);strcat(hlp_path,tmp0);
   }
 
@@ -454,14 +454,14 @@ realc:
       strcpy(tmp0,rcp_path);strcat(tmp0,rcp_file);dload(tmp0,0);
 
       if(cm6_file[0]!=0){
-	strcpy(tmp0,rcp_path);strcat(tmp0,cm6_file);
+	snprintf(tmp0,sizeof tmp0,"%s%s",rcp_path,cm6_file);
 	if(timload(tmp0)!=0){
 	  msg(sted_filename_for_font(cm6_file));
 	  B_PRINT(_(": File not found.\n"));cm6_file[0]=0;
 	}
       }
       if(gsd_file[0]!=0){
-	strcpy(tmp0,rcp_path);strcat(tmp0,gsd_file);
+	snprintf(tmp0,sizeof tmp0,"%s%s",rcp_path,gsd_file);
 	if(gsdload(tmp0)!=0){
 	  msg(sted_filename_for_font(gsd_file));
 	  B_PRINT(_(": File not found.\n"));gsd_file[0]=0;
@@ -646,14 +646,14 @@ void	load_sub(int sh)
     msg(_("Loading ..."));
     if(dload(tmp0,sh&1)==0 ){
       cminit();gsinit();
-      strcpy(tmp0,path2);strcat(tmp0,cm6_file);
+      snprintf(tmp0,sizeof tmp0,"%s%s",path2,cm6_file);
       if(cm6_file[0]!=0){
 	if(timload(tmp0)!=0){
 	  msg(sted_filename_for_font(cm6_file));B_PRINT(_(": File not found.\n"));
 	  cm6_file[0]=0;
 	}
       }
-      strcpy(tmp0,path2);strcat(tmp0,gsd_file);
+      snprintf(tmp0,sizeof tmp0,"%s%s",path2,gsd_file);
       if(gsd_file[0]!=0){
 	if(gsdload(tmp0)!=0){
 	  msg(sted_filename_for_font(gsd_file));B_PRINT(_(": File not found.\n"));
@@ -677,9 +677,9 @@ void	save_sub(int sh)
     if(cnfflag&0x0040){sh=1-(sh&1);}
   }else{
     if(str_search(rcp_file,".R36")>0){
-      strmfe(tmp1,tmp1,"RCP");sh=0;
+      strmfe(tmp1, sizeof tmp1, tmp1, "RCP");sh=0;
     }else{
-      strmfe(tmp1,tmp1,"R36");sh=1;
+      strmfe(tmp1, sizeof tmp1, tmp1, "R36");sh=1;
     }
   }
 
@@ -805,7 +805,7 @@ int	option(int md,int sm)
 	if(rcp_file[0]!=0){
 	  strcpy(tmp1,rcp_file);
 	  if(chcom_c[y][1][0]!=0){
-	    strmfe(tmp1,tmp1,chcom_c[y][1]);
+	    strmfe(tmp1, sizeof tmp1, tmp1, chcom_c[y][1]);
 	  }
 	  strcat(tmp0," ");
 	  strcat(tmp0,rcp_path);strcat(tmp0,tmp1);
@@ -890,7 +890,7 @@ redraw:
 	if(rcp_file[0]!=0){
 	  strcpy(tmp1,rcp_file);
 	  if(chcom_c[y+26][1][0]!=0){
-	    strmfe(tmp1,tmp1,chcom_c[y+26][1]);
+	    strmfe(tmp1, sizeof tmp1, tmp1, chcom_c[y+26][1]);
 	  }
 	  strcat(tmp0," ");
 	  strcat(tmp0,rcp_path);strcat(tmp0,tmp1);
@@ -948,7 +948,7 @@ inline int	option2(int md,int sm,int ad,int ew)
       if(rcp_file[0]!=0){
 	strcpy(tmp1,rcp_file);
 	if(chcom_c[y][1][0]!=0){
-	  strmfe(tmp1,tmp1,chcom_c[y][1]);
+	  strmfe(tmp1, sizeof tmp1, tmp1, chcom_c[y][1]);
 	}
 	strcat(tmp0," ");
 	strcat(tmp0,rcp_path);strcat(tmp0,tmp1);

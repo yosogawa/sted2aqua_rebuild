@@ -369,6 +369,7 @@ CoreMIDISend(uint8_t *ptr, int length, int port, MIDITimeStamp atTime)
 		rp->completionRefCon = NULL;
 		sts = MIDISendSysex(rp);
 	} else {
+		/* Short messages only (1–3 bytes from callers). Size check omitted on purpose. */
 		packetPtr = MIDIPacketListInit(&packetList);
 		packetPtr = MIDIPacketListAdd(&packetList, sizeof(packetList), packetPtr, atTime, length, ptr);
 		sts = MIDISend(sMIDIOutputPortRef, sDest[port], &packetList);

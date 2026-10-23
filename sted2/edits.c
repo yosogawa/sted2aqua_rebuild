@@ -118,7 +118,7 @@ void	partf(int a,int ad)
 
 	strcpy(path2,rcp_path);fsel(part_file,path2,0x107+e*0x200);
 	if( part_file[0]!=0 && str_search(part_file,".")==0 ){
-	  strmfe(part_file,part_file,"TXT");}
+	  strmfe(part_file, sizeof part_file, part_file, "TXT");}
 	if( es==0 && part_file[0]!=0 ){
 	  strcpy(tmp0,path2);strcat(tmp0,part_file);
 	  cplen=abs(cpadd-ad);if(cpadd>ad ){cpadd=ad;}
@@ -1376,7 +1376,7 @@ void	same_shift(int spo,int m,int cu)
   if(ec!=0){
     char b[4096];
     int ret;
-    ret=sprintf(b,4096,_("%4d times of SAME MEAS is invalid"),ec);
+    ret=snprintf(b,sizeof(b),_("%4d times of SAME MEAS is invalid"),ec);
     if ( ret > 0 ) {
       msg(b);
     }

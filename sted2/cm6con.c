@@ -253,7 +253,7 @@ uint8_t	trf[64];
 void	cm64_con()
 {
   int	ke,sh,ex,smo=0,i;
-  char	tmp0[PATHLEN + PATH_DRIVE_EXTRA],path2[PATHLEN + PATH_DRIVE_EXTRA];
+  char	tmp0[PATHLEN * 2 + PATH_DRIVE_EXTRA],path2[PATHLEN + PATH_DRIVE_EXTRA];
   char	name[PATHLEN];
 
   tkey=60;tvel=127;
@@ -298,7 +298,7 @@ void	cm64_con()
       strlcpy(cm6_file,name,sizeof cm6_file);
       if( cm6_file[0]==0 ){cminit();timtra();}
       if( cm6_file[0]!=0 && es==0 ){
-	strcpy(tmp0,path2);strcat(tmp0,cm6_file);
+	snprintf(tmp0,sizeof tmp0,"%s%s",path2,cm6_file);
 	if(timload(tmp0)!=0){cminit();cm6_file[0]=0;}
 	else{
 	  if(!(cnfflag&0x0008)){strcpy(rcp_path,path2);}
@@ -311,7 +311,7 @@ void	cm64_con()
       B_CLR_AL();strcpy(path2,rcp_path);fsel(name,path2,0x102);
       strlcpy(cm6_file,name,sizeof cm6_file);
       if( cm6_file[0]!=0 && es==0 ){
-	strcpy(tmp0,path2);strcat(tmp0,cm6_file);
+	snprintf(tmp0,sizeof tmp0,"%s%s",path2,cm6_file);
 	if(timsave(tmp0)==0){
 	  if(!(cnfflag&0x0008)){strcpy(rcp_path,path2);}
 	}

@@ -20,6 +20,7 @@
 #include "rcpdef.h"
 #include "rcddef.h"
 #include "../sub/encoding.h"
+#include "../sayleen/smf.h"
 
 #if STDC_HEADERS
 # include <string.h>
@@ -30,7 +31,18 @@
 # endif
 #endif
 
-#define TRACK_LEN 65536
+/* Per-track SMF body buffer (get_data destination for MTrk). */
+#define TRACK_LEN		65536
+/* SMF chunk = 4-byte type + 4-byte big-endian length. */
+#define SMF_CHUNK_HEADER_SIZE	8
+/* RCP layout (same values as sted.h). */
+#define RCP_TRACK_HEADER_SIZE	44
+#define RCP_EVENT_SIZE		4
+#define RCP_EOT			0xfe
+/* Soft cap before EOT: TRACK_LEN minus header and one event. */
+#define RCP_TRACK_BODY_MAX	(TRACK_LEN - RCP_TRACK_HEADER_SIZE - RCP_EVENT_SIZE)
+/* note[] growth limit in entry(): 4 * TRACK_LEN minus one track header. */
+#define NOTE_BUF_MAX		(TRACK_LEN * 4 - RCP_TRACK_HEADER_SIZE)
 
 static struct head {
   char chunk[4];
@@ -52,6 +64,8 @@ static uint8_t *rcpptr, *lastptr;
 static uint8_t *inptr, *buf;
 static uint8_t *note, *note_data;
 static int incount;
+static size_t insize;		/* total SMF bytes at inptr */
+static int get_error;		/* set if get_data would run past insize */
 static int tc;
 static int fmt;
 static int pt;
@@ -126,10 +140,14 @@ static void destroy_mem( void )
 
 static void get_data( uint8_t *s, int bc )
 {
-  memmove( s, inptr + incount, bc );
+  if( get_error )
+    return;
+  if( bc < 0 || (size_t)incount + (size_t)bc > insize ) {
+    get_error = 1;
+    return;
+  }
+  memmove( s, inptr + incount, (size_t)bc );
   incount += bc;
-
-  return;
 }
 
 static void put_data( uint8_t *s, int bc )
@@ -209,18 +227,20 @@ static void proc_beat( int high, int low )
 static int proc_header( void )
 {
   int	i;
-  uint8_t b[14];
+  uint8_t b[SMF_MTHD_HEADER_SIZE];
   
-  get_data( b, 14 );
+  get_data( b, SMF_MTHD_HEADER_SIZE );
+  if( get_error )
+    return 1;
   
-  if( strncmp( b, "MThd", 4 ) ) {
+  if( strncmp( b, SMF_HEADER_STRING, 4 ) ) {
     uint8_t tmp[128];
-    get_data( tmp, 128-14 ); /* Mac binary */
+    get_data( tmp, 128 - SMF_MTHD_HEADER_SIZE ); /* Mac binary */
+    get_data( b, SMF_MTHD_HEADER_SIZE );
+    if( get_error )
+      return 1;
     
-    get_data( b, 14 );
-    
-    if( strncmp( b, "MThd", 4 ) ) {
-      /*fprintf( stderr, "This file is not SMF file (MThd).\n" );*/
+    if( strncmp( b, SMF_HEADER_STRING, 4 ) ) {
       return 1;
     }
   }
@@ -305,9 +325,9 @@ static void entry( int d0, int d1, int d2, int d3 )
   note[ len++ ] = d2;
   note[ len++ ] = d3;
   
-  if( len >= 65492+65536*3 ) {
+  if( len >= NOTE_BUF_MAX ) {
     fprintf( stderr, "Track buffer overflow\n" );
-    len-=4;
+    len-=RCP_EVENT_SIZE;
     return;
   }
 
@@ -931,13 +951,23 @@ static int proc_next( void )
     pt += d_byte;
 
     if( ( code = buf[pt] ) == 0xff ) {
+      int copy_len;
       pt++;
       meta = buf[pt++];
       length = get_delta(pt);
       pt += d_byte;
-      strncpy0( text, buf + pt, length );
+      /* VLQ length is untrusted; clamp copy to text[] and reject past MTrk end. */
+      if( length < 0 || pt > last
+	  || (size_t)pt + (size_t)length > (size_t)last ) {
+	fprintf( stderr, "Invalid meta length.\n" );
+	return 1;
+      }
+      copy_len = length;
+      if( copy_len > (int)sizeof(text) - 1 )
+	copy_len = (int)sizeof(text) - 1;
+      strncpy0( text, buf + pt, copy_len );
       if( fmt == 1 || trk == 0 ) {
-        proc_meta( meta, text, length );
+        proc_meta( meta, text, copy_len );
       }
       pt += length;
       if( meta == 0x2f ) {
@@ -997,36 +1027,47 @@ static void track_end( void )
     }
   }
   
-  entry( 0xfe, 0, 0, 0 );
+  entry( RCP_EOT, 0, 0, 0 );
   len=tai_compres(len);
   if(sameflag){len=same_compres(len);}
   
-  if( len > 65488 ) {
+  if( len > RCP_TRACK_BODY_MAX ) {
     fprintf( stderr, "Track overflow.\n" );
-    /*		len=65488-4;
-		entry( 0xfe, 0, 0, 0 );*/
+    /*		len=RCP_TRACK_BODY_MAX-RCP_EVENT_SIZE;
+		entry( RCP_EOT, 0, 0, 0 );*/
   }
   
-  TRACK.len_high = ( len + 44 ) >> 8;
-  TRACK.len_low = (( len + 44 ) >> 16 ) + ( len + 44 ) & 0xff;
+  TRACK.len_high = ( len + RCP_TRACK_HEADER_SIZE ) >> 8;
+  TRACK.len_low = (( len + RCP_TRACK_HEADER_SIZE ) >> 16 )
+                  + ( len + RCP_TRACK_HEADER_SIZE ) & 0xff;
 }
 
 static int proc_track( void )
 {
   int i;
-  uint8_t b[8];
+  uint8_t b[SMF_CHUNK_HEADER_SIZE];
   
   exc_no=0x10;exc_id=0x16;chport=0;
   
   if( fmt == 1 || trk == 0 ) {
-    get_data( b, 8 );
-    strncpy(std_trk.chunk, b, 4);
-    std_trk.length = b[4]*256*256*256 + b[5]*65536 + b[6]*256 + b[7];
-    if( strncmp( std_trk.chunk, "MTrk", 4 ) ) {
-      fprintf( stderr, "Invalid SMF file (MTrk)\n" );
+    uint32_t trk_len;
+
+    get_data( b, SMF_CHUNK_HEADER_SIZE );
+    if( get_error )
       return 1;
-    }
-    get_data( buf, std_trk.length );
+    strncpy(std_trk.chunk, b, 4);
+    trk_len = ((uint32_t)b[4] << 24) | ((uint32_t)b[5] << 16)
+            | ((uint32_t)b[6] << 8) | (uint32_t)b[7];
+    std_trk.length = (int32_t)trk_len;
+    if( strncmp( std_trk.chunk, SMF_TRACK_STRING, 4 ) )
+      return 1;
+    /* Reject: longer than buf, or past end of SMF input. */
+    if( trk_len > (uint32_t)TRACK_LEN
+	|| (size_t)incount + trk_len > insize )
+      return 1;
+    get_data( buf, (int)trk_len );
+    if( get_error )
+      return 1;
   }
 
   for( i = 0; i < 16; i++ ) {
@@ -1081,9 +1122,9 @@ static int proc_track( void )
     }
   }
   
-  put_data( ( uint8_t * )&TRACK.len_low, 44 );
+  put_data( ( uint8_t * )&TRACK.len_low, RCP_TRACK_HEADER_SIZE );
   put_data( ( uint8_t * )note, len );
-  tc += len + 44;
+  tc += len + RCP_TRACK_HEADER_SIZE;
 
   return 0;
 }
@@ -1106,9 +1147,9 @@ static void dummy_track( void )
 
     track_end();
 
-    put_data( ( uint8_t * )&TRACK.len_low, 44 );
+    put_data( ( uint8_t * )&TRACK.len_low, RCP_TRACK_HEADER_SIZE );
     put_data( ( uint8_t * )note, len );
-    tc += len + 44;
+    tc += len + RCP_TRACK_HEADER_SIZE;
   }
 
 #if 0
@@ -1201,7 +1242,7 @@ static void option( char *s )
   }
 #endif
 
-int itor( uint8_t *smf_data, uint8_t *rcp_buf )
+int itor( uint8_t *smf_data, size_t smf_size, uint8_t *rcp_buf )
 {
   int i;
 
@@ -1224,11 +1265,17 @@ int itor( uint8_t *smf_data, uint8_t *rcp_buf )
   note_data = NULL;
 
   if ( alloc_mem() != 0 ) return 0;
+  if ( smf_data == NULL || smf_size == 0 ) {
+    destroy_mem();
+    return 0;
+  }
   
   inptr   = smf_data;
+  insize  = smf_size;
+  get_error = 0;
   rcpptr  = rcp_buf;
   incount = 0;
-  lastptr = rcpptr + 512*1024; /* DATA_ADR_SIZE */
+  lastptr = rcpptr + DATA_ADR_SIZE;
   
   for( i = 0; i < 16; i++ ) {
     note_data[i] = 0xff;

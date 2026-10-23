@@ -251,8 +251,8 @@ void	definit()
   strcpy(card_name[0],"NoUse <<PCM CARD>>");
   for(i=1;i<17;i++){strcpy(card_name[i]," --------");}
 
-  for(i=0;i<80*128;i++){tim_name[i][0]=0;}
-  for(i=0;i<400;i++){tim_top[i]=0;tim_name[i][0]=0;tim_head[i][0]=0;}
+  for(i=0;i<TIM_NAME_MAX;i++){tim_name[i][0]=0;}
+  for(i=0;i<TIM_PART_MAX;i++){tim_top[i]=0;tim_name[i][0]=0;tim_head[i][0]=0;}
 
   for(i=0;i<8;i++){for(j=0;j<24;j++){
     def_user_exc_memo[i][j]=0;def_user_exc_data[i][j]=0xf7;}}
@@ -346,7 +346,8 @@ void	definit()
 
 int	defload(char *fi,int md)
 {
-  char	tmp0[PATHLEN * 2],tmp1[1024],li[1024],li2[1024];
+  /* Line buffer sized to PATHLEN (same idea as classic MAXPATHLEN). */
+  char	tmp0[PATHLEN * 2],tmp1[PATHLEN],li[PATHLEN],li2[PATHLEN];
   int	ad,nm,ln,n,i0=0,i1=0,f,mutef=0,initf=0;
   int	last_no=4*128,last_co=0;
   FILE	*fp;
@@ -393,11 +394,19 @@ int	defload(char *fi,int md)
 	if(a=='*'){a=0;
 	if(n!=0 && li[n-1]=='\\'){n--;a='*';}
 	}
-	if(a=='=' && li[0]=='#'){while(li[n-1]==' '){n--;}}
+	if(a=='=' && li[0]=='#' && n>0){while(n>0 && li[n-1]==' '){n--;}}
+      }
+      if( n>=PATHLEN-1 ){
+#if	STED
+	if(md==1){msg(_("Invalid file."));}
+	else{B_PRINT(_("Invalid file.\n"));}
+#endif
+	fclose(fp);
+	return(-1);
       }
       li[n++]=a;
     }
-    li[n]=0;li[1023]=0;
+    li[n]=0;
     /*if(dat[ad]==0x0a){ad++;*/ /* Sep.02.1998 Daisuke Nagano */
     if(dat[ad]==0x0a||dat[ad]==0x0d){ad++;
     ln--;if(ln==0){ln=fread(dat,1,work_size,fp);ad=0;}
@@ -606,7 +615,7 @@ int	defload(char *fi,int md)
 	  if(tmp1[0]!=0){nm+=str_val(tmp1);}
 
 	  if(ch>3){
-	    if(last_no<80*128-1){
+	    if(last_no<TIM_NAME_MAX-1){
 	      tim_name[last_no++][0]=0;
 	      tim_top[ch]=last_no;last_co=0;
 	      if(tmp1[0]!=0){last_co=str_val(tmp1);}
@@ -665,7 +674,7 @@ int	defload(char *fi,int md)
 	    strlcpy(card_name[ch],tmp0,sizeof card_name[ch]);
 	    nm=(ch+15)*128;
 
-	    if(last_no<80*128-1){
+	    if(last_no<TIM_NAME_MAX-1){
 	      tim_name[last_no++][0]=0;
 	      tim_top[ch+15]=last_no;last_co=0;
 	    }
@@ -822,7 +831,7 @@ int	defload(char *fi,int md)
 	  if( nm<0x200 ){
 	    strcpy(tim_name[nm],tmp0);
 	  }else{
-	    if(last_no<80*128-1){
+	    if(last_no<TIM_NAME_MAX-1){
 	      if(tmp0[0]!=0){
 		strcpy(tim_name[last_no],tmp0);
 		tim_name[last_no++][14]=last_co;
@@ -1023,6 +1032,20 @@ void	def_init(char *li)
 }
 
 /***************************/
+/* .dfb layout (compiled def). Fixed header ends at DFB_FIXED_SIZE;
+ * then cc records of DFB_PART_SIZE, then tim_name[top_no..last_no). */
+#define DFB_MAGIC		"STED2DEFFILE0.01"
+#define DFB_MAGIC_LEN		16
+#define DFB_FIXED_SIZE		0x1650
+#define DFB_OFF_CC		0x1640	/* u16 BE: part record count */
+#define DFB_OFF_LAST_NO		0x1642	/* u16 BE: tim_name end */
+#define DFB_OFF_TOP_NO		0x1644	/* u16 BE: tim_name start */
+#define DFB_PART_SIZE		32
+#define DFB_PART_HEAD_LEN	20
+#define DFB_PART_SYM_LEN	8
+#define DFB_PART_OFF_INDEX	28	/* u16 BE: part index */
+#define DFB_PART_OFF_TOP	30	/* u16 BE: tim_top */
+
 #if	CONV
 int	defsave(char *fi,int md,int mutef,int initf)
 {
@@ -1036,7 +1059,7 @@ int	defsave(char *fi,int md,int mutef,int initf)
   char	li0[]= "*--------------------------------------------------------------------------------------\r\n";
   char	li1[]= "*======================================================================================\r\n";
 
-  strmfe(fi,fi,"def");
+  strmfe(fi, PATHLEN, fi, "def");
   if(!(fp=fopen2(fi,"wb"))){B_PRINT("ե뤬ץޤ\r\n");exit(1);}
 
   n=buf_put(li0,n);
@@ -1302,12 +1325,12 @@ int	def_bsave(char *fi,int last_no,int mutef,int initf)
   int	i,ln,n,top_no,cc,ad;
   FILE	*fp;
 
-  strmfe(fi,fi,"dfb");
+  strmfe(fi, PATHLEN, fi, "dfb");
   if(!(fp=fopen2(fi,"wb"))){B_PRINT(_("Cannot open file.\n"));exit(1);}
 
   for(i=0;i<work_size;i++){dat[i]=0;}
 
-  memcpy(&dat[0x0000],"STED2DEFFILE0.01",16);
+  memcpy(&dat[0x0000],DFB_MAGIC,DFB_MAGIC_LEN);
   memcpy(&dat[0x0010],module,32);					/*module*/
   dat[0x30]=mdlflag;						/*id*/
   dat[0x32]=mutef;						/*mute*/
@@ -1336,20 +1359,20 @@ int	def_bsave(char *fi,int last_no,int mutef,int initf)
   memcpy(&dat[0x840],&gs_bank[128*4],14*128*2);			/*gsbank*/
 
 
-  cc=0;for(i=0;i<400;i++){if(tim_top[i]>0 || tim_head[i][0]>0){cc++;}}
-  dat[0x1640]=cc>>8;dat[0x1641]=cc&0xff;
+  cc=0;for(i=0;i<TIM_PART_MAX;i++){if(tim_top[i]>0 || tim_head[i][0]>0){cc++;}}
+  dat[DFB_OFF_CC]=cc>>8;dat[DFB_OFF_CC+1]=cc&0xff;
   top_no=0;while(top_no<last_no){if(tim_name[top_no][0]){break;}top_no++;}
-  dat[0x1642]=last_no>>8;dat[0x1643]=last_no&0xff;
-  dat[0x1644]=top_no>>8;dat[0x1645]=top_no&0xff;
+  dat[DFB_OFF_LAST_NO]=last_no>>8;dat[DFB_OFF_LAST_NO+1]=last_no&0xff;
+  dat[DFB_OFF_TOP_NO]=top_no>>8;dat[DFB_OFF_TOP_NO+1]=top_no&0xff;
 
-  ad=0x1650;							/*part*/
-  for(i=0;i<400;i++){
+  ad=DFB_FIXED_SIZE;						/*part*/
+  for(i=0;i<TIM_PART_MAX;i++){
     if(tim_top[i]>0 || tim_head[i][0]>0){
-      memcpy(&dat[ad],tim_head[i],20);
-      memcpy(&dat[ad+20],tim_sym[i],8);
-      dat[ad+28]=i>>8;dat[ad+29]=i&0xff;
-      dat[ad+30]=tim_top[i]>>8;dat[ad+31]=tim_top[i]&0xff;
-      ad+=32;
+      memcpy(&dat[ad],tim_head[i],DFB_PART_HEAD_LEN);
+      memcpy(&dat[ad+DFB_PART_HEAD_LEN],tim_sym[i],DFB_PART_SYM_LEN);
+      dat[ad+DFB_PART_OFF_INDEX]=i>>8;dat[ad+DFB_PART_OFF_INDEX+1]=i&0xff;
+      dat[ad+DFB_PART_OFF_TOP]=tim_top[i]>>8;dat[ad+DFB_PART_OFF_TOP+1]=tim_top[i]&0xff;
+      ad+=DFB_PART_SIZE;
     }
   }
 
@@ -1357,7 +1380,7 @@ int	def_bsave(char *fi,int last_no,int mutef,int initf)
   ln=fwrite(dat,1,ad,fp);
 
   ln=last_no-top_no;
-  if(ln){ln=fwrite(&tim_name[top_no][0],1,ln*15,fp);}		/*tim_name*/
+  if(ln){ln=fwrite(&tim_name[top_no][0],1,ln*TIM_NAME_WIDTH,fp);}	/*tim_name*/
 
   fclose(fp);
 
@@ -1374,7 +1397,7 @@ int	def_bload(char *fi,int md)
   int	i,ln,n,f,top_no,last_no,mutef=0,initf=0,cc,ad;
   FILE	*fp;
 
-  strmfe(fi,fi,"dfb");
+  strmfe(fi, PATHLEN, fi, "dfb");
   /*if(!(fp=fopen2(fi,"rb"))){return(-1);}*/
   if (!(fp=fopen2(fi,"rb"))) {
     char tmp0[PATHLEN * 2];
@@ -1385,8 +1408,8 @@ int	def_bload(char *fi,int md)
     if (!(fp=fopen2( tmp0, "rb" ))) return(-1);
   } /* Oct.13.1998 by Daisuke Nagano */
 
-  ln=fread(dat,1,0x1650,fp);
-
+  ln=fread(dat,1,DFB_FIXED_SIZE,fp);
+  if( ln!=DFB_FIXED_SIZE ){goto bad;}
 
 #if	STED
   if(md==0){
@@ -1400,16 +1423,17 @@ int	def_bload(char *fi,int md)
   B_PRINT(_("Dis-compiling config file.\n"));
 #endif
 
-  if( strncmp(&dat[0x0000],"STED2DEFFILE0.01",16)!=0 ){
-    if(md==0 || md==2){
-      B_PRINT(_("Invalid version number of config file.\n"));
-    }else{
-      msg(_("Invalid version number of config file.\n"));
+  if( strncmp(&dat[0x0000],DFB_MAGIC,DFB_MAGIC_LEN)!=0 ){goto bad;}
 
-    }
-    /*fclose(fp);return(-2);*/
-    fclose(fp);sted_show_main_window();exit(1);
-  }
+  cc=dat[DFB_OFF_CC]*256+dat[DFB_OFF_CC+1];
+  last_no=dat[DFB_OFF_LAST_NO]*256+dat[DFB_OFF_LAST_NO+1];
+  top_no=dat[DFB_OFF_TOP_NO]*256+dat[DFB_OFF_TOP_NO+1];
+
+  if( cc<0 || cc>TIM_PART_MAX
+      || (size_t)cc*(size_t)DFB_PART_SIZE>(size_t)work_size
+      || top_no<0 || last_no<0
+      || top_no>TIM_NAME_MAX || last_no>TIM_NAME_MAX
+      || top_no>last_no ){goto bad;}
 
   memcpy(module,&dat[0x0010],32);					/*module*/
   mdlflag=dat[0x30];						/*id*/
@@ -1439,23 +1463,26 @@ int	def_bload(char *fi,int md)
   memcpy(&gs_mode[4],&dat[0x820],14*2);				/*gsmode*/
   memcpy(&gs_bank[128*4],&dat[0x840],14*128*2);			/*gsbank*/
 
-  cc=dat[0x1640]*256+dat[0x1641];
-  last_no=dat[0x1642]*256+dat[0x1643];
-  top_no=dat[0x1644]*256+dat[0x1645];
-
-  ln=fread(dat,1,cc*32,fp);
+  if( cc>0 ){
+    ln=fread(dat,1,cc*DFB_PART_SIZE,fp);
+    if( ln!=cc*DFB_PART_SIZE ){goto bad;}
+  }
 
   ad=0;								/*part*/
   for(i=0;i<cc;i++){
-    int n=dat[ad+28]*256+dat[ad+29];
-    memcpy(tim_head[n],&dat[ad],20);
-    memcpy(tim_sym[n],&dat[ad+20],8);
-    tim_top[n]=dat[ad+30]*256+dat[ad+31];
-    ad+=32;
+    int idx=dat[ad+DFB_PART_OFF_INDEX]*256+dat[ad+DFB_PART_OFF_INDEX+1];
+    if( idx<0 || idx>=TIM_PART_MAX ){goto bad;}
+    memcpy(tim_head[idx],&dat[ad],DFB_PART_HEAD_LEN);
+    memcpy(tim_sym[idx],&dat[ad+DFB_PART_HEAD_LEN],DFB_PART_SYM_LEN);
+    tim_top[idx]=dat[ad+DFB_PART_OFF_TOP]*256+dat[ad+DFB_PART_OFF_TOP+1];
+    ad+=DFB_PART_SIZE;
   }
 
   ln=last_no-top_no;
-  if(ln){ln=fread(&tim_name[top_no][0],1,ln*15,fp);}		/*tim_name*/
+  if( ln ){
+    size_t name_bytes=(size_t)ln*(size_t)TIM_NAME_WIDTH;
+    if( fread(&tim_name[top_no][0],1,name_bytes,fp)!=name_bytes ){goto bad;}
+  }
 
   fclose(fp);
 
@@ -1472,5 +1499,10 @@ int	def_bload(char *fi,int md)
 #endif
 
   return(0);
+
+bad:
+  msg(_("Invalid file."));
+  fclose(fp);
+  return(-1);
 }
 

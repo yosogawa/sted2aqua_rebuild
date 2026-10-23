@@ -10,6 +10,8 @@
 #ifndef _X68FUNCS_H_
 #define _X68FUNCS_H_
 
+#include <stddef.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -38,7 +40,7 @@ extern void key_wait(void);
 extern void key_mouse_wait(void);
 
 
-extern void strmfe( char *, const char *, const char * );
+extern void strmfe( char *, size_t, const char *, const char * );
 extern void b_striS( char *, int, int );
 extern void KNJCTRL( int, int );
 

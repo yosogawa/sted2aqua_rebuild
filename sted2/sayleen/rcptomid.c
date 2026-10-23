@@ -306,6 +306,10 @@ int rcptomid_read_rcp_header( RCP_DATA *rcp ) {
     return -1;
   }
 
+  /* Song header ends at first track (0x0586). Short buffers are unusable. */
+  if ( rcp->length < 0x0586 )
+    return 1;
+
   /* title, memo */
 
   for ( i=0 ; i<65 ; i++ )
@@ -329,7 +333,8 @@ int rcptomid_read_rcp_header( RCP_DATA *rcp ) {
 
   rcp->tracks   = ptr[0x01e6];
   if ( rcp->tracks == 0 ) rcp->tracks = 18;
-  /*if ( rcp->tracks !=18 && rcp->tracks !=36 ) return 1;*/
+  /* Cap to array size; values above RCP_MAX_TRACKS are ignored (future formats may use more). */
+  if ( rcp->tracks > RCP_MAX_TRACKS ) rcp->tracks = RCP_MAX_TRACKS;
 
   t = 1000 * 1000 * 60 / rcp->tempo;
   TES_top->t1 = (int)((t>>16)&0xff);
@@ -361,11 +366,27 @@ int rcptomid_read_rcp_header( RCP_DATA *rcp ) {
   max_st = 0;
   for ( t=0 ; t<rcp->tracks ; t++ ) {
     int ch;
+    size_t remain;
+    const int hdr_min = 8 + RCP_MAX_COMMENT_SIZE; /* 44: size..comment */
 
     base = base + size;
+    remain = rcp->length - (size_t)base;
+    /* Truncated file: keep tracks we already parsed, ignore the rest. */
+    if ( remain < (size_t)hdr_min ) {
+      rcp->tracks = t;
+      break;
+    }
+
     rcp->track[t].top = base;
 
     size = ptr[base+0] + ptr[base+1]*256;
+    /* Claimed size may overrun EOF; clamp so event walks stay in-bounds. */
+    if ( (size_t)size > remain )
+      size = (int)remain;
+    if ( size < hdr_min ) {
+      rcp->tracks = t;
+      break;
+    }
     rcp->track[t].size = size;
 
     ch = ptr[base+4];
@@ -841,7 +862,8 @@ static int set_tempo_track ( RCP_DATA *rcp ) {
   if ( rcp->enable_converter_notice == FLAG_TRUE ) {
     int *len;
 
-    sprintf( buf,"\nThis file was converted by %s version %s (%s - %s).\nOriginal RCP file is \"%s\" (%s, %zu bytes).",
+    snprintf( (char *)buf, sizeof(buf),
+	     "\nThis file was converted by %s version %s (%s - %s).\nOriginal RCP file is \"%s\" (%s, %zu bytes).",
 	     (rcp->command_name!=NULL)?rcp->command_name:rcptomid_name,
 	     VERSION_ID, VERSION_TEXT1, VERSION_TEXT2,
 	     (rcp->file_name!=NULL)?rcp->file_name:undefined_filename,

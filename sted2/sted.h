@@ -205,10 +205,13 @@ _extern int	lsp_wait;			/* last para. transfer wait	*/
 _extern int	bend_range;			/* piche bend range		*/
 
 _extern char	tim_asin[33];			/* tone list channle assign	*/
-_extern char	tim_head[400][24];		/* tone list title		*/
-_extern char	tim_sym[400][8];		/* tone list symbol		*/
-_extern char	tim_name[80*128][15];		/* tone name buffer		*/
-_extern int16_t	tim_top[400];			/* tone name buffer address	*/
+#define TIM_PART_MAX	400			/* tim_head / tim_sym / tim_top	*/
+#define TIM_NAME_MAX	(80*128)		/* tim_name entries		*/
+#define TIM_NAME_WIDTH	15			/* bytes per tone name		*/
+_extern char	tim_head[TIM_PART_MAX][24];	/* tone list title		*/
+_extern char	tim_sym[TIM_PART_MAX][8];	/* tone list symbol		*/
+_extern char	tim_name[TIM_NAME_MAX][TIM_NAME_WIDTH];	/* tone name buffer	*/
+_extern int16_t	tim_top[TIM_PART_MAX];		/* tone name buffer address	*/
 
 _extern char	card_name[21][64];		/* pcm card name list		*/
 _extern char	card_no[2];			/* used pcm card no.		*/
@@ -242,7 +245,7 @@ _extern char	mtitle[65];			/* music title			*/
 _extern char	memo[12][29];			/* memo				*/
 _extern int	tbase,mtempo;
 _extern int     beat1,beat2,bkey,pbias;		/* common parameter		*/
-_extern char	cm6_file[128],gsd_file[128];	/* controol file name		*/
+_extern char	cm6_file[PATHLEN],gsd_file[PATHLEN];	/* control file name	*/
 
 _extern char	rhyna[32][15];			/* rhythm assign name		*/
 _extern uint8_t	rhyno[32][2];		/* rhythm assign key & gate	*/
@@ -258,11 +261,17 @@ _extern int8_t	trkey[36];		/* track key shift		*/
 _extern int8_t	trst[36];		/* track st shift		*/
 _extern char	trkmemo[36][37];		/* track comment		*/
 
+/* RCP layout (Recomposer PC98 V2). Stored track size includes the header. */
+#define RCP_FILE_HEADER_SIZE	1414	/* song header before tracks	*/
+#define RCP_TRACK_HEADER_SIZE	44	/* per-track header		*/
+#define RCP_EVENT_SIZE		4	/* one event; min body = EOT	*/
+#define RCP_EOT			0xfe	/* end-of-track event		*/
+
 /* buffer */
 _extern uint8_t	lcbuf[1024*4+4];	/* delete line buffer		*/
 _extern uint8_t	rlcbuf[132];		/* delete rhythm line buffer	*/
 _extern uint8_t	cm6[22601],gsd[4096];	/* control file buffer		*/
-_extern uint8_t	hed[1414];		/* rcp header temporary		*/
+_extern uint8_t	hed[RCP_FILE_HEADER_SIZE];	/* rcp header temporary	*/
 
 _extern uint8_t	*trk[36];		/* track buffer pointer		*/
 _extern uint8_t	*cpbuf;			/* track copy buffer		*/
@@ -286,7 +295,7 @@ extern char s_sted_default_path[PATHLEN];	/* Jun.01.2003 Toshi Nagata */
 
 #include "sted_keysym.h"
 
-int itor( uint8_t *, uint8_t * );
+int itor( uint8_t *, size_t, uint8_t * );
 int STed_MeasureConversion( int track );
 void Exit(int);
 #define exit Exit

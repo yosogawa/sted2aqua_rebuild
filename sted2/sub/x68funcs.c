@@ -109,16 +109,19 @@ sted_to_locale_display(char *s)
 }
 
 /*
-  void strmfe( char dest, *char *node , char *extention )
+  void strmfe( char *dest, size_t destsize, const char *node, const char *ext )
 
-   destination = node.ext
+   destination = node.ext (truncated to destsize)
  */
 
-void strmfe( char *dest, const char *node, const char *ext ) {
+void strmfe( char *dest, size_t destsize, const char *node, const char *ext ) {
 
   char temp[PATHLEN];
   const char *slash = strrchr(node, '/');
   const char *last = strrchr(node, '.');
+
+  if ( dest == NULL || destsize == 0 )
+    return;
 
   /* Only a dot in the final path component is an extension.
      STed2.app/Contents/MacOS/STed2 must not become STed2.cnf. */
@@ -134,8 +137,7 @@ void strmfe( char *dest, const char *node, const char *ext ) {
     snprintf(temp, sizeof(temp), "%s.%s", node, ext);
   }
 
-  strcpy( dest, temp );
-  return;
+  strlcpy( dest, temp, destsize );
 }
 
 /*

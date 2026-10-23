@@ -67,14 +67,15 @@ static int smfload( char *fna ) {
   rcpbuf = (uint8_t *)malloc(sizeof(uint8_t)*DATA_ADR_SIZE);
   if ( rcpbuf == NULL ) {free(smfbuf);return(-1);}
   
-  if ( (rcpsize=itor( smfbuf, rcpbuf )) == 0 ) {
+  if ( (rcpsize=itor( smfbuf, (size_t)size, rcpbuf )) == 0 ) {
+    msg(_("Invalid file."));
     free(rcpbuf);free(smfbuf);return(-1);
   }
   free(smfbuf);
 
   ptr=0;
-  memmove( hed, rcpbuf+ptr, 1414 );
-  ptr+=1414;
+  memmove( hed, rcpbuf+ptr, RCP_FILE_HEADER_SIZE );
+  ptr+=RCP_FILE_HEADER_SIZE;
   if ( strcmp(sread(0,30),rcp_id)!=0 ) {
     msg(_("Invalid file format."));free(rcpbuf);return(-1);
   }
@@ -83,8 +84,9 @@ static int smfload( char *fna ) {
   dinit();hedread();
 
   for(i=stra;i<max;i++){
-    memmove(hed,rcpbuf+ptr,44);size=thedread(i);size2=0;
-    ptr+=44;
+    memmove(hed,rcpbuf+ptr,RCP_TRACK_HEADER_SIZE);size=thedread(i);size2=0;
+    ptr+=RCP_TRACK_HEADER_SIZE;
+    if( size<RCP_EVENT_SIZE ){msg(_("Invalid file."));break;}
     if( size>TRACK_SIZE ){size2=(int)size;size=TRACK_SIZE;}
 
     if(size_change(i,(int)size)){break;}
@@ -96,7 +98,8 @@ static int smfload( char *fna ) {
     if( ln!=size ){if(i==18){break;}msg(_("Invalid file."));size=ln;break;}
 
     size=gomi_cut(trk[i],(int)size);
-    tr_len[i]=(int)size;trk[i][size-4]=0xfe;
+    if( size<RCP_EVENT_SIZE ){msg(_("Invalid file."));break;}
+    tr_len[i]=(int)size;trk[i][size-RCP_EVENT_SIZE]=RCP_EOT;
 
     if( size2>0){
       msg(_("Track buffer exhausted."));size2-=(int)size;
@@ -124,7 +127,7 @@ int	dload(char *fna,int md)
 
   if(!(fp= fopen2(fna,"rb"))){msg(_("File not found."));return(-1);}
 
-  fread(hed,1,1414,fp);
+  fread(hed,1,RCP_FILE_HEADER_SIZE,fp);
 
   if( strcmp(sread(0,30),rcp_id)!=0 ){
     msg(_("Invalid file format."));fclose(fp);return(-1);}
@@ -134,7 +137,8 @@ int	dload(char *fna,int md)
   if(md==1){stra=18;max=36;}else{dinit();hedread();}
 
   for(i=stra;i<max;i++){
-    fread(hed,1,44,fp);size=thedread(i);size2=0;
+    fread(hed,1,RCP_TRACK_HEADER_SIZE,fp);size=thedread(i);size2=0;
+    if( size<RCP_EVENT_SIZE ){msg(_("Invalid file."));break;}
     if( size>TRACK_SIZE ){size2=size;size=TRACK_SIZE;}
 
     if(size_change(i,size)){break;}
@@ -143,7 +147,8 @@ int	dload(char *fna,int md)
     if( ln!=size ){if(i==18){break;}msg(_("Invalid file."));size=ln;break;}
 
     size=gomi_cut(trk[i],size);
-    tr_len[i]=size;trk[i][size-4]=0xfe;
+    if( size<RCP_EVENT_SIZE ){msg(_("Invalid file."));break;}
+    tr_len[i]=size;trk[i][size-RCP_EVENT_SIZE]=RCP_EOT;
 
     if( size2>0){
       msg(_("Track buffer exhausted."));size2-=size;
@@ -166,24 +171,24 @@ static int smfsave(char *fna) {
   FILE	*fp;
 
   for(i=18;i<36;i++){
-    if(tr_len[i]>4 || trkmemo[i][0]!=0){md2=1;}
+    if(tr_len[i]>RCP_EVENT_SIZE || trkmemo[i][0]!=0){md2=1;}
   }
 
   if(md2==0){max=18;}else{max=36;}
 
-  rcpsize = 1414;
+  rcpsize = RCP_FILE_HEADER_SIZE;
   for ( i=0 ; i<max ; i++ ) {
-    rcpsize+=(44+tr_len[i]);
+    rcpsize+=(RCP_TRACK_HEADER_SIZE+tr_len[i]);
   }
   rcpdata = (uint8_t *)malloc(sizeof(uint8_t)*rcpsize);
   if ( rcpdata == NULL ) return(-1);
 
   hedset(max);
-  memcpy( rcpdata, hed, 1414 );
-  ptr=1414;
+  memcpy( rcpdata, hed, RCP_FILE_HEADER_SIZE );
+  ptr=RCP_FILE_HEADER_SIZE;
   for ( i=0 ; i<max ; i++ ) {
-    thedset( i, tr_len[i]+44 );
-    memcpy( rcpdata+ptr, hed, 44 ); ptr+=44;
+    thedset( i, tr_len[i]+RCP_TRACK_HEADER_SIZE );
+    memcpy( rcpdata+ptr, hed, RCP_TRACK_HEADER_SIZE ); ptr+=RCP_TRACK_HEADER_SIZE;
     memcpy( rcpdata+ptr, trk[i], tr_len[i] ); ptr+=tr_len[i];
   }
 
@@ -223,16 +228,16 @@ int	dsave(char *fna)
   if(!(fp= fopen2(fna,"wb"))){msg(_("Cannot open file."));return(-1);}
 
   for(i=18;i<36;i++){
-    if(tr_len[i]>4 || trkmemo[i][0]!=0){md2=1;}
+    if(tr_len[i]>RCP_EVENT_SIZE || trkmemo[i][0]!=0){md2=1;}
   }
 
   if(md2==0){max=18;}else{max=36;}
 
-  hedset(max);fwrite(hed,1,1414,fp);
+  hedset(max);fwrite(hed,1,RCP_FILE_HEADER_SIZE,fp);
 
   i=0;
   while(i<max && ef==0){
-    thedset(i,tr_len[i]+44);fwrite(hed,1,44,fp);
+    thedset(i,tr_len[i]+RCP_TRACK_HEADER_SIZE);fwrite(hed,1,RCP_TRACK_HEADER_SIZE,fp);
     if(fwrite(trk[i],1,tr_len[i],fp)!=tr_len[i]){ef=1;break;}
     i++;
   }
@@ -272,20 +277,22 @@ int	part_save(char *fna,int ln)
   return(0);
 }
 
-/* Body length of one RCP track header. Sizes are a multiple of 4, so the
- * low 2 bits of the first byte are the high bits of an 18-bit length.
+/* Body length from one RCP track header. Sizes are a multiple of
+ * RCP_EVENT_SIZE; low 2 bits of the first byte are high bits of an
+ * 18-bit length that includes RCP_TRACK_HEADER_SIZE.
  */
 static int rcp_body_size(const uint8_t *h)
 {
-  return (h[0] & 0xfc) + (((h[0] & 3) * 256 + h[1]) * 256) - 44;
+  return (h[0] & 0xfc) + (((h[0] & 3) * 256 + h[1]) * 256)
+         - RCP_TRACK_HEADER_SIZE;
 }
 
 static int track_has_note(const uint8_t *p, int n)
 {
   int i;
 
-  for (i = 0; i + 4 <= n; i += 4) {
-    if (p[i] == 0xfe)
+  for (i = 0; i + RCP_EVENT_SIZE <= n; i += RCP_EVENT_SIZE) {
+    if (p[i] == RCP_EOT)
       break;
     if (p[i] > 0 && p[i] < 0x80)
       return 1;
@@ -302,13 +309,13 @@ static int scale_time(int v, int src, int dst)
 
 static int emit4(uint8_t *out, int n, int cap, int a, int b, int c, int d)
 {
-  if (n < 0 || n + 4 > cap)
+  if (n < 0 || n + RCP_EVENT_SIZE > cap)
     return -1;
   out[n] = a;
   out[n + 1] = b;
   out[n + 2] = c;
   out[n + 3] = d;
-  return n + 4;
+  return n + RCP_EVENT_SIZE;
 }
 
 /* Scale step (and, for notes, gate) from the MIDI file's RCP timebase to
@@ -322,12 +329,12 @@ static int scale_track(const uint8_t *src, int n, uint8_t *out, int cap,
   int i, o;
 
   o = 0;
-  for (i = 0; i + 4 <= n; i += 4) {
+  for (i = 0; i + RCP_EVENT_SIZE <= n; i += RCP_EVENT_SIZE) {
     int ev = src[i];
     int step, gate;
 
-    if (ev == 0xfe) {
-      o = emit4(out, o, cap, 0xfe, 0, 0, 0);
+    if (ev == RCP_EOT) {
+      o = emit4(out, o, cap, RCP_EOT, 0, 0, 0);
       return o;
     }
     if (ev >= 0xf0) {
@@ -361,7 +368,7 @@ static int scale_track(const uint8_t *src, int n, uint8_t *out, int cap,
     if (o < 0)
       return -1;
   }
-  return emit4(out, o, cap, 0xfe, 0, 0, 0);
+  return emit4(out, o, cap, RCP_EOT, 0, 0, 0);
 }
 
 static void copy_track_memo(char *dst, const uint8_t *src)
@@ -388,11 +395,12 @@ int	trk_load(char *fna)
   if( strcmp(sread(0,15),trk_id)!=0 ){
     msg(_("Invalid file format."));fclose(fp);return(-1);}
 
-  fread(hed,1,44,fp);ln=fread(dat,1,work_size,fp);fclose(fp);
-  sz=hed[0]+hed[1]*256-44;
-  if( ln<sz ){msg(_("Invalid file."));return(-1);}
+  fread(hed,1,RCP_TRACK_HEADER_SIZE,fp);ln=fread(dat,1,work_size,fp);fclose(fp);
+  sz=hed[0]+hed[1]*256-RCP_TRACK_HEADER_SIZE;
+  if( sz<RCP_EVENT_SIZE || ln<sz ){msg(_("Invalid file."));return(-1);}
 
   sz=gomi_cut(dat,sz);
+  if( sz<RCP_EVENT_SIZE ){msg(_("Invalid file."));return(-1);}
   if(size_change(track,sz)){return -1;}
 
   thedread(track);memcpy_l(trk[track],dat,ln);tr_len[track]=sz;
@@ -412,7 +420,7 @@ int	trk_save(char *fna)
 
   dclr();
   sset(trk_id,0,15);hed[15]=0x1a;fwrite(hed,1,16,fp);
-  ln=tr_len[track];thedset(track,ln+44);fwrite(hed,1,44,fp);
+  ln=tr_len[track];thedset(track,ln+RCP_TRACK_HEADER_SIZE);fwrite(hed,1,RCP_TRACK_HEADER_SIZE,fp);
   fr=fwrite(trk[track],1,ln,fp);fclose(fp);
 
   if( fr!=ln ){msg(_("Cannot write file."));unlink(fna);return(-1);}
@@ -466,12 +474,12 @@ int	trk_load_mid(char *fna)
     free(smfbuf);
     return -1;
   }
-  rcpsize = itor(smfbuf, rcpbuf);
+  rcpsize = itor(smfbuf, (size_t)size, rcpbuf);
   free(smfbuf);
-  if (rcpsize == 0 || rcpsize < 1414 ||
+  if (rcpsize == 0 || rcpsize < RCP_FILE_HEADER_SIZE ||
       memcmp(rcpbuf, rcp_id, 30) != 0) {
     free(rcpbuf);
-    msg(_("Invalid file format."));
+    msg(_("Invalid file."));
     return -1;
   }
 
@@ -483,16 +491,16 @@ int	trk_load_mid(char *fna)
 
   notes = 0;
   chosen = 0;
-  pos = 1414;
-  while (pos + 44 <= (size_t)rcpsize) {
+  pos = RCP_FILE_HEADER_SIZE;
+  while (pos + RCP_TRACK_HEADER_SIZE <= (size_t)rcpsize) {
     body = rcp_body_size(rcpbuf + pos);
-    if (body < 4 || pos + 44 + body > (size_t)rcpsize)
+    if (body < RCP_EVENT_SIZE || pos + RCP_TRACK_HEADER_SIZE + body > (size_t)rcpsize)
       break;
-    if (track_has_note(rcpbuf + pos + 44, body)) {
+    if (track_has_note(rcpbuf + pos + RCP_TRACK_HEADER_SIZE, body)) {
       notes++;
       chosen = pos;
     }
-    pos += 44 + (size_t)body;
+    pos += RCP_TRACK_HEADER_SIZE + (size_t)body;
   }
   if (notes == 0) {
     free(rcpbuf);
@@ -507,10 +515,10 @@ int	trk_load_mid(char *fna)
 
   hdr = rcpbuf + chosen;
   body = rcp_body_size(hdr);
-  sz = scale_track(hdr + 44, body, dat, work_size, tb_src, tbase);
-  if (sz >= 4)
+  sz = scale_track(hdr + RCP_TRACK_HEADER_SIZE, body, dat, work_size, tb_src, tbase);
+  if (sz >= RCP_EVENT_SIZE)
     sz = gomi_cut(dat, sz);
-  if (sz < 4) {
+  if (sz < RCP_EVENT_SIZE) {
     free(rcpbuf);
     msg(_("Track buffer exhausted."));
     return -1;
@@ -522,7 +530,7 @@ int	trk_load_mid(char *fna)
   }
   memcpy(trk[track], dat, sz);
   tr_len[track] = sz;
-  trk[track][sz - 4] = 0xfe;
+  trk[track][sz - RCP_EVENT_SIZE] = RCP_EOT;
   same_cluc(track, 0);
 
   ch = hdr[4] + 1;
@@ -743,7 +751,39 @@ void	sset(char *s,int a,int b)
   int	i;
 
   for(i=0;i<b;i++){hed[a+i]=32;}
-  while(*s!=0){hed[a++]=*s++;}
+  for(i=0;i<b && s[i]!=0;i++){hed[a+i]=s[i];}
+}
+
+/* RCP control-file field is 12 bytes (8.3). Fit name in place before sset. */
+static void rcp_ctlname_fit(char *name, size_t namesize, const char *ext)
+{
+  char	*slash,*p;
+  int	dot;
+
+  if(name[0]==0 || namesize==0){return;}
+
+  slash=strrchr(name,'/');
+  p=strrchr(name,'\\');
+  if(p!=NULL && (slash==NULL || p>slash)){slash=p;}
+  if(slash!=NULL && slash[1]!='\0'){
+    memmove(name,slash+1,strlen(slash+1)+1);
+  }
+
+  /* str_search returns 1-based index of '.', or 0 if none. */
+  dot=str_search(name,".");
+  if(dot>8){
+    name[8]=0;
+    strmfe(name, namesize, name, ext);
+  }else if(dot==0){
+    if(strlen(name)>8){name[8]=0;}
+    strmfe(name, namesize, name, ext);
+  }
+
+  if(strlen(name)>12){
+    name[8]=0;
+    strmfe(name, namesize, name, ext);
+    if(strlen(name)>12){name[12]=0;}
+  }
 }
 
 /***************************/
@@ -762,8 +802,8 @@ void	hedset(int max)
       sset(rcp_id,0,30);
     }
 
-  i=str_search(cm6_file,".");if(i>8){cm6_file[8]=0;strmfe(cm6_file,cm6_file,"CM6");}
-  i=str_search(gsd_file,".");if(i>8){gsd_file[8]=0;strmfe(gsd_file,gsd_file,"GSD");}
+  rcp_ctlname_fit(cm6_file,sizeof cm6_file,"CM6");
+  rcp_ctlname_fit(gsd_file,sizeof gsd_file,"GSD");
 
   for(i=0x1b0;i<=0x1bf;i++){hed[i]=0x40;}
   for(i=0x1e8;i<=0x1f5;i++){hed[i]=0;}
@@ -855,7 +895,7 @@ int	thedread(int tr)
 {
   int	size;
 
-  size=(hed[0]&0xfc)+((hed[0]&3)*256+hed[1])*256-44;
+  size=rcp_body_size(hed);
   trno[tr]=hed[2];trrhy[tr]=hed[3];mch[tr]=hed[4]+1;if(mch[tr]>32){mch[tr]=0;}
   trkey[tr]=hed[5];trst[tr]=hed[6];trmod[tr]=hed[7];if(trmod[tr]==3){trmod[tr]=4;}
   strcpy(trkmemo[tr],sread(8,36));
@@ -872,7 +912,7 @@ int	bufload()
   }
 
   if( rcd->data_valid!=0 ){
-    bpo=rcp_buf_get(hed,0,1414);
+    bpo=rcp_buf_get(hed,0,RCP_FILE_HEADER_SIZE);
     if( strcmp(sread(0,30),rcp_id)!=0 ){
       msg(_("Buffer is empty."));return(-1);
     }
@@ -883,27 +923,29 @@ int	bufload()
     if(hed[0x1e6]==36){max=36;}else{max=18;}
 
     for(i=0;i<max;i++){
-      bpo=rcp_buf_get(hed,bpo,44);
+      bpo=rcp_buf_get(hed,bpo,RCP_TRACK_HEADER_SIZE);
       if((rcd->totalcount)<bpo){break;}
 
       size=thedread(i);size2=0;
+      if( size<RCP_EVENT_SIZE ){msg(_("Invalid file."));break;}
       if( size>TRACK_SIZE ){size2=size;size=TRACK_SIZE;}
       if(size_change(i,size)){break;}
 
       bpo=rcp_buf_get(trk[i],bpo,size);
       size=gomi_cut(trk[i],size);
-      tr_len[i]=size;trk[i][size-4]=0xfe;
+      if( size<RCP_EVENT_SIZE ){msg(_("Invalid file."));break;}
+      tr_len[i]=size;trk[i][size-RCP_EVENT_SIZE]=RCP_EOT;
       if( size2>0){msg(_("Track buffer exhausted."));bpo=bpo+(size2-size);}
     }
     strlcpy(rcp_file,rcd->filename,sizeof rcp_file);
     if(rcp_file[0]!=0){
       if(max==18){
 	if(str_search(rcp_file,".R36")==0 && str_search(rcp_file,".r36")==0){
-	  strmfe(rcp_file,rcp_file,"RCP");
+	  strmfe(rcp_file, sizeof rcp_file, rcp_file, "RCP");
 	}
       }else{
 	if(str_search(rcp_file,".RCP")==0 && str_search(rcp_file,".rcp")==0){
-	  strmfe(rcp_file,rcp_file,"R36");
+	  strmfe(rcp_file, sizeof rcp_file, rcp_file, "R36");
 	}
       }
     }
@@ -913,11 +955,11 @@ int	bufload()
 
   if( rcd->tone_valid!=0 ){
     tim_var_read();
-    if(cm6_file[0]!=0){strmfe(cm6_file,cm6_file,"CM6");asin_change();}
+    if(cm6_file[0]!=0){strmfe(cm6_file, sizeof cm6_file, cm6_file, "CM6");asin_change();}
   }
   if( rcd->gsd_valid!=0 ){
     gsd_var_read();
-    if(gsd_file[0]!=0){strmfe(gsd_file,gsd_file,"GSD");}
+    if(gsd_file[0]!=0){strmfe(gsd_file, sizeof gsd_file, gsd_file, "GSD");}
   }
   trksize_c();
   return(0);
@@ -929,11 +971,11 @@ int	bufset()
   int	bpo,i;
 
   all_note_off(1);rcd->data_valid=0;dclr();
-  hedset(36);bpo=rcp_buf_put(hed,0,1414);
+  hedset(36);bpo=rcp_buf_put(hed,0,RCP_FILE_HEADER_SIZE);
 
   for(i=0;i<36;i++){
     same_cluc(i,0);
-    thedset(i,tr_len[i]+44);bpo=rcp_buf_put(hed,bpo,44);
+    thedset(i,tr_len[i]+RCP_TRACK_HEADER_SIZE);bpo=rcp_buf_put(hed,bpo,RCP_TRACK_HEADER_SIZE);
     bpo=rcp_buf_put(trk[i],bpo,tr_len[i]);
   }
 
@@ -958,13 +1000,15 @@ int	bufload_trk(int tr)
     msg(_("Buffer is empty."));return(-1);
   }
 
-  bpo=rcp_buf_get(hed,bpo,44);size=thedread(tr);
+  bpo=rcp_buf_get(hed,bpo,RCP_TRACK_HEADER_SIZE);size=thedread(tr);
+  if( size<RCP_EVENT_SIZE ){msg(_("Invalid file."));goto ext;}
   if( size>TRACK_SIZE ){size=TRACK_SIZE;msg(_("Track buffer exhausted."));}
   if(size_change(tr,size)){goto ext;}
 
   bpo=rcp_buf_get(trk[tr],bpo,size);
   size=gomi_cut(trk[tr],size);
-  tr_len[tr]=size;trk[tr][size-4]=0xfe;
+  if( size<RCP_EVENT_SIZE ){msg(_("Invalid file."));goto ext;}
+  tr_len[tr]=size;trk[tr][size-RCP_EVENT_SIZE]=RCP_EOT;
 
   /*	trksize_c();*/
 ext:
@@ -979,7 +1023,7 @@ int	bufset_trk(int tr)
   all_note_off(1);rcd->fmt=0;rcd->data_valid=0;/*dclr();*/
 
   same_cluc(tr,0);
-  thedset(tr,tr_len[tr]+44);bpo=rcp_buf_put(hed,bpo,44);
+  thedset(tr,tr_len[tr]+RCP_TRACK_HEADER_SIZE);bpo=rcp_buf_put(hed,bpo,RCP_TRACK_HEADER_SIZE);
   bpo=rcp_buf_put(trk[tr],bpo,tr_len[tr]);
 
   if((rcd->bufcap)<bpo){msg(_("Too small RCD buffer."));return(-1);}
@@ -1006,17 +1050,17 @@ void	dplay(int mo,int tr,int meas)
 start:
   all_note_off(1);rcd->data_valid=0;
   msg_clr();poft=0;
-  hedset(36);bpo=rcp_buf_put(hed,0,1414);
+  hedset(36);bpo=rcp_buf_put(hed,0,RCP_FILE_HEADER_SIZE);
 
   for(i=0;i<36;i++){
     if((trmod[i]&1)!=0){
-      thedset(i,48);dat[0]=0xfe;
-      bpo=rcp_buf_put(hed,bpo,44);
-      bpo=rcp_buf_put(dat,bpo,4);
+      thedset(i,RCP_TRACK_HEADER_SIZE+RCP_EVENT_SIZE);dat[0]=RCP_EOT;
+      bpo=rcp_buf_put(hed,bpo,RCP_TRACK_HEADER_SIZE);
+      bpo=rcp_buf_put(dat,bpo,RCP_EVENT_SIZE);
     }else{
       same_cluc(i,0);
-      thedset(i,tr_len[i]+44);
-      bpo=rcp_buf_put(hed,bpo,44);
+      thedset(i,tr_len[i]+RCP_TRACK_HEADER_SIZE);
+      bpo=rcp_buf_put(hed,bpo,RCP_TRACK_HEADER_SIZE);
       bpo=rcp_buf_put(trk[i],bpo,tr_len[i]);
     }
   }
@@ -1037,7 +1081,7 @@ start:
   }
 
   if(mo!=0 && meas==0){
-    strcpy(tmp1,rcp_path);strcat(tmp1,rcp_file);strmfe(tmp1,tmp1,"wrd");
+    strcpy(tmp1,rcp_path);strcat(tmp1,rcp_file);strmfe(tmp1, sizeof tmp1, tmp1, "wrd");
     if(fp=fopen2(tmp1,"rb")){
       int	i,j,sz;
       uint8_t	a;
@@ -1155,7 +1199,7 @@ void	cdplay(int tr,int po,int ln,int md)
   int	me_ad[2048];
 
   all_note_off(1+1);rcd->data_valid=0;msg_clr();if(ln==0){return;}
-  hedset(36);bpo=rcp_buf_put(hed,0,1414);
+  hedset(36);bpo=rcp_buf_put(hed,0,RCP_FILE_HEADER_SIZE);
   meas=meas_no(po);if((cmdflag&0x4000)==0){pr=lsp_wait_chack(meas);}
   tempo=last_tempo(meas);
   poft=meas-1;if(md==0){if(po>0){poft+=0x10000;}}
@@ -1201,16 +1245,16 @@ void	cdplay(int tr,int po,int ln,int md)
 	      dat[co+2]=trk[i][j+2];dat[co+3]=trk[i][j+3];
 	    }
 	  }
-	  if(dat[co]==0xfe || co+4>=work_size ){break;}
-	  co=co+4;
-	  if(trk[i][j]<0xfc && trk[i][j+4]==0xfc){dat[co]=0xfd;co=co+4;}
+	  if(dat[co]==RCP_EOT || co+RCP_EVENT_SIZE>=work_size ){break;}
+	  co=co+RCP_EVENT_SIZE;
+	  if(trk[i][j]<0xfc && trk[i][j+4]==0xfc){dat[co]=0xfd;co=co+RCP_EVENT_SIZE;}
 	  ln=ln-4;j=j+4;
 	}
 	co=resolve_same_measures(co,meas,po>0,i,me_ad);
       }
     }
-    dat[co]=0xfe;co=co+4;
-    thedset(i,co+44);bpo=rcp_buf_put(hed,bpo,44);
+    dat[co]=RCP_EOT;co=co+RCP_EVENT_SIZE;
+    thedset(i,co+RCP_TRACK_HEADER_SIZE);bpo=rcp_buf_put(hed,bpo,RCP_TRACK_HEADER_SIZE);
     bpo=rcp_buf_put(dat,bpo,co);
   }
 
@@ -1238,7 +1282,7 @@ void	cntplay(int tr,int po)
 
   if((cmdflag&0x80)!=0){dplay(0,tr,meas_no(po));return;}
   all_note_off(1+1);rcd->data_valid=0;msg_clr();dumy=track;
-  hedset(36);bpo=rcp_buf_put(hed,0,1414);
+  hedset(36);bpo=rcp_buf_put(hed,0,RCP_FILE_HEADER_SIZE);
   meas=meas_no(po);pr=lsp_wait_chack(meas);tempo=last_tempo(meas);
   poft=meas-1;if(po>0){poft+=0x10000;}
 
@@ -1266,15 +1310,15 @@ void	cntplay(int tr,int po)
 	    dat[co+2]=trk[i][j+2];dat[co+3]=trk[i][j+3];
 	  }
 	}
-	if( dat[co]==0xfe || co+4>=work_size ){break;}
-	co=co+4;
-	if(trk[i][j]<0xfc && trk[i][j+4]==0xfc){dat[co]=0xfd;co=co+4;}
+	if( dat[co]==RCP_EOT || co+RCP_EVENT_SIZE>=work_size ){break;}
+	co=co+RCP_EVENT_SIZE;
+	if(trk[i][j]<0xfc && trk[i][j+4]==0xfc){dat[co]=0xfd;co=co+RCP_EVENT_SIZE;}
 	j=j+4;
       }
       co=resolve_same_measures(co,meas,po>0,i,me_ad);
     }
-    dat[co]=0xfe;co=co+4;
-    thedset(i,co+44);bpo=rcp_buf_put(hed,bpo,44);
+    dat[co]=RCP_EOT;co=co+RCP_EVENT_SIZE;
+    thedset(i,co+RCP_TRACK_HEADER_SIZE);bpo=rcp_buf_put(hed,bpo,RCP_TRACK_HEADER_SIZE);
     bpo=rcp_buf_put(dat,bpo,co);
   }
 
@@ -1552,7 +1596,7 @@ int	rcp_buf_put(char *ptr,int po,int ln)
   char	*p;
   if((rcd->bufcap)<(po+ln)){return(po+ln);}
   p=rcd->data_adr;p+=po;
-  if(ln>1414){memcpy_l(p,ptr,ln);}else{memcpy(p,ptr,ln);}
+  if(ln>RCP_FILE_HEADER_SIZE){memcpy_l(p,ptr,ln);}else{memcpy(p,ptr,ln);}
   po=po+ln;return(po);
 }
 
@@ -1561,7 +1605,7 @@ int	rcp_buf_get(char *ptr,int po,int ln)
   char	*p;
   if((rcd->bufcap)<(po+ln)){return(po+ln);}
   p=rcd->data_adr;p+=po;
-  if(ln>1414){memcpy_l(ptr,p,ln);}else{memcpy(ptr,p,ln);}
+  if(ln>RCP_FILE_HEADER_SIZE){memcpy_l(ptr,p,ln);}else{memcpy(ptr,p,ln);}
   po=po+ln;return(po);
 }
 
@@ -1591,8 +1635,8 @@ void	dclr(void)
 	case  0xf9:
 	case  0xfd:trk[i][j+1]=1;trk[i][j+2]=0;trk[i][j+3]=0;break;
 
-	case  0xfe:trk[i][j+1]=0xfe;trk[i][j+2]=0xfe;trk[i][j+3]=0xfe;
-	  tr_len[i]=j+4;break;
+	case  RCP_EOT:trk[i][j+1]=RCP_EOT;trk[i][j+2]=RCP_EOT;trk[i][j+3]=RCP_EOT;
+	  tr_len[i]=j+RCP_EVENT_SIZE;break;
 	}
       }
     }
@@ -1624,7 +1668,7 @@ void	same_cluc(int tr,int ofset)
 
       }else{ad=0;}
 
-      ad+=44+ofset;trk[tr][j+2]=(trk[tr][j+2]&3)+(ad&0xfc);trk[tr][j+3]=ad>>8;
+      ad+=RCP_TRACK_HEADER_SIZE+ofset;trk[tr][j+2]=(trk[tr][j+2]&3)+(ad&0xfc);trk[tr][j+3]=ad>>8;
     }
     j=j+4;
   }
@@ -1636,19 +1680,19 @@ int	gomi_cut(uint8_t *ptr,int size)
   int	ad=0,po=0;
   uint8_t	da,db,dc,dd;
 
-  while(ad<size){
+  while(ad+4<=size){
     da=ptr[ad++];db=ptr[ad++];dc=ptr[ad++];dd=ptr[ad++];
 
     if(da==0x98 || da==0xf6){
       ptr[po++]=da;ptr[po++]=db;
       ptr[po++]=dc;ptr[po++]=dd;
 
-      while(ptr[ad]==0xf7 && ad<size){
+      while(ad+4<=size && ptr[ad]==0xf7){
 	ptr[po++]=ptr[ad++];ptr[po++]=ptr[ad++];
 	ptr[po++]=ptr[ad++];ptr[po++]=ptr[ad++];
       }
 
-      while(ptr[ad]==0xfd && ptr[ad+4]==0xf7 && ad<size){
+      while(ad+8<=size && ptr[ad]==0xfd && ptr[ad+4]==0xf7){
 	ptr[po++]=ptr[ad+4];ptr[po++]=ptr[ad+5];
 	ptr[po++]=ptr[ad+6];ptr[po++]=ptr[ad+7];
 
@@ -1678,11 +1722,11 @@ void	dinit()
   buff_free=buff_size;
 
   for(i=0;i<36;i++){
-    trk[i]=ptr;ptr+=4;tr_alc[i]=4;buff_free-=4;
+    trk[i]=ptr;ptr+=RCP_EVENT_SIZE;tr_alc[i]=RCP_EVENT_SIZE;buff_free-=RCP_EVENT_SIZE;
 
-    trk[i][0]=0xfe;tr_len[i]=4;tr_step[i]=0;
+    trk[i][0]=RCP_EOT;tr_len[i]=RCP_EVENT_SIZE;tr_step[i]=0;
 
-    for(j=0;j<4;j++){tr_pos[i][0][j]=0;tr_pos[i][1][j]=0;}
+    for(j=0;j<RCP_EVENT_SIZE;j++){tr_pos[i][0][j]=0;tr_pos[i][1][j]=0;}
     trmod[i]=0;trno[i]=i+1;trrhy[i]=0;
     mch[i]=i+1;if(i>15){mch[i]=0;}
 

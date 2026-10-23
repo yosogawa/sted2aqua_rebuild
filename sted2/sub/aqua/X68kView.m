@@ -984,9 +984,9 @@ static void s_load_mac_font_setting(int argc, char **argv, char *name, size_t nl
 
 	name[0] = 0;
 	argv0 = (argc > 0 && argv != NULL && argv[0] != NULL) ? argv[0] : "sted2";
-	strmfe(path, argv0, "cnf");
+	strmfe(path, sizeof path, argv0, "cnf");
 	s_cnf_take_mac_font(path, name, nlen);
-	strmfe(path, argv0, "cf2");
+	strmfe(path, sizeof path, argv0, "cf2");
 	s_cnf_take_mac_font(path, name, nlen);
 	home = getenv("HOME");
 	if (home != NULL && home[0] != 0) {
@@ -1650,7 +1650,7 @@ resolve_sted2_cnf(char *path, size_t pathSize)
 
 	argv0 = (sted_saved_argc > 0 && sted_saved_argv != NULL && sted_saved_argv[0] != NULL)
 		? sted_saved_argv[0] : "sted2";
-	strmfe(tmp, argv0, "cnf");
+	strmfe(tmp, sizeof tmp, argv0, "cnf");
 	if (cnf_is_file(tmp)) {
 		strlcpy(path, tmp, pathSize);
 		return 1;

@@ -1210,7 +1210,7 @@ void	fsel(char *fna,char *pth,int w)
   spcut(fna);if( fna[0]!=0 && str_search(fna,".")==0){
     char etmp[4];
     strlcpy(etmp,exts,sizeof etmp);
-    strmfe(fna,fna,etmp);
+    strmfe(fna, PATHLEN, fna, etmp);
   }
   if(es==0){strcpy(tmp0,pth);strcat(tmp0,fna);
   if((cc&1)!=0){
