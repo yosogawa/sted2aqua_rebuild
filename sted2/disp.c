@@ -318,8 +318,15 @@ char	*spadd(char *s,int c)
 {
   static char	tmp0[128];
   int	i;
+  size_t n;
 
-  strcpy(tmp0,s);for(i=strlen(s);i<=127;i++){tmp0[i]=32;}
+  if( s==NULL ) s="";
+  strncpy(tmp0, s, sizeof(tmp0) - 1);
+  tmp0[sizeof(tmp0) - 1] = 0;
+  n = strlen(tmp0);
+  for(i=(int)n;i<=127;i++){tmp0[i]=32;}
+  if( c < 0 ) c = 0;
+  if( c > 127 ) c = 127;
   tmp0[c]=0;return(tmp0);
 }
 

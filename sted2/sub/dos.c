@@ -213,10 +213,11 @@ int _dos_curdir( int drive, char *buff ) {
 
   char *tmp;
 
-  /* buff : max 128 bytes */
+  /* buff : PATHLEN bytes (callers use PATHLEN-sized stacks). */
+  (void)drive;
 
-  if ( (tmp=getcwd(NULL, 128)) == NULL ) return -1;
-  strcpy( buff, tmp+1 ); /* delete first '/' */
+  if ( (tmp=getcwd(NULL, PATHLEN)) == NULL ) return -1;
+  strlcpy( buff, tmp+1, PATHLEN ); /* delete first '/' */
   free(tmp);
 
   return 0;
@@ -280,8 +281,9 @@ int _dos_files (struct _x68_filbuf *buff, const char *name, int atr ) {
     return -3;
   }
 
-  strcpy( filename, _dos_node );
-  strcat( filename, d->d_name );
+  if ( snprintf( filename, sizeof(filename), "%s%s", _dos_node, d->d_name )
+       >= (int)sizeof(filename) )
+    return -3;
 
   if (stat(filename, stt)) return -3;
   
@@ -315,8 +317,9 @@ int _dos_nfiles( struct _x68_filbuf *buff ) {
     return -3;
   }
 
-  strcpy( filename, _dos_node );
-  strcat( filename, d->d_name );
+  if ( snprintf( filename, sizeof(filename), "%s%s", _dos_node, d->d_name )
+       >= (int)sizeof(filename) )
+    return -3;
 
   if (stat(filename, stt)){
     if ( errno != ENOENT ) return -3;  /* ??? Jul.04.1998 by Daisuke Nagano */

@@ -763,18 +763,19 @@ int	defload(char *fi,int md)
       /* the following configurations are introduced only UNIX version */
 
       if( str_search(li2,"#PLAYER=")>0 ){
-	player_flag=li[8]-'0';strcpy(player_name,&li[10]); }
+	player_flag=li[8]-'0';
+	strlcpy(player_name, &li[10], sizeof player_name); }
       /* Jun.28.1998 Daisuke Nagano, Nov.12.1998 kino */
 
       /*if( str_search(li2,"#ISSMFPLAYER=TRUE")>0 ){issmfplayer=1;}*/
       /* Aug.09.1998 Daisuke Nagano, Nov.12.1998 kino */
 
       if( str_search(li2,"#MIDI_PORT=")>0 ){
-	strcpy(midi_port_name, &li[11]); }
+	strlcpy(midi_port_name, &li[11], sizeof midi_port_name); }
       /* Sep.02.1998 Daisuke Nagano */
 
       if( str_search(li2,"#FONT_NAME=")>0 ){
-	strcpy(font_name, &li[11]); }
+	strlcpy(font_name, &li[11], sizeof font_name); }
       /* Sep.04.1998 Daisuke Nagano */
 
 #if defined(USE_MACGUI)

@@ -1053,9 +1053,9 @@ void	fsel(char *fna,char *pth,int w)
       if( str_last(fna)!='/' ){
 	if( strlen(fna)>2 && str_search(fna,"/")>0 ){
 	  if(fna[0]=='/'){
-	    uint8_t tmp[128];
-	    strcpy(tmp,pth);tmp[2]=0;
-	    strcat(tmp,fna);strcpy(fna,tmp);
+	    char tmp[PATHLEN * 2];
+	    snprintf(tmp, sizeof(tmp), "%.2s%s", pth, fna);
+	    strlcpy(fna, tmp, PATHLEN);
 	  }
 	  path_cut(pth,fna);
 	  break;
@@ -1277,7 +1277,7 @@ void	path_set(char *pth)
 #if PATH_DRIVE_EXTRA
   char	tmp0[PATHLEN * 2 + PATH_DRIVE_EXTRA];
 #endif
-  char	tmp2[128];
+  char	tmp2[PATHLEN];
 
 #if PATH_DRIVE_EXTRA
   /* "A:" is two bytes. Callers reserve PATH_DRIVE_EXTRA for this prefix. */
@@ -1317,13 +1317,16 @@ int	file_check(char *fna,int cc)
 void	file_back(char *fna)
 {
   FILE	*fp;
-  char	fnb[256];
+  char	fnb[PATHLEN];
+  size_t n;
 
   if((cnfflag&0x0004)==0){return;}
   if(!(fp= fopen2(fna,"rb"))){return;}
   fclose(fp);
 
-  strcpy(fnb,fna);fnb[strlen(fnb)-3]='$';
+  strlcpy(fnb, fna, sizeof fnb);
+  n = strlen(fnb);
+  if( n >= 3 ) fnb[n - 3] = '$';
   DELETE(fnb);RENAME(fna,fnb);
 }
 
@@ -1367,13 +1370,20 @@ void	frees(char *pth,int cx)
 {
   int	a;
   char	tmp0[256],tmp1[256];
+  const char *src;
 
 #if 0  /* ignore drive letter Jun.23.1998 / Daisuke Nagano */
-  strcpy(tmp0,pth);tmp1[0]=0;
+  src = pth;
 #else
-  strcpy(tmp0,pth+2);tmp1[0]=0;
+  src = (pth[0] != 0 && pth[1] != 0) ? pth + 2 : pth;
 #endif
-  if(strlen(pth)>42){strcpy(tmp1,&tmp0[42]);tmp0[42]=0;tmp1[42]=0;}
+  strlcpy(tmp0, src, sizeof tmp0);
+  tmp1[0] = 0;
+  if(strlen(tmp0)>42){
+    strlcpy(tmp1, &tmp0[42], sizeof tmp1);
+    tmp0[42] = 0;
+    tmp1[42] = 0;
+  }
   tdis(cx+8,6,tmp0,43,3);tdis(cx+8,7,tmp1,43,3);
 
   if(drvchk(pth)<0){a=0;}else{a=dskf(drv_code(pth))>>10;}
@@ -1385,7 +1395,7 @@ void	frees(char *pth,int cx)
 char	*dirs(char *s)
 {
   int	a;
-  static char	name[64];
+  static char	name[128];
   char	work[256];
   char	ext[8];
 
@@ -1398,7 +1408,8 @@ char	*dirs(char *s)
 
   if(a>0 && work[0]!='.'){strncpy(ext,&work[a-1], sizeof(ext) - 1);ext[sizeof(ext)-1]=0;work[a-1]=0;}
 
-  strcpy(name,spadd(work,18));strcat(name,spadd(ext,4));
+  strlcpy(name, spadd(work, 18), sizeof name);
+  strlcat(name, spadd(ext, 4), sizeof name);
 
   return(name);
 }
@@ -1512,12 +1523,12 @@ void	memo_disp()
 void	memo_load(char *pth,char *fna)
 {
   int	i;
-  char	tmp0[128];
+  char	tmp0[PATHLEN * 2];
   FILE	*fp;
 
   tdis(2,12,"FILE NAME:",10,1);tdis(12,12,fna,22,3);
 
-  strcpy(tmp0,pth);strcat(tmp0,fna);
+  snprintf(tmp0, sizeof(tmp0), "%s%s", pth, fna);
   if(fp= fopen2(tmp0,"rb")){
     fread(hed,1,1414,fp);fclose(fp);
   }else{

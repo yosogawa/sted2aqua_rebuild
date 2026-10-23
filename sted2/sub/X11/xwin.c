@@ -53,7 +53,7 @@ static int  Setup_FontSet(void);
 static int  Setup_Pixmaps(void);
 
 char last_file_name[512];
-char font_name[1024];
+char font_name[STED_NAMEBUF];
 
 
 /* Initialize Screen */

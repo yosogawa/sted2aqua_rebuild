@@ -167,9 +167,12 @@ int child( char *cl ) {
 
   int ret;
   int l;
-  char tmp[1024];
+  /* Match exe()'s command buffer (rc_path + command). */
+  char tmp[PATHLEN * 3 + 16];
 
-  strcpy( tmp, cl );
+  if ( cl == NULL )
+    return -1;
+  strlcpy( tmp, cl, sizeof(tmp) );
   l=strlen( tmp );
   for ( ;l>=2;l-- ) {
     if ( tmp[l]==':'  && isalpha(tmp[l-1]) && (tmp[l-2]==' ' || l==0) ) {

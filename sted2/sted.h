@@ -284,11 +284,13 @@ _extern uint8_t	*dat2;			/* temporary			*/
 extern int issted3;                     /* Am I a new version ? */
 extern int isconsole;                   /* is console mode? */
 extern int isGUI;                       /* is GUI mode? */
+/* Practical cap for player/port/font/display names (not an OS API max). */
+#define STED_NAMEBUF 1024
 extern char disp_text[1024];            /* SJIS → display conversion buffer */
 extern char *disp_codeset;              /* locale codeset for X11/curses; RCP text stays SJIS */
-extern char player_name[1024];          /* midi player name */
-extern char midi_port_name[1024];       /* midi_port device name */
-extern char font_name[1024];            /* X font set name */
+extern char player_name[STED_NAMEBUF];          /* midi player name */
+extern char midi_port_name[STED_NAMEBUF];       /* midi_port device name */
+extern char font_name[STED_NAMEBUF];            /* X font set name */
 extern int player_flag;                 /* is player able to play only SMF? */
 
 extern char s_sted_default_path[PATHLEN];	/* Jun.01.2003 Toshi Nagata */

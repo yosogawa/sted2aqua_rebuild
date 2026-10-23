@@ -38,8 +38,8 @@ void rcd_check( void );
 struct RCD_HEAD *rcd;
 char rcd_version[5];
 
-char player_name[1024];          /* midi player name */
-char midi_port_name[1024];       /* midi_port device name */
+char player_name[STED_NAMEBUF];          /* midi player name */
+char midi_port_name[STED_NAMEBUF];       /* midi_port device name */
 int player_flag=0;               /* bit0 : rcp_capable
 				    bit1 : sted controllable
 				    bit2 : data from shared memory */
@@ -51,7 +51,7 @@ int player_flag=0;               /* bit0 : rcp_capable
 #define CONTROL_FROM_PIPE (player_flag&(1<<3))
 
 static char *_data_adr, *_tone_adr, *_word_adr, *_gsd_adr, *_smf_adr;
-static char tmp_file_name[1024];
+static char tmp_file_name[STED_NAMEBUF];
 
 static int pipe_in_fd, pipe_out_fd, shmid=0;
 
@@ -294,7 +294,8 @@ void _play_external_player( void ) {
 
 	FILE *fp;
 
-	strcpy( tmp_file_name, "/tmp/sted.tmp.XXXXXX" );
+	strncpy( tmp_file_name, "/tmp/sted.tmp.XXXXXX", sizeof(tmp_file_name) - 1 );
+	tmp_file_name[sizeof(tmp_file_name) - 1] = 0;
 	fd=mkstemp( tmp_file_name );
 	if ( fd<0 ) {
 	  fprintf(stderr, "sted: cannot create temporary SMF file\n");
@@ -323,7 +324,8 @@ void _play_external_player( void ) {
 
 	FILE *fp;
 
-	strcpy( tmp_file_name, "/tmp/sted.tmp.XXXXXX" );
+	strncpy( tmp_file_name, "/tmp/sted.tmp.XXXXXX", sizeof(tmp_file_name) - 1 );
+	tmp_file_name[sizeof(tmp_file_name) - 1] = 0;
 	fd=mkstemp( tmp_file_name );
 	if ( fd<0 ) {
 	  fprintf(stderr, "sted: cannot create temporary RCP file\n");

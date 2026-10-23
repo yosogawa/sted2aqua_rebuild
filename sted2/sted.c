@@ -1369,13 +1369,15 @@ static void
 mdin_fit(char *dst, const char *src, int cells)
 {
   int i, col;
+  /* SJIS: at most 2 bytes per display cell into shown[cells*2+…]. */
+  int maxb = cells * 2;
 
   i = 0;
   col = 0;
-  while (src[i] != 0 && col < cells && i < 62) {
+  while (src[i] != 0 && col < cells && i < maxb) {
     unsigned char c = (unsigned char)src[i];
     if ((c >= 0x81 && c <= 0x9f) || (c >= 0xe0 && c <= 0xef)) {
-      if (src[i + 1] == 0 || col + 2 > cells || i + 1 >= 62)
+      if (src[i + 1] == 0 || col + 2 > cells || i + 1 >= maxb)
         break;
       dst[i] = src[i];
       dst[i + 1] = src[i + 1];
@@ -1392,7 +1394,7 @@ mdin_fit(char *dst, const char *src, int cells)
 
 char	*mdinport()
 {
-  static	char tmp0[64];
+  static	char tmp0[STED_NAMEBUF];
   char *a;
 
   /*
@@ -1410,16 +1412,15 @@ char	*mdinport()
 
 #if defined(__APPLE__)
   if (!coremidi_connected_input_name(tmp0, (int)sizeof tmp0))
-    strcpy(tmp0, "NoConnect");
+    strlcpy(tmp0, "NoConnect", sizeof tmp0);
   return tmp0;
 #else
   if ( midi_port_name[0] != 0 ) {  /* Sep.02.1998 Daisuke Nagano */
     a = strrchr( midi_port_name, '/' );
     if ( a==NULL ) a=midi_port_name-1;
-    strncpy( tmp0, a+1, 63 );
-    tmp0[63] = 0;
+    strlcpy( tmp0, a+1, sizeof tmp0 );
   } else {
-    strcpy( tmp0, "NoConnect" );
+    strlcpy( tmp0, "NoConnect", sizeof tmp0 );
   }
   return tmp0;
 #endif

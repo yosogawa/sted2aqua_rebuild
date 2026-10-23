@@ -2762,7 +2762,7 @@ XSTed_cls_ed(void)
 
 #pragma mark "=== Keyboard functions ==="
 
-char font_name[1024];
+char font_name[STED_NAMEBUF];
 
 int
 XSTed_key_init(void)

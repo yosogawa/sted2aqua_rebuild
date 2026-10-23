@@ -27,6 +27,9 @@
 #define	CHL_NUM	34 			/* チャネル数		*/
 					/*  32/33 は未使用	*/
 
+/* Same capacity as ../rcddef.h — RCP output buffer for itor(). */
+#define DATA_ADR_SIZE (512 * 1024)
+
 struct RCD_HEAD {
 	char	title[4];		/* "RCD "		*/
 	char	version[4];		/* "N.NN"		*/
