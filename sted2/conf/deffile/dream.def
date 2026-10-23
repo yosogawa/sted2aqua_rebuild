@@ -1,0 +1,285 @@
+*--------------------------------------------------------------------------------------
+* dream.def : Dream SAM2695 (CleanWave GM + GS-ish)
+*         Source: SAM2695 Datasheet (Dream S.A.S., June 2015)
+*         Melodic bank MSB 0  = General MIDI capital (128 tones)
+*         Melodic bank MSB 127 = MT-32 sound variation #127
+*         Channel 10 kits by Program Change (bank 0), PDF Prog N -> MIDI PC N-1:
+*           0 Standard, 16 Power, 40 Brush, 48 Orchestra, 127 CM-64/32 (Partial)
+*         (PDF page 32 says Prog 128 / page 33 says 127; MIDI max is 127.)
+*--------------------------------------------------------------------------------------
+
+* 使用する音源の機種名(表示用=module/内部処理用=id)
+#module= MODULE: Dream
+
+#id=Dream
+
+* 演奏時のラストパラメータ送信のウエイト
+#lsp_wait=1	* (0～16= wait×0～16 / -1=パラメータを送信しない)
+
+*======================================================================================
+* レコーディングの設定
+
+* メトロノームで使用するノート(click&bell)
+*        ch prg  key gt vel  key gt vel
+#rec_met=10,  0,  37, 2,106,  56, 2,120
+
+*======================================================================================
+* チャンネルごとの音色リスト
+* part 7 メロディ / part 8 リズム(ch.10)
+
+#group_a=7,7,7,7,7,7,7,7,7,8,7,7,7,7,7,7	* (ch.A1-16)
+#group_b=7,7,7,7,7,7,7,7,7,8,7,7,7,7,7,7	* (ch.B1-16)
+
+#gs_mode=2	* bit 0 = キャピタル落ち 0:off 1:on
+		* bit 1 = rhythm         0:off 1:on
+		* bit 2 = bank mode      0:bank msb 1:bank lsb
+
+#gs_pbank	* CC#0 bank → name part (0=GM capital, 127=MT-32 variation)
+16,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,17
+#defoff
+
+#gs_rbank	* Program Change → key-name part (0=none)
+38,0,0,0,0,0,0,0	*  0 Standard
+0,0,0,0,0,0,0,0	*  8
+38,0,0,0,0,0,0,0	* 16 Power
+0,0,0,0,0,0,0,0	* 24
+0,0,0,0,0,0,0,0	* 32
+38,0,0,0,0,0,0,0	* 40 Brush
+39,0,0,0,0,0,0,0	* 48 Orchestra
+0,0,0,0,0,0,0,0	* 56
+0,0,0,0,0,0,0,0	* 64
+0,0,0,0,0,0,0,0	* 72
+0,0,0,0,0,0,0,0	* 80
+0,0,0,0,0,0,0,0	* 88
+0,0,0,0,0,0,0,0	* 96
+0,0,0,0,0,0,0,0	* 104
+0,0,0,0,0,0,0,0	* 112
+0,0,0,0,0,0,0,40	* 120 … 127 CM-64/32
+#defoff
+
+*======================================================================================
+* リズムアサインの初期データ(1～32) (リズムネームは14文字まで)
+
+* サウンドテスト用の設定
+#rhy_as=10,0,-1,,127	* ch.(1～16),prog.(0～127,-1=off),bank_l(0～127,-1=off),,vel
+*--------------------------------------------------------------------------------------
+*[RHYTHM NAME][KEY,GT][RHYTHM NAME]-[KEY,GT][RHYTHM NAME]-[KEY,GT][RHYTHM NAME]-[KEY,GT]
+Hand Clap     , 39, 1,Mute Hi Conga , 62, 1,Open Hi Conga , 63, 1,Low Conga     , 64, 1
+Crash Cymbal 1, 49, 1,Ride Cymbal 1 , 51, 1,Pedal Hi-Hat  , 44, 1,Open Hi-Hat   , 46, 1
+Closed Hi-Hat , 42, 1,Hi-Mid Tom    , 48, 1,Low Tom       , 45, 1,Low Floor Tom , 41, 1
+Side Stick    , 37, 1,Electric Snare, 40, 1,Acoustic Snare, 38, 1,Bass Drum 1   , 36, 1
+High Timbale  , 65, 1,Low Timbale   , 66, 1,Cowbell       , 56, 1,Hi Bongo      , 60, 1
+Low Bongo     , 61, 1,High Agogo    , 67, 1,Low Agogo     , 68, 1,Tambourine    , 54, 1
+Claves        , 75, 1,Maracas       , 70, 1,Short Whistle , 71, 1,Long Whistle  , 72, 1
+Cabasa        , 69, 1,Short Guiro   , 73, 1,              ,  0, 1,              ,  0, 1
+*--------------------------------------------------------------------------------------
+#defoff
+
+*======================================================================================
+* 音色名定義 (音色名は12文字まで / リズムキット名は14文字可)
+
+#part=7, Dream        ,Dream:
+*--------------------------------------------------------------------------------------
+#part=16, Dream GM     ,Dream:
+*--------------------------------------------------------------------------------------
+Piano 1     ,Piano 2     ,Piano 3     ,Honky-tonk
+E.Piano 1   ,E.Piano 2   ,Harpsichord ,Clav.
+Celesta     ,Glockenspiel,Music Box   ,Vibraphone
+Marimba     ,Xylophone   ,Tubular-bell,Santur
+Organ 1     ,Organ 2     ,Organ 3     ,Church Org.1
+Reed Organ  ,Accordion Fr,Harmonica   ,Bandoneon
+Nylon-str.Gt,Steel-str.Gt,Jazz Gt.    ,Clean Gt.
+Muted Gt.   ,Overdrive Gt,DistortionGt,Gt.Harmonics
+Acoustic Bs.,Fingered Bs.,Picked Bass ,Fretless Bs.
+Slap Bass 1 ,Slap Bass 2 ,Synth Bass 1,Synth Bass 2
+Violin      ,Viola       ,Cello       ,Contrabass
+Tremolo Str ,PizzicatoStr,Harp        ,Timpani
+Strings     ,Slow Strings,Syn.Strings1,Syn.Strings2
+Choir Aahs  ,Voice Oohs  ,SynVox      ,OrchestraHit
+Trumpet     ,Trombone    ,Tuba        ,MutedTrumpet
+French Horns,Brass 1     ,Synth Brass1,Synth Brass2
+Soprano Sax ,Alto Sax    ,Tenor Sax   ,Baritone Sax
+Oboe        ,English Horn,Bassoon     ,Clarinet
+Piccolo     ,Flute       ,Recorder    ,Pan Flute
+Bottle Blow ,Shakuhachi  ,Whistle     ,Ocarina
+Square Wave ,Saw Wave    ,Syn.Calliope,Chiffer Lead
+Charang     ,Solo Vox    ,5th Saw Wave,Bass & Lead
+Fantasia    ,Warm Pad    ,Polysynth   ,Space Voice
+Bowed Glass ,Metal Pad   ,Halo Pad    ,Sweep Pad
+Ice Rain    ,Soundtrack  ,Crystal     ,Atmosphere
+Brightness  ,Goblin      ,Echo Drops  ,Star Theme
+Sitar       ,Banjo       ,Shamisen    ,Koto
+Kalimba     ,Bagpipe     ,Fiddle      ,Shanai
+Tinkle Bell ,Agogo       ,Steel Drums ,Woodblock
+Taiko       ,Melo. Tom 1 ,Synth Drum  ,Reverse Cym.
+Gt.FretNoise,Breath Noise,Seashore    ,Bird
+Telephone 1 ,Helicopter  ,Applause    ,Gun Shot
+*--------------------------------------------------------------------------------------
+#defoff
+
+* CC#0 = 127 : MT-32 sound variation (datasheet §4-2)
+#part=17, Dream MT-32  ,Dream:
+*--------------------------------------------------------------------------------------
+Piano 1     ,Piano 2     ,Piano 3     ,Detuned EP 1
+E.Piano1    ,E.Piano2    ,Detuned EP2 ,Honky-Tonk
+Organ 1     ,Organ 2     ,Organ 3     ,Detuned Or.
+Church Org. ,Church Org. ,Church Org. ,Accordion Fr
+Harpsichord ,Coupled Hps.,Coupled Hps.,Clav.
+Clav.       ,Clav.       ,Celesta     ,Celesta
+Synth Brass1,Synth Brass2,Synth Brass3,Synth Brass4
+Synth Bass1 ,Synth Bass2 ,Synth Bass3 ,Synth Bass4
+Fantasia    ,Syn Calliope,Choir Aahs  ,Bowed Glass
+Soundtrack  ,Atmosphere  ,Crystal     ,Bag Pipe
+Tinkle Bell ,Ice Rain    ,Oboe        ,Pan Flute
+Saw Wave    ,Charang     ,Tubular Bell,Square Wave
+Strings     ,Tremolo Str.,Slow Strings,Pizzicato St
+Violin      ,Viola       ,Cello       ,Cello
+Contrabass  ,Harp        ,Harp        ,Nylon-str. G
+Steel-Str. G,Chorus Gt.  ,Funk Gt.    ,Sitar
+Acoustic Bs.,Fingered Bs.,Picked Bs.  ,Fretless Bs.
+Slap Bs. 1  ,Slap Bs. 2  ,Fretless Bs.,Fretless Bs.
+Flute       ,Flute       ,Piccolo     ,Piccolo
+Recorder    ,Pan Flute   ,Soprano Sax ,Alto Sax
+Tenor Sax   ,Baritone Sax,Clarinet    ,Clarinet
+Oboe        ,English Horn,Bassoon     ,Harmonica
+Trumpet     ,Muted Trumpe,Trombone    ,Trombone
+French Horn ,French Horn ,Tuba        ,Brass
+Brass 2     ,Vibraphone  ,Vibraphone  ,Kalimba
+Tinkle Bell ,Glockenspiel,Tubular-Bell,Xylophone
+Marimba     ,Koto        ,Taisho Koto ,Shakuhachi
+Whistle     ,Whistle     ,Bottle Blow ,Pan Flute
+Timpani     ,Melo Tom    ,Melo Tom    ,Synth Drum
+Synth Drum  ,Taiko       ,Taiko       ,Reverse Cym.
+Castanets   ,Tinkle Bell ,Orchestra Hi,Telephone
+Bird        ,Helicopter  ,Bowed Glass ,Ice Rain
+*--------------------------------------------------------------------------------------
+#defoff
+
+#part=8, Dream Drums  ,Dream:
+*--------------------------------------------------------------------------------------
+* Kits at PC 0,16,40,48,127 only (other program slots unused).
+Standard Kit,,,
+,,,
+,,,
+,,,
+Power Kit,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+Brush Kit,,,
+,,,
+Orchestra Kit,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,CM-64/32 Kit
+*--------------------------------------------------------------------------------------
+#defoff
+
+* Standard / Power / Brush share the GM-style key map (datasheet blanks = Standard).
+#part=38, Dream Std    ,Dream:,35
+*--------------------------------------------------------------------------------------
+AcousBassDrum ,Bass Drum 1   ,Side Stick    ,AcousticSnare
+Hand Clap     ,ElectricSnare ,Low Floor Tom ,Closed Hi-Hat
+High Floor Tom,Pedal Hi-Hat  ,Low Tom       ,Open Hi-Hat
+Low-Mid Tom   ,Hi-Mid Tom    ,Crash Cymbal 1,High Tom
+Ride Cymbal 1 ,Chinese Cymbal,Ride Bell     ,Tambourine
+Splash Cymbal ,Cowbell       ,Crash Cymbal 2,Vibraslap
+Ride Cymbal 2 ,Hi Bongo      ,Low Bongo     ,Mute Hi Conga
+Open Hi Conga ,Low Conga     ,High Timbale  ,Low Timbale
+High Agogo    ,Low Agogo     ,Cabasa        ,Maracas
+Short Whistle ,Long Whistle  ,Short Guiro   ,Long Guiro
+Claves        ,Hi Wood Block ,Low Wood Block,Mute Cuica
+Open Cuica    ,Mute Triangle ,Open Triangle
+*--------------------------------------------------------------------------------------
+#defoff
+
+* Orchestra set (datasheet Prog 49) — timpani on tom range, etc.
+#part=39, Dream Orch   ,Dream:,35
+*--------------------------------------------------------------------------------------
+Kick Drum     ,Kick Drum     ,Rim Shot      ,Snare Drum 2
+Castanets     ,Snare Drum 2  ,Timpani F     ,Timpani F#
+Timpani G     ,Timpani G#    ,Timpani A     ,Timpani A#
+Timpani B     ,Timpani C     ,Crash Cymbal  ,Timpani C#
+Ride Cymbal   ,Timpani D     ,Timpani D#    ,Timpani E
+Tambourine    ,              ,Cowbell       ,
+,,,
+,,,
+,,,
+,,,
+Vibra Slap    ,              ,Claves        ,
+,,,
+Applauses     ,
+,,,,,
+Applauses     ,
+,,,,,
+Helicopter    ,
+,Gun Shot     ,
+,,,,,
+Birds         ,
+,,,
+SeaShore      ,
+*--------------------------------------------------------------------------------------
+#defoff
+
+* CM-64/32 Partial (datasheet Prog 127/128)
+#part=40, Dream CM64   ,Dream:,35
+*--------------------------------------------------------------------------------------
+Kick Drum     ,Kick Drum     ,Rim Shot      ,Snare Drum
+Hand Clap     ,Elec Snare    ,Acous Low Tom ,Closed Hi-Hat
+Acous Low Tom ,Open Hi-Hat 2 ,Acous Mid Tom ,Open Hi-Hat 1
+Acous Mid Tom ,Crash Cymbal  ,Acous High Tom,Ride Cymbal
+,,,,,,,,,,,,,,
+Tambourine    ,              ,Cowbell       ,
+,,,
+,,,
+,,,
+,,,
+Vibra Slap    ,              ,Claves        ,
+,,,
+Applauses     ,
+,,,,,
+Applauses     ,
+,,,,,
+Helicopter    ,
+,Gun Shot     ,
+,,,,,
+Birds         ,
+,,,
+SeaShore      ,
+*--------------------------------------------------------------------------------------
+#defoff
+
+#end

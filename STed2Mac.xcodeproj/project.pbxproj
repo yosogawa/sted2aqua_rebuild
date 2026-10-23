@@ -46,6 +46,7 @@
 		A1DEF0052F0A4B0100E0E105 /* gm2.def in Resources */ = {isa = PBXBuildFile; fileRef = A1DEF0062F0A4B0100E0E106 /* gm2.def */; };
 		A1DEF0072F0A4B0100E0E107 /* xg.def in Resources */ = {isa = PBXBuildFile; fileRef = A1DEF0082F0A4B0100E0E108 /* xg.def */; };
 		A1DEF0092F0A4B0100E0E109 /* gm_amy.def in Resources */ = {isa = PBXBuildFile; fileRef = A1DEF00A2F0A4B0100E0E10A /* gm_amy.def */; };
+		A1DEF00B2F0A4B0100E0E10B /* dream.def in Resources */ = {isa = PBXBuildFile; fileRef = A1DEF00C2F0A4B0100E0E10C /* dream.def */; };
 		E40E95C61ABA41ED0072AA0B /* cm64.def in Resources */ = {isa = PBXBuildFile; fileRef = E40E95201ABA41ED0072AA0B /* cm64.def */; };
 		E40E95C71ABA41ED0072AA0B /* sc55.def in Resources */ = {isa = PBXBuildFile; fileRef = E40E95211ABA41ED0072AA0B /* sc55.def */; };
 		E40E95C81ABA41ED0072AA0B /* sc55mk2.def in Resources */ = {isa = PBXBuildFile; fileRef = E40E95221ABA41ED0072AA0B /* sc55mk2.def */; };
@@ -163,6 +164,7 @@
 		A1DEF0062F0A4B0100E0E106 /* gm2.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = gm2.def; sourceTree = "<group>"; };
 		A1DEF0082F0A4B0100E0E108 /* xg.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = xg.def; sourceTree = "<group>"; };
 		A1DEF00A2F0A4B0100E0E10A /* gm_amy.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = gm_amy.def; sourceTree = "<group>"; };
+		A1DEF00C2F0A4B0100E0E10C /* dream.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dream.def; sourceTree = "<group>"; };
 		E40E95201ABA41ED0072AA0B /* cm64.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cm64.def; sourceTree = "<group>"; };
 		E40E95211ABA41ED0072AA0B /* sc55.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = sc55.def; sourceTree = "<group>"; };
 		E40E95221ABA41ED0072AA0B /* sc55mk2.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = sc55mk2.def; sourceTree = "<group>"; };
@@ -494,6 +496,7 @@
 				A1DEF0062F0A4B0100E0E106 /* gm2.def */,
 				A1DEF0082F0A4B0100E0E108 /* xg.def */,
 				A1DEF00A2F0A4B0100E0E10A /* gm_amy.def */,
+				A1DEF00C2F0A4B0100E0E10C /* dream.def */,
 				E40E95201ABA41ED0072AA0B /* cm64.def */,
 				E40E95211ABA41ED0072AA0B /* sc55.def */,
 				E40E95221ABA41ED0072AA0B /* sc55mk2.def */,
@@ -803,6 +806,7 @@
 				A1DEF0052F0A4B0100E0E105 /* gm2.def in Resources */,
 				A1DEF0072F0A4B0100E0E107 /* xg.def in Resources */,
 				A1DEF0092F0A4B0100E0E109 /* gm_amy.def in Resources */,
+				A1DEF00B2F0A4B0100E0E10B /* dream.def in Resources */,
 				E40E95C61ABA41ED0072AA0B /* cm64.def in Resources */,
 				E40E95C71ABA41ED0072AA0B /* sc55.def in Resources */,
 				E40E95C81ABA41ED0072AA0B /* sc55mk2.def in Resources */,
