@@ -7,20 +7,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-/* This file is compiled with the app, which does not pass -DGAMMA9001.
- * libamy.a does, and gamma9001_pcm.bin is linked into the app. Hand the
- * blob over unconditionally. amy.h only declares amy_set_gamma9001_pcm
- * when that flag is set, so declare the symbol here.
- */
-extern const int16_t *gamma9001_pcm_data;
-extern void amy_set_gamma9001_pcm(const int16_t *data);
-
-void
-amy_host_use_gamma9001_drums(void)
-{
-	amy_set_gamma9001_pcm(gamma9001_pcm_data);
-}
-
 void amy_platform_init(void) {}
 void amy_platform_deinit(void) {}
 void amy_update_tasks(void) {}

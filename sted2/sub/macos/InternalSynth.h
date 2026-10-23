@@ -26,6 +26,8 @@ typedef struct {
 	int reverbPreset;     /* AVAudioUnitReverbPreset, 0 .. 12. */
 	float reverbMix;      /* wet/dry percent, 0 .. 100. */
 	float limiterBoost;   /* dB, 0 .. 6. Peak limiter preGain. */
+	float dlsVolume;      /* linear 0 .. 1. DLS unit volume into the sum mixer. */
+	float amyVolume;      /* linear 0 .. 1. AMY source volume into the sum mixer. */
 	float volume;         /* main mixer outputVolume, 0 .. 1. */
 	int totalEffect;      /* 0 bypasses EQ, reverb, and limiter. 1 runs them. */
 } DLSEffectSettings;

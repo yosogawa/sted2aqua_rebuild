@@ -18,8 +18,6 @@ static _Atomic uint64_t sAnchorHost = 0;
 /* -1 until this channel receives CC#0. 0 is Juno, so it cannot mean "unset". */
 static int sBank[17];
 
-extern void amy_host_use_gamma9001_drums(void);
-
 static void
 ResetRenderQueue(void)
 {
@@ -56,7 +54,9 @@ AmySynthStart(void)
 	config.platform.multicore = 0;
 	config.overload_threshold = 0;
 	config.max_sequencer_tags = 0;
-	amy_host_use_gamma9001_drums();
+	/* Channel 10 gets the built-in pcm_tiny kit (patch 258) from
+	 * AMY's default_synths. Gamma9001 is not used.
+	 */
 	amy_start(config);
 	amy_external_midi_sync(AMY_MIDI_SYNC_OFF);
 	sAmyStarted = 1;
@@ -228,8 +228,7 @@ AmySynthSendMIDI(const uint8_t *bytes, int length, uint64_t atTime)
 		if (length < 2)
 			return;
 		/* A program change with no CC#0 stays in the bank already sounding.
-		 * Channel 10 starts on patch 384, so a bare PC stays on the TR-808
-		 * kit instead of falling through to Juno at bank 0.
+		 * Channel 10 starts on patch 258 (pcm_tiny).
 		 */
 		bank = sBank[channel];
 		if (bank < 0)
@@ -251,12 +250,13 @@ AmySynthSendMIDI(const uint8_t *bytes, int length, uint64_t atTime)
 		 */
 		if (patch >= 256 && patch <= 258)
 			return;
-		/* Patches 385-390 are the extra Gamma9001 kits. The baked TR-808
-		 * at 384 stays. amy.def and gm_amy.def list only that kit. A track
-		 * may still contain the other programs. Do not load them, and do
-		 * not substitute another patch.
+		/* Bank 3 / program 0 is listed as the drum kit in amy.def. That
+		 * maps to patch 384 in AMY's numbering, which is a Gamma9001 kit.
+		 * Load pcm_tiny MIDI drums (258) instead. Ignore 385-390.
 		 */
-		if (patch >= 385 && patch <= 390)
+		if (patch == 384)
+			patch = 258;
+		else if (patch >= 385 && patch <= 390)
 			return;
 		event.patch_number = (uint16_t)patch;
 		SendEvent(&event, atTime);

@@ -7,7 +7,7 @@
 
 enum {
 	kPanelW = 468,
-	kPanelH = 450,
+	kPanelH = 574,
 	kMargin = 20,
 	kLabelW = 112,
 	kValueW = 78,
@@ -165,12 +165,16 @@ ReverbMixLabel(double v)
 	NSSlider *trebleSlider;
 	NSSlider *mixSlider;
 	NSSlider *limitSlider;
+	NSSlider *dlsMixSlider;
+	NSSlider *amyMixSlider;
 	NSSlider *volumeSlider;
 	NSTextField *trimValue;
 	NSTextField *bassValue;
 	NSTextField *trebleValue;
 	NSTextField *mixValue;
 	NSTextField *limitValue;
+	NSTextField *dlsMixValue;
+	NSTextField *amyMixValue;
 	NSTextField *volumeValue;
 }
 
@@ -212,12 +216,16 @@ static const char *kReverbNames[13] = {
 	[trebleSlider release];
 	[mixSlider release];
 	[limitSlider release];
+	[dlsMixSlider release];
+	[amyMixSlider release];
 	[volumeSlider release];
 	[trimValue release];
 	[bassValue release];
 	[trebleValue release];
 	[mixValue release];
 	[limitValue release];
+	[dlsMixValue release];
+	[amyMixValue release];
 	[volumeValue release];
 	[window release];
 	[super dealloc];
@@ -427,6 +435,8 @@ static const char *kReverbNames[13] = {
 	[trebleValue setStringValue:SignedDB([trebleSlider doubleValue])];
 	[mixValue setStringValue:ReverbMixLabel([mixSlider doubleValue])];
 	[limitValue setStringValue:PlainNumber([limitSlider doubleValue], 1, @" dB")];
+	[dlsMixValue setStringValue:VolumeDBLabel(ACurveGain([dlsMixSlider doubleValue]))];
+	[amyMixValue setStringValue:VolumeDBLabel(ACurveGain([amyMixSlider doubleValue]))];
 	[volumeValue setStringValue:VolumeDBLabel(ACurveGain([volumeSlider doubleValue]))];
 }
 
@@ -447,6 +457,8 @@ enum {
 	kResetTreble,
 	kResetMix,
 	kResetLimit,
+	kResetDlsMix,
+	kResetAmyMix,
 	kResetVolume
 };
 
@@ -484,6 +496,12 @@ enum {
 		break;
 	case kResetLimit:
 		[limitSlider setDoubleValue:0.0];
+		break;
+	case kResetDlsMix:
+		[dlsMixSlider setDoubleValue:1.0];
+		break;
+	case kResetAmyMix:
+		[amyMixSlider setDoubleValue:1.0];
 		break;
 	case kResetVolume:
 		[volumeSlider setDoubleValue:1.0];
@@ -575,6 +593,22 @@ enum {
 	[roomPopup setAction:@selector(roomTypeChanged:)];
 	[self fillRoomPopup:bus.roomType];
 	[roomPopup setEnabled:bus.useReverb != 0];
+	y -= kRowStep + kSepSpace;
+	[self addSeparatorBeforeRowAtY:y];
+
+	[self addWideLabel:@"Mixer" y:y];
+	y -= kRowStep;
+	[self armReset:kResetDlsMix
+		label:[self addLabel:@"DLS Synth" y:y]
+	       slider:(dlsMixSlider = [self addSliderAtY:y min:0.0 max:1.0 value:ACurvePosition(fx.dlsVolume)])
+		value:(dlsMixValue = [self addValueAtY:y])
+	       phrase:@"set 0 dB"];
+	y -= kRowStep;
+	[self armReset:kResetAmyMix
+		label:[self addLabel:@"AMY" y:y]
+	       slider:(amyMixSlider = [self addSliderAtY:y min:0.0 max:1.0 value:ACurvePosition(fx.amyVolume)])
+		value:(amyMixValue = [self addValueAtY:y])
+	       phrase:@"set 0 dB"];
 	y -= kRowStep + kSepSpace;
 	[self addSeparatorBeforeRowAtY:y];
 
@@ -683,6 +717,8 @@ enum {
 	s.reverbPreset = (int)[reverbPopup selectedTag];
 	s.reverbMix = (float)[mixSlider doubleValue];
 	s.limiterBoost = (float)[limitSlider doubleValue];
+	s.dlsVolume = (float)ACurveGain([dlsMixSlider doubleValue]);
+	s.amyVolume = (float)ACurveGain([amyMixSlider doubleValue]);
 	s.volume = (float)ACurveGain([volumeSlider doubleValue]);
 	s.totalEffect = [totalEffectCheck state] == NSControlStateValueOn;
 	return s;

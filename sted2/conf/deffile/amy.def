@@ -3,11 +3,13 @@
 * メロディの CC#0 は 0=Juno、1=DX7、3=ドラムキット名。
 * 2（パッチ 256-258）は実験的な実装なので載せていない。トラックにあってもプログラム 0-2 は送らない。
 * CC#32 は使わない。バリエーションは 0 だけ。
-* ドラムキットは TR-808 だけ。ch.10（part 8）のプログラム 0、CC#0=3。
-* パッチ 385-390 は音色表に出さない。曲にあっても AMY へ送らない。
+* ドラムは組み込み pcm_tiny（パッチ 258）。ch.10 は CC#0=3 / プログラム 0。
+* ホストが bank3/PC0（384）を 258 に読み替える。385-390 は送らない。
 * 鍵盤名はキットのサンプル名。GM の楽器名とは限らない。
 * 空欄は、そのノートにサンプルが無い。ノート番号は空欄でも進む。
 * 音色名は 14 文字で切れる。
+* Juno 名の先頭にあった A11/B88 は本体のバンク・グループ・番号。
+* STed2 のリスト左の 1-128 と重複するので省略し、音色名を 14 文字まで使う。
 *--------------------------------------------------------------------------------------
 
 * 使用する音源の機種名(表示用=module/内部処理用=id)
@@ -22,7 +24,7 @@
 
 * RHYTHM ASSIGN は 32 枠が一つ。キットでは切り替わらない。
 * ノート番号は全キット共用。名前は GM の役割名。
-*        ch prog bank ,, vel   bank は CC#0。prog 0 は TR-808。
+*        ch prog bank ,, vel   bank は CC#0。prog 0 は pcm_tiny。
 #rhy_as=10,0,3,,127
 *--------------------------------------------------------------------------------------
 Hand Clap     , 39, 1,Mute Hi Conga , 62, 1,Open Hi Conga , 63, 1,Low Conga     , 64, 1
@@ -49,20 +51,19 @@ Claves        , 75, 1,Short Whistle , 71, 1,Mute Triangle , 80, 1,Open Triangle 
 * バンク 2 は載せていない。パッチ 256-258。安定したら戻す。
 #bank=3,0,19
 
-#rbank=3,0,0,26	* TR-808
-* プログラム 1-6（パッチ 385-390）はロードしない。
+#rbank=3,0,0,26	* pcm_tiny（ホストが 384→258）
 
 #part=8, AMY Drums     , AMY:
 *--------------------------------------------------------------------------------------
-TR-808
+PCM Kit
 *--------------------------------------------------------------------------------------
 #defoff
 
 #part=7, AMY           , AMY:
 #defoff
 
-* TR-808。ノート 35 から 77。58 と 71-74 は音が無い。
-#part=26, TR-808        , AMY:,35
+* pcm_tiny ドラム。ノート名は目安。
+#part=26, PCM Kit       , AMY:,35
 *--------------------------------------------------------------------------------------
 808 BD 1,808 BD 3,808 Rimshot,808 Snare 1
 808 Clap,808 Snare 3,808 Tom Lo,808 Hat Clsd
@@ -79,156 +80,42 @@ TR-808
 *--------------------------------------------------------------------------------------
 #defoff
 
-* ここから part 32 まではパッチ 385-390 の鍵盤名。今は参照しない。
-* TR-909。ノート 35 から 81。58, 73, 74, 78, 79 は音が無い。
-#part=27, TR-909        , AMY:,35
-*--------------------------------------------------------------------------------------
-909 BD Lo,909 BD,909 Rim,909 Snare
-909 Clap,909 SD Short,909 Tom Lo,909 Hat
-909 Tom Lo,909 Hat Short,909 Tom Mid,909 Hat Open
-909 Tom Mid,909 Tom Hi,909 Crash,909 Tom Hi
-909 Ride,909 Crash,909 Ride,Tamb Short
-909 Crash,Linn Cowbell,909 Crash
-,909 Ride,Bongo 003,Bongo 003
-Afr Conga 003,Conga 001,Conga 001,Timbales 001
-Timbales 004,Linn Cowbell,Linn Cowbell,Shaker
-Shaker 002,Whistle,Whistle
-,,808 Clave,808 Clave
-808 Clave,,,Triangle 1
-Triangle 2
-*--------------------------------------------------------------------------------------
-#defoff
-
-* Linn 9000。ノート 35 から 81。58, 73, 74, 78, 79 は音が無い。
-#part=28, Linn 9000     , AMY:,35
-*--------------------------------------------------------------------------------------
-Linn BD,Linn BD,Linn Rim,Linn Snare
-808 Clap,Linn Snare,Linn Tom,Linn Hat Clsd
-Linn Tom,Linn Hat Clsd,Linn Tom,Linn Hat Open
-Linn Tom,Linn Tom,Linn Cymbal,Linn Tom
-Linn Cymbal,Linn Cymbal,Linn Cowbell,Linn Tamb
-Linn Cymbal,Linn Cowbell,Linn Cymbal
-,Linn Cymbal,Linn Bongo,Linn Bongo
-Afr Conga 003,Conga 001,Conga 001,Timbales 001
-Timbales 004,Linn Cowbell,Linn Cowbell,Shaker
-Shaker 002,Whistle,Whistle
-,,808 Clave,808 Clave
-808 Clave,,,Triangle 1
-Triangle 2
-*--------------------------------------------------------------------------------------
-#defoff
-
-* Univox Micro Rythmer 12。ノート 35 から 81。58, 73, 74, 78, 79 は音が無い。
-#part=29, MR-12         , AMY:,35
-*--------------------------------------------------------------------------------------
-MR-12 Kick,MR-12 Kick,MR-12 Snare,MR-12 Snare
-MR-12 Snare,MR-12 Snare,MR-12 Kick,MR-12 Hat C
-MR-12 Kick,MR-12 Hat C,MR-12 Kick,MR-12 Hat O
-MR-12 Kick,MR-12 Kick,MR-12 Hat O,MR-12 Kick
-MR-12 Hat O,MR-12 Hat O,MR-12 Hat C,Tamb Short
-MR-12 Hat O,Linn Cowbell,MR-12 Hat O
-,MR-12 Hat O,Bongo 003,Bongo 003
-Afr Conga 003,Conga 001,Conga 001,Timbales 001
-Timbales 004,Linn Cowbell,Linn Cowbell,Shaker
-Shaker 002,Whistle,Whistle
-,,808 Clave,808 Clave
-808 Clave,,,Triangle 1
-Triangle 2
-*--------------------------------------------------------------------------------------
-#defoff
-
-* Tokyo Synthetics。ノート 35 から 81。58, 73, 74, 78, 79 は音が無い。
-#part=30, TKO Synthetics , AMY:,35
-*--------------------------------------------------------------------------------------
-Tokyo Deep,Tokyo Jet,Click 07,Static 07
-Wooden 03,Hizz 06,Blop 02,Click 05
-Blop 02,Click 06,Blop 02,Pew 03
-Boink 04,Boink 04,Metallic 09,Boink 04
-Metallic 16,Metallic 09,Metallic 16,Tamb Short
-Metallic 09,Wooden 01,Metallic 09
-,Metallic 16,Bongo 003,Bongo 003
-Afr Conga 003,Conga 001,Conga 001,Timbales 001
-Timbales 004,Linn Cowbell,Linn Cowbell,Shaker
-Shaker 002,Whistle,Whistle
-,,808 Clave,808 Clave
-808 Clave,,,Triangle 1
-Triangle 2
-*--------------------------------------------------------------------------------------
-#defoff
-
-* Power。ノート 35 から 81。58, 73, 74, 78, 79 は音が無い。
-#part=31, Power         , AMY:,35
-*--------------------------------------------------------------------------------------
-Real Kick,Metal Kick,Side Stick,Power Snare
-Hand Claps,Gated Snare,Proc Tom 1,Tight Hat
-Proc Tom 2,Pedal Hat,Proc Tom 3,Open Hat
-Proc Tom 4,Proc Tom 5,Crash Cymbal,Proc Tom 6
-Ride Edge,Crash Cymbal,Ride Cup,Tamb Short
-Splash Cym,Cowbell,Crash Cymbal
-,Ride Edge,Bongo 003,Bongo 003
-Afr Conga 003,Conga 001,Conga 001,Timbales 001
-Timbales 004,Linn Cowbell,Linn Cowbell,Shaker
-Shaker 002,Whistle,Whistle
-,,808 Clave,808 Clave
-808 Clave,,,Triangle 1
-Triangle 2
-*--------------------------------------------------------------------------------------
-#defoff
-
-* Percussion。ノート 35 から 81。58, 73, 74, 78, 79 は音が無い。
-#part=32, Percussion    , AMY:,35
-*--------------------------------------------------------------------------------------
-Noice Kick,Noice Kick,Tabla 002,Old Snare
-Tamp 002,Old Snare,Timpani 001,Shaker
-Timpani 001,Shaker,Timpani 001,Shaker 002
-Tabla 003,Tabla 003,Triangle 2,Tabla 003
-Triangle 2,Timpani 002,Triangle 1,Tamb Short
-Triangle 2,Linn Cowbell,Triangle 2
-,Triangle 1,Bongo 003,Bongo 003
-Afr Conga 003,Conga 001,Conga 001,Timbales 001
-Timbales 004,Linn Cowbell,Linn Cowbell,Shaker
-Shaker 002,Whistle,Whistle
-,,808 Clave,808 Clave
-808 Clave,,,Triangle 1
-Triangle 2
-*--------------------------------------------------------------------------------------
-#defoff
 
 * Bank 0. Program 0 is patch 0.
 #part=16, AMY Juno 106  , AMY:
 *--------------------------------------------------------------------------------------
-A11 Brass Se,A12 Brass Sw,A13 Trumpet ,A14 Flutes  
-A15 Moving S,A16 Brass & ,A17 Choir   ,A18 Piano I 
-A21 Organ I ,A22 Organ II,A23 Combo Or,A24 Calliope
-A25 Donald P,A26 Celeste\*,A27 Elect. P,A28 Elect. P
-A31 Clock Ch,A32 Steel Dr,A33 Xylophon,A34 Brass II
-A35 Fanfare ,A36 String I,A37 Pizzicat,A38 High Str
-A41 Bass cla,A42 English ,A43 Brass En,A44 Guitar  
-A45 Koto    ,A46 Dark Plu,A47 Funky I ,A48 Synth Ba
-A51 Lead I  ,A52 Lead II ,A53 Lead III,A54 Funky II
-A55 Synth Ba,A56 Funky II,A57 Thud Wah,A58 Going Up
-A61 Piano II,A62 Clav    ,A63 Frontier,A64 Snare Dr
-A65 Tom Toms,A66 Timpani ,A67 Shaker  ,A68 Synth Pa
-A71 Sweep I ,A72 Pluck Sw,A73 Repeater,A74 Sweep II
-A75 Pluck Be,A76 Dark Syn,A77 Sustaine,A78 Wah Rele
-A81 Gong    ,A82 Resonanc,A83 Drum Boo,A84 Dust Sto
-A85 Rocket M,A86 Hand Cla,A87 FX Sweep,A88 Caverns 
-B11 Strings ,B12 Violin  ,B13 Chorus V,B14 Organ 1 
-B15 Harpsich,B16 Recorder,B17 Perc. Pl,B18 Noise Sw
-B21 Space Ch,B22 Nylon Gu,B23 Orchestr,B24 Bright P
-B25 Organ Be,B26 Accordio,B27 FX Rise ,B28 FX Rise 
-B31 Brass   ,B32 Helicopt,B33 Lute    ,B34 Chorus F
-B35 Tomita  ,B36 FX Sweep,B37 Sharp Re,B38 Bass Plu
-B41 Resonant,B42 Harpsich,B43 Dark Ens,B44 Contact 
-B45 Noise Sw,B46 Glassy W,B47 Phase En,B48 Chorused
-B51 Clav    ,B52 Organ 2 ,B53 Bassoon ,B54 Auto Rel
-B55 Brass En,B56 Ethereal,B57 Chorus B,B58 Blizzard
-B61 E. Piano,B62 Clarinet,B63 Thunder ,B64 Reedy Or
-B65 Flute / ,B66 Toy Rhod,B67 Surf's U,B68 OW Bass 
-B71 Piccolo ,B72 Melodic ,B73 Meow Bra,B74 Violin  
-B75 High Bel,B76 Rolling ,B77 Ping Bel,B78 Brassy O
-B81 Low Dark,B82 Piccolo ,B83 Cello   ,B84 High Str
-B85 Rocket M,B86 Forbidde,B87 Froggy  ,B88 Owgan   
+Brass Set 1   ,Brass Swell   ,Trumpet       ,Flutes        
+Moving Strings,Brass & String,Choir         ,Piano I       
+Organ I       ,Organ II      ,Combo Organ   ,Calliope      
+Donald Pluck  ,Celeste\*      ,Elect Piano I ,Elect Piano II
+Clock Chimes\* ,Steel Drums   ,Xylophone     ,Brass III     
+Fanfare       ,String III    ,Pizzicato     ,High Strings  
+Bass clarinet ,English Horn  ,Brass Ensemble,Guitar        
+Koto          ,Dark Pluck    ,Funky I       ,Synth Bass I  
+Lead I        ,Lead II       ,Lead III      ,Funky II      
+Synth Bass II ,Funky III     ,Thud Wah      ,Going Up      
+Piano II      ,Clav          ,Frontier Organ,Snare Drum    
+Tom Toms      ,Timpani       ,Shaker        ,Synth Pad     
+Sweep I       ,Pluck Sweep   ,Repeater      ,Sweep II      
+Pluck Bell    ,Dark Syn Piano,Sustainer     ,Wah Release   
+Gong          ,Resonance Funk,Drum Booms\*   ,Dust Storm    
+Rocket Men    ,Hand Claps    ,FX Sweep      ,Caverns       
+Strings       ,Violin        ,Chorus Vibes  ,Organ 1       
+Harpsichord 1 ,Recorder      ,Perc. Pluck   ,Noise Sweep   
+Space Chimes  ,Nylon Guitar  ,Orchestral Pad,Bright Pluck  
+Organ Bell    ,Accordion     ,FX Rise 1     ,FX Rise 2     
+Brass         ,Helicopter    ,Lute          ,Chorus Funk   
+Tomita        ,FX Sweep 1    ,Sharp Reed    ,Bass Pluck    
+Resonant Rise ,Harpsichord 2 ,Dark Ensemble ,Contact Wah   
+Noise Sweep 2 ,Glassy Wah    ,Phase Ensemble,Chorused Bell 
+Clav          ,Organ 2       ,Bassoon       ,AR Noise Sweep
+Brass Ensemble,Ethereal      ,Chorus Bell 2 ,Blizzard      
+EPiano Tremolo,Clarinet      ,Thunder       ,Reedy Organ   
+Flute / Horn  ,Toy Rhodes    ,Surf's Up     ,OW Bass       
+Piccolo       ,Melodic Taps  ,Meow Brass    ,Violin (high) 
+High Bells    ,Rolling Wah   ,Ping Bell     ,Brassy Organ  
+Low Dark Strs ,Piccolo Tpt   ,Cello         ,High Strings  
+Rocket Men    ,Forbid Planet ,Froggy        ,Owgan         
 *--------------------------------------------------------------------------------------
 #defoff
 * Bank 1. Program 0 is patch 128.
@@ -268,11 +155,11 @@ WATER GDN   ,WASP STING  ,LASER GUN   ,DESCENT
 OCTAVE WAR  ,GRAND PRIX  ,ST.HELENS   ,EXPLOSION   
 *--------------------------------------------------------------------------------------
 #defoff
-* Bank 3. Program 0 is patch 384. Melody channels list TR-808 only.
-* 鍵盤の中身は part 26。385 以降のキットは出さない。
+* Bank 3. Program 0 → ホストが pcm_tiny（258）をロード。
+* 鍵盤の中身は part 26。
 #part=19, AMY drum kits , AMY:
 *--------------------------------------------------------------------------------------
-TR-808
+PCM Kit
 *--------------------------------------------------------------------------------------
 #defoff
 

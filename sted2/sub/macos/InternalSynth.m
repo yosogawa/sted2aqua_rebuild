@@ -16,6 +16,7 @@
 #import <AVFAudio/AVAudioEngine.h>
 #import <AVFAudio/AVAudioFormat.h>
 #import <AVFAudio/AVAudioMixerNode.h>
+#import <AVFAudio/AVAudioMixing.h>
 #import <AVFAudio/AVAudioSourceNode.h>
 #import <AVFAudio/AVAudioUnit.h>
 #import <AVFAudio/AVAudioUnitEQ.h>
@@ -42,7 +43,9 @@ static AVAudioUnitEQ *sEQ = nil;
 static AVAudioUnitReverb *sReverb = nil;
 static AVAudioUnitEffect *sLimiter = nil;
 static int sAppliedReverbPreset = -1;
-static DLSEffectSettings sEffects = { 0.0f, 0.0f, 0.0f, 3, 0.0f, 0.0f, 1.0f, 1 };
+static DLSEffectSettings sEffects = {
+	0.0f, 0.0f, 0.0f, 3, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1
+};
 static int sUseInternalReverb = 1;
 static int sReverbRoomType = 3;
 
@@ -322,6 +325,13 @@ ApplyEffectsLocked(void)
 		AudioUnitSetParameter(sLimiter.audioUnit, kLimiterParam_PreGain,
 			kAudioUnitScope_Global, 0, sEffects.limiterBoost, 0);
 	}
+	/*  Per-source levels into sSum, before the shared effect chain. */
+	if (sDLSUnit[0] != nil && sAmyPort != 0)
+		((id<AVAudioMixing>)sDLSUnit[0]).volume = sEffects.dlsVolume;
+	if (sDLSUnit[1] != nil && sAmyPort != 1)
+		((id<AVAudioMixing>)sDLSUnit[1]).volume = sEffects.dlsVolume;
+	if (sAmyNode != nil)
+		sAmyNode.volume = sEffects.amyVolume;
 	if (sEngine != nil)
 		sEngine.mainMixerNode.outputVolume = sEffects.volume;
 }
@@ -814,6 +824,14 @@ ClampEffects(DLSEffectSettings s)
 		s.limiterBoost = 0.0f;
 	if (s.limiterBoost > 6.0f)
 		s.limiterBoost = 6.0f;
+	if (s.dlsVolume < 0.0f)
+		s.dlsVolume = 0.0f;
+	if (s.dlsVolume > 1.0f)
+		s.dlsVolume = 1.0f;
+	if (s.amyVolume < 0.0f)
+		s.amyVolume = 0.0f;
+	if (s.amyVolume > 1.0f)
+		s.amyVolume = 1.0f;
 	if (s.volume < 0.0f)
 		s.volume = 0.0f;
 	if (s.volume > 1.0f)
