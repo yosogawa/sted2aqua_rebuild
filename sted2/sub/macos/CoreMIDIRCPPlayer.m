@@ -14,6 +14,7 @@
 #include <CoreMIDI/CoreMIDI.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "sted.h"
 #include "rcp_transport.h"
@@ -58,7 +59,12 @@ static void CoreMIDIReadProc(const MIDIPacketList *pktlist, void *readProcRefCon
     const MIDIPacket *packet = &pktlist->packet[0];
     for (UInt32 i = 0; i < pktlist->numPackets; i++) {
         for (UInt16 j = 0; j < packet->length; j++) {
-            push_midi_in_ring_buffer(packet->data[j]);
+            uint8_t b = packet->data[j];
+            /* MIDI Timing Clock → RcpClock (no-op unless source is EXT and armed).
+               Still pushed to the ring for recording EXT / other consumers. */
+            if (b == 0xF8)
+                rcp_clock_on_timing_clock();
+            push_midi_in_ring_buffer(b);
         }
         packet = MIDIPacketNext(packet);
     }
@@ -583,6 +589,7 @@ stop_coremidi_rcpplayer(void)
 	/* The player thread has exited. Recording Stopped now keeps a live
 	   Held thread from taking the continue path. */
 	rcp_transport_full_stop();
+	rcp_clock_dump_f8_stats(" STOP");
 	
 #if DEBUG_RCP
 	dump_debug_rcp();
@@ -594,12 +601,18 @@ void
 play_coremidi_rcpplayer(uint8_t *rcp_data_ptr, int data_length)
 {
 	CoreMIDIRCPPlayer *player;
+	const char *ext_env;
 	STed_InitMeasureConversion();
 	rcpplayer_init(rcp_data_ptr, data_length);
 #if DEBUG_RCP
 	sRCPDebugBuffer = (uint8_t *)realloc(sRCPDebugBuffer, sRCPDebugSize);
 	sRCPDebugCount = 0;
 #endif
+	/* Sync Mode comes from MIDI → Sync Mode (NSUserDefaults / menu).
+	   Optional env override for ad-hoc tests only when not recording. */
+	ext_env = getenv("STED_RCP_CLOCK_EXT");
+	if (ext_env != NULL && ext_env[0] != '\0' && !rcpplayer_is_realtime_recording())
+		rcp_clock_set_source(ext_env[0] == '1' ? 1 : 0);
 	player = [CoreMIDIRCPPlayer currentPlayer];
 	if ([player isPlaying]) {
 		stop_coremidi_rcpplayer();

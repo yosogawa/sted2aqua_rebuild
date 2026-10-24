@@ -13,9 +13,9 @@
    attach() records the initial Stopped result once rcd exists. It does not
    open the gate. setActive() records whether the player thread is performing
    and writes act. Callers read that through active(), not through rcd.
-   start() clears the sequence clock and leaves it stopped. continuePlay()
-   and search() resume it. stop() and fullStop() freeze it. The player
-   samples host time into that clock; it does not own the pause. */
+   start() resets RcpClock and leaves it stopped. continuePlay() and
+   search() arm/resume the clock. stop() and fullStop() freeze it.
+   Musical time lives in RcpClock, not in this class. */
 class RcpTransport {
 public:
 	enum class Phase {

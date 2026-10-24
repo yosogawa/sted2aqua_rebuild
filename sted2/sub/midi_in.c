@@ -55,6 +55,9 @@ void close_midi_port( void ) {
 void set_realtime_recording(int on) {
   (void)on;
 }
+int rcpplayer_is_realtime_recording(void) {
+  return 0;
+}
 #endif
 
 int get_midi_data( void ) {

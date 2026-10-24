@@ -16,6 +16,7 @@
 #include "rcp_functions.h"
 #include "rcpconv.h"
 #include "smf.h"
+#include "rcp_transport.h"
 
 /*  Functions in rcptomid.c  */
 extern int rcptomid_init_track_buffer( RCP_DATA * );
@@ -208,6 +209,8 @@ rcpplayer_next_midi_event(int32_t *step, uint8_t **ptr, int *length, int *port)
 		sPlayer.last_tempo_us = rcpplayer_step_to_microseconds(sPlayer.total_step);
 		sPlayer.last_tempo_step = sPlayer.total_step;
 		sPlayer.last_tempo = ((int32_t)s_ptr[3] << 16) + ((int32_t)s_ptr[4] << 8) + s_ptr[5];
+		/* Keep RcpClock EXT F8→µs aligned with the same quarter length. */
+		rcp_clock_set_tempo_us(sPlayer.last_tempo, sPlayer.rcp.timebase);
 	}
 	
 	if (step != NULL)
@@ -237,6 +240,7 @@ rcpplayer_init(uint8_t *data_ptr, size_t data_length)
 	if (result == 0) {
 		sPlayer.total_step = -1;
 		rcpplayer_next_midi_event(NULL, NULL, NULL, NULL);
+		rcp_clock_set_tempo_us(sPlayer.last_tempo, sPlayer.rcp.timebase);
 	}
 	return result;
 }

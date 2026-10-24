@@ -11,6 +11,7 @@
 #import "DLSSynthPanel.h"
 
 #include <stdlib.h>
+#include "rcp_transport.h"
 
 // prototype added
 void  XSTed_init_window(void);
@@ -21,6 +22,23 @@ extern char **sted_saved_argv;
 extern void sted_redraw_midi_in(void);
 extern char thrumode;
 extern int XSTed_save_thrumode(int on);
+extern int ecount_sw; /* record.c: mirrors RcpClock source for SYNC display */
+
+static NSString * const kMidiSyncExtKey = @"MidiSyncExt";
+
+static void
+ApplyMidiSyncMode(int ext)
+{
+	rcp_clock_set_source(ext ? 1 : 0);
+	ecount_sw = ext ? 1 : 0;
+}
+
+@interface AppController (PrivateMenus)
+- (void)installViewMenu;
+- (void)installDLSSynthMenu;
+- (void)installThruModeMenu;
+- (void)installSyncModeMenu;
+@end
 
 @implementation AppController
 
@@ -67,9 +85,12 @@ extern int XSTed_save_thrumode(int on);
 	[self installViewMenu];
 	[self installDLSSynthMenu];
 	[self installThruModeMenu];
+	[self installSyncModeMenu];
 	{
-		NSInteger percent = [[NSUserDefaults standardUserDefaults] integerForKey:@"DisplayScalePercent"];
+		NSUserDefaults *def = [NSUserDefaults standardUserDefaults];
+		NSInteger percent = [def integerForKey:@"DisplayScalePercent"];
 		[X68kView applyDisplayScalePercent:(int)percent toView:xview];
+		ApplyMidiSyncMode([def boolForKey:kMidiSyncExtKey] ? 1 : 0);
 	}
 
 	if (argc < 1 || argv == NULL) {
@@ -218,6 +239,65 @@ extern int XSTed_save_thrumode(int on);
 	XSTed_save_thrumode(thrumode ? 0 : 1);
 }
 
+- (void)installSyncModeMenu
+{
+	NSMenu *mainMenu = [NSApp mainMenu];
+	NSMenu *midiMenu = nil;
+	NSMenu *syncMenu;
+	NSMenuItem *syncTop, *item;
+	NSInteger i, n, at;
+
+	if (mainMenu == nil)
+		return;
+	n = [mainMenu numberOfItems];
+	for (i = 0; i < n; i++) {
+		NSMenuItem *top = [mainMenu itemAtIndex:i];
+		if ([[top title] isEqualToString:@"MIDI"]) {
+			midiMenu = [top submenu];
+			break;
+		}
+	}
+	if (midiMenu == nil)
+		return;
+
+	syncMenu = [[NSMenu alloc] initWithTitle:@"Sync Mode"];
+	item = [[NSMenuItem alloc] initWithTitle:@"INT"
+					  action:@selector(setSyncMode:)
+				   keyEquivalent:@""];
+	[item setTag:0];
+	[item setTarget:self];
+	[syncMenu addItem:item];
+	[item release];
+	item = [[NSMenuItem alloc] initWithTitle:@"EXT"
+					  action:@selector(setSyncMode:)
+				   keyEquivalent:@""];
+	[item setTag:1];
+	[item setTarget:self];
+	[syncMenu addItem:item];
+	[item release];
+
+	syncTop = [[NSMenuItem alloc] initWithTitle:@"Sync Mode"
+					     action:nil
+				      keyEquivalent:@""];
+	[syncTop setSubmenu:syncMenu];
+	at = [midiMenu indexOfItemWithTitle:@"THRU MODE"];
+	if (at != NSNotFound)
+		[midiMenu insertItem:syncTop atIndex:at + 1];
+	else
+		[midiMenu addItem:syncTop];
+	[syncMenu release];
+	[syncTop release];
+}
+
+- (IBAction)setSyncMode:(id)sender
+{
+	int ext = ((NSMenuItem *)sender).tag ? 1 : 0;
+	NSUserDefaults *def = [NSUserDefaults standardUserDefaults];
+
+	[def setBool:(ext != 0) forKey:kMidiSyncExtKey];
+	ApplyMidiSyncMode(ext);
+}
+
 - (void)installViewMenu
 {
 	NSMenu *mainMenu = [NSApp mainMenu];
@@ -303,6 +383,12 @@ static NSRect sFrameBeforeFill;
 	}
 	if ([menuItem action] == @selector(toggleThruMode:)) {
 		[menuItem setState:(thrumode ? NSOnState : NSOffState)];
+		return YES;
+	}
+	if ([menuItem action] == @selector(setSyncMode:)) {
+		int ext = rcp_clock_get_source();
+		[menuItem setState:(([menuItem tag] != 0) == (ext != 0))
+				    ? NSOnState : NSOffState];
 		return YES;
 	}
 	return YES;

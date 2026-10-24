@@ -23,6 +23,12 @@ void set_realtime_recording(int on)
 	sRecording = on ? 1 : 0;
 }
 
+int
+rcpplayer_is_realtime_recording(void)
+{
+	return sRecording ? 1 : 0;
+}
+
 static MIDITimeStamp sLastTimeStamp;
 /* Latches note release and restore across PAUSE. Musical time is the sequence clock. */
 static int sHoldActive;
@@ -251,21 +257,34 @@ rcpplayer_engine(void)
 			sParked = 1;
 		}
 
-		/* Musical gap comes from the sequence clock. Host time is only the
-		   delivery stamp, taken at this moment. */
+		/* Musical gap comes from the sequence clock. */
 		rcpplayer_update_clock();
 
 		{
 			double eventUs = rcpplayer_step_to_microseconds(sParkStep);
 			double deltaUs = eventUs - rcp_sequence_clock_elapsed_us();
 			MIDITimeStamp now = AudioGetCurrentHostTime();
-			if (deltaUs <= 0.0)
+
+			if (rcp_clock_get_source() != 0) {
+				/* EXT: gate on musical elapsed (F8) only. Do not convert the
+				   remaining gap into a host-time wait — that would fire notes
+				   while the playhead stays at 0, and each later event would
+				   wait its absolute musical time again (extremely slow). */
+				if (deltaUs > 0.0) {
+					usleep(5000);
+					continue;
+				}
 				nextEventTime = now;
-			else
-				nextEventTime = now + rcpplayer_us_to_host(deltaUs);
+			} else {
+				/* INT: schedule delivery on host time for the musical gap. */
+				if (deltaUs <= 0.0)
+					nextEventTime = now;
+				else
+					nextEventTime = now + rcpplayer_us_to_host(deltaUs);
+				if (rcpplayer_wait_prefetch(nextEventTime, prefetchTime))
+					continue;
+			}
 		}
-		if (rcpplayer_wait_prefetch(nextEventTime, prefetchTime))
-			continue;
 
 		currentTime = AudioGetCurrentHostTime();
 		nextTime = nextEventTime;
@@ -285,6 +304,7 @@ rcpplayer_engine(void)
 		(void)sts;
 	}
 	rcp_sequence_clock_stop();
+	rcp_clock_dump_f8_stats(" engine-exit");
 	rcp_transport_set_active(0);
 }
 

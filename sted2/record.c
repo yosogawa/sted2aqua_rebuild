@@ -3,6 +3,7 @@
 /*************************************/
 
 #include "sted.h"
+#include "rcp_transport.h"
 
 uint8_t	*note, *note_data;
 int	trch,lastptr,pt,tr,len,cmd,d_byte;
@@ -14,15 +15,17 @@ int metoro_sw; /* 0:ON 1:OFF */
 int topmeas;
 int recmeas;
 int btmmeas;
-int ecount_sw; /* 0:INT 1:EXT */
+/* Recording SYNC: 0=INT 1=EXT. Drives RcpClock source; position is always
+   rcd->stepcount (from the clock). Local F8→ecount counter is gone. */
+int ecount_sw;
 
 static void	mix_two();
 
 /***************************/
 int	real_record()
 {
-  int	a,b,co=0,ad=0,stc,ost=0,bc,stm,mm,lastst,ecst;
-  int	i,ccc,dtr=0,pm,pr=0,ecount=0;
+  int	a,b,co=0,ad=0,stc,ost=0,bc,stm,mm,lastst;
+  int	i,ccc,dtr=0,pm,pr=0;
   int	mtr_tempo=mtempo;
   uint8_t	*mbuf;
   uint8_t	ctrl_tbl[256];
@@ -38,7 +41,10 @@ int	real_record()
 
   pm=rcd->put_mode;
   cpleng=0;rcpf=0;
-  topmeas=1;recmeas=1;btmmeas=999;metoro_sw=0;ecount_sw=0;
+  topmeas=1;recmeas=1;btmmeas=999;metoro_sw=0;
+  /* Inherit Mac MIDI → Sync Mode (or last Y toggle). */
+  ecount_sw = rcp_clock_get_source() ? 1 : 0;
+  rcp_clock_set_source(ecount_sw);
 
   note_data = cpbuf;note = note_data + 16;
   for(i=0;i<16;i++){note_data[i] = 0xff;}
@@ -46,7 +52,6 @@ int	real_record()
 
   barlen = tbase * 4 * beat1 / beat2;
 
-  ecst=tbase/24;
   all_note_off(1);
 
   fill(0,544,767,1001,0);
@@ -112,6 +117,8 @@ restart:
   if(metoro_trk>=0){dtr=metoro_trk;}
 
   set_realtime_recording(1);
+  /* SYNC → RcpClock before the player thread arms the clock. */
+  rcp_clock_set_source(ecount_sw);
   (*rcd->begin)();
 
   rec_mt_change(1);rec_mt_change(1);
@@ -127,6 +134,7 @@ restart:
     co=barlen*2;lastst+=co;cc2=co/10;
     while(1){
       usleep(100); /* Dec.25.1998 Daisuke Nagano */
+      /* EXT count-in also follows RcpClock (F8); INT follows host time. */
       cc=rcd->stepcount;
       B_LOCATE(9,6);B_PRINT(fstr((co-cc)/cc2,4));
 
@@ -140,7 +148,6 @@ restart:
     }
     midi_clr();
   }
-  ecount=co;
 
   B_LOCATE(1,6);B_PRINT("COUNTER START");
   B_LOCATE(1,14);B_PRINT("MEAS/STEP = ----/---");
@@ -148,7 +155,7 @@ restart:
 
 
   if(a>127 && a<0xf7){
-    if(ecount_sw){stc=ecount;}else{stc=rcd->stepcount;}
+    stc=rcd->stepcount;
     co=stc;goto dtm;}
 
   if(topmeas>1){stm=topmeas;}
@@ -173,14 +180,13 @@ restart:
   top:
     a=(*rcd->md_get)();if(a==0xfc){break;}
 
-    if(ecount_sw) {
-      if(a==0xf8){
-	ecount+=ecst;
-      }
-      stc=ecount;
-    } else {
-      stc=rcd->stepcount;
-    }
+#if !defined(__APPLE__)
+    /* CoreMIDI already feeds F8 into RcpClock in the read proc. Elsewhere
+       the recording loop is the only place that sees Timing Clock. */
+    if (ecount_sw && a == 0xf8)
+      rcp_clock_on_timing_clock();
+#endif
+    stc = rcd->stepcount;
 
     if(stc>=lastst){break;}
   start:
@@ -310,7 +316,7 @@ restart:
       if(k==0x15){rcd->tempo = rcd->basetempo;}
     }
   }
-  if(ecount_sw){stc=ecount;}else{stc=rcd->stepcount;}
+  stc=rcd->stepcount;
   if(stc>=lastst){stc=lastst;}
 
   stc-=co;put_delta(ad,stc);ad+=d_byte;
@@ -335,6 +341,8 @@ restart:
 
 ext:
   set_realtime_recording(0);
+  /* Keep Sync Mode as left by the menu / Y key. */
+  rcp_clock_set_source(ecount_sw);
   B_CLR_AL();home2(0);
   rcd->put_mode=pm;
 
@@ -425,7 +433,8 @@ void	rec_mt_change(int md)
 /***************************/
 void	rec_sy_change()
 {
-  ecount_sw=1-ecount_sw; /* Toggle */
+  ecount_sw=1-ecount_sw; /* Toggle INT/EXT */
+  rcp_clock_set_source(ecount_sw);
   rec_ch_disp();
 }
 

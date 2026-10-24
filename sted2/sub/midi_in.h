@@ -17,6 +17,7 @@ extern "C" {
 int is_coremidi_playing(void);
 void stop_coremidi_rcpplayer(void);
 void set_realtime_recording(int on);
+int rcpplayer_is_realtime_recording(void);
 
 
 #if defined(__APPLE__)
