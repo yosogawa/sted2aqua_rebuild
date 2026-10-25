@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1DDD58160DA1D0A300B32029 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1DDD58140DA1D0A300B32029 /* MainMenu.xib */; };
+		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
+		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
+		A1AMY00D2F0A4B0100E0E00D /* libamy.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A1AMY0022F0A4B0100E0E002 /* libamy.a */; };
 		A1AMY2012F0A4B0100E00001 /* algorithms.c in Sources */ = {isa = PBXBuildFile; fileRef = A1AMY1012F0A4B0100E00001 /* algorithms.c */; };
 		A1AMY2012F0A4B0100E00002 /* amy.c in Sources */ = {isa = PBXBuildFile; fileRef = A1AMY1012F0A4B0100E00002 /* amy.c */; };
 		A1AMY2012F0A4B0100E00003 /* api.c in Sources */ = {isa = PBXBuildFile; fileRef = A1AMY1012F0A4B0100E00003 /* api.c */; };
@@ -29,24 +33,25 @@
 		A1AMY2012F0A4B0100E00020 /* transfer.c in Sources */ = {isa = PBXBuildFile; fileRef = A1AMY1012F0A4B0100E00020 /* transfer.c */; };
 		A1AMY2012F0A4B0100E00021 /* amy_midi.c in Sources */ = {isa = PBXBuildFile; fileRef = A1AMY1012F0A4B0100E00021 /* amy_midi.c */; };
 		A1AMY2012F0A4B0100E00023 /* amy_platform.c in Sources */ = {isa = PBXBuildFile; fileRef = A1AMY1012F0A4B0100E00023 /* amy_platform.c */; };
-		A1AMY00D2F0A4B0100E0E00D /* libamy.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A1AMY0022F0A4B0100E0E002 /* libamy.a */; };
-		1DDD58160DA1D0A300B32029 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1DDD58140DA1D0A300B32029 /* MainMenu.xib */; };
-		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
-		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
+		A1AMY3032F0A4B0100E0E033 /* AmySynth.m in Sources */ = {isa = PBXBuildFile; fileRef = A1AMY3012F0A4B0100E0E031 /* AmySynth.m */; };
 		A1C0E51215A7C00100E50F14 /* sted.icns in Resources */ = {isa = PBXBuildFile; fileRef = A1C0E51115A7C00100E50F13 /* sted.icns */; };
-		A1DLS0D12F0A4B0100DLS0D1 /* DLSSynthPanel.m in Sources */ = {isa = PBXBuildFile; fileRef = A1DLS0B12F0A4B0100DLS0B1 /* DLSSynthPanel.m */; };
-		A1F0E0111AC55B8700A70D01 /* KH-Dot-Kodenmachou-16.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A1F0E0131AC55B8700A70D03 /* KH-Dot-Kodenmachou-16.ttf */; };
-		A1F0E0121AC55B8700A70D02 /* OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = A1F0E0141AC55B8700A70D04 /* OFL.txt */; };
-		A1F0E0311AC55B8700A70D21 /* AVFAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1F0E0321AC55B8700A70D22 /* AVFAudio.framework */; };
-		A1UT1F011AC55B8700A70D31 /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1UT1F021AC55B8700A70D32 /* UniformTypeIdentifiers.framework */; };
-		E40E95C41ABA41ED0072AA0B /* assign.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E951C1ABA41ED0072AA0B /* assign.c */; };
-		E40E95C51ABA41ED0072AA0B /* cm6con.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E951D1ABA41ED0072AA0B /* cm6con.c */; };
+		A1CK00032F0A4B0100E0E003 /* RcpClock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1CK00012F0A4B0100E0E001 /* RcpClock.cpp */; };
 		A1DEF0012F0A4B0100E0E101 /* amy.def in Resources */ = {isa = PBXBuildFile; fileRef = A1DEF0022F0A4B0100E0E102 /* amy.def */; };
 		A1DEF0032F0A4B0100E0E103 /* gm.def in Resources */ = {isa = PBXBuildFile; fileRef = A1DEF0042F0A4B0100E0E104 /* gm.def */; };
 		A1DEF0052F0A4B0100E0E105 /* gm2.def in Resources */ = {isa = PBXBuildFile; fileRef = A1DEF0062F0A4B0100E0E106 /* gm2.def */; };
 		A1DEF0072F0A4B0100E0E107 /* xg.def in Resources */ = {isa = PBXBuildFile; fileRef = A1DEF0082F0A4B0100E0E108 /* xg.def */; };
 		A1DEF0092F0A4B0100E0E109 /* gm_amy.def in Resources */ = {isa = PBXBuildFile; fileRef = A1DEF00A2F0A4B0100E0E10A /* gm_amy.def */; };
 		A1DEF00B2F0A4B0100E0E10B /* dream.def in Resources */ = {isa = PBXBuildFile; fileRef = A1DEF00C2F0A4B0100E0E10C /* dream.def */; };
+		A1DLS0D12F0A4B0100DLS0D1 /* DLSSynthPanel.m in Sources */ = {isa = PBXBuildFile; fileRef = A1DLS0B12F0A4B0100DLS0B1 /* DLSSynthPanel.m */; };
+		A1E0E0032F0A4B0100E0E003 /* rcp_player_engine.c in Sources */ = {isa = PBXBuildFile; fileRef = A1E0E0012F0A4B0100E0E001 /* rcp_player_engine.c */; };
+		A1E0E0132F0A4B0100E0E013 /* InternalSynth.m in Sources */ = {isa = PBXBuildFile; fileRef = A1E0E0112F0A4B0100E0E011 /* InternalSynth.m */; };
+		A1F0E0111AC55B8700A70D01 /* KH-Dot-Kodenmachou-16.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A1F0E0131AC55B8700A70D03 /* KH-Dot-Kodenmachou-16.ttf */; };
+		A1F0E0121AC55B8700A70D02 /* OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = A1F0E0141AC55B8700A70D04 /* OFL.txt */; };
+		A1F0E0311AC55B8700A70D21 /* AVFAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1F0E0321AC55B8700A70D22 /* AVFAudio.framework */; };
+		A1TR00042F0A4B0100E0E004 /* RcpTransport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1TR00012F0A4B0100E0E001 /* RcpTransport.cpp */; };
+		A1UT1F011AC55B8700A70D31 /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1UT1F021AC55B8700A70D32 /* UniformTypeIdentifiers.framework */; };
+		E40E95C41ABA41ED0072AA0B /* assign.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E951C1ABA41ED0072AA0B /* assign.c */; };
+		E40E95C51ABA41ED0072AA0B /* cm6con.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E951D1ABA41ED0072AA0B /* cm6con.c */; };
 		E40E95C61ABA41ED0072AA0B /* cm64.def in Resources */ = {isa = PBXBuildFile; fileRef = E40E95201ABA41ED0072AA0B /* cm64.def */; };
 		E40E95C71ABA41ED0072AA0B /* sc55.def in Resources */ = {isa = PBXBuildFile; fileRef = E40E95211ABA41ED0072AA0B /* sc55.def */; };
 		E40E95C81ABA41ED0072AA0B /* sc55mk2.def in Resources */ = {isa = PBXBuildFile; fileRef = E40E95221ABA41ED0072AA0B /* sc55mk2.def */; };
@@ -75,11 +80,6 @@
 		E40E96101ABA41ED0072AA0B /* AppController.m in Sources */ = {isa = PBXBuildFile; fileRef = E40E95841ABA41ED0072AA0B /* AppController.m */; };
 		E40E96111ABA41ED0072AA0B /* CoreMIDIRCPPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = E40E95861ABA41ED0072AA0B /* CoreMIDIRCPPlayer.m */; };
 		E40E96121ABA41ED0072AA0B /* rcp_player.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E95871ABA41ED0072AA0B /* rcp_player.c */; };
-		A1E0E0032F0A4B0100E0E003 /* rcp_player_engine.c in Sources */ = {isa = PBXBuildFile; fileRef = A1E0E0012F0A4B0100E0E001 /* rcp_player_engine.c */; };
-		A1TR00042F0A4B0100E0E004 /* RcpTransport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1TR00012F0A4B0100E0E001 /* RcpTransport.cpp */; };
-		A1CK00032F0A4B0100E0E003 /* RcpClock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1CK00012F0A4B0100E0E001 /* RcpClock.cpp */; };
-		A1E0E0132F0A4B0100E0E013 /* InternalSynth.m in Sources */ = {isa = PBXBuildFile; fileRef = A1E0E0112F0A4B0100E0E011 /* InternalSynth.m */; };
-		A1AMY3032F0A4B0100E0E033 /* AmySynth.m in Sources */ = {isa = PBXBuildFile; fileRef = A1AMY3012F0A4B0100E0E031 /* AmySynth.m */; };
 		E40E96141ABA41ED0072AA0B /* basic.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E958B1ABA41ED0072AA0B /* basic.c */; };
 		E40E96151ABA41ED0072AA0B /* curses.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E958C1ABA41ED0072AA0B /* curses.c */; };
 		E40E96161ABA41ED0072AA0B /* dos.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E958D1ABA41ED0072AA0B /* dos.c */; };
@@ -113,7 +113,25 @@
 		E4F8616F1AC7D306007DF49E /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E4F8616E1AC7D306007DF49E /* main.m */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		A1AMY00C2F0A4B0100E0E00C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A1AMY0012F0A4B0100E0E001;
+			remoteInfo = amy;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		089C165DFE840E0CC02AAC07 /* en */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
+		13E42FB307B3F0F600E4EEF1 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = /System/Library/Frameworks/CoreData.framework; sourceTree = "<absolute>"; };
+		1DDD58150DA1D0A300B32029 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
+		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
+		8D1107320486CEB800E47090 /* STed2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = STed2.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1AMY0022F0A4B0100E0E002 /* libamy.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libamy.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1AMY1012F0A4B0100E00001 /* algorithms.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = algorithms.c; sourceTree = "<group>"; };
 		A1AMY1012F0A4B0100E00002 /* amy.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = amy.c; sourceTree = "<group>"; };
 		A1AMY1012F0A4B0100E00003 /* api.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = api.c; sourceTree = "<group>"; };
@@ -131,23 +149,29 @@
 		A1AMY1012F0A4B0100E00015 /* oscillators.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = oscillators.c; sourceTree = "<group>"; };
 		A1AMY1012F0A4B0100E00016 /* parse.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = parse.c; sourceTree = "<group>"; };
 		A1AMY1012F0A4B0100E00017 /* patches.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = patches.c; sourceTree = "<group>"; };
-		A1AMY1012F0A4B0100E00022 /* patches.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = patches.h; sourceTree = "<group>"; };
 		A1AMY1012F0A4B0100E00018 /* pcm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pcm.c; sourceTree = "<group>"; };
 		A1AMY1012F0A4B0100E00019 /* sequencer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sequencer.c; sourceTree = "<group>"; };
 		A1AMY1012F0A4B0100E00020 /* transfer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = transfer.c; sourceTree = "<group>"; };
 		A1AMY1012F0A4B0100E00021 /* amy_midi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = amy_midi.c; sourceTree = "<group>"; };
+		A1AMY1012F0A4B0100E00022 /* patches.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = patches.h; sourceTree = "<group>"; };
 		A1AMY1012F0A4B0100E00023 /* amy_platform.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = amy_platform.c; sourceTree = "<group>"; };
-		A1AMY0022F0A4B0100E0E002 /* libamy.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libamy.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		089C165DFE840E0CC02AAC07 /* en */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
-		13E42FB307B3F0F600E4EEF1 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = /System/Library/Frameworks/CoreData.framework; sourceTree = "<absolute>"; };
-		1DDD58150DA1D0A300B32029 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
-		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
-		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
-		8D1107320486CEB800E47090 /* STed2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = STed2.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1AMY3012F0A4B0100E0E031 /* AmySynth.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AmySynth.m; sourceTree = "<group>"; };
+		A1AMY3022F0A4B0100E0E032 /* AmySynth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AmySynth.h; sourceTree = "<group>"; };
 		A1C0E51115A7C00100E50F13 /* sted.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = sted.icns; sourceTree = "<group>"; };
+		A1CK00012F0A4B0100E0E001 /* RcpClock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RcpClock.cpp; sourceTree = "<group>"; };
+		A1CK00022F0A4B0100E0E002 /* RcpClock.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = RcpClock.hpp; sourceTree = "<group>"; };
+		A1DEF0022F0A4B0100E0E102 /* amy.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = amy.def; sourceTree = "<group>"; };
+		A1DEF0042F0A4B0100E0E104 /* gm.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = gm.def; sourceTree = "<group>"; };
+		A1DEF0062F0A4B0100E0E106 /* gm2.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = gm2.def; sourceTree = "<group>"; };
+		A1DEF0082F0A4B0100E0E108 /* xg.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = xg.def; sourceTree = "<group>"; };
+		A1DEF00A2F0A4B0100E0E10A /* gm_amy.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = gm_amy.def; sourceTree = "<group>"; };
+		A1DEF00C2F0A4B0100E0E10C /* dream.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dream.def; sourceTree = "<group>"; };
 		A1DLS0B12F0A4B0100DLS0B1 /* DLSSynthPanel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DLSSynthPanel.m; sourceTree = "<group>"; };
 		A1DLS0C12F0A4B0100DLS0C1 /* DLSSynthPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DLSSynthPanel.h; sourceTree = "<group>"; };
+		A1E0E0012F0A4B0100E0E001 /* rcp_player_engine.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = rcp_player_engine.c; sourceTree = "<group>"; };
+		A1E0E0022F0A4B0100E0E002 /* rcp_player_engine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rcp_player_engine.h; sourceTree = "<group>"; };
+		A1E0E0112F0A4B0100E0E011 /* InternalSynth.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InternalSynth.m; sourceTree = "<group>"; };
+		A1E0E0122F0A4B0100E0E012 /* InternalSynth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InternalSynth.h; sourceTree = "<group>"; };
 		A1F0E0131AC55B8700A70D03 /* KH-Dot-Kodenmachou-16.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "KH-Dot-Kodenmachou-16.ttf"; path = "sted2/fonts/KH-Dot-Kodenmachou-16.ttf"; sourceTree = "<group>"; };
 		A1F0E0141AC55B8700A70D04 /* OFL.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = OFL.txt; path = sted2/fonts/OFL.txt; sourceTree = "<group>"; };
 		A1F0E0321AC55B8700A70D22 /* AVFAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFAudio.framework; path = /System/Library/Frameworks/AVFAudio.framework; sourceTree = "<absolute>"; };
@@ -156,16 +180,13 @@
 		A1F0E0431AC55B8700A70D33 /* key_sub.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = key_sub.h; sourceTree = "<group>"; };
 		A1F0E0441AC55B8700A70D34 /* redit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = redit.h; sourceTree = "<group>"; };
 		A1F0E0511AC55B8700A70D51 /* X68kWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = X68kWindow.h; sourceTree = "<group>"; };
+		A1TR00012F0A4B0100E0E001 /* RcpTransport.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RcpTransport.cpp; sourceTree = "<group>"; };
+		A1TR00022F0A4B0100E0E002 /* RcpTransport.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = RcpTransport.hpp; sourceTree = "<group>"; };
+		A1TR00032F0A4B0100E0E003 /* rcp_transport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rcp_transport.h; sourceTree = "<group>"; };
 		A1UT1F021AC55B8700A70D32 /* UniformTypeIdentifiers.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UniformTypeIdentifiers.framework; path = /System/Library/Frameworks/UniformTypeIdentifiers.framework; sourceTree = "<absolute>"; };
 		AFCF00FA307B7FC20040EB6F /* edit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = edit.h; sourceTree = "<group>"; };
 		E40E951C1ABA41ED0072AA0B /* assign.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = assign.c; sourceTree = "<group>"; };
 		E40E951D1ABA41ED0072AA0B /* cm6con.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = cm6con.c; sourceTree = "<group>"; };
-		A1DEF0022F0A4B0100E0E102 /* amy.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = amy.def; sourceTree = "<group>"; };
-		A1DEF0042F0A4B0100E0E104 /* gm.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = gm.def; sourceTree = "<group>"; };
-		A1DEF0062F0A4B0100E0E106 /* gm2.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = gm2.def; sourceTree = "<group>"; };
-		A1DEF0082F0A4B0100E0E108 /* xg.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = xg.def; sourceTree = "<group>"; };
-		A1DEF00A2F0A4B0100E0E10A /* gm_amy.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = gm_amy.def; sourceTree = "<group>"; };
-		A1DEF00C2F0A4B0100E0E10C /* dream.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dream.def; sourceTree = "<group>"; };
 		E40E95201ABA41ED0072AA0B /* cm64.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cm64.def; sourceTree = "<group>"; };
 		E40E95211ABA41ED0072AA0B /* sc55.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = sc55.def; sourceTree = "<group>"; };
 		E40E95221ABA41ED0072AA0B /* sc55mk2.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = sc55mk2.def; sourceTree = "<group>"; };
@@ -232,17 +253,6 @@
 		E40E95861ABA41ED0072AA0B /* CoreMIDIRCPPlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CoreMIDIRCPPlayer.m; sourceTree = "<group>"; };
 		E40E95871ABA41ED0072AA0B /* rcp_player.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = rcp_player.c; sourceTree = "<group>"; };
 		E40E95881ABA41ED0072AA0B /* rcp_player.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rcp_player.h; sourceTree = "<group>"; };
-		A1E0E0012F0A4B0100E0E001 /* rcp_player_engine.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = rcp_player_engine.c; sourceTree = "<group>"; };
-		A1E0E0022F0A4B0100E0E002 /* rcp_player_engine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rcp_player_engine.h; sourceTree = "<group>"; };
-		A1TR00012F0A4B0100E0E001 /* RcpTransport.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RcpTransport.cpp; sourceTree = "<group>"; };
-		A1TR00022F0A4B0100E0E002 /* RcpTransport.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = RcpTransport.hpp; sourceTree = "<group>"; };
-		A1TR00032F0A4B0100E0E003 /* rcp_transport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rcp_transport.h; sourceTree = "<group>"; };
-		A1CK00012F0A4B0100E0E001 /* RcpClock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RcpClock.cpp; sourceTree = "<group>"; };
-		A1CK00022F0A4B0100E0E002 /* RcpClock.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = RcpClock.hpp; sourceTree = "<group>"; };
-		A1E0E0112F0A4B0100E0E011 /* InternalSynth.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InternalSynth.m; sourceTree = "<group>"; };
-		A1AMY3012F0A4B0100E0E031 /* AmySynth.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AmySynth.m; sourceTree = "<group>"; };
-		A1AMY3022F0A4B0100E0E032 /* AmySynth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AmySynth.h; sourceTree = "<group>"; };
-		A1E0E0122F0A4B0100E0E012 /* InternalSynth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InternalSynth.h; sourceTree = "<group>"; };
 		E40E958B1ABA41ED0072AA0B /* basic.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = basic.c; sourceTree = "<group>"; };
 		E40E958C1ABA41ED0072AA0B /* curses.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = curses.c; sourceTree = "<group>"; };
 		E40E958D1ABA41ED0072AA0B /* dos.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dos.c; sourceTree = "<group>"; };
@@ -412,6 +422,91 @@
 				1058C7A2FEA54F0111CA2CBB /* Other Frameworks */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		A1AMY0082F0A4B0100E0E008 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				A1AMY1012F0A4B0100E00001 /* algorithms.c */,
+				A1AMY1012F0A4B0100E00002 /* amy.c */,
+				A1AMY1012F0A4B0100E00003 /* api.c */,
+				A1AMY1012F0A4B0100E00004 /* custom.c */,
+				A1AMY1012F0A4B0100E00005 /* cv_trigger.c */,
+				A1AMY1012F0A4B0100E00006 /* note_output.c */,
+				A1AMY1012F0A4B0100E00007 /* delay.c */,
+				A1AMY1012F0A4B0100E00008 /* envelope.c */,
+				A1AMY1012F0A4B0100E00009 /* examples.c */,
+				A1AMY1012F0A4B0100E00010 /* filters.c */,
+				A1AMY1012F0A4B0100E00011 /* instrument.c */,
+				A1AMY1012F0A4B0100E00012 /* interp_partials.c */,
+				A1AMY1012F0A4B0100E00013 /* log2_exp2.c */,
+				A1AMY1012F0A4B0100E00014 /* midi_mappings.c */,
+				A1AMY1012F0A4B0100E00015 /* oscillators.c */,
+				A1AMY1012F0A4B0100E00016 /* parse.c */,
+				A1AMY1012F0A4B0100E00017 /* patches.c */,
+				A1AMY1012F0A4B0100E00022 /* patches.h */,
+				A1AMY1012F0A4B0100E00018 /* pcm.c */,
+				A1AMY1012F0A4B0100E00019 /* sequencer.c */,
+				A1AMY1012F0A4B0100E00020 /* transfer.c */,
+				A1AMY1012F0A4B0100E00021 /* amy_midi.c */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		A1AMY0092F0A4B0100E0E009 /* third_party */ = {
+			isa = PBXGroup;
+			children = (
+				A1AMY00E2F0A4B0100E0E00E /* amy */,
+				A1AMY00A2F0A4B0100E0E00A /* amy_host */,
+			);
+			path = third_party;
+			sourceTree = "<group>";
+		};
+		A1AMY00A2F0A4B0100E0E00A /* amy_host */ = {
+			isa = PBXGroup;
+			children = (
+				A1AMY1012F0A4B0100E00023 /* amy_platform.c */,
+			);
+			path = amy_host;
+			sourceTree = "<group>";
+		};
+		A1AMY00E2F0A4B0100E0E00E /* amy */ = {
+			isa = PBXGroup;
+			children = (
+				A1AMY0082F0A4B0100E0E008 /* src */,
+			);
+			path = amy;
+			sourceTree = "<group>";
+		};
+		A1E0E0212F0A4B0100E0E021 /* macos */ = {
+			isa = PBXGroup;
+			children = (
+				E40E95851ABA41ED0072AA0B /* CoreMIDIRCPPlayer.h */,
+				E40E95861ABA41ED0072AA0B /* CoreMIDIRCPPlayer.m */,
+				A1E0E0122F0A4B0100E0E012 /* InternalSynth.h */,
+				A1E0E0112F0A4B0100E0E011 /* InternalSynth.m */,
+				A1AMY3022F0A4B0100E0E032 /* AmySynth.h */,
+				A1AMY3012F0A4B0100E0E031 /* AmySynth.m */,
+				A1DLS0C12F0A4B0100DLS0C1 /* DLSSynthPanel.h */,
+				A1DLS0B12F0A4B0100DLS0B1 /* DLSSynthPanel.m */,
+			);
+			path = macos;
+			sourceTree = "<group>";
+		};
+		A1E0E0222F0A4B0100E0E022 /* rcp_player */ = {
+			isa = PBXGroup;
+			children = (
+				E40E95871ABA41ED0072AA0B /* rcp_player.c */,
+				E40E95881ABA41ED0072AA0B /* rcp_player.h */,
+				A1E0E0012F0A4B0100E0E001 /* rcp_player_engine.c */,
+				A1E0E0022F0A4B0100E0E002 /* rcp_player_engine.h */,
+				A1TR00012F0A4B0100E0E001 /* RcpTransport.cpp */,
+				A1TR00022F0A4B0100E0E002 /* RcpTransport.hpp */,
+				A1TR00032F0A4B0100E0E003 /* rcp_transport.h */,
+				A1CK00012F0A4B0100E0E001 /* RcpClock.cpp */,
+				A1CK00022F0A4B0100E0E002 /* RcpClock.hpp */,
+			);
+			path = rcp_player;
 			sourceTree = "<group>";
 		};
 		A1F0E0601AC55B8700A70D60 /* X11 */ = {
@@ -632,110 +727,7 @@
 			path = aqua;
 			sourceTree = "<group>";
 		};
-		A1E0E0212F0A4B0100E0E021 /* macos */ = {
-			isa = PBXGroup;
-			children = (
-				E40E95851ABA41ED0072AA0B /* CoreMIDIRCPPlayer.h */,
-				E40E95861ABA41ED0072AA0B /* CoreMIDIRCPPlayer.m */,
-				A1E0E0122F0A4B0100E0E012 /* InternalSynth.h */,
-				A1E0E0112F0A4B0100E0E011 /* InternalSynth.m */,
-				A1AMY3022F0A4B0100E0E032 /* AmySynth.h */,
-				A1AMY3012F0A4B0100E0E031 /* AmySynth.m */,
-				A1DLS0C12F0A4B0100DLS0C1 /* DLSSynthPanel.h */,
-				A1DLS0B12F0A4B0100DLS0B1 /* DLSSynthPanel.m */,
-			);
-			path = macos;
-			sourceTree = "<group>";
-		};
-		A1E0E0222F0A4B0100E0E022 /* rcp_player */ = {
-			isa = PBXGroup;
-			children = (
-				E40E95871ABA41ED0072AA0B /* rcp_player.c */,
-				E40E95881ABA41ED0072AA0B /* rcp_player.h */,
-				A1E0E0012F0A4B0100E0E001 /* rcp_player_engine.c */,
-				A1E0E0022F0A4B0100E0E002 /* rcp_player_engine.h */,
-				A1TR00012F0A4B0100E0E001 /* RcpTransport.cpp */,
-				A1TR00022F0A4B0100E0E002 /* RcpTransport.hpp */,
-				A1TR00032F0A4B0100E0E003 /* rcp_transport.h */,
-				A1CK00012F0A4B0100E0E001 /* RcpClock.cpp */,
-				A1CK00022F0A4B0100E0E002 /* RcpClock.hpp */,
-			);
-			path = rcp_player;
-			sourceTree = "<group>";
-		};
-		A1AMY0082F0A4B0100E0E008 /* src */ = {
-			isa = PBXGroup;
-			children = (
-				A1AMY1012F0A4B0100E00001 /* algorithms.c */,
-				A1AMY1012F0A4B0100E00002 /* amy.c */,
-				A1AMY1012F0A4B0100E00003 /* api.c */,
-				A1AMY1012F0A4B0100E00004 /* custom.c */,
-				A1AMY1012F0A4B0100E00005 /* cv_trigger.c */,
-				A1AMY1012F0A4B0100E00006 /* note_output.c */,
-				A1AMY1012F0A4B0100E00007 /* delay.c */,
-				A1AMY1012F0A4B0100E00008 /* envelope.c */,
-				A1AMY1012F0A4B0100E00009 /* examples.c */,
-				A1AMY1012F0A4B0100E00010 /* filters.c */,
-				A1AMY1012F0A4B0100E00011 /* instrument.c */,
-				A1AMY1012F0A4B0100E00012 /* interp_partials.c */,
-				A1AMY1012F0A4B0100E00013 /* log2_exp2.c */,
-				A1AMY1012F0A4B0100E00014 /* midi_mappings.c */,
-				A1AMY1012F0A4B0100E00015 /* oscillators.c */,
-				A1AMY1012F0A4B0100E00016 /* parse.c */,
-				A1AMY1012F0A4B0100E00017 /* patches.c */,
-				A1AMY1012F0A4B0100E00022 /* patches.h */,
-				A1AMY1012F0A4B0100E00018 /* pcm.c */,
-				A1AMY1012F0A4B0100E00019 /* sequencer.c */,
-				A1AMY1012F0A4B0100E00020 /* transfer.c */,
-				A1AMY1012F0A4B0100E00021 /* amy_midi.c */,
-			);
-			path = src;
-			sourceTree = "<group>";
-		};
-		A1AMY00E2F0A4B0100E0E00E /* amy */ = {
-			isa = PBXGroup;
-			children = (
-				A1AMY0082F0A4B0100E0E008 /* src */,
-			);
-			path = amy;
-			sourceTree = "<group>";
-		};
-		A1AMY00A2F0A4B0100E0E00A /* amy_host */ = {
-			isa = PBXGroup;
-			children = (
-				A1AMY1012F0A4B0100E00023 /* amy_platform.c */,
-			);
-			path = amy_host;
-			sourceTree = "<group>";
-		};
-		A1AMY0092F0A4B0100E0E009 /* third_party */ = {
-			isa = PBXGroup;
-			children = (
-				A1AMY00E2F0A4B0100E0E00E /* amy */,
-				A1AMY00A2F0A4B0100E0E00A /* amy_host */,
-			);
-			path = third_party;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
-
-/* Begin PBXContainerItemProxy section */
-		A1AMY00C2F0A4B0100E0E00C /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = A1AMY0012F0A4B0100E0E001;
-			remoteInfo = amy;
-		};
-/* End PBXContainerItemProxy section */
-
-/* Begin PBXTargetDependency section */
-		A1AMY00B2F0A4B0100E0E00B /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = A1AMY0012F0A4B0100E0E001 /* amy */;
-			targetProxy = A1AMY00C2F0A4B0100E0E00C /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin PBXNativeTarget section */
 		8D1107260486CEB800E47090 /* STed2Mac */ = {
@@ -847,35 +839,6 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		A1AMY0032F0A4B0100E0E003 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				A1AMY2012F0A4B0100E00001 /* algorithms.c in Sources */,
-				A1AMY2012F0A4B0100E00002 /* amy.c in Sources */,
-				A1AMY2012F0A4B0100E00003 /* api.c in Sources */,
-				A1AMY2012F0A4B0100E00004 /* custom.c in Sources */,
-				A1AMY2012F0A4B0100E00005 /* cv_trigger.c in Sources */,
-				A1AMY2012F0A4B0100E00006 /* note_output.c in Sources */,
-				A1AMY2012F0A4B0100E00007 /* delay.c in Sources */,
-				A1AMY2012F0A4B0100E00008 /* envelope.c in Sources */,
-				A1AMY2012F0A4B0100E00009 /* examples.c in Sources */,
-				A1AMY2012F0A4B0100E00010 /* filters.c in Sources */,
-				A1AMY2012F0A4B0100E00011 /* instrument.c in Sources */,
-				A1AMY2012F0A4B0100E00012 /* interp_partials.c in Sources */,
-				A1AMY2012F0A4B0100E00013 /* log2_exp2.c in Sources */,
-				A1AMY2012F0A4B0100E00014 /* midi_mappings.c in Sources */,
-				A1AMY2012F0A4B0100E00015 /* oscillators.c in Sources */,
-				A1AMY2012F0A4B0100E00016 /* parse.c in Sources */,
-				A1AMY2012F0A4B0100E00017 /* patches.c in Sources */,
-				A1AMY2012F0A4B0100E00018 /* pcm.c in Sources */,
-				A1AMY2012F0A4B0100E00019 /* sequencer.c in Sources */,
-				A1AMY2012F0A4B0100E00020 /* transfer.c in Sources */,
-				A1AMY2012F0A4B0100E00021 /* amy_midi.c in Sources */,
-				A1AMY2012F0A4B0100E00023 /* amy_platform.c in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		8D11072C0486CEB800E47090 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -937,7 +900,44 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A1AMY0032F0A4B0100E0E003 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1AMY2012F0A4B0100E00001 /* algorithms.c in Sources */,
+				A1AMY2012F0A4B0100E00002 /* amy.c in Sources */,
+				A1AMY2012F0A4B0100E00003 /* api.c in Sources */,
+				A1AMY2012F0A4B0100E00004 /* custom.c in Sources */,
+				A1AMY2012F0A4B0100E00005 /* cv_trigger.c in Sources */,
+				A1AMY2012F0A4B0100E00006 /* note_output.c in Sources */,
+				A1AMY2012F0A4B0100E00007 /* delay.c in Sources */,
+				A1AMY2012F0A4B0100E00008 /* envelope.c in Sources */,
+				A1AMY2012F0A4B0100E00009 /* examples.c in Sources */,
+				A1AMY2012F0A4B0100E00010 /* filters.c in Sources */,
+				A1AMY2012F0A4B0100E00011 /* instrument.c in Sources */,
+				A1AMY2012F0A4B0100E00012 /* interp_partials.c in Sources */,
+				A1AMY2012F0A4B0100E00013 /* log2_exp2.c in Sources */,
+				A1AMY2012F0A4B0100E00014 /* midi_mappings.c in Sources */,
+				A1AMY2012F0A4B0100E00015 /* oscillators.c in Sources */,
+				A1AMY2012F0A4B0100E00016 /* parse.c in Sources */,
+				A1AMY2012F0A4B0100E00017 /* patches.c in Sources */,
+				A1AMY2012F0A4B0100E00018 /* pcm.c in Sources */,
+				A1AMY2012F0A4B0100E00019 /* sequencer.c in Sources */,
+				A1AMY2012F0A4B0100E00020 /* transfer.c in Sources */,
+				A1AMY2012F0A4B0100E00021 /* amy_midi.c in Sources */,
+				A1AMY2012F0A4B0100E00023 /* amy_platform.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A1AMY00B2F0A4B0100E0E00B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A1AMY0012F0A4B0100E0E001 /* amy */;
+			targetProxy = A1AMY00C2F0A4B0100E0E00C /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		089C165CFE840E0CC02AAC07 /* InfoPlist.strings */ = {
@@ -967,15 +967,82 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		A1AMY0062F0A4B0100E0E006 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_WARN_IMPLICIT_FUNCTION_DECLARATION = YES;
+				CODE_SIGNING_ALLOWED = NO;
+				EXECUTABLE_PREFIX = lib;
+				GCC_C_LANGUAGE_STANDARD = c17;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GCC_WARN_UNUSED_VARIABLE = NO;
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/third_party/amy/src";
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CFLAGS = (
+					"-DAMY_WAVETABLE",
+					"-DAMY_NO_MINIAUDIO",
+					"-pthread",
+					"-Wno-unused-parameter",
+					"-Wno-sign-compare",
+					"-Wno-missing-field-initializers",
+					"-Wno-strict-aliasing",
+					"-Wno-unused-function",
+					"-Wno-float-conversion",
+				);
+				PRODUCT_NAME = amy;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		A1AMY0072F0A4B0100E0E007 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_WARN_IMPLICIT_FUNCTION_DECLARATION = YES;
+				CODE_SIGNING_ALLOWED = NO;
+				EXECUTABLE_PREFIX = lib;
+				GCC_C_LANGUAGE_STANDARD = c17;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GCC_WARN_UNUSED_VARIABLE = NO;
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/third_party/amy/src";
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				OTHER_CFLAGS = (
+					"-DAMY_WAVETABLE",
+					"-DAMY_NO_MINIAUDIO",
+					"-pthread",
+					"-Wno-unused-parameter",
+					"-Wno-sign-compare",
+					"-Wno-missing-field-initializers",
+					"-Wno-strict-aliasing",
+					"-Wno-unused-function",
+					"-Wno-float-conversion",
+				);
+				PRODUCT_NAME = amy;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
 		C01FCF4B08A954540054247B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				DEVELOPMENT_TEAM = "";
+				GCC_C_LANGUAGE_STANDARD = c17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = G5;
@@ -988,15 +1055,16 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = "";
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
-				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/third_party/amy/src";
 				OTHER_LDFLAGS = (
 					"-liconv",
 					"-framework",
 					CoreFoundation,
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.github.STed2;
 				PRODUCT_NAME = STed2;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/third_party/amy/src";
 			};
 			name = Debug;
 		};
@@ -1005,11 +1073,13 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD)";
-				CODE_SIGN_IDENTITY = "-";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 4JPEKSY54Q;
+				GCC_C_LANGUAGE_STANDARD = c17;
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = STed2Mac_Prefix.pch;
@@ -1019,15 +1089,16 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = "";
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
-				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/third_party/amy/src";
 				OTHER_LDFLAGS = (
 					"-liconv",
 					"-framework",
 					CoreFoundation,
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.github.STed2;
 				PRODUCT_NAME = STed2;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/third_party/amy/src";
 			};
 			name = Release;
 		};
@@ -1059,72 +1130,18 @@
 			};
 			name = Release;
 		};
-		A1AMY0062F0A4B0100E0E006 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
-				CLANG_WARN_IMPLICIT_FUNCTION_DECLARATION = YES;
-				CODE_SIGNING_ALLOWED = NO;
-				EXECUTABLE_PREFIX = lib;
-				GCC_C_LANGUAGE_STANDARD = gnu99;
-				GCC_OPTIMIZATION_LEVEL = 3;
-				GCC_PRECOMPILE_PREFIX_HEADER = NO;
-				GCC_WARN_UNUSED_VARIABLE = NO;
-				HEADER_SEARCH_PATHS = "$(SRCROOT)/third_party/amy/src";
-				MACOSX_DEPLOYMENT_TARGET = 12.0;
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = (
-					"-DAMY_WAVETABLE",
-					"-DAMY_NO_MINIAUDIO",
-					"-pthread",
-					"-Wno-unused-parameter",
-					"-Wno-sign-compare",
-					"-Wno-missing-field-initializers",
-					"-Wno-strict-aliasing",
-					"-Wno-unused-function",
-					"-Wno-float-conversion",
-				);
-				PRODUCT_NAME = amy;
-				SDKROOT = macosx;
-				SKIP_INSTALL = YES;
-			};
-			name = Debug;
-		};
-		A1AMY0072F0A4B0100E0E007 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
-				CLANG_WARN_IMPLICIT_FUNCTION_DECLARATION = YES;
-				CODE_SIGNING_ALLOWED = NO;
-				EXECUTABLE_PREFIX = lib;
-				GCC_C_LANGUAGE_STANDARD = gnu99;
-				GCC_OPTIMIZATION_LEVEL = 3;
-				GCC_PRECOMPILE_PREFIX_HEADER = NO;
-				GCC_WARN_UNUSED_VARIABLE = NO;
-				HEADER_SEARCH_PATHS = "$(SRCROOT)/third_party/amy/src";
-				MACOSX_DEPLOYMENT_TARGET = 12.0;
-				OTHER_CFLAGS = (
-					"-DAMY_WAVETABLE",
-					"-DAMY_NO_MINIAUDIO",
-					"-pthread",
-					"-Wno-unused-parameter",
-					"-Wno-sign-compare",
-					"-Wno-missing-field-initializers",
-					"-Wno-strict-aliasing",
-					"-Wno-unused-function",
-					"-Wno-float-conversion",
-				);
-				PRODUCT_NAME = amy;
-				SDKROOT = macosx;
-				SKIP_INSTALL = YES;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		A1AMY0052F0A4B0100E0E005 /* Build configuration list for PBXNativeTarget "amy" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1AMY0062F0A4B0100E0E006 /* Debug */,
+				A1AMY0072F0A4B0100E0E007 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		C01FCF4A08A954540054247B /* Build configuration list for PBXNativeTarget "STed2Mac" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -1139,15 +1156,6 @@
 			buildConfigurations = (
 				C01FCF4F08A954540054247B /* Debug */,
 				C01FCF5008A954540054247B /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		A1AMY0052F0A4B0100E0E005 /* Build configuration list for PBXNativeTarget "amy" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				A1AMY0062F0A4B0100E0E006 /* Debug */,
-				A1AMY0072F0A4B0100E0E007 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

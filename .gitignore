@@ -15,3 +15,6 @@ SDL3.xcframework/
 *.timestamp
 /build/DerivedData
 .cursor/
+install/STed2.dmgcanvas/Disk Image
+/install/STed2.dmgcanvas/Contents
+/install/STed2.dmgcanvas/QuickLook

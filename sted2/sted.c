@@ -79,7 +79,7 @@ int	main(int argc,char *argv[])
   if (s_sted_default_path[0]==0) strcpy(s_sted_default_path, STED_DEFAULT_PATH); /* Jun.01.2003 Toshi Nagata */
 
 #ifdef VERSION_ID
-  strcpy(version_id, "2.07m + ");
+  strcpy(version_id, "2.07m + rebuild ");
   strcat(version_id, VERSION_ID);
 #else /* VERSION_ID */
   strcpy(version_id, "2.07m");
