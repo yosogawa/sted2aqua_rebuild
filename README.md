@@ -2,13 +2,19 @@
 # STed for Aqua - Rebuild & Restore version 
 =============
 
-"STed for Aqua," which was maintained between 2003 and 2015, was an experimental release and did not include the full feature set of STed2. Its final version only supported the Intel i386 architecture, making it incompatible with modern macOS. In 2025, I began the process of rebuilding it for contemporary environments (x86_64/arm64). Initially, this existed merely as a personal fork, but in 2026, with the recent integration of AI-assisted code analysis, the initiative has evolved into a full-scale restoration project.
+"STed for Aqua," which was maintained between 2003 and 2015, was an experimental release and did not include the full feature set of STed2. Its final version only supported the Intel i386 architecture, making it incompatible with modern macOS. In 2025, I began the process of rebuilding it for contemporary environments (x86_64/arm64). Initially, this existed merely as a personal fork, but as of 2026, it has evolved into a full-scale restoration project, leveraging AI-powered code analysis.
+
+## Features:
+This is a self-contained software application. It includes a built-in sequencer and integrates two types of synthesizers.
+- RCP-compatible inbox sequencer (implemented by Mr. Nagata)
+- Apple DLS synthesizer that supports the installation of various SoundFonts.
+- Open-source AMY synthesizer, which is capable of emulating the sounds of synthesizers such as the JUNO and the DX7.
 
 ## Short-term goal:
 The primary objective is to restore the full functionality of STed2 on modern macOS. The goal is for the restored software to operate as a fully functional sequencer—supporting playback, input, and recording—just as the original Human68k version of STed2 did.
 
 ## Medium- to long-term goals:
-Building upon this project, I aim to extend support to other operating systems. At that stage, the "STed2 for Aqua" branding will be retired. I plan to implement a hardware abstraction layer (HAL) between the hardware and the application, transforming the software into a portable system capable of running in a variety of environments.
+Building upon this project, I aim to extend support to other operating systems. At that stage, the "STed for Aqua" branding will be retired. I plan to implement a hardware abstraction layer (HAL) between the hardware and the application, transforming the software into a portable system capable of running in a variety of environments.
 
 
 
