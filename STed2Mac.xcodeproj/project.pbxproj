@@ -34,7 +34,6 @@
 		A1AMY2012F0A4B0100E00021 /* amy_midi.c in Sources */ = {isa = PBXBuildFile; fileRef = A1AMY1012F0A4B0100E00021 /* amy_midi.c */; };
 		A1AMY2012F0A4B0100E00023 /* amy_platform.c in Sources */ = {isa = PBXBuildFile; fileRef = A1AMY1012F0A4B0100E00023 /* amy_platform.c */; };
 		A1AMY3032F0A4B0100E0E033 /* AmySynth.m in Sources */ = {isa = PBXBuildFile; fileRef = A1AMY3012F0A4B0100E0E031 /* AmySynth.m */; };
-		A1C0E51215A7C00100E50F14 /* sted.icns in Resources */ = {isa = PBXBuildFile; fileRef = A1C0E51115A7C00100E50F13 /* sted.icns */; };
 		A1CK00032F0A4B0100E0E003 /* RcpClock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1CK00012F0A4B0100E0E001 /* RcpClock.cpp */; };
 		A1DEF0012F0A4B0100E0E101 /* amy.def in Resources */ = {isa = PBXBuildFile; fileRef = A1DEF0022F0A4B0100E0E102 /* amy.def */; };
 		A1DEF0032F0A4B0100E0E103 /* gm.def in Resources */ = {isa = PBXBuildFile; fileRef = A1DEF0042F0A4B0100E0E104 /* gm.def */; };
@@ -50,6 +49,7 @@
 		A1F0E0311AC55B8700A70D21 /* AVFAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1F0E0321AC55B8700A70D22 /* AVFAudio.framework */; };
 		A1TR00042F0A4B0100E0E004 /* RcpTransport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1TR00012F0A4B0100E0E001 /* RcpTransport.cpp */; };
 		A1UT1F011AC55B8700A70D31 /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1UT1F021AC55B8700A70D32 /* UniformTypeIdentifiers.framework */; };
+		AFA1A099308ED36600F7328B /* sted.icns in Resources */ = {isa = PBXBuildFile; fileRef = AFA1A098308ED36600F7328B /* sted.icns */; };
 		E40E95C41ABA41ED0072AA0B /* assign.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E951C1ABA41ED0072AA0B /* assign.c */; };
 		E40E95C51ABA41ED0072AA0B /* cm6con.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E951D1ABA41ED0072AA0B /* cm6con.c */; };
 		E40E95C61ABA41ED0072AA0B /* cm64.def in Resources */ = {isa = PBXBuildFile; fileRef = E40E95201ABA41ED0072AA0B /* cm64.def */; };
@@ -157,7 +157,6 @@
 		A1AMY1012F0A4B0100E00023 /* amy_platform.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = amy_platform.c; sourceTree = "<group>"; };
 		A1AMY3012F0A4B0100E0E031 /* AmySynth.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AmySynth.m; sourceTree = "<group>"; };
 		A1AMY3022F0A4B0100E0E032 /* AmySynth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AmySynth.h; sourceTree = "<group>"; };
-		A1C0E51115A7C00100E50F13 /* sted.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = sted.icns; sourceTree = "<group>"; };
 		A1CK00012F0A4B0100E0E001 /* RcpClock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RcpClock.cpp; sourceTree = "<group>"; };
 		A1CK00022F0A4B0100E0E002 /* RcpClock.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = RcpClock.hpp; sourceTree = "<group>"; };
 		A1DEF0022F0A4B0100E0E102 /* amy.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = amy.def; sourceTree = "<group>"; };
@@ -184,6 +183,7 @@
 		A1TR00022F0A4B0100E0E002 /* RcpTransport.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = RcpTransport.hpp; sourceTree = "<group>"; };
 		A1TR00032F0A4B0100E0E003 /* rcp_transport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rcp_transport.h; sourceTree = "<group>"; };
 		A1UT1F021AC55B8700A70D32 /* UniformTypeIdentifiers.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UniformTypeIdentifiers.framework; path = /System/Library/Frameworks/UniformTypeIdentifiers.framework; sourceTree = "<absolute>"; };
+		AFA1A098308ED36600F7328B /* sted.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = sted.icns; path = sted2/icon/sted.icns; sourceTree = "<group>"; };
 		AFCF00FA307B7FC20040EB6F /* edit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = edit.h; sourceTree = "<group>"; };
 		E40E951C1ABA41ED0072AA0B /* assign.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = assign.c; sourceTree = "<group>"; };
 		E40E951D1ABA41ED0072AA0B /* cm6con.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = cm6con.c; sourceTree = "<group>"; };
@@ -407,10 +407,10 @@
 				A1F0E0131AC55B8700A70D03 /* KH-Dot-Kodenmachou-16.ttf */,
 				A1F0E0141AC55B8700A70D04 /* OFL.txt */,
 				E47C19121AC55B7600A70D36 /* STed2Mac-Info.plist */,
-				A1C0E51115A7C00100E50F13 /* sted.icns */,
 				089C165CFE840E0CC02AAC07 /* InfoPlist.strings */,
 				1DDD58140DA1D0A300B32029 /* MainMenu.xib */,
 				E44E7DD81AC4C83B00F71120 /* MIDISettings.xib */,
+				AFA1A098308ED36600F7328B /* sted.icns */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -804,6 +804,7 @@
 				A1DEF0072F0A4B0100E0E107 /* xg.def in Resources */,
 				A1DEF0092F0A4B0100E0E109 /* gm_amy.def in Resources */,
 				A1DEF00B2F0A4B0100E0E10B /* dream.def in Resources */,
+				AFA1A099308ED36600F7328B /* sted.icns in Resources */,
 				E40E95C61ABA41ED0072AA0B /* cm64.def in Resources */,
 				E40E95C71ABA41ED0072AA0B /* sc55.def in Resources */,
 				E40E95C81ABA41ED0072AA0B /* sc55mk2.def in Resources */,
@@ -814,7 +815,6 @@
 				E47C191F1AC55B8700A70D36 /* conf in Resources */,
 				A1F0E0111AC55B8700A70D01 /* KH-Dot-Kodenmachou-16.ttf in Resources */,
 				A1F0E0121AC55B8700A70D02 /* OFL.txt in Resources */,
-				A1C0E51215A7C00100E50F14 /* sted.icns in Resources */,
 				E44B2A4E1AC6B44C00910C7B /* STed2_help in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
