@@ -5,10 +5,11 @@
 "STed for Aqua," which was maintained between 2003 and 2015, was an experimental release and did not include the full feature set of STed2. Its final version only supported the Intel i386 architecture, making it incompatible with modern macOS. In 2025, I began the process of rebuilding it for contemporary environments (x86_64/arm64). Initially, this existed merely as a personal fork, but as of 2026, it has evolved into a full-scale restoration project, leveraging AI-powered code analysis.
 
 ## Features:
-This is a self-contained software application. It includes a built-in sequencer and integrates two types of synthesizers.
+Unlike the original Human68K version, which required the companion program RCD.x, and the UNIX port version, which required support for Timidity++ or FluidSynth, This is a self-contained software application.  This is a self-contained software application. It includes a built-in sequencer and integrates two types of synthesizers.
 - RCP-compatible inbox sequencer (implemented by Mr. Nagata)
 - Apple DLS synthesizer that supports the installation of various SoundFonts.
 - Open-source AMY synthesizer, which is capable of emulating the sounds of synthesizers such as the JUNO and the DX7.
+- While the original STed2 focused primarily on compatibility with the Roland GS and SC-55/SC-88/88Pro/8850 series, this version adds support for GM1, GM2, and XG. Furthermore, it now supports the "DREAM SAM2695"—a GM-compatible sound chip. Its manufacturer, DREAM, remains the only company still producing GM chips well into the 2020s.
 
 ## Short-term goal:
 The primary objective is to restore the full functionality of STed2 on modern macOS. The goal is for the restored software to operate as a fully functional sequencer—supporting playback, input, and recording—just as the original Human68k version of STed2 did.
