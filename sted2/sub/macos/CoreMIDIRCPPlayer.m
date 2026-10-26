@@ -55,6 +55,30 @@ int has_midi_in_ring_buffer(void) {
 static MIDIPortRef sMIDIInputPortRef = 0;
 static MIDIEndpointRef sMIDIInputSourceRef = 0;
 
+/* EXT only. Start while the player thread is alive would disarm the clock
+   without rewinding, so FA is applied only when that thread is down.
+   FB/FC are Continue/Stop (XF3/XF4). INT ignores all three.
+   The byte is still pushed to the ring for recording and other consumers. */
+static void ApplyExtMidiTransport(uint8_t status)
+{
+	if (rcp_clock_get_source() == 0)
+		return;
+	switch (status) {
+	case 0xFA:
+		if (!is_coremidi_playing())
+			rcp_transport_start();
+		break;
+	case 0xFB:
+		rcp_transport_continue();
+		break;
+	case 0xFC:
+		rcp_transport_stop();
+		break;
+	default:
+		break;
+	}
+}
+
 static void CoreMIDIReadProc(const MIDIPacketList *pktlist, void *readProcRefCon, void *srcConnRefCon) {
     const MIDIPacket *packet = &pktlist->packet[0];
     for (UInt32 i = 0; i < pktlist->numPackets; i++) {
@@ -64,6 +88,8 @@ static void CoreMIDIReadProc(const MIDIPacketList *pktlist, void *readProcRefCon
                Still pushed to the ring for recording EXT / other consumers. */
             if (b == 0xF8)
                 rcp_clock_on_timing_clock();
+            else if (b == 0xFA || b == 0xFB || b == 0xFC)
+                ApplyExtMidiTransport(b);
             push_midi_in_ring_buffer(b);
         }
         packet = MIDIPacketNext(packet);

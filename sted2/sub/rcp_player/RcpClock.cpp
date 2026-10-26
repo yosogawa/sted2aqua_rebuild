@@ -87,7 +87,7 @@ RcpClock::resetAndRun()
 			running_ = true;
 		}
 	}
-	/* Outside lock: confirms this build is live and logging works. */
+	/* MIDI_CLOCK_DEBUG only. Normal builds do not write the log. */
 	dumpF8Stats(" START");
 }
 
@@ -157,6 +157,7 @@ RcpClock::f8Applied() const
 void
 RcpClock::dumpF8Stats(const char *tag) const
 {
+#ifdef MIDI_CLOCK_DEBUG
 	std::lock_guard<std::mutex> lock(mu_);
 	double us = musical_us_;
 	if (running_)
@@ -179,7 +180,7 @@ RcpClock::dumpF8Stats(const char *tag) const
 		approx_step,
 		(int)qn_us_,
 		timebase_);
-	/* GUI .app often has no attached terminal; always mirror to a file. */
+	/* GUI .app often has no attached terminal; mirror the same line to a file. */
 	std::fputs(line, stderr);
 	std::fflush(stderr);
 	FILE *fp = std::fopen("/tmp/sted_rcp_clock.log", "a");
@@ -187,6 +188,9 @@ RcpClock::dumpF8Stats(const char *tag) const
 		std::fputs(line, fp);
 		std::fclose(fp);
 	}
+#else
+	(void)tag;
+#endif
 }
 
 void

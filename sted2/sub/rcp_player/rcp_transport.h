@@ -44,7 +44,9 @@ void rcp_clock_on_timing_clock(void);
 void rcp_clock_set_tempo(double bpm, int timebase);
 void rcp_clock_set_tempo_us(int32_t quarter_us, int timebase);
 
-/* F8 diagnostics (reset on resetAndRun). */
+/* F8 diagnostics (reset on resetAndRun).
+   The stderr and /tmp/sted_rcp_clock.log write is compiled only when
+   MIDI_CLOCK_DEBUG is defined. */
 void rcp_clock_dump_f8_stats(const char *tag);
 uint64_t rcp_clock_f8_rx(void);
 uint64_t rcp_clock_f8_applied(void);
