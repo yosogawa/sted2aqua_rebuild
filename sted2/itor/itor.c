@@ -1062,7 +1062,7 @@ static int proc_track( void )
     if( strncmp( std_trk.chunk, SMF_TRACK_STRING, 4 ) )
       return 1;
     /* Reject: longer than buf, or past end of SMF input. */
-    if( trk_len > (uint32_t)TRACK_LEN
+    if( trk_len > (uint32_t)(TRACK_LEN * 4)
 	|| (size_t)incount + trk_len > insize )
       return 1;
     get_data( buf, (int)trk_len );
