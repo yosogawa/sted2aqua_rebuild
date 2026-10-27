@@ -1132,20 +1132,113 @@ void	sinit()
 }
 
 /***************************/
+/* Locator chip: MEAS:BEAT:STEP [SPP]. Both come from the same SPP quantum
+   (stepcount * 4 / tbase, one quantum = 6 MIDI clocks). Redraw only when
+   that quantum or the song meter changes. */
+void
+locator_refresh(int force)
+{
+  static int last_spp = -1;
+  static int last_barlen = -1;
+  int32_t sc;
+  int spp, barlen, meas, beat, step, q, rem, beat_len;
+  char buf[24];
+
+  /* Same UI poll as the locator. The phase may already have changed on
+     the MIDI callback or the key handler; this only paints afterwards. */
+  transport_chip_refresh(0);
+
+  if (rcd == NULL || tbase <= 0 || beat1 <= 0 || beat2 <= 0)
+    return;
+
+  sc = rcd->stepcount;
+  if (sc < 0)
+    sc = 0;
+  spp = (int)(((int64_t)sc * 4 / tbase) & 0x3fff);
+  barlen = tbase * 4 * beat1 / beat2;
+  if (!force && spp == last_spp && barlen == last_barlen)
+    return;
+  last_spp = spp;
+  last_barlen = barlen;
+
+  q = (int)(((int64_t)spp * tbase) / 4);
+  if (barlen <= 0) {
+    meas = 1;
+    beat = 1;
+    step = 0;
+  } else {
+    beat_len = barlen / beat1;
+    if (beat_len <= 0)
+      beat_len = 1;
+    meas = q / barlen + 1;
+    if (meas > 999)
+      meas = 999;
+    rem = q % barlen;
+    beat = rem / beat_len + 1;
+    if (beat > 999)
+      beat = 999;
+    step = rem % beat_len;
+    if (step > 999)
+      step = 999;
+  }
+  snprintf(buf, sizeof buf, "%03d:%03d:%03d [%04X]", meas, beat, step, spp);
+  /* 20-cell chip stays at column 62. The 18-character string starts one
+     column later, leaving one cell free on each side. */
+  sdis2(62, 0, "", 20, 15, 8);
+  g_print(63 * 8, 0, buf, 15);
+  sdis2(62, 512, "", 20, 15, 8);
+  g_print(63 * 8, 512, buf, 15);
+}
+
+/* Transport chip, column 83, 5 cells. Running is PLAY, Held is PAUSE.
+   Stopped and Search stay blank. Drawn from the UI poll, not from the
+   clock or the MIDI callback. */
+void
+transport_chip_refresh(int force)
+{
+  static int last = -1;
+  char label[8];
+  int phase;
+
+  phase = rcp_transport_get_phase();
+  if (!force && phase == last)
+    return;
+  last = phase;
+  if (phase == RCP_TRANSPORT_RUNNING)
+    strcpy(label, "PLAY");
+  else if (phase == RCP_TRANSPORT_HELD)
+    strcpy(label, "PAUSE");
+  else
+    label[0] = 0;
+  sdis2(83, 0, label, 5, 15, 8);
+  sdis2(83, 512, label, 5, 15, 8);
+}
+
+/* Right side of the header, same chips as FREE/USED (palette 8 / 15).
+   Column 62 is the locator chip, 83 is transport, 89 is the small title.
+   Locator text is drawn at column 63. */
+static void
+logo_status(int y)
+{
+  fill(496, y + 16, 767, y + 31, 0);
+  sdis2(62, y, "", 20, 15, 8);
+  sdis2(83, y, "", 5, 15, 8);
+  sdis2(89, y, " STed", 7, 15, 8);
+  locator_refresh(1);
+  transport_chip_refresh(1);
+}
+
 void	logo(int y)
 {
   if(y<0){
-    fill(496,512,767,512+31,0);
-    fill(496,512,767,512+15,8);box(496,512,767,512+15,14,65535);
-    y=510;
+    fill(496, 512, 767, 512 + 31, 0);
+    logo_status(512);
   }else{
     sdis2(0,y," FREE:",14,15,8);sdis2(15,y," USED:",14,15,8);
     sdis2(30,y," TR.: 1",8,15,8);
-    fill(496,y,767,y+31,8);box(496,y,767,y+31,14,65535);
-    symbol(496+5,y+15,comment,1,1,0,15,0);
+    logo_status(y);
     trksize(-2);
   }
-  g_print(496+24,y+2,"STed v2.07  (c)1990-97 TURBO",15);
 /*
   g_print(496+13,y+3,"??? ???m?1990-97????",0);
   g_print(496+12,y+2,"??? ???m?1990-97????",15);

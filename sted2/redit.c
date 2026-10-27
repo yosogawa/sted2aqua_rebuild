@@ -671,6 +671,7 @@ void	rsttrc(int *no,int *cx,int flg,int pg)
 
   skf=poft>>16;ofs=poft&0xffff;
   while( rcd->active[track] && rcp_transport_is_active() ){
+    locator_refresh(0);
     if(B_KEYSNS()!=0){
       int	k=B_KEYINP()>>8,sh=B_SFTSNS();
       if(k==1){break;}

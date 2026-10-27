@@ -56,6 +56,8 @@ void trk_free(int ad);
 void trk_no(void);
 void sdis(int x, int y, char *s, int c, int c1, int c2);
 void sdis2(int x, int y, char *s, int c, int c1, int c2);
+void locator_refresh(int force);
+void transport_chip_refresh(int force);
 void sdis3(int x, int y, char *s, int c, int c1, int c2);
 void vdis(int x, int y, int v, int c, int c1, int c2);
 void vdis2(int x, int y, int v, int c, int c1, int c2);

@@ -97,6 +97,7 @@ restart:
 
   while(1){
     usleep(100); /* Dec.25.1998 Daisuke Nagano */
+    locator_refresh(0);
     a=(*rcd->md_get)();if((a>127 && a<0xf7) || a==0xfa){stm=2;break;}
 
     if( INPOUT(0xfe)!=0 ){
@@ -134,6 +135,7 @@ restart:
     co=barlen*2;lastst+=co;cc2=co/10;
     while(1){
       usleep(100); /* Dec.25.1998 Daisuke Nagano */
+      locator_refresh(0);
       /* EXT count-in also follows RcpClock (F8); INT follows host time. */
       cc=rcd->stepcount;
       B_LOCATE(9,6);B_PRINT(fstr((co-cc)/cc2,4));
@@ -162,6 +164,7 @@ restart:
 
   while(1){
     int nst;
+    locator_refresh(0);
     /*usleep(100);*/ /* Dec.07.1999 Daisuke Nagano */
     STed_MeasureConversion(dtr);
     nst=rcd->step[dtr];          /* Dec.11.1998 Daisuke Nagano */

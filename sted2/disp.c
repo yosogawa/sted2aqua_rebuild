@@ -200,6 +200,7 @@ int	inkey3(void)
 
   while(INPOUT(0xfe)!=0){INPOUT(0xff);}
   while(ke==0){
+    locator_refresh(0);
 //    key_wait();
     ke=INPOUT(0xff);sh=B_SFTSNS()&15;
 
