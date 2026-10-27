@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="25098" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+    <dependencies>
+        <deployment identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="25098"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="AboutPanelController">
+            <connections>
+                <outlet property="authorsButton" destination="btn-authors" id="out-authors"/>
+                <outlet property="bodyText" destination="body" id="out-body"/>
+                <outlet property="iconView" destination="icon" id="out-icon"/>
+                <outlet property="licenseButton" destination="btn-license" id="out-license"/>
+                <outlet property="memorialButton" destination="btn-rip" id="out-rip"/>
+                <outlet property="thanksButton" destination="btn-thanks" id="out-thanks"/>
+                <outlet property="versionField" destination="version" id="out-version"/>
+                <outlet property="window" destination="window" id="out-window"/>
+            </connections>
+        </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
+        <window title="STed2 について" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="window">
+            <windowStyleMask key="styleMask" titled="YES" closable="YES" resizable="YES"/>
+            <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
+            <rect key="contentRect" x="200" y="180" width="560" height="380"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1570"/>
+            <view key="contentView" id="content">
+                <rect key="frame" x="0.0" y="0.0" width="560" height="380"/>
+                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                <subviews>
+                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="icon">
+                        <rect key="frame" x="24" y="260" width="96" height="96"/>
+                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" id="icon-cell"/>
+                    </imageView>
+                    <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="title">
+                        <rect key="frame" x="136" y="328" width="400" height="24"/>
+                        <textFieldCell key="cell" lineBreakMode="clipping" title="STed2" bordered="NO" drawsBackground="NO" editable="NO" selectable="NO" id="title-cell">
+                            <font key="font" metaFont="systemBold" size="18"/>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="version">
+                        <rect key="frame" x="136" y="304" width="400" height="18"/>
+                        <textFieldCell key="cell" lineBreakMode="clipping" title="Version" bordered="NO" drawsBackground="NO" editable="NO" selectable="NO" id="version-cell">
+                            <font key="font" metaFont="system" size="13"/>
+                            <color key="textColor" name="secondaryLabelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <scrollView borderType="bezel" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="scroll">
+                        <rect key="frame" x="24" y="52" width="512" height="192"/>
+                        <clipView key="contentView" drawsBackground="NO" id="clip">
+                            <rect key="frame" x="1" y="1" width="495" height="175"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                            <subviews>
+                                <textView editable="NO" importsGraphics="NO" richText="NO" verticallyResizable="YES" findStyle="panel" continuousSpellChecking="NO" allowsUndo="NO" usesRuler="NO" usesFontPanel="YES" allowsNonContiguousLayout="YES" quoteSubstitution="NO" dashSubstitution="NO" spellingCorrection="NO" smartInsertDelete="NO" id="body">
+                                    <rect key="frame" x="0.0" y="0.0" width="495" height="175"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES"/>
+                                    <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                    <size key="minSize" width="495" height="175"/>
+                                    <size key="maxSize" width="512" height="10000000"/>
+                                    <size key="textContainerInset" width="4" height="4"/>
+                                    <color key="insertionPointColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                    <textStorage>
+                                        <attributedString>
+                                            <fragment>
+                                                <string key="content"> </string>
+                                                <attributes>
+                                                    <font key="NSFont" metaFont="system" size="13"/>
+                                                    <font key="NSOriginalFont" metaFont="system" size="13"/>
+                                                </attributes>
+                                            </fragment>
+                                        </attributedString>
+                                    </textStorage>
+                                </textView>
+                            </subviews>
+                        </clipView>
+                        <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="YES" id="hscroller"/>
+                        <scroller key="verticalScroller" verticalHuggingPriority="750" horizontal="NO" id="vscroller"/>
+                    </scrollView>
+                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="btn-authors">
+                        <rect key="frame" x="24" y="16" width="96" height="24"/>
+                        <buttonCell key="cell" type="push" title="作成者" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="cell-authors">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="showAuthors:" target="-2" id="act-authors"/>
+                        </connections>
+                    </button>
+                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="btn-license">
+                        <rect key="frame" x="132" y="16" width="96" height="24"/>
+                        <buttonCell key="cell" type="push" title="ライセンス" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="cell-license">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="showLicense:" target="-2" id="act-license"/>
+                        </connections>
+                    </button>
+                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="btn-thanks">
+                        <rect key="frame" x="240" y="16" width="96" height="24"/>
+                        <buttonCell key="cell" type="push" title="謝辞" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="cell-thanks">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="showThanks:" target="-2" id="act-thanks"/>
+                        </connections>
+                    </button>
+                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="btn-rip">
+                        <rect key="frame" x="348" y="16" width="96" height="24"/>
+                        <buttonCell key="cell" type="push" title="追悼/RIP" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="cell-rip">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="showMemorial:" target="-2" id="act-rip"/>
+                        </connections>
+                    </button>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="icon" firstAttribute="leading" secondItem="content" secondAttribute="leading" constant="24" id="c-icon-lead"/>
+                    <constraint firstItem="icon" firstAttribute="top" secondItem="content" secondAttribute="top" constant="20" id="c-icon-top"/>
+                    <constraint firstItem="icon" firstAttribute="width" constant="96" id="c-icon-w"/>
+                    <constraint firstItem="icon" firstAttribute="height" constant="96" id="c-icon-h"/>
+                    <constraint firstItem="title" firstAttribute="leading" secondItem="icon" secondAttribute="trailing" constant="16" id="c-title-lead"/>
+                    <constraint firstItem="title" firstAttribute="top" secondItem="icon" secondAttribute="top" constant="8" id="c-title-top"/>
+                    <constraint firstAttribute="trailing" secondItem="title" secondAttribute="trailing" constant="24" id="c-title-trail"/>
+                    <constraint firstItem="version" firstAttribute="leading" secondItem="title" secondAttribute="leading" id="c-ver-lead"/>
+                    <constraint firstItem="version" firstAttribute="top" secondItem="title" secondAttribute="bottom" constant="4" id="c-ver-top"/>
+                    <constraint firstItem="version" firstAttribute="trailing" secondItem="title" secondAttribute="trailing" id="c-ver-trail"/>
+                    <constraint firstItem="scroll" firstAttribute="leading" secondItem="content" secondAttribute="leading" constant="24" id="c-scroll-lead"/>
+                    <constraint firstAttribute="trailing" secondItem="scroll" secondAttribute="trailing" constant="24" id="c-scroll-trail"/>
+                    <constraint firstItem="scroll" firstAttribute="top" secondItem="icon" secondAttribute="bottom" constant="16" id="c-scroll-top"/>
+                    <constraint firstItem="btn-authors" firstAttribute="top" secondItem="scroll" secondAttribute="bottom" constant="16" id="c-btn-top"/>
+                    <constraint firstItem="btn-authors" firstAttribute="leading" secondItem="content" secondAttribute="leading" constant="24" id="c-btn-lead"/>
+                    <constraint firstAttribute="bottom" secondItem="btn-authors" secondAttribute="bottom" constant="16" id="c-btn-bottom"/>
+                    <constraint firstItem="scroll" firstAttribute="height" relation="greaterThanOrEqual" constant="120" id="c-scroll-min"/>
+                    <constraint firstItem="btn-license" firstAttribute="leading" secondItem="btn-authors" secondAttribute="trailing" constant="12" id="c-lic-lead"/>
+                    <constraint firstItem="btn-license" firstAttribute="centerY" secondItem="btn-authors" secondAttribute="centerY" id="c-lic-y"/>
+                    <constraint firstItem="btn-license" firstAttribute="width" secondItem="btn-authors" secondAttribute="width" id="c-lic-w"/>
+                    <constraint firstItem="btn-thanks" firstAttribute="leading" secondItem="btn-license" secondAttribute="trailing" constant="12" id="c-thx-lead"/>
+                    <constraint firstItem="btn-thanks" firstAttribute="centerY" secondItem="btn-authors" secondAttribute="centerY" id="c-thx-y"/>
+                    <constraint firstItem="btn-thanks" firstAttribute="width" secondItem="btn-authors" secondAttribute="width" id="c-thx-w"/>
+                    <constraint firstItem="btn-rip" firstAttribute="leading" secondItem="btn-thanks" secondAttribute="trailing" constant="12" id="c-rip-lead"/>
+                    <constraint firstItem="btn-rip" firstAttribute="centerY" secondItem="btn-authors" secondAttribute="centerY" id="c-rip-y"/>
+                    <constraint firstItem="btn-rip" firstAttribute="width" secondItem="btn-authors" secondAttribute="width" id="c-rip-w"/>
+                    <constraint firstAttribute="trailing" secondItem="btn-rip" secondAttribute="trailing" constant="24" id="c-rip-trail"/>
+                    <constraint firstItem="btn-authors" firstAttribute="width" relation="greaterThanOrEqual" constant="72" id="c-auth-min"/>
+                </constraints>
+            </view>
+            <point key="canvasLocation" x="140" y="154"/>
+        </window>
+    </objects>
+</document>

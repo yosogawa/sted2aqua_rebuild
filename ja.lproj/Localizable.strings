@@ -1,0 +1,13 @@
+/* About パネル。本文は下書き。ライセンス全文は後で載せる。 */
+
+"About STed2" = "STed2 について";
+"Authors" = "作成者";
+"License" = "ライセンス";
+"Thanks" = "謝辞";
+"RIP" = "追悼/RIP";
+
+"about.authors" = "Copyright 1990-1997 TURBO\nCopyright 1998-1999 Daisuke Nagano\nCopyright 2000-2015 Toshi Nagata\nCopyright 2026 Yoshinori Ogawa\n";
+
+"about.license" = "（下書き）\nプログラムのうち、移植者が書いた部分の条件は GNU GPL Version 2 です。全文は sted2/doc/STed2_help/gpl.html から後で載せます。原作の配布条件は元の文書に従います。\n\n画面フォント KHドット小伝馬町16 は SIL Open Font License 1.1 です。全文は sted2/fonts/OFL.txt から後で載せます。\nCopyright (c) Keitarou Hiraki, Font Silo. 1990-2015\n";
+
+"about.thanks" = "（下書き）\n原作: TURBO（戸田貴之）\nUNIX 移植: 長野大介\nMac(Aqua) 移植: Toshi Nagata\n再構築: 小川嘉徳\n\n各人の作業内容は、README.jp と README.md をもとに後でまとめます。\n";

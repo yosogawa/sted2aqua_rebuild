@@ -10,6 +10,8 @@
 		1DDD58160DA1D0A300B32029 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1DDD58140DA1D0A300B32029 /* MainMenu.xib */; };
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
+		A1AB0D011B01000100ABOUT1 /* AboutPanelController.m in Sources */ = {isa = PBXBuildFile; fileRef = A1AB0D041B01000100ABOUT1 /* AboutPanelController.m */; };
+		A1AB0D021B01000100ABOUT1 /* AboutPanel.xib in Resources */ = {isa = PBXBuildFile; fileRef = A1AB0D061B01000100ABOUT1 /* AboutPanel.xib */; };
 		A1AMY00D2F0A4B0100E0E00D /* libamy.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A1AMY0022F0A4B0100E0E002 /* libamy.a */; };
 		A1AMY2012F0A4B0100E00001 /* algorithms.c in Sources */ = {isa = PBXBuildFile; fileRef = A1AMY1012F0A4B0100E00001 /* algorithms.c */; };
 		A1AMY2012F0A4B0100E00002 /* amy.c in Sources */ = {isa = PBXBuildFile; fileRef = A1AMY1012F0A4B0100E00002 /* amy.c */; };
@@ -46,7 +48,9 @@
 		A1E0E0132F0A4B0100E0E013 /* InternalSynth.m in Sources */ = {isa = PBXBuildFile; fileRef = A1E0E0112F0A4B0100E0E011 /* InternalSynth.m */; };
 		A1F0E0111AC55B8700A70D01 /* KH-Dot-Kodenmachou-16.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A1F0E0131AC55B8700A70D03 /* KH-Dot-Kodenmachou-16.ttf */; };
 		A1F0E0121AC55B8700A70D02 /* OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = A1F0E0141AC55B8700A70D04 /* OFL.txt */; };
+		A1TUI0011B01000100TUIT01 /* tuitou.doc in Resources */ = {isa = PBXBuildFile; fileRef = A1TUI0021B01000100TUIT01 /* tuitou.doc */; };
 		A1F0E0311AC55B8700A70D21 /* AVFAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1F0E0321AC55B8700A70D22 /* AVFAudio.framework */; };
+		A1L10C011B01000100L10C01 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = A1L10C041B01000100L10C01 /* Localizable.strings */; };
 		A1TR00042F0A4B0100E0E004 /* RcpTransport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1TR00012F0A4B0100E0E001 /* RcpTransport.cpp */; };
 		A1UT1F011AC55B8700A70D31 /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1UT1F021AC55B8700A70D32 /* UniformTypeIdentifiers.framework */; };
 		AFA1A099308ED36600F7328B /* sted.icns in Resources */ = {isa = PBXBuildFile; fileRef = AFA1A098308ED36600F7328B /* sted.icns */; };
@@ -131,6 +135,9 @@
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		8D1107320486CEB800E47090 /* STed2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = STed2.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1AB0D031B01000100ABOUT1 /* AboutPanelController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AboutPanelController.h; sourceTree = "<group>"; };
+		A1AB0D041B01000100ABOUT1 /* AboutPanelController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AboutPanelController.m; sourceTree = "<group>"; };
+		A1AB0D051B01000100ABOUT1 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/AboutPanel.xib; sourceTree = "<group>"; };
 		A1AMY0022F0A4B0100E0E002 /* libamy.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libamy.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1AMY1012F0A4B0100E00001 /* algorithms.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = algorithms.c; sourceTree = "<group>"; };
 		A1AMY1012F0A4B0100E00002 /* amy.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = amy.c; sourceTree = "<group>"; };
@@ -173,12 +180,15 @@
 		A1E0E0122F0A4B0100E0E012 /* InternalSynth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InternalSynth.h; sourceTree = "<group>"; };
 		A1F0E0131AC55B8700A70D03 /* KH-Dot-Kodenmachou-16.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "KH-Dot-Kodenmachou-16.ttf"; path = "sted2/fonts/KH-Dot-Kodenmachou-16.ttf"; sourceTree = "<group>"; };
 		A1F0E0141AC55B8700A70D04 /* OFL.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = OFL.txt; path = sted2/fonts/OFL.txt; sourceTree = "<group>"; };
+		A1TUI0021B01000100TUIT01 /* tuitou.doc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = tuitou.doc; path = sted2/doc/original_docs/tuitou.doc; sourceTree = "<group>"; };
 		A1F0E0321AC55B8700A70D22 /* AVFAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFAudio.framework; path = /System/Library/Frameworks/AVFAudio.framework; sourceTree = "<absolute>"; };
 		A1F0E0411AC55B8700A70D31 /* visual.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = visual.h; sourceTree = "<group>"; };
 		A1F0E0421AC55B8700A70D32 /* trkset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = trkset.h; sourceTree = "<group>"; };
 		A1F0E0431AC55B8700A70D33 /* key_sub.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = key_sub.h; sourceTree = "<group>"; };
 		A1F0E0441AC55B8700A70D34 /* redit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = redit.h; sourceTree = "<group>"; };
 		A1F0E0511AC55B8700A70D51 /* X68kWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = X68kWindow.h; sourceTree = "<group>"; };
+		A1L10C021B01000100L10C01 /* en */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		A1L10C031B01000100L10C01 /* ja */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
 		A1TR00012F0A4B0100E0E001 /* RcpTransport.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RcpTransport.cpp; sourceTree = "<group>"; };
 		A1TR00022F0A4B0100E0E002 /* RcpTransport.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = RcpTransport.hpp; sourceTree = "<group>"; };
 		A1TR00032F0A4B0100E0E003 /* rcp_transport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rcp_transport.h; sourceTree = "<group>"; };
@@ -198,7 +208,7 @@
 		E40E95281ABA41ED0072AA0B /* disp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = disp.c; sourceTree = "<group>"; };
 		E40E952A1ABA41ED0072AA0B /* FAQ */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = FAQ; sourceTree = "<group>"; };
 		E40E952B1ABA41ED0072AA0B /* memo */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = memo; sourceTree = "<group>"; };
-		E40E952D1ABA41ED0072AA0B /* rested2m.doc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rested2m.doc; sourceTree = "<group>"; };
+		E40E952D1ABA41ED0072AA0B /* rested2m.doc */ = {isa = PBXFileReference; explicitFileType = text; fileEncoding = 4; path = rested2m.doc; sourceTree = "<group>"; };
 		E40E952F1ABA41ED0072AA0B /* cm64.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cm64.def; sourceTree = "<group>"; };
 		E40E95301ABA41ED0072AA0B /* sc55.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = sc55.def; sourceTree = "<group>"; };
 		E40E95311ABA41ED0072AA0B /* sc55mk2.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = sc55mk2.def; sourceTree = "<group>"; };
@@ -213,7 +223,7 @@
 		E40E953A1ABA41ED0072AA0B /* sted2def.doc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = sted2def.doc; sourceTree = "<group>"; };
 		E40E953B1ABA41ED0072AA0B /* sted207m.his */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = sted207m.his; sourceTree = "<group>"; };
 		E40E953C1ABA41ED0072AA0B /* sted_all.hed */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = sted_all.hed; sourceTree = "<group>"; };
-		E40E953D1ABA41ED0072AA0B /* tuitou.doc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = tuitou.doc; sourceTree = "<group>"; };
+		E40E953D1ABA41ED0072AA0B /* tuitou.doc */ = {isa = PBXFileReference; explicitFileType = text; fileEncoding = 4; path = tuitou.doc; sourceTree = "<group>"; };
 		E40E953E1ABA41ED0072AA0B /* edit.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = edit.c; sourceTree = "<group>"; };
 		E40E953F1ABA41ED0072AA0B /* edits.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = edits.c; sourceTree = "<group>"; };
 		E40E95401ABA41ED0072AA0B /* exclu.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = exclu.c; sourceTree = "<group>"; };
@@ -406,10 +416,13 @@
 				E47C19141AC55B8700A70D36 /* conf */,
 				A1F0E0131AC55B8700A70D03 /* KH-Dot-Kodenmachou-16.ttf */,
 				A1F0E0141AC55B8700A70D04 /* OFL.txt */,
+				A1TUI0021B01000100TUIT01 /* tuitou.doc */,
 				E47C19121AC55B7600A70D36 /* STed2Mac-Info.plist */,
 				089C165CFE840E0CC02AAC07 /* InfoPlist.strings */,
+				A1L10C041B01000100L10C01 /* Localizable.strings */,
 				1DDD58140DA1D0A300B32029 /* MainMenu.xib */,
 				E44E7DD81AC4C83B00F71120 /* MIDISettings.xib */,
+				A1AB0D061B01000100ABOUT1 /* AboutPanel.xib */,
 				AFA1A098308ED36600F7328B /* sted.icns */,
 			);
 			name = Resources;
@@ -723,6 +736,8 @@
 				A1F0E0511AC55B8700A70D51 /* X68kWindow.h */,
 				E44E7DFB1AC4C94E00F71120 /* MyDialogController.h */,
 				E44E7DFC1AC4C94E00F71120 /* MyDialogController.m */,
+				A1AB0D031B01000100ABOUT1 /* AboutPanelController.h */,
+				A1AB0D041B01000100ABOUT1 /* AboutPanelController.m */,
 			);
 			path = aqua;
 			sourceTree = "<group>";
@@ -797,6 +812,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */,
+				A1L10C011B01000100L10C01 /* Localizable.strings in Resources */,
 				1DDD58160DA1D0A300B32029 /* MainMenu.xib in Resources */,
 				A1DEF0012F0A4B0100E0E101 /* amy.def in Resources */,
 				A1DEF0032F0A4B0100E0E103 /* gm.def in Resources */,
@@ -812,9 +828,11 @@
 				E40E95CA1ABA41ED0072AA0B /* sted2.cnf in Resources */,
 				E40E95CB1ABA41ED0072AA0B /* sted2.fon in Resources */,
 				E44E7DDA1AC4C83B00F71120 /* MIDISettings.xib in Resources */,
+				A1AB0D021B01000100ABOUT1 /* AboutPanel.xib in Resources */,
 				E47C191F1AC55B8700A70D36 /* conf in Resources */,
 				A1F0E0111AC55B8700A70D01 /* KH-Dot-Kodenmachou-16.ttf in Resources */,
 				A1F0E0121AC55B8700A70D02 /* OFL.txt in Resources */,
+				A1TUI0011B01000100TUIT01 /* tuitou.doc in Resources */,
 				E44B2A4E1AC6B44C00910C7B /* STed2_help in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -895,6 +913,7 @@
 				E40E962F1ABA41ED0072AA0B /* visual.c in Sources */,
 				E4DBA7B81ABB1F1E0070024F /* X68kView.m in Sources */,
 				E44E7DFD1AC4C94E00F71120 /* MyDialogController.m in Sources */,
+				A1AB0D011B01000100ABOUT1 /* AboutPanelController.m in Sources */,
 				A1DLS0D12F0A4B0100DLS0D1 /* DLSSynthPanel.m in Sources */,
 				E4F8616F1AC7D306007DF49E /* main.m in Sources */,
 			);
@@ -954,6 +973,23 @@
 				1DDD58150DA1D0A300B32029 /* en */,
 			);
 			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+		A1AB0D061B01000100ABOUT1 /* AboutPanel.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				A1AB0D051B01000100ABOUT1 /* en */,
+			);
+			name = AboutPanel.xib;
+			sourceTree = "<group>";
+		};
+		A1L10C041B01000100L10C01 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				A1L10C021B01000100L10C01 /* en */,
+				A1L10C031B01000100L10C01 /* ja */,
+			);
+			name = Localizable.strings;
 			sourceTree = "<group>";
 		};
 		E44E7DD81AC4C83B00F71120 /* MIDISettings.xib */ = {

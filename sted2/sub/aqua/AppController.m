@@ -8,6 +8,7 @@
 // #import "X68kWindow.h"
 #import "CoreMIDIRCPPlayer.h"
 #import "MyDialogController.h"
+#import "AboutPanelController.h"
 #import "DLSSynthPanel.h"
 
 #include <stdlib.h>
@@ -111,6 +112,12 @@ ApplyMidiSyncMode(int ext)
 	argv = (char **)[[argument objectAtIndex: 2] pointerValue];
 	(*mainPtr)(argc, argv);
 	[pool release];
+}
+
+- (IBAction)showAboutPanel:(id)sender
+{
+	(void)sender;
+	[AboutPanelController showPanel];
 }
 
 - (IBAction)midiSettingsDialog:(id)sender

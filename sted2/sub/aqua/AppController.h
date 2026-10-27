@@ -14,6 +14,7 @@
 }
 - (void)startX68kThread:(id)argument;
 - (IBAction)midiSettingsDialog:(id)sender;
+- (IBAction)showAboutPanel:(id)sender;
 - (IBAction)dlsSynthDialog:(id)sender;
 - (IBAction)allSoundOff:(id)sender;
 - (IBAction)toggleThruMode:(id)sender;

@@ -1,0 +1,13 @@
+/* About panel. Draft text; the license pages are filled in later. */
+
+"About STed2" = "About STed2";
+"Authors" = "Authors";
+"License" = "License";
+"Thanks" = "Thanks";
+"RIP" = "追悼/RIP";
+
+"about.authors" = "Copyright 1990-1997 TURBO\nCopyright 1998-1999 Daisuke Nagano\nCopyright 2000-2015 Toshi Nagata\nCopyright 2026 Yoshinori Ogawa\n";
+
+"about.license" = "(draft)\nThe parts written by the porters are under GNU GPL Version 2. The full text will be taken from sted2/doc/STed2_help/gpl.html. The original program follows its own distribution terms.\n\nThe screen font KH Dot Kodenmachou 16 is under the SIL Open Font License 1.1. The full text will be taken from sted2/fonts/OFL.txt.\nCopyright (c) Keitarou Hiraki, Font Silo. 1990-2015\n";
+
+"about.thanks" = "(draft)\nOriginal: TURBO (Takayuki Toda)\nUNIX port: Daisuke Nagano\nMac(Aqua) port: Toshi Nagata\nRebuild: Yoshinori Ogawa\n\nThe description of each person's work will be summarized later from README.jp and README.md.\n";
