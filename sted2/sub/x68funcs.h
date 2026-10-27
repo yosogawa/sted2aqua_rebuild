@@ -36,6 +36,8 @@ extern void key_pause(void);
 extern void set_errvect(void);
 
 extern void key_wait(void);
+/* True when inkey3's 0xff read would return. Modifier make/break does not count. */
+extern int key_input_ready(void);
 
 extern void key_mouse_wait(void);
 

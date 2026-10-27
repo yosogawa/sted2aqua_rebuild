@@ -584,6 +584,11 @@ void XSTed_ledmod( int code, int onoff ) {
 
 }
 
+int XSTed_key_readable( void )
+{
+  return XSTed_keysns();
+}
+
 int XSTed_keysns( void ) {
 
   XEvent e;

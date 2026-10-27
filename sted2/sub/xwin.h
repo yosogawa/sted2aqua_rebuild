@@ -171,6 +171,7 @@ extern int  XSTed_keyinp( void );
 extern int  XSTed_sftsns( void );
 extern int  XSTed_bitsns( int );
 extern int  XSTed_keysns( void );
+extern int  XSTed_key_readable( void );
 /*extern*/ void XSTed_key_wait( void );
 /*extern*/ void XSTed_ledmod( int, int );
 

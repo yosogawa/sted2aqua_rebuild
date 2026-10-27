@@ -2915,6 +2915,31 @@ XSTed_keysns(void)
 	return ch != 0;
 }
 
+/* inkey3 keeps redrawing until 0xff can return. Modifier make/break
+   (0x70-0x73 / 0xf0-0xf3) stays queued and 0xff skips it, so those
+   events must not count as a waiting key. The buffer is left as it is. */
+int
+XSTed_key_readable(void)
+{
+	int i, found;
+
+	if (sLock == nil)
+		return 0;
+	[sLock lock];
+	found = 0;
+	for (i = 0; i < sKeyBufferCount; i++) {
+		uint16_t ch;
+
+		ch = (uint16_t)(sKeyBuffer[(sKeyBufferBase + i) % kKeyBufferMax] & 0xffff);
+		if (ch != 0 && ch < 0x7000) {
+			found = 1;
+			break;
+		}
+	}
+	[sLock unlock];
+	return found;
+}
+
 void
 XSTed_key_wait(void)
 {
@@ -2926,10 +2951,19 @@ XSTed_key_wait(void)
 void
 XSTed_midi_wait(void)
 {
+	/* PLAY returns before the player thread marks transport active, and the
+	   editor then waits here. Leave when that flag rises so the next loop
+	   can follow. Already active on entry means ESC left follow while
+	   playback continues, so keep waiting for a key or MIDI input. */
+	int was_active;
+
+	was_active = rcp_transport_is_active();
 	while (1) {
 		if (XSTed_keysns())
 			return;
 		if (is_midi_in())
+			return;
+		if (!was_active && rcp_transport_is_active())
 			return;
 		usleep(10000);
 	}

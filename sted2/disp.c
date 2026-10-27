@@ -201,7 +201,12 @@ int	inkey3(void)
   while(INPOUT(0xfe)!=0){INPOUT(0xff);}
   while(ke==0){
     locator_refresh(0);
-//    key_wait();
+    /* 0xff sleeps until a character key is buffered. Modifier make/break
+       stays queued and must not stop this refresh. */
+    if(key_input_ready()==0){
+      usleep(10000);
+      continue;
+    }
     ke=INPOUT(0xff);sh=B_SFTSNS()&15;
 
     ex=BITSNS(0xa);

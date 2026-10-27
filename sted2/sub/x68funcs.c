@@ -8,6 +8,7 @@
  */
 
 #include "sted.h"
+#include "rcp_transport.h"
 
 #include <locale.h>
 #include <langinfo.h>
@@ -17,6 +18,9 @@ void curses_key_wait(void);
 void XSTed_key_wait(void);
 void curses_midi_wait(void);
 void XSTed_midi_wait(void);
+int curses_keyin(int);
+int XSTed_keyin(int);
+int XSTed_key_readable(void);
 
 
 /* global variables */
@@ -188,6 +192,15 @@ int child( char *cl ) {
 /*
  */
 
+int key_input_ready( void )
+{
+  if ( isconsole )
+    return (curses_keyin(0xfe) == 0) ? 0 : 1;
+  if ( isGUI )
+    return XSTed_key_readable();
+  return 0;
+}
+
 void key_wait( void ){
 
   if ( isconsole ) {
@@ -211,10 +224,21 @@ void key_midi_wait( void ){
 
 void key_mouse_wait( void ) {
 
+  int was_active;
+
   if ( isconsole ) {
     curses_key_wait();
   } else if ( isGUI ) {
-    XSTed_key_wait();
+    /* Rhythm editor only. PLAY returns before the player marks transport
+       active, and this wait is the next stop. Leave when that flag rises
+       so follow can start. Already active on entry means ESC left follow
+       while playback continues. */
+    was_active = rcp_transport_is_active();
+    while ( XSTed_keyin(0xfe) == 0 ) {
+      if ( !was_active && rcp_transport_is_active() )
+        return;
+      usleep(10000);
+    }
   }
   return;
 }
