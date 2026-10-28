@@ -376,7 +376,7 @@
 #key_xf5    = control-5
 #key_kigo   = f11
 #key_toroku = f12
-#key_ins    = control-\
+#key_ins    = control-_
 #key_del    = delete
 #key_home   = home
 #key_undo   = end
@@ -384,6 +384,30 @@
 #key_rdown  = page_down
 
 * for macOS (Mac 英語キーボード)
+
+*#key_f1     = f1 option-1
+*#key_f2     = f2 option-2
+*#key_f3     = f3 option-3
+*#key_f4     = f4 option-4
+*#key_f5     = f5 option-5
+*#key_f6     = f6 option-6
+*#key_f7     = f7 option-7
+*#key_f8     = f8 option-8
+*#key_f9     = f9 option-9
+*#key_f10    = f10 option-0
+*#key_xf1    = control-1
+*#key_xf2    = control-2
+*#key_xf3    = control-3
+*#key_xf4    = control-4
+**#key_xf5    = control-5
+*#key_kigo   = f11
+*#key_toroku = f12
+*#key_ins    = control-\
+*#key_del    = delete
+*#key_home   = home
+*#key_undo   = end
+*#key_rup    = page_up
+*#key_rdown  = page_down
 
 * for macOS (106/109)
 
