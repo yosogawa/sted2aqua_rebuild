@@ -35,6 +35,10 @@ public:
 	void stop();   /* freeze: keep elapsed, stop advancing */
 	void resume(); /* INT: start host accumulation; EXT: arm only (wait for F8) */
 	double elapsedUs();
+	/* Set frozen musical position. Freezes INT host accumulation first.
+	   Does not change armed_/source_. Used by SPP Locate and engine entry
+	   after Start that follows an SPP. */
+	void setElapsedUs(double us);
 
 	/* Thin aliases for Transport wording in the design notes. */
 	void reset() { resetStopped(); }

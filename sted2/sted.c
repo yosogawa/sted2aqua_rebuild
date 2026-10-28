@@ -10,6 +10,7 @@
 
 #include	"sted.h"
 #include	"rcp_transport.h"
+#include	"rcp_transport_cmd.h"
 
 static char	menu1[18][9]={
   "LOAD    ","SAVE    ","EDIT&SET","PLAY    ","RECORD  ","FILTER  ",
@@ -1144,8 +1145,8 @@ locator_refresh(int force)
   int spp, barlen, meas, beat, step, q, rem, beat_len;
   char buf[24];
 
-  /* Same UI poll as the locator. The phase may already have changed on
-     the MIDI callback or the key handler; this only paints afterwards. */
+  /* Drain EXT FA/FB/FC off the MIDI callback, then paint the chip. */
+  rcp_transport_drain_commands();
   transport_chip_refresh(0);
 
   if (rcd == NULL || tbase <= 0 || beat1 <= 0 || beat2 <= 0)

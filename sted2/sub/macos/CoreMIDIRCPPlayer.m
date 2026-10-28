@@ -18,8 +18,7 @@
 
 #include "sted.h"
 #include "rcp_transport.h"
-
-extern int STed_InitMeasureConversion(void);
+#include "rcp_transport_cmd.h"
 
 #define kMaxNumberOfPorts 2
 
@@ -55,45 +54,61 @@ int has_midi_in_ring_buffer(void) {
 static MIDIPortRef sMIDIInputPortRef = 0;
 static MIDIEndpointRef sMIDIInputSourceRef = 0;
 
-/* EXT only. Start while the player thread is alive would disarm the clock
-   without rewinding, so FA is applied only when that thread is down.
-   FB/FC are Continue/Stop (XF3/XF4). INT ignores all three.
-   The byte is still pushed to the ring for recording and other consumers. */
-static void ApplyExtMidiTransport(uint8_t status)
+/* Assemble MIDI Song Position Pointer (F2 ll mm) across packet boundaries.
+   System realtime (F8/FA/FB/FC) may interleave and must not steal data bytes. */
+static int sSppExpect; /* 0=none, 1=need LSB, 2=need MSB */
+static uint8_t sSppLo;
+
+static void
+CoreMIDIHandleInputByte(uint8_t b)
 {
-	if (rcp_clock_get_source() == 0)
+	/* System realtime: never part of SPP data. */
+	if (b >= 0xf8) {
+		if (b == 0xF8)
+			rcp_clock_on_timing_clock();
+		else if (b == 0xFA || b == 0xFB || b == 0xFC)
+			rcp_transport_cmd_push(b);
+		push_midi_in_ring_buffer(b);
 		return;
-	switch (status) {
-	case 0xFA:
-		if (!is_coremidi_playing())
-			rcp_transport_start();
-		break;
-	case 0xFB:
-		rcp_transport_continue();
-		break;
-	case 0xFC:
-		rcp_transport_stop();
-		break;
-	default:
-		break;
 	}
+
+	if (sSppExpect != 0) {
+		if (b & 0x80) {
+			/* Another status cancels an incomplete SPP. */
+			sSppExpect = 0;
+		} else if (sSppExpect == 1) {
+			sSppLo = (uint8_t)(b & 0x7f);
+			sSppExpect = 2;
+			push_midi_in_ring_buffer(b);
+			return;
+		} else {
+			uint16_t spp = (uint16_t)(sSppLo | ((b & 0x7f) << 7));
+			sSppExpect = 0;
+			rcp_transport_cmd_push_spp(spp);
+			push_midi_in_ring_buffer(b);
+			return;
+		}
+	}
+
+	if (b == 0xF2) {
+		sSppExpect = 1;
+		push_midi_in_ring_buffer(b);
+		return;
+	}
+	if (b == 0xFA || b == 0xFB || b == 0xFC)
+		rcp_transport_cmd_push(b);
+	push_midi_in_ring_buffer(b);
 }
 
 static void CoreMIDIReadProc(const MIDIPacketList *pktlist, void *readProcRefCon, void *srcConnRefCon) {
-    const MIDIPacket *packet = &pktlist->packet[0];
-    for (UInt32 i = 0; i < pktlist->numPackets; i++) {
-        for (UInt16 j = 0; j < packet->length; j++) {
-            uint8_t b = packet->data[j];
-            /* MIDI Timing Clock → RcpClock (no-op unless source is EXT and armed).
-               Still pushed to the ring for recording EXT / other consumers. */
-            if (b == 0xF8)
-                rcp_clock_on_timing_clock();
-            else if (b == 0xFA || b == 0xFB || b == 0xFC)
-                ApplyExtMidiTransport(b);
-            push_midi_in_ring_buffer(b);
-        }
-        packet = MIDIPacketNext(packet);
-    }
+	const MIDIPacket *packet = &pktlist->packet[0];
+	(void)readProcRefCon;
+	(void)srcConnRefCon;
+	for (UInt32 i = 0; i < pktlist->numPackets; i++) {
+		for (UInt16 j = 0; j < packet->length; j++)
+			CoreMIDIHandleInputByte(packet->data[j]);
+		packet = MIDIPacketNext(packet);
+	}
 }
 
 static CoreMIDIRCPPlayer *sCurrentPlayer;
@@ -628,22 +643,24 @@ play_coremidi_rcpplayer(uint8_t *rcp_data_ptr, int data_length)
 {
 	CoreMIDIRCPPlayer *player;
 	const char *ext_env;
-	STed_InitMeasureConversion();
-	rcpplayer_init(rcp_data_ptr, data_length);
+	(void)rcp_data_ptr;
+	(void)data_length;
+	/* Refuse a thread when the key side has not finished a play image.
+	   A half-written rcd (or one that just appeared) must not start here. */
+	if (!rcp_transport_play_image_ready())
+		return;
 #if DEBUG_RCP
 	sRCPDebugBuffer = (uint8_t *)realloc(sRCPDebugBuffer, sRCPDebugSize);
 	sRCPDebugCount = 0;
 #endif
 	/* Sync Mode comes from MIDI → Sync Mode (NSUserDefaults / menu).
-	   Optional env override for ad-hoc tests only when not recording. */
+	   Optional env override for ad-hoc tests only when not recording.
+	   Phase/init/stop live in rcp_transport_start() via launch_player;
+	   this path only detaches the engine thread. */
 	ext_env = getenv("STED_RCP_CLOCK_EXT");
 	if (ext_env != NULL && ext_env[0] != '\0' && !rcpplayer_is_realtime_recording())
 		rcp_clock_set_source(ext_env[0] == '1' ? 1 : 0);
 	player = [CoreMIDIRCPPlayer currentPlayer];
-	if ([player isPlaying]) {
-		stop_coremidi_rcpplayer();
-	}
-	rcp_transport_start();
 	rcpplayer_reset_last_timestamp();
 	[NSThread detachNewThreadSelector:@selector(startPlaying:) toTarget:player withObject:nil];
 }

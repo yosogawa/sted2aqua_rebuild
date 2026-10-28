@@ -1032,7 +1032,8 @@ void	all_note_off(int m)
 {
   int	i;
 
-  (*rcd->end)();
+  if(rcd==NULL){return;}
+  if(rcd->end){(*rcd->end)();}
   if((cmdflag&0x40)!=0){
     /*allnoteoff*/
     for(i=0;i<16;i++){

@@ -8,6 +8,7 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 
 #include "rcp_player.h"
 
@@ -43,6 +44,14 @@ typedef struct rcpplayer_record {
 } RCPPLAYER;
 
 static RCPPLAYER sPlayer;
+
+/* One-shot unget for seek_to_step: the event at/after the target is
+   returned by the next rcpplayer_next_midi_event() call. */
+static int sUngetValid;
+static int32_t sUngetStep;
+static int sUngetLength;
+static int sUngetPort;
+static uint8_t sUngetMsg[kMaxMIDIMessageLength];
 
 static void
 rcpplayer_debug_print(void)
@@ -142,6 +151,19 @@ rcpplayer_next_midi_event(int32_t *step, uint8_t **ptr, int *length, int *port)
 	int s_port;
 	int n, min_step, min_track, min_note, nstep, tr;
 
+	if (sUngetValid) {
+		sUngetValid = 0;
+		if (step != NULL)
+			*step = sUngetStep;
+		if (ptr != NULL)
+			*ptr = sUngetMsg;
+		if (length != NULL)
+			*length = sUngetLength;
+		if (port != NULL)
+			*port = sUngetPort;
+		return 1;
+	}
+
 	if (sPlayer.total_step >= 0) {
 		sPlayer.total_step += sPlayer.delta_step;
 //		s_step = sPlayer.total_step;
@@ -228,6 +250,7 @@ int
 rcpplayer_init(uint8_t *data_ptr, size_t data_length)
 {
 	int result;
+	sUngetValid = 0;
 	memset(&sPlayer, 0, sizeof(sPlayer));
 	sPlayer.last_tempo_step = 0;
 	sPlayer.last_tempo_us = 0.0;
@@ -243,4 +266,87 @@ rcpplayer_init(uint8_t *data_ptr, size_t data_length)
 		rcp_clock_set_tempo_us(sPlayer.last_tempo, sPlayer.rcp.timebase);
 	}
 	return result;
+}
+
+static void
+rcpplayer_unget_event(int32_t step, uint8_t *ptr, int length, int port)
+{
+	if (length < 0)
+		length = 0;
+	if (length > (int)sizeof(sUngetMsg))
+		length = (int)sizeof(sUngetMsg);
+	sUngetStep = step;
+	sUngetLength = length;
+	sUngetPort = port;
+	if (ptr != NULL && length > 0)
+		memcpy(sUngetMsg, ptr, (size_t)length);
+	else
+		sUngetLength = 0;
+	sUngetValid = 1;
+}
+
+int
+rcpplayer_seek_to_step(int32_t target_step, int32_t *landed_step)
+{
+	uint8_t *data_ptr;
+	size_t data_length;
+	int32_t step;
+	int32_t last_step;
+	uint8_t *ptr;
+	int length, port;
+	int iters;
+	/* Hard cap: protects the UI thread if a loop never finishes. */
+	const int kMaxSeekEvents = 2000000;
+
+	data_ptr = sPlayer.rcp.data;
+	data_length = sPlayer.rcp.length;
+	if (data_ptr == NULL || data_length == 0)
+		return -1;
+	if (rcpplayer_init(data_ptr, data_length) != 0)
+		return -1;
+	if (target_step <= 0) {
+		if (landed_step != NULL)
+			*landed_step = 0;
+		return 0;
+	}
+
+	last_step = 0;
+	iters = 0;
+	/* Discard events strictly before the target. Put back the first
+	   event at or after it so the next next_midi_event() returns it
+	   (same contract as a fresh init). */
+	while (rcpplayer_next_midi_event(&step, &ptr, &length, &port)) {
+		last_step = step;
+		if (step >= target_step) {
+			rcpplayer_unget_event(step, ptr, length, port);
+			if (landed_step != NULL)
+				*landed_step = target_step;
+			return 0;
+		}
+		if (++iters >= kMaxSeekEvents)
+			break;
+	}
+
+	/* Past the end (or safety cap): the failing next_midi_event already
+	   left delta_step at the million-step sentinel. Rebuild and park on
+	   the last real event so Start never resumes from a destroyed parser. */
+	if (rcpplayer_init(data_ptr, data_length) != 0)
+		return -1;
+	if (last_step <= 0) {
+		if (landed_step != NULL)
+			*landed_step = 0;
+		return 0;
+	}
+	iters = 0;
+	while (rcpplayer_next_midi_event(&step, &ptr, &length, &port)) {
+		if (step >= last_step) {
+			rcpplayer_unget_event(step, ptr, length, port);
+			break;
+		}
+		if (++iters >= kMaxSeekEvents)
+			break;
+	}
+	if (landed_step != NULL)
+		*landed_step = last_step;
+	return 0;
 }

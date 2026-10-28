@@ -4,6 +4,8 @@
 
 #include "sted.h"
 #include "rcp_transport.h"
+#include "rcp_transport_cmd.h"
+#include "midi_in.h"
 
 uint8_t	*note, *note_data;
 int	trch,lastptr,pt,tr,len,cmd,d_byte;
@@ -95,6 +97,11 @@ restart:
 
   midi_clr();a=0;ccc=0;stm=0;
 
+  /* EXT 0xFA may launch the engine from drain during this wait. Arm
+     recording and sync first so that path matches a later begin(). */
+  set_realtime_recording(1);
+  rcp_clock_set_source(ecount_sw);
+
   while(1){
     usleep(100); /* Dec.25.1998 Daisuke Nagano */
     locator_refresh(0);
@@ -117,10 +124,8 @@ restart:
 
   if(metoro_trk>=0){dtr=metoro_trk;}
 
-  set_realtime_recording(1);
-  /* SYNC → RcpClock before the player thread arms the clock. */
-  rcp_clock_set_source(ecount_sw);
-  (*rcd->begin)();
+  /* FA via drain may already have launched the player. */
+  if(!is_coremidi_playing()){rcp_transport_launch_player();}
 
   rec_mt_change(1);rec_mt_change(1);
 

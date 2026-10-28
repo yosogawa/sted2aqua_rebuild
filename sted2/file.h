@@ -42,6 +42,10 @@ int  bufload(void);
 int  bufset(void);
 int  bufload_trk(int tr);
 int  bufset_trk(int tr);
+/* Pack trk[] into rcd for playback. 0 = play_image_ready. Used by dplay and EXT FA. */
+int  rcp_build_play_image(void);
+/* After packing: rcd->init, optional CM6/GSD file tones, else setup/mix_out. */
+void rcp_play_image_setup_devices(int with_file_tones);
 void dplay(int mo, int tr, int meas);
 void cdplay(int tr, int po, int ln, int md);
 void cntplay(int tr, int po);

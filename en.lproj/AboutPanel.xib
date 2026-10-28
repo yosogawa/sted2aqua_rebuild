@@ -30,59 +30,52 @@
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 <subviews>
                     <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="icon">
-                        <rect key="frame" x="24" y="260" width="96" height="96"/>
+                        <rect key="frame" x="24" y="264" width="96" height="96"/>
                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" id="icon-cell"/>
                     </imageView>
                     <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="title">
-                        <rect key="frame" x="136" y="328" width="400" height="24"/>
-                        <textFieldCell key="cell" lineBreakMode="clipping" title="STed2" bordered="NO" drawsBackground="NO" editable="NO" selectable="NO" id="title-cell">
+                        <rect key="frame" x="134" y="331" width="404" height="21"/>
+                        <textFieldCell key="cell" lineBreakMode="clipping" title="STed2" id="title-cell">
                             <font key="font" metaFont="systemBold" size="18"/>
                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
                     <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="version">
-                        <rect key="frame" x="136" y="304" width="400" height="18"/>
-                        <textFieldCell key="cell" lineBreakMode="clipping" title="Version" bordered="NO" drawsBackground="NO" editable="NO" selectable="NO" id="version-cell">
-                            <font key="font" metaFont="system" size="13"/>
+                        <rect key="frame" x="134" y="311" width="404" height="16"/>
+                        <textFieldCell key="cell" lineBreakMode="clipping" title="Version" id="version-cell">
+                            <font key="font" metaFont="system"/>
                             <color key="textColor" name="secondaryLabelColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <scrollView borderType="bezel" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="scroll">
-                        <rect key="frame" x="24" y="52" width="512" height="192"/>
+                    <scrollView horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="scroll">
+                        <rect key="frame" x="24" y="56" width="512" height="192"/>
                         <clipView key="contentView" drawsBackground="NO" id="clip">
-                            <rect key="frame" x="1" y="1" width="495" height="175"/>
+                            <rect key="frame" x="1" y="1" width="493" height="190"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
-                                <textView editable="NO" importsGraphics="NO" richText="NO" verticallyResizable="YES" findStyle="panel" continuousSpellChecking="NO" allowsUndo="NO" usesRuler="NO" usesFontPanel="YES" allowsNonContiguousLayout="YES" quoteSubstitution="NO" dashSubstitution="NO" spellingCorrection="NO" smartInsertDelete="NO" id="body">
-                                    <rect key="frame" x="0.0" y="0.0" width="495" height="175"/>
+                                <textView editable="NO" importsGraphics="NO" richText="NO" verticallyResizable="YES" usesFontPanel="YES" findStyle="panel" allowsNonContiguousLayout="YES" id="body">
+                                    <rect key="frame" x="0.0" y="0.0" width="493" height="190"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                    <size key="minSize" width="495" height="175"/>
+                                    <size key="minSize" width="493" height="190"/>
                                     <size key="maxSize" width="512" height="10000000"/>
-                                    <size key="textContainerInset" width="4" height="4"/>
                                     <color key="insertionPointColor" name="textColor" catalog="System" colorSpace="catalog"/>
-                                    <textStorage>
-                                        <attributedString>
-                                            <fragment>
-                                                <string key="content"> </string>
-                                                <attributes>
-                                                    <font key="NSFont" metaFont="system" size="13"/>
-                                                    <font key="NSOriginalFont" metaFont="system" size="13"/>
-                                                </attributes>
-                                            </fragment>
-                                        </attributedString>
-                                    </textStorage>
                                 </textView>
                             </subviews>
                         </clipView>
-                        <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="YES" id="hscroller"/>
-                        <scroller key="verticalScroller" verticalHuggingPriority="750" horizontal="NO" id="vscroller"/>
+                        <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="YES" id="hscroller">
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        </scroller>
+                        <scroller key="verticalScroller" verticalHuggingPriority="750" horizontal="NO" id="vscroller">
+                            <rect key="frame" x="494" y="1" width="17" height="190"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        </scroller>
                     </scrollView>
                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="btn-authors">
-                        <rect key="frame" x="24" y="16" width="96" height="24"/>
+                        <rect key="frame" x="24" y="16" width="119" height="24"/>
                         <buttonCell key="cell" type="push" title="作成者" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="cell-authors">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
@@ -92,7 +85,7 @@
                         </connections>
                     </button>
                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="btn-license">
-                        <rect key="frame" x="132" y="16" width="96" height="24"/>
+                        <rect key="frame" x="155" y="16" width="119" height="24"/>
                         <buttonCell key="cell" type="push" title="ライセンス" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="cell-license">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
@@ -102,7 +95,7 @@
                         </connections>
                     </button>
                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="btn-thanks">
-                        <rect key="frame" x="240" y="16" width="96" height="24"/>
+                        <rect key="frame" x="286" y="16" width="119" height="24"/>
                         <buttonCell key="cell" type="push" title="謝辞" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="cell-thanks">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
@@ -112,7 +105,7 @@
                         </connections>
                     </button>
                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="btn-rip">
-                        <rect key="frame" x="348" y="16" width="96" height="24"/>
+                        <rect key="frame" x="417" y="16" width="119" height="24"/>
                         <buttonCell key="cell" type="push" title="追悼/RIP" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="cell-rip">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
@@ -123,34 +116,34 @@
                     </button>
                 </subviews>
                 <constraints>
+                    <constraint firstItem="btn-authors" firstAttribute="width" relation="greaterThanOrEqual" constant="72" id="c-auth-min"/>
+                    <constraint firstAttribute="bottom" secondItem="btn-authors" secondAttribute="bottom" constant="16" id="c-btn-bottom"/>
+                    <constraint firstItem="btn-authors" firstAttribute="leading" secondItem="content" secondAttribute="leading" constant="24" id="c-btn-lead"/>
+                    <constraint firstItem="btn-authors" firstAttribute="top" secondItem="scroll" secondAttribute="bottom" constant="16" id="c-btn-top"/>
+                    <constraint firstItem="icon" firstAttribute="height" constant="96" id="c-icon-h"/>
                     <constraint firstItem="icon" firstAttribute="leading" secondItem="content" secondAttribute="leading" constant="24" id="c-icon-lead"/>
                     <constraint firstItem="icon" firstAttribute="top" secondItem="content" secondAttribute="top" constant="20" id="c-icon-top"/>
                     <constraint firstItem="icon" firstAttribute="width" constant="96" id="c-icon-w"/>
-                    <constraint firstItem="icon" firstAttribute="height" constant="96" id="c-icon-h"/>
+                    <constraint firstItem="btn-license" firstAttribute="leading" secondItem="btn-authors" secondAttribute="trailing" constant="12" id="c-lic-lead"/>
+                    <constraint firstItem="btn-license" firstAttribute="width" secondItem="btn-authors" secondAttribute="width" id="c-lic-w"/>
+                    <constraint firstItem="btn-license" firstAttribute="centerY" secondItem="btn-authors" secondAttribute="centerY" id="c-lic-y"/>
+                    <constraint firstItem="btn-rip" firstAttribute="leading" secondItem="btn-thanks" secondAttribute="trailing" constant="12" id="c-rip-lead"/>
+                    <constraint firstAttribute="trailing" secondItem="btn-rip" secondAttribute="trailing" constant="24" id="c-rip-trail"/>
+                    <constraint firstItem="btn-rip" firstAttribute="width" secondItem="btn-authors" secondAttribute="width" id="c-rip-w"/>
+                    <constraint firstItem="btn-rip" firstAttribute="centerY" secondItem="btn-authors" secondAttribute="centerY" id="c-rip-y"/>
+                    <constraint firstItem="scroll" firstAttribute="leading" secondItem="content" secondAttribute="leading" constant="24" id="c-scroll-lead"/>
+                    <constraint firstItem="scroll" firstAttribute="height" relation="greaterThanOrEqual" constant="120" id="c-scroll-min"/>
+                    <constraint firstItem="scroll" firstAttribute="top" secondItem="icon" secondAttribute="bottom" constant="16" id="c-scroll-top"/>
+                    <constraint firstAttribute="trailing" secondItem="scroll" secondAttribute="trailing" constant="24" id="c-scroll-trail"/>
+                    <constraint firstItem="btn-thanks" firstAttribute="leading" secondItem="btn-license" secondAttribute="trailing" constant="12" id="c-thx-lead"/>
+                    <constraint firstItem="btn-thanks" firstAttribute="width" secondItem="btn-authors" secondAttribute="width" id="c-thx-w"/>
+                    <constraint firstItem="btn-thanks" firstAttribute="centerY" secondItem="btn-authors" secondAttribute="centerY" id="c-thx-y"/>
                     <constraint firstItem="title" firstAttribute="leading" secondItem="icon" secondAttribute="trailing" constant="16" id="c-title-lead"/>
                     <constraint firstItem="title" firstAttribute="top" secondItem="icon" secondAttribute="top" constant="8" id="c-title-top"/>
                     <constraint firstAttribute="trailing" secondItem="title" secondAttribute="trailing" constant="24" id="c-title-trail"/>
                     <constraint firstItem="version" firstAttribute="leading" secondItem="title" secondAttribute="leading" id="c-ver-lead"/>
                     <constraint firstItem="version" firstAttribute="top" secondItem="title" secondAttribute="bottom" constant="4" id="c-ver-top"/>
                     <constraint firstItem="version" firstAttribute="trailing" secondItem="title" secondAttribute="trailing" id="c-ver-trail"/>
-                    <constraint firstItem="scroll" firstAttribute="leading" secondItem="content" secondAttribute="leading" constant="24" id="c-scroll-lead"/>
-                    <constraint firstAttribute="trailing" secondItem="scroll" secondAttribute="trailing" constant="24" id="c-scroll-trail"/>
-                    <constraint firstItem="scroll" firstAttribute="top" secondItem="icon" secondAttribute="bottom" constant="16" id="c-scroll-top"/>
-                    <constraint firstItem="btn-authors" firstAttribute="top" secondItem="scroll" secondAttribute="bottom" constant="16" id="c-btn-top"/>
-                    <constraint firstItem="btn-authors" firstAttribute="leading" secondItem="content" secondAttribute="leading" constant="24" id="c-btn-lead"/>
-                    <constraint firstAttribute="bottom" secondItem="btn-authors" secondAttribute="bottom" constant="16" id="c-btn-bottom"/>
-                    <constraint firstItem="scroll" firstAttribute="height" relation="greaterThanOrEqual" constant="120" id="c-scroll-min"/>
-                    <constraint firstItem="btn-license" firstAttribute="leading" secondItem="btn-authors" secondAttribute="trailing" constant="12" id="c-lic-lead"/>
-                    <constraint firstItem="btn-license" firstAttribute="centerY" secondItem="btn-authors" secondAttribute="centerY" id="c-lic-y"/>
-                    <constraint firstItem="btn-license" firstAttribute="width" secondItem="btn-authors" secondAttribute="width" id="c-lic-w"/>
-                    <constraint firstItem="btn-thanks" firstAttribute="leading" secondItem="btn-license" secondAttribute="trailing" constant="12" id="c-thx-lead"/>
-                    <constraint firstItem="btn-thanks" firstAttribute="centerY" secondItem="btn-authors" secondAttribute="centerY" id="c-thx-y"/>
-                    <constraint firstItem="btn-thanks" firstAttribute="width" secondItem="btn-authors" secondAttribute="width" id="c-thx-w"/>
-                    <constraint firstItem="btn-rip" firstAttribute="leading" secondItem="btn-thanks" secondAttribute="trailing" constant="12" id="c-rip-lead"/>
-                    <constraint firstItem="btn-rip" firstAttribute="centerY" secondItem="btn-authors" secondAttribute="centerY" id="c-rip-y"/>
-                    <constraint firstItem="btn-rip" firstAttribute="width" secondItem="btn-authors" secondAttribute="width" id="c-rip-w"/>
-                    <constraint firstAttribute="trailing" secondItem="btn-rip" secondAttribute="trailing" constant="24" id="c-rip-trail"/>
-                    <constraint firstItem="btn-authors" firstAttribute="width" relation="greaterThanOrEqual" constant="72" id="c-auth-min"/>
                 </constraints>
             </view>
             <point key="canvasLocation" x="140" y="154"/>

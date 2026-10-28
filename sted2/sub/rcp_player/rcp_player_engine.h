@@ -10,6 +10,9 @@ void rcpplayer_reset_last_timestamp(void);
 void rcpplayer_set_output_timing(int waitPerByteMicros, int offsetMicros);
 void rcpplayer_record_note(int port, const uint8_t *msg, int length);
 void rcpplayer_send_pending_note_offs(void);
+/* Drop a parked event so the next Running cycle fetches from the parser
+   again. Used after SPP Locate while Held. */
+void rcpplayer_invalidate_park(void);
 void set_realtime_recording(int on);
 int rcpplayer_is_realtime_recording(void);
 

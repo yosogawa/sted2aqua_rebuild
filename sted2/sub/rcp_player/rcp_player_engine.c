@@ -205,8 +205,14 @@ rcpplayer_engine(void)
 
 	startHost = AudioGetCurrentHostTime();
 	currentTime = startHost;
-	/* Elapsed zero is this moment. If PAUSE already won, freeze again. */
+	/* Elapsed zero is this moment unless Start followed an SPP Locate. */
 	rcp_sequence_clock_reset_and_run();
+	{
+		double us;
+
+		if (rcp_transport_take_start_elapsed_us(&us))
+			rcp_sequence_clock_set_elapsed_us(us);
+	}
 	if (rcp_transport_get_phase() == RCP_TRANSPORT_HELD)
 		rcp_sequence_clock_stop();
 	sHoldActive = 0;
@@ -308,6 +314,13 @@ rcpplayer_engine(void)
 	rcp_transport_set_active(0);
 }
 
+
+void
+rcpplayer_invalidate_park(void)
+{
+	sParked = 0;
+	sLastTimeStamp = 0;
+}
 
 void
 rcpplayer_request_stop(void)

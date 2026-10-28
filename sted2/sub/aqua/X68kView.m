@@ -2959,6 +2959,8 @@ XSTed_midi_wait(void)
 
 	was_active = rcp_transport_is_active();
 	while (1) {
+		/* Same poll as inkey3: drain EXT FA/FB/FC off the MIDI callback. */
+		locator_refresh(0);
 		if (XSTed_keysns())
 			return;
 		if (is_midi_in())

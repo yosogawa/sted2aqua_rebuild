@@ -15,6 +15,7 @@
 #include	"doslib.h"
 #include	"sted.h"
 #include	"rcp_transport.h"
+#include	"rcp_transport_cmd.h"
 
 #include        "rcpconv.h"
 
@@ -1033,22 +1034,43 @@ int	bufset_trk(int tr)
 }
 
 /***************************/
-/* ================================================== play */
-void	dplay(int mo,int tr,int meas)
+/* Shared by full-song pack and partial play after data_valid is set.
+   with_file_tones: send CM6/GSD file buffers (full song / FA). Partial
+   play historically skipped that and only used setup/mix_out. */
+void
+rcp_play_image_setup_devices(int with_file_tones)
 {
-  int	bpo,i,f;
-  char	tmp1[PATHLEN * 2];
-  FILE	*fp;
-
-  if((cmdflag&0x8000)!=0 && mo<2){mo=1-mo;}
-
-  if(rcp_transport_is_active() && mo!=0 && meas==0){
-    mo+=8;
-    if(mplay[mo][0]=='&'){goto start;}
-    if(mplay[mo][0]=='%'){goto resm;}
+  if(rcd==NULL){return;}
+  if(rcd->init){(*rcd->init)();}
+  if(with_file_tones){
+    if(cm6_file[0]!=0){tim_buf_trns();}
+    if(gsd_file[0]!=0){gsd_buf_trns();}
   }
-start:
-  all_note_off(1);rcd->data_valid=0;
+  if(cm6_file[0]==0 && gsd_file[0]==0){
+    if(init_exc_data[0]==255){
+      if(rcd->setup){(*rcd->setup)();}
+    }else if(rcd->mix_out){
+      (*rcd->mix_out)(init_exc_data);twait(5);
+    }
+  }
+}
+
+/***************************/
+/* Pack current editor tracks into rcd. Returns 0 when play_image_ready.
+   EXT FA uses this when data_valid was cleared (e.g. after panel exe). */
+int
+rcp_build_play_image(void)
+{
+  int	bpo,i;
+  int	owned_prepare;
+
+  if(rcd==NULL){return -1;}
+
+  owned_prepare = !rcp_transport_play_prepare_busy();
+  if(owned_prepare){rcp_transport_play_prepare_begin();}
+
+  all_note_off(1);
+  rcd->data_valid=0;
   msg_clr();poft=0;
   hedset(36);bpo=rcp_buf_put(hed,0,RCP_FILE_HEADER_SIZE);
 
@@ -1065,19 +1087,44 @@ start:
     }
   }
 
-  if((rcd->bufcap)<bpo){msg(_("Too small RCD buffer."));return;}
+  if((rcd->bufcap)<bpo){
+    msg(_("Too small RCD buffer."));
+    if(owned_prepare){rcp_transport_play_prepare_end();}
+    return -1;
+  }
 
   rcd->fmt=2;rcd->totalcount=bpo;
   rcd->data_valid=1;rcd->word_valid=0;
   rcd->tone_valid=0;rcd->gsd_valid=0;
 
-  (*rcd->init)();
-  if(cm6_file[0]!=0){tim_buf_trns();}
-  if(gsd_file[0]!=0){gsd_buf_trns();}
+  rcp_play_image_setup_devices(1);
 
-  if(cm6_file[0]==0 && gsd_file[0]==0){
-    if(init_exc_data[0]==255){(*rcd->setup)();
-    }else{(*rcd->mix_out)(init_exc_data);twait(5);}
+  if(owned_prepare){rcp_transport_play_prepare_end();}
+  return rcp_transport_play_image_ready() ? 0 : -1;
+}
+
+/***************************/
+/* ================================================== play */
+void	dplay(int mo,int tr,int meas)
+{
+  int	bpo,f;
+  char	tmp1[PATHLEN * 2];
+  FILE	*fp;
+
+  if(rcd==NULL){return;}
+
+  if((cmdflag&0x8000)!=0 && mo<2){mo=1-mo;}
+
+  if(rcp_transport_is_active() && mo!=0 && meas==0){
+    mo+=8;
+    if(mplay[mo][0]=='&'){goto start;}
+    if(mplay[mo][0]=='%'){goto resm;}
+  }
+start:
+  rcp_transport_play_prepare_begin();
+  if(rcp_build_play_image()!=0){
+    rcp_transport_play_prepare_end();
+    return;
   }
 
   if(mo!=0 && meas==0){
@@ -1106,7 +1153,9 @@ start:
     fnc_dis(-1);C_FNKMOD(0);dpl(0);B_COLOR(3);
     if(mplay[mo][0]=='%' || mplay[mo][0]=='&'){
       strcpy(tmp1,&mplay[mo][1]);
-      if(!rcp_transport_is_active() || mplay[mo][0]=='&'){(*rcd->begin)();}
+      if(!rcp_transport_is_active() || mplay[mo][0]=='&'){
+	rcp_transport_launch_player();
+      }
     }else{strcpy(tmp1,mplay[mo]);}
     f=exe(tmp1);
     B_COLOR(3);fnc_dis(-1);C_FNKMOD(3);B_CLR_AL();C_CUROFF();
@@ -1116,8 +1165,9 @@ start:
     if( f<0 ){msg(_("Cannot start panel display."));}
   }else{
     if(meas>1){rcp_transport_search(tr,meas-1);}
-    (*rcd->begin)();
+    rcp_transport_launch_player();
   }
+  rcp_transport_play_prepare_end();
   return;
 }
 
@@ -1198,7 +1248,10 @@ void	cdplay(int tr,int po,int ln,int md)
   int	bpo,co,i,j,ad,meas,tempo,pr,dumy=track;
   int	me_ad[2048];
 
-  all_note_off(1+1);rcd->data_valid=0;msg_clr();if(ln==0){return;}
+  if(rcd==NULL){return;}
+  if(ln==0){return;}
+  rcp_transport_play_prepare_begin();
+  all_note_off(1+1);rcd->data_valid=0;msg_clr();
   hedset(36);bpo=rcp_buf_put(hed,0,RCP_FILE_HEADER_SIZE);
   meas=meas_no(po);if((cmdflag&0x4000)==0){pr=lsp_wait_chack(meas);}
   tempo=last_tempo(meas);
@@ -1260,17 +1313,18 @@ void	cdplay(int tr,int po,int ln,int md)
 
   track=dumy;
 
-  if((rcd->bufcap)<bpo){msg(_("Too small RCD buffer."));return;}
+  if((rcd->bufcap)<bpo){
+    msg(_("Too small RCD buffer."));
+    rcp_transport_play_prepare_end();
+    return;
+  }
 
   rcd->fmt=2;rcd->totalcount=bpo;rcd->data_valid=1;rcd->word_valid=0;
   rcd->tone_valid=0;rcd->gsd_valid=0;
 
-  (*rcd->init)();
-  if(cm6_file[0]==0 && gsd_file[0]==0){
-    if(init_exc_data[0]==255){(*rcd->setup)();
-    }else{(*rcd->mix_out)(init_exc_data);twait(5);}
-  }
-  (*rcd->begin)();
+  rcp_play_image_setup_devices(0);
+  rcp_transport_launch_player();
+  rcp_transport_play_prepare_end();
   return;
 }
 
@@ -1280,7 +1334,9 @@ void	cntplay(int tr,int po)
   int	bpo,i,j,co,ad,meas,dumy,pr,tempo;
   int	me_ad[2048];
 
+  if(rcd==NULL){return;}
   if((cmdflag&0x80)!=0){dplay(0,tr,meas_no(po));return;}
+  rcp_transport_play_prepare_begin();
   all_note_off(1+1);rcd->data_valid=0;msg_clr();dumy=track;
   hedset(36);bpo=rcp_buf_put(hed,0,RCP_FILE_HEADER_SIZE);
   meas=meas_no(po);pr=lsp_wait_chack(meas);tempo=last_tempo(meas);
@@ -1324,17 +1380,18 @@ void	cntplay(int tr,int po)
 
   track=dumy;
 
-  if((rcd->bufcap)<bpo){msg(_("Too small RCD buffer."));return;}
+  if((rcd->bufcap)<bpo){
+    msg(_("Too small RCD buffer."));
+    rcp_transport_play_prepare_end();
+    return;
+  }
 
   rcd->fmt=2;rcd->totalcount=bpo;rcd->data_valid=1;rcd->word_valid=0;
   rcd->tone_valid=0;rcd->gsd_valid=0;
 
-  (*rcd->init)();
-  if(cm6_file[0]==0 && gsd_file[0]==0){
-    if(init_exc_data[0]==255){(*rcd->setup)();
-    }else{(*rcd->mix_out)(init_exc_data);twait(5);}
-  }
-  (*rcd->begin)();
+  rcp_play_image_setup_devices(0);
+  rcp_transport_launch_player();
+  rcp_transport_play_prepare_end();
   return;
 }
 

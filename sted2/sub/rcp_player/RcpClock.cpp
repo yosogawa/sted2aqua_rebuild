@@ -126,6 +126,22 @@ RcpClock::elapsedUs()
 }
 
 void
+RcpClock::setElapsedUs(double us)
+{
+	std::lock_guard<std::mutex> lock(mu_);
+	freezeHostLocked();
+	if (us < 0.0)
+		us = 0.0;
+	musical_us_ = us;
+	/* INT keeps a fresh segment base if still armed so the next host
+	   delta starts from this position. EXT stays frozen until F8. */
+	if (armed_ && source_ == Source::Int) {
+		segmentStart_ = AudioGetCurrentHostTime();
+		running_ = true;
+	}
+}
+
+void
 RcpClock::onTimingClock()
 {
 	std::lock_guard<std::mutex> lock(mu_);
@@ -231,6 +247,12 @@ double
 rcp_sequence_clock_elapsed_us(void)
 {
 	return gRcpClock.elapsedUs();
+}
+
+void
+rcp_sequence_clock_set_elapsed_us(double us)
+{
+	gRcpClock.setElapsedUs(us);
 }
 
 void

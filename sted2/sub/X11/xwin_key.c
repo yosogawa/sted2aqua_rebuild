@@ -551,6 +551,7 @@ void XSTed_midi_wait( void ) {
   XSTed_rwindow();
   while ( a ) {
     usleep(1000);
+    locator_refresh(0);
 
     XCheckMaskEvent( XSTed_d, Expose|KeyRelease|KeyPress, &e );
     switch ( e.type ) {

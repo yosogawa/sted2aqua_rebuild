@@ -235,6 +235,8 @@ void key_mouse_wait( void ) {
        while playback continues. */
     was_active = rcp_transport_is_active();
     while ( XSTed_keyin(0xfe) == 0 ) {
+      /* Drain EXT FA/FB/FC; same need as EDIT key_midi_wait. */
+      locator_refresh(0);
       if ( !was_active && rcp_transport_is_active() )
         return;
       usleep(10000);
