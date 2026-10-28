@@ -26,6 +26,7 @@ extern int XSTed_save_thrumode(int on);
 extern int ecount_sw; /* record.c: mirrors RcpClock source for SYNC display */
 
 static NSString * const kMidiSyncExtKey = @"MidiSyncExt";
+static NSString * const kAmyEditorPortsKey = @"AmyEditorPortsOpen";
 
 static void
 ApplyMidiSyncMode(int ext)
@@ -38,6 +39,7 @@ ApplyMidiSyncMode(int ext)
 - (void)installViewMenu;
 - (void)installDLSSynthMenu;
 - (void)installThruModeMenu;
+- (void)installAmyEditorPortsMenu;
 - (void)installSyncModeMenu;
 @end
 
@@ -86,12 +88,14 @@ ApplyMidiSyncMode(int ext)
 	[self installViewMenu];
 	[self installDLSSynthMenu];
 	[self installThruModeMenu];
+	[self installAmyEditorPortsMenu];
 	[self installSyncModeMenu];
 	{
 		NSUserDefaults *def = [NSUserDefaults standardUserDefaults];
 		NSInteger percent = [def integerForKey:@"DisplayScalePercent"];
 		[X68kView applyDisplayScalePercent:(int)percent toView:xview];
 		ApplyMidiSyncMode([def boolForKey:kMidiSyncExtKey] ? 1 : 0);
+		CoreMIDISetAmyEditorPortsOpen([def boolForKey:kAmyEditorPortsKey] ? 1 : 0);
 	}
 
 	if (argc < 1 || argv == NULL) {
@@ -246,6 +250,56 @@ ApplyMidiSyncMode(int ext)
 	XSTed_save_thrumode(thrumode ? 0 : 1);
 }
 
+- (void)installAmyEditorPortsMenu
+{
+	NSMenu *mainMenu = [NSApp mainMenu];
+	NSMenu *midiMenu = nil;
+	NSMenuItem *item;
+	NSInteger i, n, at;
+
+	if (mainMenu == nil)
+		return;
+	n = [mainMenu numberOfItems];
+	for (i = 0; i < n; i++) {
+		NSMenuItem *top = [mainMenu itemAtIndex:i];
+		if ([[top title] isEqualToString:@"MIDI"]) {
+			midiMenu = [top submenu];
+			break;
+		}
+	}
+	if (midiMenu == nil)
+		return;
+	item = [[NSMenuItem alloc] initWithTitle:@"AMY Editor Ports"
+					  action:@selector(toggleAmyEditorPorts:)
+				   keyEquivalent:@""];
+	[item setTarget:self];
+	at = [midiMenu indexOfItemWithTitle:@"THRU MODE"];
+	if (at != NSNotFound)
+		[midiMenu insertItem:item atIndex:at + 1];
+	else
+		[midiMenu addItem:item];
+	[item release];
+}
+
+- (IBAction)toggleAmyEditorPorts:(id)sender
+{
+	NSUserDefaults *def = [NSUserDefaults standardUserDefaults];
+	int on = CoreMIDIAmyEditorPortsOpen() ? 0 : 1;
+
+	(void)sender;
+	CoreMIDISetAmyEditorPortsOpen(on);
+	[def setBool:(on != 0) forKey:kAmyEditorPortsKey];
+	if (on && !CoreMIDIAmyEditorPortsOpen()) {
+		NSAlert *alert = [[NSAlert alloc] init];
+		[alert setMessageText:@"AMY Editor Ports"];
+		[alert setInformativeText:@"Failed to publish AMY EDITOR INPUT / OUTPUT."];
+		[alert addButtonWithTitle:@"OK"];
+		[alert runModal];
+		[alert release];
+		[def setBool:NO forKey:kAmyEditorPortsKey];
+	}
+}
+
 - (void)installSyncModeMenu
 {
 	NSMenu *mainMenu = [NSApp mainMenu];
@@ -287,7 +341,9 @@ ApplyMidiSyncMode(int ext)
 					     action:nil
 				      keyEquivalent:@""];
 	[syncTop setSubmenu:syncMenu];
-	at = [midiMenu indexOfItemWithTitle:@"THRU MODE"];
+	at = [midiMenu indexOfItemWithTitle:@"AMY Editor Ports"];
+	if (at == NSNotFound)
+		at = [midiMenu indexOfItemWithTitle:@"THRU MODE"];
 	if (at != NSNotFound)
 		[midiMenu insertItem:syncTop atIndex:at + 1];
 	else
@@ -390,6 +446,10 @@ static NSRect sFrameBeforeFill;
 	}
 	if ([menuItem action] == @selector(toggleThruMode:)) {
 		[menuItem setState:(thrumode ? NSOnState : NSOffState)];
+		return YES;
+	}
+	if ([menuItem action] == @selector(toggleAmyEditorPorts:)) {
+		[menuItem setState:(CoreMIDIAmyEditorPortsOpen() ? NSOnState : NSOffState)];
 		return YES;
 	}
 	if ([menuItem action] == @selector(setSyncMode:)) {

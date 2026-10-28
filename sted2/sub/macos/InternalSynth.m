@@ -30,6 +30,10 @@ static AVAudioUnit *sDLSUnit[2];
 static AudioUnit sDLS[2];
 static MIDIEndpointRef sInternalDest[2];
 static MIDIEndpointRef sAmyDest = 0;
+/* Web Editor ports: created only while the MIDI-menu switch is ON. */
+static MIDIEndpointRef sAmyEditorIn = 0;
+static MIDIEndpointRef sAmyEditorOut = 0;
+static int sAmyEditorHold = 0;
 static int sAmyPort = -1;
 static AVAudioSourceNode *sAmyNode = nil;
 static MIDIClientRef sSynthMIDIClient = 0;
@@ -164,6 +168,8 @@ SynthSampleRate(AudioUnit au, AVAudioEngine *engine)
 }
 
 static OSStatus ScheduleToInternalSynth(int synth, const uint8_t *bytes, int length, MIDITimeStamp atTime);
+static void MirrorToAmyEditorOut(const uint8_t *bytes, int length, MIDITimeStamp atTime);
+static int AmyAudioWanted(void);
 
 /*  Playback prefetches at most one second. Timestamps farther out are not from that clock. */
 int
@@ -178,6 +184,9 @@ InternalSynthSchedule(MIDIEndpointRef dest, const uint8_t *bytes, int length,
 		if (status != NULL)
 			*status = noErr;
 		AmySynthSendMIDI(bytes, length, atTime);
+		/* Mirror STed2→AMY playback to the Editor OUT source when open.
+		   Editor INPUT is not echoed (avoids Web MIDI feedback). */
+		MirrorToAmyEditorOut(bytes, length, atTime);
 		return 1;
 	}
 	synth = -1;
@@ -254,6 +263,34 @@ InstantiateDLS(void)
 	return made;
 }
 
+/* Drop same-named virtual endpoints we own from a prior client / double
+   create. keep is retained; all other matches are disposed. */
+static void
+DisposeEndpointsNamedExcept(CFStringRef name, MIDIEndpointRef keep, int asSource)
+{
+	MIDIEndpointRef found[32];
+	int nFound = 0;
+	ItemCount count, i;
+
+	count = asSource ? MIDIGetNumberOfSources() : MIDIGetNumberOfDestinations();
+	for (i = 0; i < count && nFound < 32; i++) {
+		MIDIEndpointRef e = asSource ? MIDIGetSource(i) : MIDIGetDestination(i);
+		CFStringRef ename = NULL;
+		if (e == 0 || e == keep)
+			continue;
+		if (MIDIObjectGetStringProperty(e, kMIDIPropertyName, &ename) != noErr || ename == NULL)
+			continue;
+		if (CFStringCompare(ename, name, 0) == kCFCompareEqualTo)
+			found[nFound++] = e;
+		CFRelease(ename);
+	}
+	for (i = 0; i < (ItemCount)nFound; i++) {
+		OSStatus sts = MIDIEndpointDispose(found[i]);
+		if (sts != noErr)
+			NSLog(@"dispose orphan %@: %d", name, (int)sts);
+	}
+}
+
 static int
 AddInternalDestination(MIDIEndpointRef *dest, CFStringRef name)
 {
@@ -261,6 +298,8 @@ AddInternalDestination(MIDIEndpointRef *dest, CFStringRef name)
 	/*  The name stays visible as a destination. Playback does not arrive here:
 	    CoreMIDISend writes the chosen synth directly so host time is not
 	    mistaken for a sample offset. */
+	if (*dest == 0)
+		DisposeEndpointsNamedExcept(name, 0, 0);
 	sts = MIDIDestinationCreateWithProtocol(sSynthMIDIClient, name, kMIDIProtocol_1_0,
 		dest, ^(const MIDIEventList *evtlist, void *srcConnRefCon) {
 			(void)evtlist;
@@ -271,6 +310,7 @@ AddInternalDestination(MIDIEndpointRef *dest, CFStringRef name)
 		*dest = 0;
 		return 0;
 	}
+	DisposeEndpointsNamedExcept(name, *dest, 0);
 	return 1;
 }
 
@@ -334,6 +374,32 @@ ApplyEffectsLocked(void)
 		sAmyNode.volume = sEffects.amyVolume;
 	if (sEngine != nil)
 		sEngine.mainMixerNode.outputVolume = sEffects.volume;
+}
+
+static int
+AmyAudioWanted(void)
+{
+	return (sAmyPort >= 0 || sAmyEditorHold) ? 1 : 0;
+}
+
+static void
+MirrorToAmyEditorOut(const uint8_t *bytes, int length, MIDITimeStamp atTime)
+{
+	Byte buffer[512];
+	MIDIPacketList *packetList = (MIDIPacketList *)buffer;
+	MIDIPacket *packet;
+
+	if (sAmyEditorOut == 0 || bytes == NULL || length <= 0)
+		return;
+	if (bytes[0] == 0xF0)
+		return;
+	if (length > 256)
+		length = 256;
+	packet = MIDIPacketListInit(packetList);
+	packet = MIDIPacketListAdd(packetList, sizeof buffer, packet, atTime,
+		(ByteCount)length, bytes);
+	if (packet != NULL)
+		(void)MIDIReceived(sAmyEditorOut, packetList);
 }
 
 static void
@@ -486,7 +552,7 @@ StartInternalSynthEngine(void)
 	AudioUnitSetProperty(u1.audioUnit, kAudioUnitProperty_HostMIDIProtocol,
 		kAudioUnitScope_Global, 0, &proto, sizeof proto);
 	sum.outputVolume = 1.0;
-	if (sAmyPort == 0 || sAmyPort == 1) {
+	if (AmyAudioWanted()) {
 		AVAudioFormat *fmt = [[AVAudioFormat alloc] initStandardFormatWithSampleRate:AMY_SYNTH_SAMPLE_RATE channels:2];
 		sAmyNode = [[AVAudioSourceNode alloc] initWithFormat:fmt renderBlock:^OSStatus(
 			BOOL *isSilence, const AudioTimeStamp *timestamp, AVAudioFrameCount frameCount, AudioBufferList *outputData) {
@@ -513,7 +579,7 @@ StartInternalSynthEngine(void)
 		[sEngine attachNode:sAmyNode];
 		[fmt release];
 	}
-	if (sum == nil || eq == nil || reverb == nil || limiter == nil || (sAmyPort >= 0 && sAmyNode == nil)) {
+	if (sum == nil || eq == nil || reverb == nil || limiter == nil || (AmyAudioWanted() && sAmyNode == nil)) {
 		NSLog(@"internal synth effect unit missing");
 		[sEngine release];
 		sEngine = nil;
@@ -533,13 +599,16 @@ StartInternalSynthEngine(void)
 	if (connected && sAmyPort != 1)
 		connected = ConnectNode(sEngine, u1, sum, 1, &connectErr);
 	if (connected && sAmyNode != nil) {
+		/* STed2 output select uses bus 0/1. Editor-only hold uses bus 2 so
+		   both DLS units stay connected. */
+		AVAudioNodeBus amyBus = (sAmyPort >= 0) ? (AVAudioNodeBus)sAmyPort : 2;
 		AVAudioFormat *fmt = [[AVAudioFormat alloc] initStandardFormatWithSampleRate:AMY_SYNTH_SAMPLE_RATE channels:2];
 		if (@available(macOS 27.0, *))
-			connected = [sEngine connect:sAmyNode to:sum fromBus:0 toBus:(AVAudioNodeBus)sAmyPort format:fmt error:&connectErr];
+			connected = [sEngine connect:sAmyNode to:sum fromBus:0 toBus:amyBus format:fmt error:&connectErr];
 		else {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-			[sEngine connect:sAmyNode to:sum fromBus:0 toBus:(AVAudioNodeBus)sAmyPort format:fmt];
+			[sEngine connect:sAmyNode to:sum fromBus:0 toBus:amyBus format:fmt];
 #pragma clang diagnostic pop
 		}
 		[fmt release];
@@ -578,7 +647,7 @@ StartInternalSynthEngine(void)
 	AudioUnitAddRenderNotify(u0.audioUnit, InternalSynthRenderNotify, (void *)(intptr_t)0);
 	AudioUnitAddRenderNotify(u1.audioUnit, InternalSynthRenderNotify, (void *)(intptr_t)1);
 	sHostTicksPerSecond = AudioGetHostClockFrequency();
-	if (sAmyPort >= 0)
+	if (AmyAudioWanted())
 		AmySynthStart();
 	if (![sEngine startAndReturnError:&err]) {
 		NSLog(@"internal synth start failed: %@", err);
@@ -711,6 +780,201 @@ InternalSynthCreateDestinations(MIDIClientRef client)
 		AddInternalDestination(&sInternalDest[1], CFSTR("Apple DLS Synth 2"));
 	if (sAmyDest == 0)
 		AddInternalDestination(&sAmyDest, CFSTR("AMY Synthesizer"));
+	/* Keep exactly one of each even if a previous client left orphans. */
+	DisposeEndpointsNamedExcept(CFSTR("Apple DLS Synth"), sInternalDest[0], 0);
+	DisposeEndpointsNamedExcept(CFSTR("Apple DLS Synth 2"), sInternalDest[1], 0);
+	DisposeEndpointsNamedExcept(CFSTR("AMY Synthesizer"), sAmyDest, 0);
+}
+
+int
+InternalSynthIsAmyEditorEndpoint(MIDIEndpointRef endpoint)
+{
+	if (endpoint == 0)
+		return 0;
+	return (endpoint == sAmyEditorIn || endpoint == sAmyEditorOut) ? 1 : 0;
+}
+
+int
+InternalSynthIsPlaybackListDestination(MIDIEndpointRef endpoint)
+{
+	CFStringRef name = NULL;
+	int ours;
+
+	if (endpoint == 0)
+		return 0;
+	if (endpoint == sAmyEditorIn || endpoint == sAmyEditorOut)
+		return 0;
+	if (endpoint == sInternalDest[0] || endpoint == sInternalDest[1] || endpoint == sAmyDest)
+		return 1;
+	/* Hide orphan copies of our virtual destinations (double Init / stale
+	   clients). Matching is by kMIDIPropertyName, not display name. */
+	if (MIDIObjectGetStringProperty(endpoint, kMIDIPropertyName, &name) != noErr || name == NULL)
+		return 1;
+	ours = (CFStringCompare(name, CFSTR("Apple DLS Synth"), 0) == kCFCompareEqualTo
+		|| CFStringCompare(name, CFSTR("Apple DLS Synth 2"), 0) == kCFCompareEqualTo
+		|| CFStringCompare(name, CFSTR("AMY Synthesizer"), 0) == kCFCompareEqualTo
+		|| CFStringCompare(name, CFSTR("AMY EDITOR INPUT"), 0) == kCFCompareEqualTo);
+	CFRelease(name);
+	return ours ? 0 : 1;
+}
+
+int
+InternalSynthAmyEditorPortsOpen(void)
+{
+	return sAmyEditorHold ? 1 : 0;
+}
+
+/*
+  Editor ports use classic MIDIDestinationCreate / MIDISourceCreate
+  (MIDIPacketList), not CreateWithProtocol. Chrome Web MIDI enumerates
+  those reliably; MIDI Monitor sees both, but Audio MIDI Setup never
+  lists app-created virtual endpoints (IAC only) — that is normal.
+*/
+static void
+AmyEditorInputReadProc(const MIDIPacketList *pktlist, void *readProcRefCon, void *srcConnRefCon)
+{
+	const MIDIPacket *packet;
+	UInt32 i;
+
+	(void)readProcRefCon;
+	(void)srcConnRefCon;
+	if (pktlist == NULL || !sAmyEditorHold)
+		return;
+	packet = &pktlist->packet[0];
+	for (i = 0; i < pktlist->numPackets; i++) {
+		if (packet->length > 0)
+			AmySynthSendMIDI(packet->data, (int)packet->length, 0);
+		packet = MIDIPacketNext(packet);
+	}
+}
+
+static SInt32
+StableEditorUniqueID(CFStringRef defaultsKey, SInt32 fallback)
+{
+	NSString *key = (NSString *)defaultsKey;
+	NSUserDefaults *def = [NSUserDefaults standardUserDefaults];
+	SInt32 uid = (SInt32)[def integerForKey:key];
+
+	if (uid == 0) {
+		uid = fallback;
+		[def setInteger:uid forKey:key];
+	}
+	return uid;
+}
+
+static void
+PublishAmyEditorEndpoint(MIDIEndpointRef endpoint, int isInput)
+{
+	SInt32 uid;
+
+	if (endpoint == 0)
+		return;
+	MIDIObjectSetIntegerProperty(endpoint, kMIDIPropertyOffline, 0);
+	MIDIObjectSetStringProperty(endpoint, kMIDIPropertyManufacturer, CFSTR("shore pine sound systems"));
+	MIDIObjectSetStringProperty(endpoint, kMIDIPropertyModel, CFSTR("STed2 AMY Editor"));
+	/* Stable unique IDs help Chrome / Web MIDI keep the port across relaunches. */
+	uid = StableEditorUniqueID(
+		isInput ? CFSTR("AmyEditorInputUniqueID") : CFSTR("AmyEditorOutputUniqueID"),
+		isInput ? (SInt32)0x53544531 : (SInt32)0x53544532); /* STE1 / STE2 */
+	(void)MIDIObjectSetIntegerProperty(endpoint, kMIDIPropertyUniqueID, uid);
+}
+
+static void
+DisposeAmyEditorPorts(void)
+{
+	if (sAmyEditorIn != 0) {
+		MIDIEndpointDispose(sAmyEditorIn);
+		sAmyEditorIn = 0;
+	}
+	if (sAmyEditorOut != 0) {
+		MIDIEndpointDispose(sAmyEditorOut);
+		sAmyEditorOut = 0;
+	}
+}
+
+static int
+CreateAmyEditorPorts(void)
+{
+	OSStatus sts;
+
+	if (sSynthMIDIClient == 0)
+		return 0;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+	if (sAmyEditorIn == 0) {
+		DisposeEndpointsNamedExcept(CFSTR("AMY EDITOR INPUT"), 0, 0);
+		sts = MIDIDestinationCreate(sSynthMIDIClient, CFSTR("AMY EDITOR INPUT"),
+			AmyEditorInputReadProc, NULL, &sAmyEditorIn);
+		if (sts != noErr) {
+			NSLog(@"AMY EDITOR INPUT create failed: %d", (int)sts);
+			sAmyEditorIn = 0;
+			return 0;
+		}
+		PublishAmyEditorEndpoint(sAmyEditorIn, 1);
+		DisposeEndpointsNamedExcept(CFSTR("AMY EDITOR INPUT"), sAmyEditorIn, 0);
+	}
+	if (sAmyEditorOut == 0) {
+		DisposeEndpointsNamedExcept(CFSTR("AMY EDITOR OUTPUT"), 0, 1);
+		sts = MIDISourceCreate(sSynthMIDIClient, CFSTR("AMY EDITOR OUTPUT"), &sAmyEditorOut);
+		if (sts != noErr) {
+			NSLog(@"AMY EDITOR OUTPUT create failed: %d", (int)sts);
+			DisposeAmyEditorPorts();
+			return 0;
+		}
+		PublishAmyEditorEndpoint(sAmyEditorOut, 0);
+		DisposeEndpointsNamedExcept(CFSTR("AMY EDITOR OUTPUT"), sAmyEditorOut, 1);
+	}
+#pragma clang diagnostic pop
+	NSLog(@"AMY Editor ports published (IN=%u OUT=%u) destCount=%u srcCount=%u",
+		(unsigned)sAmyEditorIn, (unsigned)sAmyEditorOut,
+		(unsigned)MIDIGetNumberOfDestinations(),
+		(unsigned)MIDIGetNumberOfSources());
+	return 1;
+}
+
+static void
+ApplyAmyEditorPortsMain(int on)
+{
+	int want = on ? 1 : 0;
+	int hadNode;
+
+	if (want == sAmyEditorHold && ((want != 0) == (sAmyEditorIn != 0)))
+		return;
+
+	/* Publish/dispose endpoints outside the audio lock so CoreMIDI can
+	   register them without waiting on DLS instantiate. */
+	if (want) {
+		sAmyEditorHold = 1;
+		if (!CreateAmyEditorPorts()) {
+			sAmyEditorHold = 0;
+			return;
+		}
+		pthread_mutex_lock(&sSynthLock);
+		hadNode = (sAmyNode != nil);
+		if (sEngine == nil)
+			StartInternalSynthEngine();
+		else if (!hadNode) {
+			StopInternalSynthEngine();
+			StartInternalSynthEngine();
+		}
+		pthread_mutex_unlock(&sSynthLock);
+	} else {
+		DisposeAmyEditorPorts();
+		sAmyEditorHold = 0;
+		pthread_mutex_lock(&sSynthLock);
+		if (sEngine != nil && sAmyPort < 0)
+			StopInternalSynthEngine();
+		pthread_mutex_unlock(&sSynthLock);
+	}
+}
+
+void
+InternalSynthSetAmyEditorPortsOpen(int on)
+{
+	if ([NSThread isMainThread])
+		ApplyAmyEditorPortsMain(on);
+	else
+		dispatch_sync(dispatch_get_main_queue(), ^{ ApplyAmyEditorPortsMain(on); });
 }
 
 static int

@@ -10,6 +10,14 @@ extern "C" {
 void InternalSynthCreateDestinations(MIDIClientRef client);
 int InternalSynthAnyDestination(const MIDIEndpointRef *dests);
 int InternalSynthIsAmyDestination(MIDIEndpointRef dest);
+/* Virtual ports for the Web AMY Editor (amyboard.com). Not STed2 outs. */
+int InternalSynthIsAmyEditorEndpoint(MIDIEndpointRef endpoint);
+/* 1 if this destination may appear in STed2's MIDI Out list: our tracked
+   DLS/AMY refs, or any external port. Orphan duplicates of our virtual
+   synth names are excluded so a second Create cannot break selection. */
+int InternalSynthIsPlaybackListDestination(MIDIEndpointRef endpoint);
+void InternalSynthSetAmyEditorPortsOpen(int on);
+int InternalSynthAmyEditorPortsOpen(void);
 void InternalSynthApplyAmyPort(const MIDIEndpointRef *dests);
 void InternalSynthEnsureRunning(void);
 void InternalSynthEnsureStopped(void);

@@ -29,6 +29,9 @@ const char *CoreMIDICanonicalOutputName(const char *name);
 int CoreMIDISelectDeviceByNameForPort(const char *name, int port);
 void CoreMIDISelectInputDeviceByName(const char *name);
 void CoreMIDIAllSoundOff(void);
+/* Publish/hide AMY EDITOR INPUT + OUTPUT for the Web Editor. */
+void CoreMIDISetAmyEditorPortsOpen(int on);
+int CoreMIDIAmyEditorPortsOpen(void);
 
 void push_midi_in_ring_buffer(uint8_t byte);
 int pop_midi_in_ring_buffer(uint8_t *byte);

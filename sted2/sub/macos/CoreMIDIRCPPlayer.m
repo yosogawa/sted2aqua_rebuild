@@ -170,20 +170,28 @@ void CoreMIDIConnectDefaultInputs(void);
 void
 CoreMIDIInitIfNeeded(void)
 {
-	int i;
-	if (sMIDIClientRef == 0) {
+	static dispatch_once_t once;
+	static int sDefaultInputsDone;
+
+	/* Create the client once. Do not call ConnectDefaultInputs inside the
+	   once block — it selects an input, which calls InitIfNeeded again and
+	   re-enters dispatch_once (EXC_BREAKPOINT). */
+	dispatch_once(&once, ^{
+		int i;
 		MIDIClientCreate(CFSTR("STed2 Mac"), NULL, NULL, &sMIDIClientRef);
 		if (sMIDIOutputPortRef == 0)
 			MIDIOutputPortCreate(sMIDIClientRef, CFSTR("STed2 output port"), &sMIDIOutputPortRef);
 		if (sMIDIInputPortRef == 0)
 			MIDIInputPortCreate(sMIDIClientRef, CFSTR("STed2 input port"), CoreMIDIReadProc, NULL, &sMIDIInputPortRef);
 		InternalSynthCreateDestinations(sMIDIClientRef);
-		for (i = 0; i < sizeof(sDest) / sizeof(sDest[0]); i++)
+		for (i = 0; i < (int)(sizeof(sDest) / sizeof(sDest[0])); i++)
 			sDest[i] = 0;
-
+	});
+	rcpplayer_set_output_timing(300, 1);
+	if (!sDefaultInputsDone) {
+		sDefaultInputsDone = 1;
 		CoreMIDIConnectDefaultInputs();
 	}
-	rcpplayer_set_output_timing(300, 1);
 }
 void CoreMIDIConnectDefaultInputs(void) {
 	if (sMIDIInputPortRef == 0) return;
@@ -240,12 +248,43 @@ CoreMIDIEndpointDisplayName(MIDIEndpointRef eref)
 	return string;
 }
 
+/* Skip AMY Editor virtual ports so they never appear as STed2 outs. */
+static MIDIEndpointRef
+CoreMIDIPlaybackDestinationAtIndex(int index)
+{
+	ItemCount count, i;
+	int n;
+
+	if (index < 0)
+		return 0;
+	count = MIDIGetNumberOfDestinations();
+	n = 0;
+	for (i = 0; i < count; i++) {
+		MIDIEndpointRef eref = MIDIGetDestination(i);
+		if (eref == 0 || !InternalSynthIsPlaybackListDestination(eref))
+			continue;
+		if (n == index)
+			return eref;
+		n++;
+	}
+	return 0;
+}
+
+static void
+CoreMIDIRefreshInternalSynthEngine(void)
+{
+	if (InternalSynthAnyDestination(sDest) || InternalSynthAmyEditorPortsOpen())
+		InternalSynthEnsureRunning();
+	else
+		InternalSynthEnsureStopped();
+}
+
 NSString *
 CoreMIDIDeviceNameAtIndex(int index)
 {
 	MIDIEndpointRef eref;
 	CoreMIDIInitIfNeeded();
-	eref = MIDIGetDestination(index);
+	eref = CoreMIDIPlaybackDestinationAtIndex(index);
 	if (eref == 0)
 		return nil;
 	return CoreMIDIEndpointDisplayName(eref);
@@ -260,7 +299,9 @@ CoreMIDISelectDeviceForPort(int index, int port)
 
 	CoreMIDIInitIfNeeded();
 	port = port % kMaxNumberOfPorts;
-	dest = MIDIGetDestination(index);
+	dest = CoreMIDIPlaybackDestinationAtIndex(index);
+	if (dest == 0)
+		return;
 	if (InternalSynthIsAmyDestination(dest)
 		&& InternalSynthIsAmyDestination(sDest[(port + 1) % kMaxNumberOfPorts]))
 		return;
@@ -268,11 +309,8 @@ CoreMIDISelectDeviceForPort(int index, int port)
 		next[i] = sDest[i];
 	next[port] = dest;
 	InternalSynthApplyAmyPort(next);
-	if (InternalSynthAnyDestination(next))
-		InternalSynthEnsureRunning();
 	sDest[port] = dest;
-	if (!InternalSynthAnyDestination(sDest))
-		InternalSynthEnsureStopped();
+	CoreMIDIRefreshInternalSynthEngine();
 }
 
 const char *
@@ -300,8 +338,10 @@ CoreMIDISelectDeviceByNameForPort(const char *name, int port)
 	n = 0;
 	while ((str = CoreMIDIDeviceNameAtIndex(n)) != nil) {
 		if (strcasecmp(name, [str UTF8String]) == 0) {
-			MIDIEndpointRef dest = MIDIGetDestination(n);
+			MIDIEndpointRef dest = CoreMIDIPlaybackDestinationAtIndex(n);
 			MIDIEndpointRef other = sDest[1 - port];
+			if (dest == 0)
+				return 0;
 			if (InternalSynthIsAmyDestination(dest) && InternalSynthIsAmyDestination(other))
 				return -1;
 			CoreMIDISelectDeviceForPort(n, port);
@@ -310,6 +350,27 @@ CoreMIDISelectDeviceByNameForPort(const char *name, int port)
 		n++;
 	}
 	return 0;
+}
+
+void
+CoreMIDISetAmyEditorPortsOpen(int on)
+{
+	CoreMIDIInitIfNeeded();
+	InternalSynthSetAmyEditorPortsOpen(on);
+	/* Opening always needs the engine for AMY audio. Closing only refreshes
+	   when a STed2-owned synth is selected — do not EnsureStopped just
+	   because the current outs are external (IAC etc.). */
+	if (on || InternalSynthAnyDestination(sDest))
+		CoreMIDIRefreshInternalSynthEngine();
+	else if (!InternalSynthAmyEditorPortsOpen() && !InternalSynthAnyDestination(sDest)) {
+		/* Editor-only engine was already stopped inside SetAmyEditorPortsOpen. */
+	}
+}
+
+int
+CoreMIDIAmyEditorPortsOpen(void)
+{
+	return InternalSynthAmyEditorPortsOpen();
 }
 
 #ifdef __OBJC__
@@ -324,12 +385,41 @@ CoreMIDISelectedOutputName(int port)
 }
 #endif
 
+static MIDIEndpointRef
+CoreMIDIPlaybackSourceAtIndex(int index)
+{
+	ItemCount count, i;
+	int n;
+
+	if (index < 0)
+		return 0;
+	count = MIDIGetNumberOfSources();
+	n = 0;
+	for (i = 0; i < count; i++) {
+		MIDIEndpointRef eref = MIDIGetSource(i);
+		CFStringRef name = NULL;
+		if (eref == 0 || InternalSynthIsAmyEditorEndpoint(eref))
+			continue;
+		/* Hide Editor OUT from STed2's MIDI In list (by name if ref differs). */
+		if (MIDIObjectGetStringProperty(eref, kMIDIPropertyName, &name) == noErr && name != NULL) {
+			int skip = (CFStringCompare(name, CFSTR("AMY EDITOR OUTPUT"), 0) == kCFCompareEqualTo);
+			CFRelease(name);
+			if (skip)
+				continue;
+		}
+		if (n == index)
+			return eref;
+		n++;
+	}
+	return 0;
+}
+
 NSString *
 CoreMIDIInDeviceNameAtIndex(int index)
 {
 	MIDIEndpointRef eref;
 	CoreMIDIInitIfNeeded();
-	eref = MIDIGetSource(index);
+	eref = CoreMIDIPlaybackSourceAtIndex(index);
 	if (eref == 0)
 		return nil;
 	return CoreMIDIEndpointDisplayName(eref);
@@ -377,7 +467,7 @@ CoreMIDISelectInputDeviceByName(const char *name)
 
 	while ((str = CoreMIDIInDeviceNameAtIndex(n)) != nil) {
 		if (strcasecmp(name, [str UTF8String]) == 0) {
-			sMIDIInputSourceRef = MIDIGetSource(n);
+			sMIDIInputSourceRef = CoreMIDIPlaybackSourceAtIndex(n);
 			if (sMIDIInputSourceRef != 0) {
 				MIDIPortConnectSource(sMIDIInputPortRef, sMIDIInputSourceRef, NULL);
 			}
