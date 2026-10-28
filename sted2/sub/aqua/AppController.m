@@ -311,7 +311,15 @@ ApplyMidiSyncMode(int ext)
 	NSMenu *viewMenu;
 	NSMenuItem *viewTop, *item;
 	NSInteger i, n, insertAt;
-	static const int percents[] = { 100, 125, 150 };
+	struct {
+		const char *title;
+		int tag;
+	} scales[] = {
+		{ "100%", 100 },
+		{ "150%", 150 },
+		{ "200%", 200 },
+		{ "Max Height", 0 }, /* 0 = fit to visible-frame height */
+	};
 
 	if (mainMenu == nil)
 		return;
@@ -325,22 +333,15 @@ ApplyMidiSyncMode(int ext)
 		}
 	}
 	viewMenu = [[NSMenu alloc] initWithTitle:@"View"];
-	for (i = 0; i < 3; i++) {
-		item = [[NSMenuItem alloc] initWithTitle:[NSString stringWithFormat:@"%d%%", percents[i]]
+	for (i = 0; i < (int)(sizeof scales / sizeof scales[0]); i++) {
+		item = [[NSMenuItem alloc] initWithTitle:[NSString stringWithUTF8String:scales[i].title]
 						  action:@selector(setDisplayScale:)
 					   keyEquivalent:@""];
-		[item setTag:percents[i]];
+		[item setTag:scales[i].tag];
 		[item setTarget:self];
 		[viewMenu addItem:item];
 		[item release];
 	}
-	[viewMenu addItem:[NSMenuItem separatorItem]];
-	item = [[NSMenuItem alloc] initWithTitle:@"Toggle FullScreen"
-					  action:@selector(toggleVisibleFrame:)
-				   keyEquivalent:@""];
-	[item setTarget:self];
-	[viewMenu addItem:item];
-	[item release];
 	viewTop = [[NSMenuItem alloc] initWithTitle:@"View" action:nil keyEquivalent:@""];
 	[viewTop setSubmenu:viewMenu];
 	[mainMenu insertItem:viewTop atIndex:insertAt];
@@ -353,40 +354,12 @@ ApplyMidiSyncMode(int ext)
 	[X68kView applyDisplayScalePercent:(int)[sender tag] toView:[myWindow contentView]];
 }
 
-static BOOL sFilledVisibleFrame;
-static NSRect sFrameBeforeFill;
-
-- (IBAction)toggleVisibleFrame:(id)sender
-{
-	NSScreen *screen;
-	(void)sender;
-	if (myWindow == nil)
-		return;
-	if (sFilledVisibleFrame) {
-		[myWindow setFrame:sFrameBeforeFill display:YES animate:YES];
-		sFilledVisibleFrame = NO;
-		return;
-	}
-	screen = [myWindow screen];
-	if (screen == nil)
-		screen = [NSScreen mainScreen];
-	if (screen == nil)
-		return;
-	sFrameBeforeFill = [myWindow frame];
-	[myWindow setFrame:[screen visibleFrame] display:YES animate:YES];
-	sFilledVisibleFrame = YES;
-}
-
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem
 {
 	if ([menuItem action] == @selector(setDisplayScale:)) {
 		[menuItem setState:(([menuItem tag] == [X68kView displayScalePercent])
 				    ? NSOnState : NSOffState)];
 		return YES;
-	}
-	if ([menuItem action] == @selector(toggleVisibleFrame:)) {
-		[menuItem setState:(sFilledVisibleFrame ? NSOnState : NSOffState)];
-		return myWindow != nil;
 	}
 	if ([menuItem action] == @selector(toggleThruMode:)) {
 		[menuItem setState:(thrumode ? NSOnState : NSOffState)];

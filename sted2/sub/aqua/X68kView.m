@@ -77,7 +77,9 @@ static void **sRequestAppKitArgs;
 
 static X68kView *sMainView;
 static NSTimer *sTimer;
-static int sDisplayScalePercent = 100;
+/* 100 / 150 / 200, or 0 = Max Height (fit visible frame). */
+static int sDisplayScalePercent = 200;
+static CGInterpolationQuality sDisplayInterpolation = kCGInterpolationNone;
 
 //  The palette values are to be stored in big-endian format
 static char sPaletteEndianIsFixed = 0;  //  Endian conversion should be done only once
@@ -284,14 +286,50 @@ s_XSTed_ms_store_view_point(NSPoint p, NSUInteger buttons)
 	return sDisplayScalePercent;
 }
 
+static void
+SetDisplayInterpolationForScaleFactor(CGFloat s)
+{
+	/* 100% / 200%: None (nearest). Other <200%: Medium. >200%: Low. */
+	if (s <= 1.0 + 1e-4 || (s >= 2.0 - 1e-4 && s <= 2.0 + 1e-4))
+		sDisplayInterpolation = kCGInterpolationNone;
+	else if (s < 2.0 - 1e-4)
+		sDisplayInterpolation = kCGInterpolationMedium;
+	else
+		sDisplayInterpolation = kCGInterpolationLow;
+}
+
+/* Largest uniform scale that fits the screen's visible content area.
+   Height is the primary limit; width is also clamped so the window fits. */
+static CGFloat
+MaxHeightScaleFactorForWindow(NSWindow *w)
+{
+	NSRect vis, contentVis;
+	CGFloat sH, sW;
+
+	if (w == nil)
+		return 2.0;
+	vis = [[w screen] visibleFrame];
+	if (NSIsEmptyRect(vis))
+		return 2.0;
+	contentVis = [w contentRectForFrameRect:vis];
+	if (contentVis.size.height < 1.0 || contentVis.size.width < 1.0)
+		return 2.0;
+	sH = contentVis.size.height / (CGFloat)sTextHeight;
+	sW = contentVis.size.width / (CGFloat)sTextWidth;
+	if (sH < sW)
+		return sH;
+	return sW;
+}
+
 + (void)applyDisplayScalePercent:(int)percent toView:(NSView *)view
 {
 	NSWindow *w;
 	NSRect oldFrame, newFrame, vis, content;
 	CGFloat s;
 
-	if (percent != 100 && percent != 125 && percent != 150)
-		percent = 100;
+	/* 100 / 150 / 200 / 0(Max Height). Migrate unknown legacy values to 200%. */
+	if (percent != 100 && percent != 150 && percent != 200 && percent != 0)
+		percent = 200;
 	sDisplayScalePercent = percent;
 	[[NSUserDefaults standardUserDefaults] setInteger:percent forKey:@"DisplayScalePercent"];
 	if (view == nil)
@@ -299,7 +337,11 @@ s_XSTed_ms_store_view_point(NSPoint p, NSUInteger buttons)
 	w = [view window];
 	if (w == nil)
 		return;
-	s = (CGFloat)percent / 100.0;
+	if (percent == 0)
+		s = MaxHeightScaleFactorForWindow(w);
+	else
+		s = (CGFloat)percent / 100.0;
+	SetDisplayInterpolationForScaleFactor(s);
 	content.origin = NSZeroPoint;
 	content.size.width = floor((CGFloat)sTextWidth * s + 0.5);
 	content.size.height = floor((CGFloat)sTextHeight * s + 0.5);
@@ -496,12 +538,22 @@ s_XSTed_ms_store_view_point(NSPoint p, NSUInteger buttons)
 	}
 	if (bitmapRep != nil) {
 		NSGraphicsContext *gc = [NSGraphicsContext currentContext];
-		NSImageInterpolation old = [gc imageInterpolation];
-		[gc setImageInterpolation:NSImageInterpolationNone];
+		CGContextRef ctx = [gc CGContext];
+		NSImageInterpolation oldInterp = [gc imageInterpolation];
+
+		[gc saveGraphicsState];
+		if (ctx != NULL)
+			CGContextSetInterpolationQuality(ctx, sDisplayInterpolation);
+		if (sDisplayInterpolation == kCGInterpolationNone)
+			[gc setImageInterpolation:NSImageInterpolationNone];
+		else if (sDisplayInterpolation == kCGInterpolationLow)
+			[gc setImageInterpolation:NSImageInterpolationLow];
+		else
+			[gc setImageInterpolation:NSImageInterpolationMedium];
 		[bitmapRep drawInRect:[self bounds]];
-		[gc setImageInterpolation:old];
+		[gc setImageInterpolation:oldInterp];
+		[gc restoreGraphicsState];
 	}
-//	printf("drawRect\n");
 }
 
 - (BOOL)acceptsFirstResponder

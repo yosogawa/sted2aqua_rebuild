@@ -20,5 +20,4 @@
 - (IBAction)toggleThruMode:(id)sender;
 - (IBAction)setSyncMode:(id)sender;
 - (IBAction)setDisplayScale:(id)sender;
-- (IBAction)toggleVisibleFrame:(id)sender;
 @end
