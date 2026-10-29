@@ -1286,8 +1286,8 @@ void	rcp_dat()
   box(102,106-16,424,164,14,65535);box(432,106-16,744,164,14,65535);
 
   sdis(14, 96,"TEMPO    :",0,15,-1);	sdis(34, 96,"TIMEBASE :",0,15,-1);
-  sdis(14,112,"PLAY BIAS:",0,15,-1);	/*midi thru*/
-  sdis(14,128,"KEY  :",0,15,-1);		/*sync mode*/
+  sdis(14,112,"PLAY BIAS:",0,15,-1);	sdis(34,112,"THRU MODE:",0,15,-1);
+  sdis(14,128,"KEY  :",0,15,-1);		sdis(34,128,"SYNC MODE:",0,15,-1);
   sdis(14,144,"BEAT  :    /",0,15,-1);	sdis(34,144,"MIDI IN :",9,15,-1);
 
   rcp_dat2(-1,0);
@@ -1317,12 +1317,30 @@ void	rcp_dat2(int n,int m)
     mdin_fit(shown, mdinport(), 8);
     sdis2(44,144,shown,8,c1,c2);
   }
+  if(n==9 || n<0){
+    sdis2(45,128,rcp_clock_get_source() ? "EXT " : "INT ",4,c1,c2);
+  }
+  if(n==10 || n<0){
+    sdis2(45,112,thrumode ? "ON  " : "OFF ",4,c1,c2);
+  }
 }
 
 void
 sted_redraw_midi_in(void)
 {
   rcp_dat2(8, 0);
+}
+
+void
+sted_redraw_sync_mode(void)
+{
+  rcp_dat2(9, 0);
+}
+
+void
+sted_redraw_thru_mode(void)
+{
+  rcp_dat2(10, 0);
 }
 
 /***************************/

@@ -340,6 +340,8 @@ int  option22(int md, int sm, int ad, int ew);
 
 char *mdinport(void);
 void sted_redraw_midi_in(void);
+void sted_redraw_sync_mode(void);
+void sted_redraw_thru_mode(void);
 void save_sub(int sh);
 int  option_read(char *env_option);
 void form(void);

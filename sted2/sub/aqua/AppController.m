@@ -21,6 +21,8 @@ extern int isconsole;
 extern int sted_saved_argc;
 extern char **sted_saved_argv;
 extern void sted_redraw_midi_in(void);
+extern void sted_redraw_sync_mode(void);
+extern void sted_redraw_thru_mode(void);
 extern char thrumode;
 extern int XSTed_save_thrumode(int on);
 extern int ecount_sw; /* record.c: mirrors RcpClock source for SYNC display */
@@ -244,6 +246,7 @@ ApplyMidiSyncMode(int ext)
 {
 	(void)sender;
 	XSTed_save_thrumode(thrumode ? 0 : 1);
+	sted_redraw_thru_mode();
 }
 
 - (void)installSyncModeMenu
@@ -303,6 +306,7 @@ ApplyMidiSyncMode(int ext)
 
 	[def setBool:(ext != 0) forKey:kMidiSyncExtKey];
 	ApplyMidiSyncMode(ext);
+	sted_redraw_sync_mode();
 }
 
 - (void)installViewMenu
