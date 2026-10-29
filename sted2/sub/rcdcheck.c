@@ -33,6 +33,7 @@ int    add_set(int tr, int *add);
 int STed_InitMeasureConversion( void );
 int STed_MeasureConversion( int track );
 static int bar_st[TRK_NUM][MAX_BAR];
+static int bar_total_st[TRK_NUM]; /* track length in steps; past this → inactive */
 
 void rcd_check( void );
 struct RCD_HEAD *rcd;
@@ -453,6 +454,7 @@ int STed_InitMeasureConversion() {
       bar_st[i][j] = step_cluc2( i, 0, measure[j] );
     }
     bar_st[i][m]=-1;
+    bar_total_st[i] = step_cluc2( i, 0, tr_len[i] );
   }
   free(measure);
 
@@ -475,15 +477,18 @@ int STed_MeasureConversion( int tr ) {
     c+=16;  /* too ad hoc... */
   }
 #endif
+  /* bar_st[] holds measure starts; -1 is the sentinel after the last.
+     Hitting -1 means "we are in the last measure", not "track is done".
+     Deactivate only once stepcount passes the track's total steps. */
   i=0;
   while (i<MAX_BAR) {
     if ( bar_st[tr][i]>c ) break;
-    if ( bar_st[tr][i]<0 ) i=MAX_BAR-1;
+    if ( bar_st[tr][i]<0 ) break;
     i++;
   }
   i--;
-  
-  if ( i==MAX_BAR-1 ) {   /* measures ended */
+
+  if ( i<0 || c>=bar_total_st[tr] ) {
     rcd->bar[tr]=0;
     rcd->step[tr]=0;
     rcd->active[tr]=0;
