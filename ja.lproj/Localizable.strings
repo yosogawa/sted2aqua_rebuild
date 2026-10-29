@@ -450,4 +450,4 @@ DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
 OTHER DEALINGS IN THE FONT SOFTWARE.\n\nCopyright (c) Keitarou Hiraki, Font Silo. 1990-2015\n";
 
-"about.thanks" = "（下書き）\n原作: TURBO（戸田貴之）\nUNIX 移植: 長野大介\nMac(Aqua) 移植: Toshi Nagata\n再構築: 小川嘉徳\n\n各人の作業内容は、README.jp と README.md をもとに後でまとめます。\n";
+"about.thanks" = "（下書き）\n原作: TURBO（戸田貴之）\nUNIX 移植: 長野大介\nMac 移植: 永田 央\n再構築: 小川嘉徳\n\n各人の作業内容は、README.jp と README.md をもとに後でまとめます。\n";
