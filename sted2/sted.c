@@ -56,6 +56,7 @@ int	cmdflagold,used_u=0;
 
 static int   paraexe(char *,int,int,int,int);
 static void  mdin_fit(char *dst, const char *src, int cells);
+static void  rcp_dat_filenames(int c1, int c2);
 
 static void
 sted_fail(int code)
@@ -694,7 +695,7 @@ void	save_sub(int sh)
       msg_clr();
     }
   }
-  sdis2(28,64,sted_filename_for_font(rcp_file),22,15,0);
+  rcp_dat_filenames(15, 0);
 }
 
 /***************************/
@@ -1281,7 +1282,6 @@ void	rcp_dat()
 {
   box(102,43,744,99-16,14,65535);
   sdis(14,48,"MUSIC TITLE  :",0,15,-1);sdis(14,64,"FILE NAME    :",0,15,-1);
-  sdis(14+37,80-16,"/",0,15,-1);sdis(14+37+19,80-16,"/",0,15,-1);
 
   box(102,106-16,424,164,14,65535);box(432,106-16,744,164,14,65535);
 
@@ -1305,8 +1305,7 @@ void	rcp_dat2(int n,int m)
   if(m==2){c2=-1;}
 
   if(n==0 || n<0){sdis2(28,48,mtitle,65,c1,c2);}
-  if(n==1 || n<0){sdis2(28,64,sted_filename_for_font(rcp_file),22,c1,c2);}
-  if(n==2 || n<0){sdis2(28+25,64,sted_filename_for_font(cm6_file),12,c1,c2);sdis2(28+44,64,sted_filename_for_font(gsd_file),16,c1,c2);}
+  if(n==1 || n==2 || n<0){rcp_dat_filenames(c1,c2);}
   if(n==3 || n<0){vdis(25,96,mtempo,3,c1,c2);}
   if(n==4 || n<0){i=pbias;if(i>127){i=i-256;}vdis(25,112,i,3,c1,c2);}
   if(n==5 || n<0){sdis2(20,128,scale_str(bkey),13,c1,c2);}
@@ -1473,6 +1472,40 @@ void	beat_set()
     if( ke==0x18 ){i++;if(i>3){i=0;}}
     if( ke==0x13 ){cx--;if(cx<0){cx=1;}}
     if( ke==0x04 ){cx++;if(cx>1){cx=0;}}
+  }
+}
+
+/***************************/
+/* FILE NAME row: RCP [/ CM6] [/ GSD].
+   No RCP → do not reserve 22 cells; left-align from col 28.
+   CM6 only → trailing "/". GSD only → "/  /" then GSD. */
+static void
+rcp_dat_filenames(int c1, int c2)
+{
+  int has_rcp = (rcp_file[0] != 0);
+  int has_cm6 = (cm6_file[0] != 0);
+  int has_gsd = (gsd_file[0] != 0);
+  /* Classic slash column is 51 (after RCP 28..49). Without RCP, same block at 28. */
+  int slash0 = has_rcp ? 51 : 28;
+
+  /* Cols 28–87 cover the widest classic layout. */
+  sdis2(28, 64, "", 60, c1, c2);
+
+  if (has_rcp)
+    sdis2(28, 64, sted_filename_for_font(rcp_file), 22, c1, c2);
+
+  if (has_cm6 && has_gsd) {
+    sdis(slash0, 64, "/", 1, c1, c2);
+    sdis2(slash0 + 2, 64, sted_filename_for_font(cm6_file), 12, c1, c2);
+    sdis(slash0 + 19, 64, "/", 1, c1, c2);
+    sdis2(slash0 + 21, 64, sted_filename_for_font(gsd_file), 16, c1, c2);
+  } else if (has_cm6) {
+    sdis(slash0, 64, "/", 1, c1, c2);
+    sdis2(slash0 + 2, 64, sted_filename_for_font(cm6_file), 12, c1, c2);
+    sdis(slash0 + 19, 64, "/", 1, c1, c2);
+  } else if (has_gsd) {
+    sdis(slash0, 64, "/  /", 4, c1, c2);
+    sdis2(slash0 + 4, 64, sted_filename_for_font(gsd_file), 16, c1, c2);
   }
 }
 
