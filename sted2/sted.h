@@ -358,5 +358,7 @@ void tpl(int a);
 
 void XSTed_configure_mac_settings(const char *line);
 int XSTed_save_dls_settings(void);
+int XSTed_save_mac_font(const char *psName);
+const char *XSTed_mac_font_name(void);
 
 #endif /* _STED_H_ */

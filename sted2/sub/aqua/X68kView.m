@@ -100,6 +100,7 @@ static uint8_t *sKanjiData; /* 32*47*188 */
 static uint8_t *sFontDataBase;
 static uint8_t *sKanjiDataBase;
 static char sAppliedMacFont[256];
+static char sCnfMacFontName[256]; /* last loaded/saved #mac_font= (may differ until restart) */
 static int sAppliedCellHeight;
 
 #if 1
@@ -1173,6 +1174,10 @@ static void s_apply_mac_font_main(const char *name, int cellHeight)
 		return;
 	strncpy(sAppliedMacFont, name, sizeof sAppliedMacFont - 1);
 	sAppliedMacFont[sizeof sAppliedMacFont - 1] = 0;
+	if (sCnfMacFontName[0] == 0) {
+		strncpy(sCnfMacFontName, name, sizeof sCnfMacFontName - 1);
+		sCnfMacFontName[sizeof sCnfMacFontName - 1] = 0;
+	}
 	sAppliedCellHeight = cellHeight;
 	s_font_restore_base();
 	if (name[0] == 0)
@@ -1316,6 +1321,10 @@ XSTed_start_main(int (*mainPtr)(int, char **), int argc, char **argv)
 	sKanjiData = (uint8_t *)calloc(kFontKanjiBytes, 1);
 	s_font_capture_base();
 	s_load_mac_font_setting(argc, argv, macFont, sizeof macFont);
+	if (macFont[0] != 0) {
+		strncpy(sCnfMacFontName, macFont, sizeof sCnfMacFontName - 1);
+		sCnfMacFontName[sizeof sCnfMacFontName - 1] = 0;
+	}
 	s_use_mac_font(macFont);
 
 	/*  Initialize CoreMIDI  */
@@ -1681,6 +1690,8 @@ XSTed_configure_mac_settings(const char *line)
 			n = sizeof name - 1;
 		memcpy(name, p, n);
 		name[n] = 0;
+		strncpy(sCnfMacFontName, name, sizeof sCnfMacFontName - 1);
+		sCnfMacFontName[sizeof sCnfMacFontName - 1] = 0;
 		s_use_mac_font(name);
 	}
 }
@@ -1794,6 +1805,133 @@ ReplaceThruModeLine(NSString *line, int on, int *matched)
 		[line substringToIndex:valAt],
 		on ? @"on" : @"off",
 		[line substringFromIndex:valEnd]];
+}
+
+const char *
+XSTed_mac_font_name(void)
+{
+	if (sCnfMacFontName[0] != 0)
+		return sCnfMacFontName;
+	if (sAppliedMacFont[0] != 0)
+		return sAppliedMacFont;
+	return kBundledFontPSName;
+}
+
+/* Replace the value of an active #mac_font= line. Returns nil if not one. */
+static NSString *
+ReplaceMacFontLine(NSString *line, NSString *psName, int *matched)
+{
+	NSUInteger i, n, valAt;
+	unichar c;
+	NSString *key;
+
+	*matched = 0;
+	n = [line length];
+	i = 0;
+	while (i < n) {
+		c = [line characterAtIndex:i];
+		if (c != ' ' && c != '\t')
+			break;
+		i++;
+	}
+	if (i < n && [line characterAtIndex:i] == '*')
+		return nil;
+	if (n - i < 9)
+		return nil;
+	key = [line substringWithRange:NSMakeRange(i, 9)];
+	if ([key caseInsensitiveCompare:@"#mac_font"] != NSOrderedSame)
+		return nil;
+	i += 9;
+	while (i < n) {
+		c = [line characterAtIndex:i];
+		if (c != ' ' && c != '\t')
+			break;
+		i++;
+	}
+	if (i >= n || [line characterAtIndex:i] != '=')
+		return nil;
+	i++;
+	while (i < n) {
+		c = [line characterAtIndex:i];
+		if (c != ' ' && c != '\t')
+			break;
+		i++;
+	}
+	valAt = i;
+	*matched = 1;
+	return [NSString stringWithFormat:@"%@%@",
+		[line substringToIndex:valAt], psName];
+}
+
+int
+XSTed_save_mac_font(const char *psName)
+{
+	char path[PATHLEN];
+	NSString *filePath, *name, *text, *out, *nl;
+	NSError *err = nil;
+	NSStringEncoding enc = 0;
+	NSMutableArray *lines;
+	NSUInteger i, n;
+	int matched = 0;
+	int any = 0;
+
+	if (psName == NULL || psName[0] == 0)
+		return -1;
+	name = [NSString stringWithUTF8String:psName];
+	if (name == nil)
+		return -1;
+	if (!resolve_sted2_cnf(path, sizeof path)) {
+		NSLog(@"sted2.cnf was not found; mac font was not saved");
+		return -1;
+	}
+	filePath = [NSString stringWithUTF8String:path];
+	text = [NSString stringWithContentsOfFile:filePath usedEncoding:&enc error:&err];
+	if (text == nil) {
+		enc = NSUTF8StringEncoding;
+		err = nil;
+		text = [NSString stringWithContentsOfFile:filePath encoding:NSUTF8StringEncoding error:&err];
+	}
+	if (text == nil) {
+		NSLog(@"could not read %@: %@", filePath, err);
+		return -1;
+	}
+	if ([text rangeOfString:@"\r\n"].location != NSNotFound)
+		nl = @"\r\n";
+	else if ([text rangeOfString:@"\r"].location != NSNotFound)
+		nl = @"\r";
+	else
+		nl = @"\n";
+	text = [text stringByReplacingOccurrencesOfString:@"\r\n" withString:@"\n"];
+	text = [text stringByReplacingOccurrencesOfString:@"\r" withString:@"\n"];
+	lines = [NSMutableArray arrayWithArray:[text componentsSeparatedByString:@"\n"]];
+	n = [lines count];
+	for (i = 0; i < n; i++) {
+		NSString *replaced = ReplaceMacFontLine([lines objectAtIndex:i], name, &matched);
+		if (replaced == nil)
+			continue;
+		any = 1;
+		[lines replaceObjectAtIndex:i withObject:replaced];
+	}
+	if (!any) {
+		NSString *added = [NSString stringWithFormat:@"#mac_font=%@", name];
+		if (n > 0 && [[lines lastObject] length] == 0)
+			[lines insertObject:added atIndex:n - 1];
+		else
+			[lines addObject:added];
+	}
+	out = [lines componentsJoinedByString:nl];
+	if (![out hasSuffix:nl])
+		out = [out stringByAppendingString:nl];
+	if (enc == 0)
+		enc = NSUTF8StringEncoding;
+	err = nil;
+	if (![out writeToFile:filePath atomically:YES encoding:enc error:&err]) {
+		NSLog(@"could not write %@: %@", filePath, err);
+		return -1;
+	}
+	strncpy(sCnfMacFontName, psName, sizeof sCnfMacFontName - 1);
+	sCnfMacFontName[sizeof sCnfMacFontName - 1] = 0;
+	return 0;
 }
 
 int

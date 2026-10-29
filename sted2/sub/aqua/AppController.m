@@ -25,6 +25,8 @@ extern void sted_redraw_sync_mode(void);
 extern void sted_redraw_thru_mode(void);
 extern char thrumode;
 extern int XSTed_save_thrumode(int on);
+extern int XSTed_save_mac_font(const char *psName);
+extern const char *XSTed_mac_font_name(void);
 extern int ecount_sw; /* record.c: mirrors RcpClock source for SYNC display */
 
 static NSString * const kMidiSyncExtKey = @"MidiSyncExt";
@@ -346,6 +348,13 @@ ApplyMidiSyncMode(int ext)
 		[viewMenu addItem:item];
 		[item release];
 	}
+	[viewMenu addItem:[NSMenuItem separatorItem]];
+	item = [[NSMenuItem alloc] initWithTitle:@"Fonts…"
+					  action:@selector(showFontPanel:)
+				   keyEquivalent:@"t"];
+	[item setTarget:self];
+	[viewMenu addItem:item];
+	[item release];
 	viewTop = [[NSMenuItem alloc] initWithTitle:@"View" action:nil keyEquivalent:@""];
 	[viewTop setSubmenu:viewMenu];
 	[mainMenu insertItem:viewTop atIndex:insertAt];
@@ -356,6 +365,311 @@ ApplyMidiSyncMode(int ext)
 - (IBAction)setDisplayScale:(id)sender
 {
 	[X68kView applyDisplayScalePercent:(int)[sender tag] toView:[myWindow contentView]];
+}
+
+static int
+FontIsMonospace(NSFont *font)
+{
+	NSFontTraitMask traits;
+	UniChar chars[2];
+	CGGlyph glyphs[2];
+	CGSize advances[2];
+	CTFontRef ct;
+
+	if (font == nil)
+		return 0;
+	if ([font isFixedPitch])
+		return 1;
+	traits = [[NSFontManager sharedFontManager] traitsOfFont:font];
+	if ((traits & NSFixedPitchFontMask) != 0)
+		return 1;
+	/* Some bitmap/CJK fonts omit the fixed-pitch flag; compare advances. */
+	ct = (CTFontRef)font;
+	chars[0] = (UniChar)'i';
+	chars[1] = (UniChar)'M';
+	if (!CTFontGetGlyphsForCharacters(ct, chars, glyphs, 2))
+		return 0;
+	if (glyphs[0] == 0 || glyphs[1] == 0)
+		return 0;
+	CTFontGetAdvancesForGlyphs(ct, kCTFontOrientationHorizontal, glyphs, advances, 2);
+	if (advances[0].width <= 0.0 || advances[1].width <= 0.0)
+		return 0;
+	return fabs(advances[0].width - advances[1].width) < 0.5;
+}
+
+/* System NSFontPanel cannot filter to monospace (willIncludeFont: dead since 10.3). */
+- (NSArray *)buildMonospaceFontEntries
+{
+	NSFontManager *fm = [NSFontManager sharedFontManager];
+	NSMutableDictionary *byName;
+	NSMutableArray *entries;
+	NSArray *names;
+	NSUInteger i, n;
+	NSString *ps;
+	NSFont *font;
+	NSString *title;
+
+	byName = [NSMutableDictionary dictionary];
+	names = [fm availableFontNamesWithTraits:NSFixedPitchFontMask];
+	n = [names count];
+	for (i = 0; i < n; i++) {
+		ps = [names objectAtIndex:i];
+		if ([byName objectForKey:ps] != nil)
+			continue;
+		font = [NSFont fontWithName:ps size:16.0];
+		if (font == nil || !FontIsMonospace(font))
+			continue;
+		title = [font displayName];
+		if (title == nil || [title length] == 0)
+			title = ps;
+		[byName setObject:[NSDictionary dictionaryWithObjectsAndKeys:
+					   ps, @"psName",
+					   title, @"title",
+					   nil]
+				  forKey:ps];
+	}
+	/* Also catch mono faces that omit NSFixedPitchFontMask (e.g. some KH Dot). */
+	names = [fm availableFonts];
+	n = [names count];
+	for (i = 0; i < n; i++) {
+		ps = [names objectAtIndex:i];
+		if ([byName objectForKey:ps] != nil)
+			continue;
+		font = [NSFont fontWithName:ps size:16.0];
+		if (font == nil || !FontIsMonospace(font))
+			continue;
+		title = [font displayName];
+		if (title == nil || [title length] == 0)
+			title = ps;
+		[byName setObject:[NSDictionary dictionaryWithObjectsAndKeys:
+					   ps, @"psName",
+					   title, @"title",
+					   nil]
+				  forKey:ps];
+	}
+	entries = [NSMutableArray arrayWithArray:[byName allValues]];
+	[entries sortUsingComparator:^NSComparisonResult(NSDictionary *a, NSDictionary *b) {
+		return [[a objectForKey:@"title"] localizedCompare:[b objectForKey:@"title"]];
+	}];
+	return entries;
+}
+
+- (void)updateFontPickerPreview
+{
+	NSFont *font = fontPanelPendingFont;
+
+	if (fontPickerPreview == nil)
+		return;
+	if (font == nil)
+		font = [NSFont userFixedPitchFontOfSize:18.0];
+	else
+		font = [NSFont fontWithName:[font fontName] size:18.0];
+	if (font == nil)
+		font = [NSFont userFixedPitchFontOfSize:18.0];
+	[fontPickerPreview setFont:font];
+	[fontPickerPreview setStringValue:NSLocalizedString(@"Aaあア漢 0123",
+							    @"Font picker preview sample")];
+}
+
+- (void)ensureFontPickerPanel
+{
+	NSView *content;
+	NSScrollView *scroll;
+	NSTableColumn *col;
+	NSTextField *hint;
+	NSButton *apply;
+
+	if (fontPickerPanel != nil)
+		return;
+
+	fontPickerPanel = [[NSPanel alloc]
+		initWithContentRect:NSMakeRect(0, 0, 360, 460)
+			  styleMask:(NSWindowStyleMaskTitled | NSWindowStyleMaskClosable
+				     | NSWindowStyleMaskResizable | NSWindowStyleMaskUtilityWindow)
+			    backing:NSBackingStoreBuffered
+			      defer:YES];
+	[fontPickerPanel setTitle:NSLocalizedString(@"Fonts…", @"Monospace font picker title")];
+	[fontPickerPanel setMinSize:NSMakeSize(280, 280)];
+	[fontPickerPanel setReleasedWhenClosed:NO];
+	[fontPickerPanel setHidesOnDeactivate:NO];
+	[fontPickerPanel center];
+
+	content = [fontPickerPanel contentView];
+	scroll = [[NSScrollView alloc] initWithFrame:NSMakeRect(12, 100, 336, 346)];
+	[scroll setHasVerticalScroller:YES];
+	[scroll setAutohidesScrollers:YES];
+	[scroll setBorderType:NSBezelBorder];
+	[scroll setAutoresizingMask:(NSViewWidthSizable | NSViewHeightSizable)];
+
+	fontPickerTable = [[NSTableView alloc] initWithFrame:[scroll bounds]];
+	col = [[NSTableColumn alloc] initWithIdentifier:@"title"];
+	[[col headerCell] setStringValue:NSLocalizedString(@"Monospace fonts",
+							   @"Font picker column header")];
+	[col setWidth:300];
+	[fontPickerTable addTableColumn:col];
+	[col release];
+	[fontPickerTable setHeaderView:nil];
+	[fontPickerTable setRowHeight:22.0];
+	[fontPickerTable setAllowsEmptySelection:NO];
+	[fontPickerTable setAllowsMultipleSelection:NO];
+	[fontPickerTable setDataSource:self];
+	[fontPickerTable setDelegate:self];
+	[fontPickerTable setAutoresizingMask:(NSViewWidthSizable | NSViewHeightSizable)];
+	[scroll setDocumentView:fontPickerTable];
+	[content addSubview:scroll];
+	[scroll release];
+
+	/* Preview sample drawn in the selected typeface. */
+	fontPickerPreview = [[NSTextField alloc] initWithFrame:NSMakeRect(12, 56, 336, 36)];
+	[fontPickerPreview setEditable:NO];
+	[fontPickerPreview setSelectable:NO];
+	[fontPickerPreview setBezeled:YES];
+	[fontPickerPreview setBezelStyle:NSTextFieldRoundedBezel];
+	[fontPickerPreview setDrawsBackground:YES];
+	[fontPickerPreview setAlignment:NSTextAlignmentCenter];
+	[fontPickerPreview setAutoresizingMask:(NSViewWidthSizable | NSViewMaxYMargin)];
+	[content addSubview:fontPickerPreview];
+
+	hint = [[NSTextField alloc] initWithFrame:NSMakeRect(12, 28, 240, 18)];
+	[hint setStringValue:NSLocalizedString(@"Takes effect after restart",
+					       @"Font panel accessory hint")];
+	[hint setBezeled:NO];
+	[hint setDrawsBackground:NO];
+	[hint setEditable:NO];
+	[hint setSelectable:NO];
+	[hint setFont:[NSFont systemFontOfSize:[NSFont smallSystemFontSize]]];
+	[hint setTextColor:[NSColor secondaryLabelColor]];
+	[hint setAutoresizingMask:(NSViewMaxYMargin | NSViewWidthSizable)];
+	[content addSubview:hint];
+	[hint release];
+
+	apply = [[NSButton alloc] initWithFrame:NSMakeRect(260, 8, 88, 24)];
+	[apply setTitle:NSLocalizedString(@"Apply", @"Font panel apply button")];
+	[apply setBezelStyle:NSBezelStyleRounded];
+	[apply setTarget:self];
+	[apply setAction:@selector(applyFontPanelSelection:)];
+	[apply setKeyEquivalent:@"\r"];
+	[apply setAutoresizingMask:(NSViewMinXMargin | NSViewMaxYMargin)];
+	[content addSubview:apply];
+	[apply release];
+}
+
+- (void)selectCurrentFontInPicker
+{
+	NSString *current;
+	NSUInteger i, n;
+
+	current = [NSString stringWithUTF8String:XSTed_mac_font_name()];
+	n = [fontPickerEntries count];
+	for (i = 0; i < n; i++) {
+		NSDictionary *e = [fontPickerEntries objectAtIndex:i];
+		if ([[e objectForKey:@"psName"] isEqualToString:current]) {
+			[fontPickerTable selectRowIndexes:[NSIndexSet indexSetWithIndex:i]
+				     byExtendingSelection:NO];
+			[fontPickerTable scrollRowToVisible:i];
+			[fontPanelPendingFont release];
+			fontPanelPendingFont = [[NSFont fontWithName:current size:16.0] retain];
+			[self updateFontPickerPreview];
+			return;
+		}
+	}
+	if (n > 0) {
+		[fontPickerTable selectRowIndexes:[NSIndexSet indexSetWithIndex:0]
+				 byExtendingSelection:NO];
+		[self tableViewSelectionDidChange:nil];
+	}
+}
+
+- (IBAction)showFontPanel:(id)sender
+{
+	(void)sender;
+	/* Prefer our monospace-only list over the system Font panel. */
+	if ([NSFontPanel sharedFontPanelExists])
+		[[NSFontPanel sharedFontPanel] orderOut:self];
+	[self ensureFontPickerPanel];
+	[fontPickerEntries release];
+	fontPickerEntries = [[self buildMonospaceFontEntries] retain];
+	[fontPickerTable reloadData];
+	[self selectCurrentFontInPicker];
+	[fontPickerPanel makeKeyAndOrderFront:self];
+}
+
+- (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView
+{
+	(void)tableView;
+	return (NSInteger)[fontPickerEntries count];
+}
+
+- (id)tableView:(NSTableView *)tableView
+objectValueForTableColumn:(NSTableColumn *)tableColumn
+	    row:(NSInteger)row
+{
+	NSDictionary *entry;
+	NSString *title, *ps;
+	NSFont *font;
+	NSDictionary *attrs;
+
+	(void)tableView;
+	(void)tableColumn;
+	if (row < 0 || row >= (NSInteger)[fontPickerEntries count])
+		return @"";
+	entry = [fontPickerEntries objectAtIndex:(NSUInteger)row];
+	title = [entry objectForKey:@"title"];
+	ps = [entry objectForKey:@"psName"];
+	font = [NSFont fontWithName:ps size:14.0];
+	if (font == nil)
+		return title;
+	/* Show each row in that typeface so the list itself is a preview. */
+	attrs = [NSDictionary dictionaryWithObject:font forKey:NSFontAttributeName];
+	return [[[NSAttributedString alloc] initWithString:title attributes:attrs] autorelease];
+}
+
+- (void)tableViewSelectionDidChange:(NSNotification *)notification
+{
+	NSInteger row;
+	NSString *ps;
+	NSFont *font;
+
+	(void)notification;
+	row = [fontPickerTable selectedRow];
+	if (row < 0 || row >= (NSInteger)[fontPickerEntries count])
+		return;
+	ps = [[fontPickerEntries objectAtIndex:(NSUInteger)row] objectForKey:@"psName"];
+	font = [NSFont fontWithName:ps size:16.0];
+	if (font == nil)
+		return;
+	[fontPanelPendingFont release];
+	fontPanelPendingFont = [font retain];
+	[self updateFontPickerPreview];
+}
+
+- (IBAction)applyFontPanelSelection:(id)sender
+{
+	NSString *psName;
+	NSAlert *alert;
+
+	(void)sender;
+	[self tableViewSelectionDidChange:nil];
+	if (fontPanelPendingFont == nil) {
+		NSBeep();
+		return;
+	}
+	psName = [fontPanelPendingFont fontName];
+	if (psName == nil || [psName length] == 0) {
+		NSBeep();
+		return;
+	}
+	if (XSTed_save_mac_font([psName UTF8String]) == 0) {
+		[fontPickerPanel orderOut:self];
+		return;
+	}
+	alert = [[NSAlert alloc] init];
+	[alert setMessageText:NSLocalizedString(@"Could not save sted2.cnf",
+						@"Font panel save failure title")];
+	[alert setInformativeText:NSLocalizedString(@"Could not write the font setting.",
+						    @"Font panel save failure detail")];
+	[alert runModal];
+	[alert release];
 }
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem

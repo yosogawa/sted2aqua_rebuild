@@ -1,3 +1,11 @@
+/* View → Fonts… panel accessory */
+"Fonts…" = "フォント…";
+"Apply" = "適用";
+"Monospace fonts" = "等幅フォント";
+"Aaあア漢 0123" = "Aaあア漢 0123";
+"Takes effect after restart" = "再起動後に反映されます";
+"Could not save sted2.cnf" = "sted2.cnf を保存できませんでした";
+"Could not write the font setting." = "フォント設定を書き込めませんでした。";
 
 "About STed2" = "STed2 について";
 "Authors" = "作成者";

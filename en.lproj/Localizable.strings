@@ -1,5 +1,14 @@
 /* About panel. Draft text; the license pages are filled in later. */
 
+/* View → Fonts… panel accessory */
+"Fonts…" = "Fonts…";
+"Apply" = "Apply";
+"Monospace fonts" = "Monospace fonts";
+"Aaあア漢 0123" = "Aaあア漢 0123";
+"Takes effect after restart" = "Takes effect after restart";
+"Could not save sted2.cnf" = "Could not save sted2.cnf";
+"Could not write the font setting." = "Could not write the font setting.";
+
 "About STed2" = "About STed2";
 "Authors" = "Authors";
 "License" = "License";
