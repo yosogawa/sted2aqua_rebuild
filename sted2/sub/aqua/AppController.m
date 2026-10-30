@@ -8,6 +8,7 @@
 // #import "X68kWindow.h"
 #import "CoreMIDIRCPPlayer.h"
 #import "MyDialogController.h"
+#import "MIDISettingsController.h"
 #import "AboutPanelController.h"
 #import "DLSSynthPanel.h"
 
@@ -131,6 +132,7 @@ ApplyMidiSyncMode(int ext)
 	NSMutableArray *inDevices = [NSMutableArray array];
 	int i;
 	NSString *devName, *outdevice1, *outdevice2, *indevice;
+	BOOL clock1, clock2;
 
 	for (i = 0; (devName = CoreMIDIDeviceNameAtIndex(i)) != nil; i++) {
 		[devices addObject:devName];
@@ -145,12 +147,14 @@ ApplyMidiSyncMode(int ext)
 	outdevice1 = [def valueForKey:@"midiout1"];
 	outdevice2 = [def valueForKey:@"midiout2"];
 	indevice   = [def valueForKey:@"midiin"];
+	clock1 = [def boolForKey:@"midiout1_clock"];
+	clock2 = [def boolForKey:@"midiout2_clock"];
 	if (outdevice1 != nil)
 		[def setValue:[NSString stringWithUTF8String:CoreMIDICanonicalOutputName([outdevice1 UTF8String])] forKey:@"midiout1"];
 	if (outdevice2 != nil)
 		[def setValue:[NSString stringWithUTF8String:CoreMIDICanonicalOutputName([outdevice2 UTF8String])] forKey:@"midiout2"];
 
-	if ([MyDialogController runDialogWithNibName:@"MIDISettings"]) {
+	if ([MIDISettingsController runDialog]) {
 		NSString *chosen;
 		if (CoreMIDISelectDeviceByNameForPort([[def valueForKey:@"midiout1"] UTF8String], 0) < 0)
 			CoreMIDISelectDeviceByNameForPort("Apple DLS Synth", 0);
@@ -170,6 +174,8 @@ ApplyMidiSyncMode(int ext)
 		[def setValue:outdevice1 forKey:@"midiout1"];
 		[def setValue:outdevice2 forKey:@"midiout2"];
 		[def setValue:indevice forKey:@"midiin"];
+		[def setBool:clock1 forKey:@"midiout1_clock"];
+		[def setBool:clock2 forKey:@"midiout2_clock"];
 	}
 }
 
