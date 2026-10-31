@@ -7,7 +7,7 @@
 
 enum {
 	kPanelW = 468,
-	kPanelH = 574,
+	kPanelH = 610,
 	kMargin = 20,
 	kLabelW = 112,
 	kValueW = 78,
@@ -149,7 +149,11 @@ ReverbMixLabel(double v)
 @implementation DLSSynthPanel
 {
 	NSWindow *window;
-	NSPopUpButton *bankPopup;
+	NSTextField *bankLabel1;
+	NSTextField *bankLabel2;
+	NSPopUpButton *bankPopup1;
+	NSPopUpButton *bankPopup2;
+	int observingPorts;
 	NSButton *useReverbCheck;
 	NSPopUpButton *roomPopup;
 	NSButton *totalEffectCheck;
@@ -203,10 +207,78 @@ static const char *kReverbNames[13] = {
 	[sPanel show];
 }
 
+- (void)defaultsDidChange:(NSNotification *)note
+{
+	(void)note;
+	[self syncBankEnabled];
+}
+
+- (void)stopObservingPorts
+{
+	if (!observingPorts)
+		return;
+	observingPorts = 0;
+	[[NSNotificationCenter defaultCenter] removeObserver:self
+							name:NSUserDefaultsDidChangeNotification
+						      object:[NSUserDefaults standardUserDefaults]];
+	NSUserDefaultsController *udc = [NSUserDefaultsController sharedUserDefaultsController];
+	@try {
+		[udc removeObserver:self forKeyPath:@"values.midiout1"];
+		[udc removeObserver:self forKeyPath:@"values.midiout2"];
+	} @catch (__unused NSException *ex) {
+	}
+}
+
+- (void)startObservingPorts
+{
+	NSUserDefaultsController *udc;
+
+	if (observingPorts)
+		return;
+	udc = [NSUserDefaultsController sharedUserDefaultsController];
+	[udc addObserver:self forKeyPath:@"values.midiout1" options:0 context:NULL];
+	[udc addObserver:self forKeyPath:@"values.midiout2" options:0 context:NULL];
+	[[NSNotificationCenter defaultCenter]
+		addObserver:self
+		   selector:@selector(defaultsDidChange:)
+		       name:NSUserDefaultsDidChangeNotification
+		     object:[NSUserDefaults standardUserDefaults]];
+	observingPorts = 1;
+}
+
+- (void)syncBankEnabled
+{
+	NSUserDefaults *def = [NSUserDefaults standardUserDefaults];
+	NSString *out1 = [def stringForKey:@"midiout1"];
+	NSString *out2 = [def stringForKey:@"midiout2"];
+	BOOL en1 = [out1 isEqualToString:@"Apple DLS Synth"];
+	BOOL en2 = [out2 isEqualToString:@"Apple DLS Synth 2"];
+
+	[bankLabel1 setEnabled:en1];
+	[bankPopup1 setEnabled:en1];
+	[bankLabel2 setEnabled:en2];
+	[bankPopup2 setEnabled:en2];
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath
+		      ofObject:(id)object
+			change:(NSDictionary *)change
+		       context:(void *)context
+{
+	(void)object;
+	(void)change;
+	(void)context;
+	if ([keyPath isEqualToString:@"values.midiout1"] ||
+	    [keyPath isEqualToString:@"values.midiout2"])
+		[self syncBankEnabled];
+}
+
 - (void)dealloc
 {
+	[self stopObservingPorts];
 	[window setDelegate:nil];
-	[bankPopup release];
+	[bankPopup1 release];
+	[bankPopup2 release];
 	[useReverbCheck release];
 	[roomPopup release];
 	[totalEffectCheck release];
@@ -373,18 +445,19 @@ static const char *kReverbNames[13] = {
 	[line release];
 }
 
-- (void)fillBankPopup
+- (void)fillBankPopup:(NSPopUpButton *)popup port:(int)port
 {
 	NSString *dir = [NSHomeDirectory() stringByAppendingPathComponent:@"Library/Audio/Sounds/Banks"];
 	NSArray *found = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:dir error:nil];
 	NSMutableArray *names = [NSMutableArray array];
-	NSString *current = [NSString stringWithUTF8String:CoreMIDIDLSSynthFontFilename()];
+	const char *cur = CoreMIDIDLSSynthFontFilenameForPort(port);
+	NSString *current = [NSString stringWithUTF8String:cur != NULL ? cur : ""];
 	NSUInteger i;
 	BOOL selected = NO;
 
-	[bankPopup removeAllItems];
-	[bankPopup addItemWithTitle:@"Built-in (GM)"];
-	[[bankPopup lastItem] setRepresentedObject:@""];
+	[popup removeAllItems];
+	[popup addItemWithTitle:@"Built-in (GM)"];
+	[[popup lastItem] setRepresentedObject:@""];
 	for (i = 0; i < [found count]; i++) {
 		NSString *name = [found objectAtIndex:i];
 		NSString *ext = [[name pathExtension] lowercaseString];
@@ -394,24 +467,24 @@ static const char *kReverbNames[13] = {
 	[names sortUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
 	for (i = 0; i < [names count]; i++) {
 		NSString *name = [names objectAtIndex:i];
-		[bankPopup addItemWithTitle:name];
-		[[bankPopup lastItem] setRepresentedObject:name];
+		[popup addItemWithTitle:name];
+		[[popup lastItem] setRepresentedObject:name];
 	}
 	if (current == nil)
 		current = @"";
-	for (i = 0; i < (NSUInteger)[bankPopup numberOfItems]; i++) {
-		NSMenuItem *item = [bankPopup itemAtIndex:(NSInteger)i];
+	for (i = 0; i < (NSUInteger)[popup numberOfItems]; i++) {
+		NSMenuItem *item = [popup itemAtIndex:(NSInteger)i];
 		NSString *rep = [item representedObject];
 		if (rep != nil && [rep isEqualToString:current]) {
-			[bankPopup selectItemAtIndex:(NSInteger)i];
+			[popup selectItemAtIndex:(NSInteger)i];
 			selected = YES;
 			break;
 		}
 	}
 	if (!selected && [current length] > 0) {
-		[bankPopup addItemWithTitle:current];
-		[[bankPopup lastItem] setRepresentedObject:current];
-		[bankPopup selectItem:[bankPopup lastItem]];
+		[popup addItemWithTitle:current];
+		[[popup lastItem] setRepresentedObject:current];
+		[popup selectItem:[popup lastItem]];
 	}
 }
 
@@ -578,12 +651,24 @@ enum {
 	[panel setDelegate:(id)self];
 	[panel center];
 
-	[self addLabel:@"Sound Bank" y:y];
-	bankPopup = [self addPopupAtY:y];
-	[bankPopup setTarget:self];
-	[bankPopup setAction:@selector(bankChanged:)];
-	[self fillBankPopup];
+	bankLabel1 = [self addLabel:@"DLS 1 Bank" y:y];
+	bankPopup1 = [self addPopupAtY:y];
+	[bankPopup1 setTag:0];
+	[bankPopup1 setTarget:self];
+	[bankPopup1 setAction:@selector(bankChanged:)];
+	[self fillBankPopup:bankPopup1 port:0];
 	y -= kRowStep;
+
+	bankLabel2 = [self addLabel:@"DLS 2 Bank" y:y];
+	bankPopup2 = [self addPopupAtY:y];
+	[bankPopup2 setTag:1];
+	[bankPopup2 setTarget:self];
+	[bankPopup2 setAction:@selector(bankChanged:)];
+	[self fillBankPopup:bankPopup2 port:1];
+	y -= kRowStep;
+
+	[self syncBankEnabled];
+	[self startObservingPorts];
 
 	[self addWideLabel:@"QuickTime Compatible Reverb BUS (CC#91 enable)" y:y];
 	y -= kRowStep;
@@ -745,13 +830,15 @@ enum {
 
 - (void)bankChanged:(id)sender
 {
-	NSString *name = [[bankPopup selectedItem] representedObject];
+	NSPopUpButton *popup = (NSPopUpButton *)sender;
+	NSString *name = [[popup selectedItem] representedObject];
 	const char *utf;
-	(void)sender;
+	int port = (int)[popup tag];
+
 	if (name == nil)
 		name = @"";
 	utf = [name UTF8String];
-	CoreMIDISetDLSSynthFont(utf != NULL ? utf : "");
+	CoreMIDISetDLSSynthFontForPort(port, utf != NULL ? utf : "");
 	[self saveSettings];
 }
 
@@ -759,12 +846,15 @@ enum {
 {
 	if (window == nil)
 		[self buildWindow];
+	else
+		[self syncBankEnabled];
 	[window orderFront:nil];
 }
 
 - (void)windowWillClose:(NSNotification *)notification
 {
 	(void)notification;
+	[self stopObservingPorts];
 	[self saveSettings];
 	if (sPanel == self) {
 		sPanel = nil;

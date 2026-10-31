@@ -138,6 +138,7 @@ void	partf(int a,int ad)
 void	sttrc(int *po,int *cy,int flg)
 {
   int	ad,rad,i,j,ii,jj,jjj=-1,skf,ofs,nn,md=8,last_meas=-1;
+  int	last_same_ad=-1;
   int	me_ad[2048];
   int	max;
   int	lpad[18],lprt[18];
@@ -249,11 +250,26 @@ void	sttrc(int *po,int *cy,int flg)
 
       {
 	/* SAME MEAS keeps rcd->bar fixed while the cursor walks the source.
-	   Redraw only the MEAS digits so CH and USED stay as they are. */
+	   Redraw only the MEAS digits so CH and USED stay as they are.
+	   Entering a SAME MEAS event (new 0xfc address) always refreshes
+	   gra — rest-only source bars otherwise look frozen. */
 	int meas=meas_no(ad);
+	int do_gra=0;
+
 	if(jj!=jjj){
 	  jjj=jj;
 	  trk_free(ad);
+	  do_gra=1;
+	}
+	if(ptr[ad]==0xfc){
+	  if(ad!=last_same_ad){
+	    last_same_ad=ad;
+	    do_gra=1;
+	  }
+	}else{
+	  last_same_ad=-1;
+	}
+	if(do_gra){
 	  if(grpmode!=0){gra(ad,md);md|=16;}
 	}else if(meas!=last_meas && edit_scr<2){
 	  int xx=69+1;

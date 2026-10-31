@@ -1,11 +1,11 @@
 /* MIDISettingsController.h */
 
-#import "MyDialogController.h"
+#import <Cocoa/Cocoa.h>
 
-@interface MIDISettingsController : MyDialogController
+@interface MIDISettingsController : NSWindowController
 {
 	IBOutlet NSButton *clockOut1Check;
 	IBOutlet NSButton *clockOut2Check;
 }
-+ (BOOL)runDialog;
++ (void)showPanel;
 @end

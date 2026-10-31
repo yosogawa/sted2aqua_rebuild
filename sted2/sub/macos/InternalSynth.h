@@ -16,8 +16,12 @@ void InternalSynthEnsureStopped(void);
 int InternalSynthSchedule(MIDIEndpointRef dest, const uint8_t *bytes, int length,
 	MIDITimeStamp atTime, OSStatus *status);
 
+/* port: 0 = Apple DLS Synth, 1 = Apple DLS Synth 2.
+   CoreMIDISetDLSSynthFont applies the same bank to both (legacy cnf). */
 void CoreMIDISetDLSSynthFont(const char *filename);
-const char *CoreMIDIDLSSynthFontFilename(void);
+void CoreMIDISetDLSSynthFontForPort(int port, const char *filename);
+const char *CoreMIDIDLSSynthFontFilename(void); /* port 0 */
+const char *CoreMIDIDLSSynthFontFilenameForPort(int port);
 
 typedef struct {
 	float globalGain;     /* dB, -36 .. 0. EQ globalGain, used as trim. */

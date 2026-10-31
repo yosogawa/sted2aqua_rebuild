@@ -1627,10 +1627,17 @@ XSTed_configure_mac_settings(const char *line)
 		XSTed_register_key(line);
 	if (strncasecmp(line, "#MIDI_DEVICE_", 13) == 0)
 		XSTed_register_midi_device(line);
-	if (strncasecmp(line, "#dls_synth_font=", 16) == 0) {
+	/* font2 before font: the latter is a prefix of the former. */
+	if (strncasecmp(line, "#dls_synth_font2=", 17) == 0) {
+		const char *p = line + 17;
+		while (*p == ' ' || *p == '\t')
+			p++;
+		CoreMIDISetDLSSynthFontForPort(1, p);
+	} else if (strncasecmp(line, "#dls_synth_font=", 16) == 0) {
 		const char *p = line + 16;
 		while (*p == ' ' || *p == '\t')
 			p++;
+		/* Legacy single key: apply to both DLS ports. */
 		CoreMIDISetDLSSynthFont(p);
 	}
 	if (strncasecmp(line, "#dls_synth_use_reverb=", 22) == 0
@@ -1745,11 +1752,20 @@ cnf_line_key(const char *s, const char *const *keys, int nkeys, int allowComment
 		while (*s == ' ' || *s == '\t')
 			s++;
 	}
-	for (k = 0; k < nkeys; k++) {
-		if (strncasecmp(s, keys[k], strlen(keys[k])) == 0)
-			return k;
+	{
+		int best = -1;
+		size_t bestLen = 0;
+
+		/* Longest match: "#dls_synth_font2=" must win over "#dls_synth_font=". */
+		for (k = 0; k < nkeys; k++) {
+			size_t len = strlen(keys[k]);
+			if (len > bestLen && strncasecmp(s, keys[k], len) == 0) {
+				best = k;
+				bestLen = len;
+			}
+		}
+		return best;
 	}
-	return -1;
 }
 
 /* Replace the value of an active #thrumode= line. Returns nil if this line is not one. */
@@ -2013,9 +2029,11 @@ XSTed_save_dls_settings(void)
 	DLSEffectSettings fx;
 	DLSInternalReverb bus;
 	const char *font;
-	NSString *values[13];
-	static const char *keys[13] = {
+	const char *font2;
+	NSString *values[14];
+	static const char *keys[14] = {
 		"#dls_synth_font=",
+		"#dls_synth_font2=",
 		"#dls_synth_use_reverb=",
 		"#dls_synth_reverbtype=",
 		"#dls_mixer_dls=",
@@ -2053,31 +2071,35 @@ XSTed_save_dls_settings(void)
 	}
 	CoreMIDIGetDLSEffects(&fx);
 	CoreMIDIGetDLSInternalReverb(&bus);
-	font = CoreMIDIDLSSynthFontFilename();
+	font = CoreMIDIDLSSynthFontFilenameForPort(0);
+	font2 = CoreMIDIDLSSynthFontFilenameForPort(1);
 	if (font == NULL)
 		font = "";
+	if (font2 == NULL)
+		font2 = "";
 	values[0] = [NSString stringWithFormat:@"#dls_synth_font=%s", font];
-	values[1] = [NSString stringWithFormat:@"#dls_synth_use_reverb=%d", bus.useReverb ? 1 : 0];
-	values[2] = [NSString stringWithFormat:@"#dls_synth_reverbtype=%d", bus.roomType];
-	values[3] = [NSString stringWithFormat:@"#dls_mixer_dls=%@", DotFloat(fx.dlsVolume, 3)];
-	values[4] = [NSString stringWithFormat:@"#dls_mixer_amy=%@", DotFloat(fx.amyVolume, 3)];
-	values[5] = [NSString stringWithFormat:@"#dls_total_effect=%d", fx.totalEffect ? 1 : 0];
-	values[6] = [NSString stringWithFormat:@"#dls_eq_global_gain=%@", DotFloat(fx.globalGain, 1)];
-	values[7] = [NSString stringWithFormat:@"#dls_bass_gain=%@", DotFloat(fx.bassGain, 1)];
-	values[8] = [NSString stringWithFormat:@"#dls_treble_gain=%@", DotFloat(fx.trebleGain, 1)];
-	values[9] = [NSString stringWithFormat:@"#dls_reverb_type=%d", fx.reverbPreset];
-	values[10] = [NSString stringWithFormat:@"#dls_reverb_mix=%@", DotFloat(fx.reverbMix, 1)];
-	values[11] = [NSString stringWithFormat:@"#dls_limiter_boost=%@", DotFloat(fx.limiterBoost, 1)];
-	values[12] = [NSString stringWithFormat:@"#dls_volume=%@", DotFloat(fx.volume, 3)];
+	values[1] = [NSString stringWithFormat:@"#dls_synth_font2=%s", font2];
+	values[2] = [NSString stringWithFormat:@"#dls_synth_use_reverb=%d", bus.useReverb ? 1 : 0];
+	values[3] = [NSString stringWithFormat:@"#dls_synth_reverbtype=%d", bus.roomType];
+	values[4] = [NSString stringWithFormat:@"#dls_mixer_dls=%@", DotFloat(fx.dlsVolume, 3)];
+	values[5] = [NSString stringWithFormat:@"#dls_mixer_amy=%@", DotFloat(fx.amyVolume, 3)];
+	values[6] = [NSString stringWithFormat:@"#dls_total_effect=%d", fx.totalEffect ? 1 : 0];
+	values[7] = [NSString stringWithFormat:@"#dls_eq_global_gain=%@", DotFloat(fx.globalGain, 1)];
+	values[8] = [NSString stringWithFormat:@"#dls_bass_gain=%@", DotFloat(fx.bassGain, 1)];
+	values[9] = [NSString stringWithFormat:@"#dls_treble_gain=%@", DotFloat(fx.trebleGain, 1)];
+	values[10] = [NSString stringWithFormat:@"#dls_reverb_type=%d", fx.reverbPreset];
+	values[11] = [NSString stringWithFormat:@"#dls_reverb_mix=%@", DotFloat(fx.reverbMix, 1)];
+	values[12] = [NSString stringWithFormat:@"#dls_limiter_boost=%@", DotFloat(fx.limiterBoost, 1)];
+	values[13] = [NSString stringWithFormat:@"#dls_volume=%@", DotFloat(fx.volume, 3)];
 	text = [text stringByReplacingOccurrencesOfString:@"\r\n" withString:@"\n"];
 	text = [text stringByReplacingOccurrencesOfString:@"\r" withString:@"\n"];
 	lines = [NSMutableArray arrayWithArray:[text componentsSeparatedByString:@"\n"]];
 	n = [lines count];
 	for (i = 0; i < n; i++) {
 		const char *s = [[lines objectAtIndex:i] UTF8String];
-		if (cnf_line_key(s, keys, 13, 1) != 0)
+		if (cnf_line_key(s, keys, 14, 1) != 0)
 			continue;
-		if (cnf_line_key(s, keys, 13, 0) == 0)
+		if (cnf_line_key(s, keys, 14, 0) == 0)
 			activeAnchor = (NSInteger)i;
 		else
 			commentAnchor = (NSInteger)i;
@@ -2090,7 +2112,7 @@ XSTed_save_dls_settings(void)
 	for (i = 0; i < n; i++) {
 		NSString *line = [lines objectAtIndex:i];
 		const char *s = [line UTF8String];
-		int active = cnf_line_key(s, keys, 13, 0);
+		int active = cnf_line_key(s, keys, 14, 0);
 		if (anchor >= 0 && i == (NSUInteger)anchor) {
 			anchorOut = [kept count];
 			[kept addObject:line];
@@ -2114,7 +2136,7 @@ XSTed_save_dls_settings(void)
 	}
 	if (anchorIsComment || anchorOut == NSNotFound)
 		[kept insertObject:values[0] atIndex:insertAt++];
-	for (k = 1; k < 13; k++)
+	for (k = 1; k < 14; k++)
 		[kept insertObject:values[k] atIndex:insertAt++];
 	out = [kept componentsJoinedByString:@"\n"];
 	if (![out hasSuffix:@"\n"])
@@ -3372,8 +3394,12 @@ s_MacSelectFile(void **args)
 		}
 	}
 	if (mes != NULL) {
-		title = [NSString stringWithFormat:@"%s %s File", (is_save ? "Save" : "Load"), mes];
+		/* Title is often hidden on modern open/save panels; message shows
+		 * inside the sheet (e.g. "LOAD DEFINE FILE..."). */
+		title = [NSString stringWithFormat:@"%s %s FILE...",
+			(is_save ? "SAVE" : "LOAD"), mes];
 		[panel setTitle:title];
+		[panel setMessage:title];
 	}
 	if ([panel runModal] == NSModalResponseOK) {
 		NSString *pathstr = [[panel URL] path];

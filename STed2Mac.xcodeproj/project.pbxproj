@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 45;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -852,7 +852,6 @@
 /* Begin PBXShellScriptBuildPhase section */
 		E4ACAD7B1ACD9F5600EF32D3 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
 			buildActionMask = 8;
 			files = (
 			);
@@ -862,7 +861,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/sh;
-			shellScript = "#cd $PROJECT_DIR\n#sh make_release_package.sh\n";
+			shellScript = "#cd $PROJECT_DIR\n#sh make_release_package.sh\n\n##\n## remove STed2_help cache\n##\nset -e\n\t \nCACHE_DIR=\"$HOME/Library/Group Containers/group.com.apple.helpviewer.content/Library/Caches\"\n\nif [ -d \"$CACHE_DIR\" ]; then\n    find \"$CACHE_DIR\" -name 'com.github.STed2.STed2_help\\*1.0.help' -delete\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

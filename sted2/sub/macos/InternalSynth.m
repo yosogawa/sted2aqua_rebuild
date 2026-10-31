@@ -37,7 +37,7 @@ static AUScheduleMIDIEventBlock sScheduleMIDI[2];
 static double sSampleRate[2];
 static double sHostTicksPerSecond;
 static pthread_mutex_t sSynthLock = PTHREAD_MUTEX_INITIALIZER;
-static char sDLSFontFile[PATH_MAX];
+static char sDLSFontFile[2][PATH_MAX];
 static AVAudioMixerNode *sSum = nil;
 static AVAudioUnitEQ *sEQ = nil;
 static AVAudioUnitReverb *sReverb = nil;
@@ -399,7 +399,7 @@ StopInternalSynthEngine(void)
 	[u1 release];
 }
 
-static void LoadDLSSoundBank(AudioUnit au);
+static void LoadDLSSoundBank(AudioUnit au, int port);
 
 static int
 ClampReverbRoomType(int room)
@@ -450,8 +450,8 @@ StartInternalSynthEngine(void)
 		[u1 release];
 		return;
 	}
-	LoadDLSSoundBank(u0.audioUnit);
-	LoadDLSSoundBank(u1.audioUnit);
+	LoadDLSSoundBank(u0.audioUnit, 0);
+	LoadDLSSoundBank(u1.audioUnit, 1);
 	ApplyDLSInternalReverbToUnit(u0.audioUnit);
 	ApplyDLSInternalReverbToUnit(u1.audioUnit);
 	AVAudioMixerNode *sum;
@@ -746,36 +746,69 @@ ResolveDLSFontPath(const char *filename, char *path, size_t pathSize)
 }
 
 static void
-LoadDLSSoundBank(AudioUnit au)
+LoadDLSSoundBank(AudioUnit au, int port)
 {
 	CFURLRef url;
 	OSStatus sts;
-	if (au == NULL || sDLSFontFile[0] == 0)
+	if (au == NULL || port < 0 || port > 1 || sDLSFontFile[port][0] == 0)
 		return;
 	url = CFURLCreateFromFileSystemRepresentation(kCFAllocatorDefault,
-		(const UInt8 *)sDLSFontFile, (CFIndex)strlen(sDLSFontFile), false);
+		(const UInt8 *)sDLSFontFile[port], (CFIndex)strlen(sDLSFontFile[port]), false);
 	if (url == NULL)
 		return;
 	sts = AudioUnitSetProperty(au, kMusicDeviceProperty_SoundBankURL,
 		kAudioUnitScope_Global, 0, &url, sizeof url);
 	CFRelease(url);
 	if (sts != noErr)
-		NSLog(@"DLS sound bank load failed: %d", (int)sts);
+		NSLog(@"DLS sound bank load failed (port %d): %d", port, (int)sts);
+}
+
+/*  Caller holds sSynthLock. Restart once if any path actually changed. */
+static void
+ApplyDLSFontPathsLocked(const char *path0, const char *path1)
+{
+	int changed = 0;
+
+	if (path0 == NULL)
+		path0 = "";
+	if (path1 == NULL)
+		path1 = "";
+	if (strcmp(sDLSFontFile[0], path0) != 0) {
+		strlcpy(sDLSFontFile[0], path0, sizeof sDLSFontFile[0]);
+		changed = 1;
+	}
+	if (strcmp(sDLSFontFile[1], path1) != 0) {
+		strlcpy(sDLSFontFile[1], path1, sizeof sDLSFontFile[1]);
+		changed = 1;
+	}
+	if (changed && sEngine != nil) {
+		StopInternalSynthEngine();
+		StartInternalSynthEngine();
+	}
 }
 
 static void
-ApplyDLSFontPath(const char *path)
+ApplyDLSFontPathForPort(int port, const char *path)
+{
+	if (port < 0 || port > 1)
+		return;
+	if (path == NULL)
+		path = "";
+	pthread_mutex_lock(&sSynthLock);
+	if (port == 0)
+		ApplyDLSFontPathsLocked(path, sDLSFontFile[1]);
+	else
+		ApplyDLSFontPathsLocked(sDLSFontFile[0], path);
+	pthread_mutex_unlock(&sSynthLock);
+}
+
+static void
+ApplyDLSFontPathBoth(const char *path)
 {
 	if (path == NULL)
 		path = "";
 	pthread_mutex_lock(&sSynthLock);
-	if (strcmp(sDLSFontFile, path) != 0) {
-		strlcpy(sDLSFontFile, path, sizeof sDLSFontFile);
-		if (sEngine != nil) {
-			StopInternalSynthEngine();
-			StartInternalSynthEngine();
-		}
-	}
+	ApplyDLSFontPathsLocked(path, path);
 	pthread_mutex_unlock(&sSynthLock);
 }
 
@@ -787,11 +820,29 @@ CoreMIDISetDLSSynthFont(const char *filename)
 		return;
 	ResolveDLSFontPath(filename, path, PATH_MAX);
 	if ([NSThread isMainThread]) {
-		ApplyDLSFontPath(path);
+		ApplyDLSFontPathBoth(path);
 		free(path);
 	} else {
 		dispatch_sync(dispatch_get_main_queue(), ^{
-			ApplyDLSFontPath(path);
+			ApplyDLSFontPathBoth(path);
+			free(path);
+		});
+	}
+}
+
+void
+CoreMIDISetDLSSynthFontForPort(int port, const char *filename)
+{
+	char *path = malloc(PATH_MAX);
+	if (path == NULL)
+		return;
+	ResolveDLSFontPath(filename, path, PATH_MAX);
+	if ([NSThread isMainThread]) {
+		ApplyDLSFontPathForPort(port, path);
+		free(path);
+	} else {
+		dispatch_sync(dispatch_get_main_queue(), ^{
+			ApplyDLSFontPathForPort(port, path);
 			free(path);
 		});
 	}
@@ -909,18 +960,26 @@ CoreMIDISetDLSInternalReverb(const DLSInternalReverb *settings)
 }
 
 const char *
-CoreMIDIDLSSynthFontFilename(void)
+CoreMIDIDLSSynthFontFilenameForPort(int port)
 {
-	static char name[256];
+	static char name[2][256];
 	const char *base;
 
+	if (port < 0 || port > 1)
+		port = 0;
 	pthread_mutex_lock(&sSynthLock);
-	base = strrchr(sDLSFontFile, '/');
+	base = strrchr(sDLSFontFile[port], '/');
 	if (base != NULL)
 		base++;
 	else
-		base = sDLSFontFile;
-	strlcpy(name, base, sizeof name);
+		base = sDLSFontFile[port];
+	strlcpy(name[port], base, sizeof name[port]);
 	pthread_mutex_unlock(&sSynthLock);
-	return name;
+	return name[port];
+}
+
+const char *
+CoreMIDIDLSSynthFontFilename(void)
+{
+	return CoreMIDIDLSSynthFontFilenameForPort(0);
 }
