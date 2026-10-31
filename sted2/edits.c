@@ -252,9 +252,11 @@ void	sttrc(int *po,int *cy,int flg)
 	/* SAME MEAS keeps rcd->bar fixed while the cursor walks the source.
 	   Redraw only the MEAS digits so CH and USED stay as they are.
 	   Entering a SAME MEAS event (new 0xfc address) always refreshes
-	   gra — rest-only source bars otherwise look frozen. */
+	   gra and the MEAS field — rest-only source bars otherwise look
+	   frozen (rcd->bar may not advance between consecutive SAME MEAS). */
 	int meas=meas_no(ad);
 	int do_gra=0;
+	int do_meas_digit=0;
 
 	if(jj!=jjj){
 	  jjj=jj;
@@ -265,13 +267,15 @@ void	sttrc(int *po,int *cy,int flg)
 	  if(ad!=last_same_ad){
 	    last_same_ad=ad;
 	    do_gra=1;
+	    do_meas_digit=1;
 	  }
 	}else{
 	  last_same_ad=-1;
 	}
 	if(do_gra){
 	  if(grpmode!=0){gra(ad,md);md|=16;}
-	}else if(meas!=last_meas && edit_scr<2){
+	}
+	if((do_meas_digit || (!do_gra && meas!=last_meas)) && edit_scr<2){
 	  int xx=69+1;
 	  if(edit_scr==0){xx=13+1;}
 	  vdis2(xx,572,meas,4,15,0);
