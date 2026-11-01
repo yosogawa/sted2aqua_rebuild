@@ -119,7 +119,7 @@ static int alloc_mem( void )
 {
   void *work;
 
-  if( ( work = (void *)malloc( TRACK_LEN * 8 ) ) < 0 ) {
+  if( ( work = malloc( TRACK_LEN * 8 ) ) == NULL ) {
     fprintf( stderr, "Memory exhausted\n" );
     return 1;
   }

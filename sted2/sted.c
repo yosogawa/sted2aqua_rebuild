@@ -261,6 +261,8 @@ int	main(int argc,char *argv[])
   dat=(uint8_t *)MALLOC(work_size);
   dat2=(uint8_t *)MALLOC(work_size);
   /* May.06.2001 NAGANO Daisuke <breeze.nagano@nifty.ne.jp> */
+  /* これは x68000 ドメインのメモリチェックである
+     (Human68k: 確保失敗は NULL ではなく 0x81000000 以上の符号化値) */
 #if 0
   if((int)dat>=0x81000000){
     B_PRINT(_("Cannot allocate track buffers.\n"));exit(1);}
@@ -268,6 +270,8 @@ int	main(int argc,char *argv[])
 
 realc:
   trk[0]=(uint8_t *)MALLOC(buff_size);
+  /* これは x68000 ドメインのメモリチェックである
+     (失敗時の下位ビットから縮小サイズを拾って realc 再試行) */
 #if 0
   if((int)trk[0]>=0x81000000) {
     if(!used_u){
