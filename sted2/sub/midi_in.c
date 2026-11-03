@@ -145,3 +145,9 @@ void put_midi_message( const uint8_t *data, int length ) {
   }
 #endif
 }
+
+#if !defined(__APPLE__)
+void set_midi_output_port( int port ) {
+  (void)port;
+}
+#endif

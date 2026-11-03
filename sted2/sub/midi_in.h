@@ -30,6 +30,8 @@ int get_midi_data( void );
 int is_midi_in( void );
 void put_midi_data( uint8_t );
 void put_midi_message( const uint8_t *, int );
+/* Immediate mix_out / sound-test destination: 0 = Port A, 1 = Port B. */
+void set_midi_output_port( int port );
 
 #endif /* _MIDI_IN_H */
 

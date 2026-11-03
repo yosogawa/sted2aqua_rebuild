@@ -199,12 +199,20 @@ _extern char	chcom_s[26*2][2][50];		/* child command comment	*/
 _extern char	chcom_c[26*2][2][16];		/* child command parameter	*/
 
 /* def */
-_extern char	module[64];			/* module name			*/
+_extern char	module[64];			/* #module= (compat only; not chip)	*/
+/* Port chip labels come from #id= (stored). Max useful length ~22. */
+extern char	module_id[64];			/* port A #id= string (defload.c) */
+extern char	module_id_b[64];		/* port B #id= string (defload.c) */
 
 _extern int	lsp_wait;			/* last para. transfer wait	*/
 _extern int	bend_range;			/* piche bend range		*/
 
 _extern char	tim_asin[33];			/* tone list channle assign	*/
+extern char	tim_asin2[33];			/* DEF #group_a/#group_b (defined in defload.c) */
+/* UNIT SEL: which port(s) receive the loaded DEF. 0=A, 1=B, 2=A&B */
+enum { DEF_SCOPE_A = 0, DEF_SCOPE_B = 1, DEF_SCOPE_AB = 2 };
+extern int	def_load_scope;			/* defined in defload.c */
+extern int	def_sel_scope;			/* last DEFINE open-panel choice (select.c) */
 #define TIM_PART_MAX	400			/* tim_head / tim_sym / tim_top	*/
 #define TIM_NAME_MAX	(80*128)		/* tim_name entries		*/
 #define TIM_NAME_WIDTH	15			/* bytes per tone name		*/
@@ -303,7 +311,9 @@ void Exit(int);
 #define exit Exit
 
 /*  2015.3.26. Toshi Nagata  */
-void MacSelectFile(char *fna, char *path, int is_save, const char *mes, const char *ext);
+/* def_scope_out: if non-NULL on DEFINE open, panel shows A/B/A&B; filled 0/1/2. */
+void MacSelectFile(char *fna, char *path, int is_save, const char *mes, const char *ext,
+		   int *def_scope_out);
 void MacErrorBox(const char *mes, int icon);
 void line_input(char *buf, int len);
 /*  End Toshi Nagata  */

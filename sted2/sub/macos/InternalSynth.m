@@ -44,7 +44,7 @@ static AVAudioUnitReverb *sReverb = nil;
 static AVAudioUnitEffect *sLimiter = nil;
 static int sAppliedReverbPreset = -1;
 static DLSEffectSettings sEffects = {
-	0.0f, 0.0f, 0.0f, 3, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1
+	0.0f, 0.0f, 0.0f, 3, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1
 };
 static int sUseInternalReverb = 1;
 static int sReverbRoomType = 3;
@@ -393,7 +393,7 @@ ApplyEffectsLocked(void)
 	if (sDLSUnit[0] != nil && sAmyPort != 0)
 		((id<AVAudioMixing>)sDLSUnit[0]).volume = sEffects.dlsVolume;
 	if (sDLSUnit[1] != nil && sAmyPort != 1)
-		((id<AVAudioMixing>)sDLSUnit[1]).volume = sEffects.dlsVolume;
+		((id<AVAudioMixing>)sDLSUnit[1]).volume = sEffects.dlsVolume2;
 	if (sAmyNode != nil)
 		sAmyNode.volume = sEffects.amyVolume;
 	if (sEngine != nil)
@@ -943,6 +943,10 @@ ClampEffects(DLSEffectSettings s)
 		s.dlsVolume = 0.0f;
 	if (s.dlsVolume > 1.0f)
 		s.dlsVolume = 1.0f;
+	if (s.dlsVolume2 < 0.0f)
+		s.dlsVolume2 = 0.0f;
+	if (s.dlsVolume2 > 1.0f)
+		s.dlsVolume2 = 1.0f;
 	if (s.amyVolume < 0.0f)
 		s.amyVolume = 0.0f;
 	if (s.amyVolume > 1.0f)

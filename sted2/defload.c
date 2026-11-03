@@ -30,6 +30,80 @@ uint8_t	stgt_def[30]={
 #endif
 
 char	tim_asin2[33];
+char	module_id[64];			/* port A chip: #id= text */
+char	module_id_b[64];		/* port B chip: #id= text */
+int	def_load_scope = DEF_SCOPE_AB;	/* UNIT SEL A / B / A&B */
+
+/* Part table: SHARED (classic) or SPLIT (after one-time fork). */
+enum { PART_SPACE_SHARED = 0, PART_SPACE_SPLIT = 1 };
+enum { PART_OWN_NONE = 0, PART_OWN_A = 1, PART_OWN_B = 2 };
+int	part_space_mode = PART_SPACE_SHARED;
+static unsigned char part_owner[TIM_PART_MAX];
+/* Set during defload for each #part= written (0-based). */
+static unsigned char part_written[TIM_PART_MAX];
+
+typedef struct DefPartSnap {
+	char head[TIM_PART_MAX][24];
+	char sym[TIM_PART_MAX][8];
+	int16_t top[TIM_PART_MAX];
+	char (*names)[TIM_NAME_WIDTH];
+	unsigned char owner[TIM_PART_MAX];
+	int16_t gs_bank[18 * 128];
+	int16_t gs_mode[18];
+	int was_shared;
+} DefPartSnap;
+
+/* Prefer remap targets above common GS/XG slots (and expand shells 7–14). */
+enum { PART_REMAP_BASE0 = 49 }; /* 0-based → part number 50 */
+
+/* Trim leading/trailing spaces into dst (NUL-terminated). */
+static void
+sf_trim_copy(char *dst, size_t n, const char *src)
+{
+	size_t len;
+	if (dst == NULL || n == 0)
+		return;
+	if (src == NULL) {
+		dst[0] = 0;
+		return;
+	}
+	while (*src == ' ' || *src == '\t')
+		src++;
+	len = strlen(src);
+	while (len > 0 && (src[len - 1] == ' ' || src[len - 1] == '\t'))
+		len--;
+	if (len >= n)
+		len = n - 1;
+	memcpy(dst, src, len);
+	dst[len] = 0;
+}
+
+static void
+module_id_from_mdlflag(char *dst, size_t n)
+{
+	const char *s = "";
+	switch (mdlflag & 15) {
+	case 1: s = "CM64"; break;
+	case 2: s = "SC55"; break;
+	case 3: s = "SC88"; break;
+	case 4: s = "05RW"; break;
+	default: break;
+	}
+	if (dst == NULL || n == 0)
+		return;
+	strlcpy(dst, s, n);
+}
+
+static void
+module_id_store_scope(const char *idtext)
+{
+	char tmp[64];
+	sf_trim_copy(tmp, sizeof tmp, idtext);
+	if (def_load_scope != DEF_SCOPE_B)
+		strlcpy(module_id, tmp, sizeof module_id);
+	if (def_load_scope != DEF_SCOPE_A)
+		strlcpy(module_id_b, tmp, sizeof module_id_b);
+}
 char	defrhyna[32][15];
 uint8_t	defrhyno[32][2];
 
@@ -98,10 +172,362 @@ void	asin_change()
   }
 }
 
-void	asin_init()
+/* Copy DEF #group_* (tim_asin2) → runtime PART ASSIGN (tim_asin).
+   scope: DEF_SCOPE_A / B / AB. asin_init() keeps full A&B for callers. */
+void	asin_init_scope(int scope)
 {
-  int	i;
-  for(i=1;i<33;i++){tim_asin[i]=tim_asin2[i];}
+  int	i, lo, hi;
+
+  if(scope == DEF_SCOPE_A){lo=1;hi=16;}
+  else if(scope == DEF_SCOPE_B){lo=17;hi=32;}
+  else{lo=1;hi=32;}
+  for(i=lo;i<=hi;i++){tim_asin[i]=tim_asin2[i];}
+}
+
+void	asin_init(void)
+{
+  asin_init_scope(DEF_SCOPE_AB);
+}
+
+static void
+part_owner_clear(void)
+{
+  memset(part_owner, 0, sizeof part_owner);
+  memset(part_written, 0, sizeof part_written);
+  part_space_mode = PART_SPACE_SHARED;
+}
+
+static int
+part_name_hiwater(void)
+{
+  int i, hi = 4 * 128;
+  for (i = 0; i < TIM_PART_MAX; i++) {
+    if (tim_head[i][0] == 0)
+      continue;
+    if (i <= 3)
+      continue;
+    if (tim_top[i] > 0 && tim_top[i] + 128 > hi)
+      hi = tim_top[i] + 128;
+  }
+  if (hi > TIM_NAME_MAX)
+    hi = TIM_NAME_MAX;
+  return hi;
+}
+
+static int
+part_alloc_names(void)
+{
+  int hi = part_name_hiwater();
+  if (hi + 128 >= TIM_NAME_MAX)
+    return -1;
+  return hi;
+}
+
+/* 0-based part indices. */
+static void
+part_copy_slot(int from0, int to0)
+{
+  int n, src, dst, k;
+
+  if (from0 < 0 || from0 >= TIM_PART_MAX || to0 < 0 || to0 >= TIM_PART_MAX)
+    return;
+  memcpy(tim_head[to0], tim_head[from0], sizeof tim_head[0]);
+  memcpy(tim_sym[to0], tim_sym[from0], sizeof tim_sym[0]);
+  if (from0 <= 3) {
+    src = (from0 == 1) ? 192 : from0 * 128;
+    dst = (to0 == 1) ? 192 : to0 * 128;
+    if (src + 128 <= TIM_NAME_MAX && dst + 128 <= TIM_NAME_MAX)
+      memcpy(tim_name[dst], tim_name[src], 128 * TIM_NAME_WIDTH);
+    tim_top[to0] = tim_top[from0];
+    return;
+  }
+  src = tim_top[from0];
+  dst = part_alloc_names();
+  if (dst < 0 || src <= 0 || src >= TIM_NAME_MAX) {
+    tim_top[to0] = 0;
+    return;
+  }
+  n = 128;
+  if (src + n > TIM_NAME_MAX)
+    n = TIM_NAME_MAX - src;
+  if (dst + n > TIM_NAME_MAX)
+    n = TIM_NAME_MAX - dst;
+  for (k = 0; k < n; k++)
+    memcpy(tim_name[dst + k], tim_name[src + k], TIM_NAME_WIDTH);
+  tim_top[to0] = (int16_t)dst;
+}
+
+static void
+part_mark_refs(unsigned char *used /*[TIM_PART_MAX+1] 1-based sense via index*/,
+	       int lo, int hi)
+{
+  int i, p;
+  memset(used, 0, TIM_PART_MAX + 1);
+  for (i = lo; i <= hi; i++) {
+    p = (unsigned char)tim_asin2[i];
+    if (p > 0 && p <= TIM_PART_MAX)
+      used[p] = 1;
+  }
+}
+
+static int
+part_slot_ok(int i0, const unsigned char *keep1, const unsigned char *block1)
+{
+  if (i0 < 0 || i0 >= TIM_PART_MAX)
+    return 0;
+  if (keep1[i0 + 1])
+    return 0;
+  if (block1 && block1[i0 + 1])
+    return 0;
+  return 1;
+}
+
+static int
+part_find_free(const unsigned char *keep /*1-based*/, const unsigned char *block)
+{
+  int i;
+  /* Prefer high slots so expand shells (7/9/11/13) stay usable for the load. */
+  for (i = PART_REMAP_BASE0; i < TIM_PART_MAX; i++) {
+    if (!part_slot_ok(i, keep, block))
+      continue;
+    if (tim_head[i][0] == 0)
+      return i;
+  }
+  for (i = PART_REMAP_BASE0; i < TIM_PART_MAX; i++) {
+    if (!part_slot_ok(i, keep, block))
+      continue;
+    if (part_owner[i] != PART_OWN_A && part_owner[i] != PART_OWN_B)
+      return i;
+  }
+  for (i = 14; i < PART_REMAP_BASE0; i++) { /* avoid 0..13 specials */
+    if (!part_slot_ok(i, keep, block))
+      continue;
+    if (tim_head[i][0] == 0)
+      return i;
+  }
+  return -1;
+}
+
+/* Copy one part from snapshot into live slot to0 (0-based). */
+static void
+part_copy_from_snap(const DefPartSnap *snap, int from0, int to0)
+{
+  int src, dst, k, n;
+
+  if (snap == NULL || from0 < 0 || from0 >= TIM_PART_MAX ||
+      to0 < 0 || to0 >= TIM_PART_MAX)
+    return;
+  memcpy(tim_head[to0], snap->head[from0], sizeof tim_head[0]);
+  memcpy(tim_sym[to0], snap->sym[from0], sizeof tim_sym[0]);
+  if (from0 <= 3) {
+    src = (from0 == 1) ? 192 : from0 * 128;
+    dst = (to0 == 1) ? 192 : to0 * 128;
+    if (src + 128 <= TIM_NAME_MAX && dst + 128 <= TIM_NAME_MAX)
+      memcpy(tim_name[dst], &snap->names[src], 128 * TIM_NAME_WIDTH);
+    tim_top[to0] = snap->top[from0];
+    return;
+  }
+  src = snap->top[from0];
+  dst = part_alloc_names();
+  if (dst < 0 || src <= 0 || src >= TIM_NAME_MAX) {
+    tim_top[to0] = 0;
+    return;
+  }
+  n = 128;
+  if (src + n > TIM_NAME_MAX)
+    n = TIM_NAME_MAX - src;
+  if (dst + n > TIM_NAME_MAX)
+    n = TIM_NAME_MAX - dst;
+  for (k = 0; k < n; k++)
+    memcpy(tim_name[dst + k], &snap->names[src + k], TIM_NAME_WIDTH);
+  tim_top[to0] = (int16_t)dst;
+}
+
+/*
+ * GS #gs_pbank shells (part 7 etc.) keep names in bank-target parts
+ * (CAPITAL=16…). After a fork the other port lands on a high slot that
+ * no longer uses gs_bank, so flatten bank0 names from the snapshot.
+ */
+static void
+part_flatten_gs_bank0_from_snap(const DefPartSnap *snap, int shell_part1, int to0)
+{
+  int bp, src, dst, k, n;
+
+  if (snap == NULL || to0 < 0 || to0 >= TIM_PART_MAX)
+    return;
+  if (shell_part1 < 7 || shell_part1 > 14)
+    return;
+  if ((snap->gs_mode[shell_part1] & 128) == 0)
+    return;
+  bp = snap->gs_bank[shell_part1 * 128];
+  if (bp < 1 || bp > TIM_PART_MAX)
+    return;
+  src = snap->top[bp - 1];
+  if (src <= 0 || src >= TIM_NAME_MAX)
+    return;
+  dst = part_alloc_names();
+  if (dst < 0)
+    return;
+  n = 128;
+  if (src + n > TIM_NAME_MAX)
+    n = TIM_NAME_MAX - src;
+  if (dst + n > TIM_NAME_MAX)
+    n = TIM_NAME_MAX - dst;
+  for (k = 0; k < n; k++)
+    memcpy(tim_name[dst + k], &snap->names[src + k], TIM_NAME_WIDTH);
+  tim_top[to0] = (int16_t)dst;
+}
+
+static void
+part_restore_from_snap(const DefPartSnap *snap, int idx0)
+{
+  int src, n;
+
+  if (snap == NULL || idx0 < 0 || idx0 >= TIM_PART_MAX)
+    return;
+  memcpy(tim_head[idx0], snap->head[idx0], sizeof tim_head[0]);
+  memcpy(tim_sym[idx0], snap->sym[idx0], sizeof tim_sym[0]);
+  tim_top[idx0] = snap->top[idx0];
+  if (idx0 <= 3) {
+    src = (idx0 == 1) ? 192 : idx0 * 128;
+    if (src + 128 <= TIM_NAME_MAX)
+      memcpy(tim_name[src], &snap->names[src], 128 * TIM_NAME_WIDTH);
+  } else if (snap->top[idx0] > 0) {
+    src = snap->top[idx0];
+    n = 128;
+    if (src + n > TIM_NAME_MAX)
+      n = TIM_NAME_MAX - src;
+    if (n > 0)
+      memcpy(tim_name[src], &snap->names[src], (size_t)n * TIM_NAME_WIDTH);
+  }
+}
+
+void *
+def_parts_prepare_partial(int scope)
+{
+  DefPartSnap *snap;
+  size_t nbytes;
+
+  if (scope != DEF_SCOPE_A && scope != DEF_SCOPE_B)
+    return NULL;
+  snap = (DefPartSnap *)calloc(1, sizeof *snap);
+  if (snap == NULL)
+    return NULL;
+  nbytes = (size_t)TIM_NAME_MAX * TIM_NAME_WIDTH;
+  snap->names = (char (*)[TIM_NAME_WIDTH])malloc(nbytes);
+  if (snap->names == NULL) {
+    free(snap);
+    return NULL;
+  }
+  memcpy(snap->head, tim_head, sizeof snap->head);
+  memcpy(snap->sym, tim_sym, sizeof snap->sym);
+  memcpy(snap->top, tim_top, sizeof snap->top);
+  memcpy(snap->names, tim_name, nbytes);
+  memcpy(snap->owner, part_owner, sizeof snap->owner);
+  memcpy(snap->gs_bank, gs_bank, sizeof snap->gs_bank);
+  memcpy(snap->gs_mode, gs_mode, sizeof snap->gs_mode);
+  snap->was_shared = (part_space_mode == PART_SPACE_SHARED);
+  return snap;
+}
+
+void
+def_parts_finish_partial(int scope, void *snap_v)
+{
+  DefPartSnap *snap = (DefPartSnap *)snap_v;
+  unsigned char other_used[TIM_PART_MAX + 1], my_group[TIM_PART_MAX + 1];
+  unsigned char my_loaded[TIM_PART_MAX + 1], claimed[TIM_PART_MAX + 1];
+  int remap_other[TIM_PART_MAX + 1];
+  int other_lo, other_hi, my_lo, my_hi;
+  int me, other, i, p, q;
+
+  if (snap == NULL)
+    return;
+  if (scope != DEF_SCOPE_A && scope != DEF_SCOPE_B)
+    goto out;
+
+  if (scope == DEF_SCOPE_A) {
+    my_lo = 1; my_hi = 16;
+    other_lo = 17; other_hi = 32;
+    me = PART_OWN_A; other = PART_OWN_B;
+  } else {
+    my_lo = 17; my_hi = 32;
+    other_lo = 1; other_hi = 16;
+    me = PART_OWN_B; other = PART_OWN_A;
+  }
+
+  part_mark_refs(other_used, other_lo, other_hi);
+  part_mark_refs(my_group, my_lo, my_hi);
+  memset(my_loaded, 0, sizeof my_loaded);
+  memset(claimed, 0, sizeof claimed);
+  for (i = 0; i < TIM_PART_MAX; i++) {
+    if (part_written[i] || my_group[i + 1])
+      my_loaded[i + 1] = 1;
+  }
+  for (i = 0; i <= TIM_PART_MAX; i++)
+    remap_other[i] = i;
+
+  /*
+   * Keep the just-loaded port on canonical part numbers (7/8/16… so
+   * TONE LIST expand / #bank still work). Move the other port's
+   * conflicting parts to high free slots (from the pre-load snapshot).
+   */
+  for (p = 1; p <= TIM_PART_MAX; p++) {
+    int need_other = other_used[p];
+    if (!need_other && snap->was_shared == 0 &&
+	snap->owner[p - 1] == (unsigned char)other)
+      need_other = 1;
+    if (!need_other)
+      continue;
+
+    if (my_loaded[p]) {
+      q = part_find_free(my_loaded, claimed);
+      if (q < 0)
+	continue;
+      part_copy_from_snap(snap, p - 1, q);
+      /* High slots skip gs_bank; flatten CAPITAL (bank0) for GS shells. */
+      part_flatten_gs_bank0_from_snap(snap, p, q);
+      remap_other[p] = q + 1;
+      claimed[q + 1] = 1;
+      part_owner[q] = (unsigned char)other;
+      part_owner[p - 1] = (unsigned char)me;
+    } else {
+      part_restore_from_snap(snap, p - 1);
+      part_owner[p - 1] = (unsigned char)other;
+      claimed[p] = 1;
+    }
+  }
+
+  for (i = other_lo; i <= other_hi; i++) {
+    p = (unsigned char)tim_asin2[i];
+    if (p > 0 && p <= TIM_PART_MAX)
+      tim_asin2[i] = (char)remap_other[p];
+  }
+  /* Runtime PART ASSIGN must follow remapped #group_* on both ports. */
+  for (i = other_lo; i <= other_hi; i++)
+    tim_asin[i] = tim_asin2[i];
+
+  for (p = 1; p <= TIM_PART_MAX; p++) {
+    if (my_loaded[p])
+      part_owner[p - 1] = (unsigned char)me;
+  }
+
+  /*
+   * Loader brought #bank=/#rbank= (expand_map): leftover #gs_pbank from the
+   * other DEF must not keep hijacking part 7 via gs_bank → CAPITAL.
+   */
+  if (expand_map) {
+    gs_mode[7] &= (int16_t)~128;
+    gs_mode[9] &= (int16_t)~128;
+    gs_mode[11] &= (int16_t)~128;
+    gs_mode[13] &= (int16_t)~128;
+  }
+
+  if (snap->was_shared)
+    part_space_mode = PART_SPACE_SPLIT;
+
+out:
+  free(snap->names);
+  free(snap);
 }
 /***************************/
 void	cnfinit()
@@ -202,6 +628,11 @@ static void	expand_bank_add(char *s)
   expand_part[expand_bank_n]=part;
   expand_bank_n++;
   expand_map=1;
+  /* Disarm leftover GS #gs_pbank so TONE LIST uses expand_part_of. */
+  gs_mode[7]&=(int16_t)~128;
+  gs_mode[9]&=(int16_t)~128;
+  gs_mode[11]&=(int16_t)~128;
+  gs_mode[13]&=(int16_t)~128;
 }
 
 static void	expand_rbank_add(char *s)
@@ -285,6 +716,9 @@ void	definit()
   player_flag=0;          /* Nov.25.1998 */
 
   lsp_wait=1;bend_range=12;
+  module_id[0]=0;
+  module_id_b[0]=0;
+  part_owner_clear();
   tim_name_read();
 }
 
@@ -364,6 +798,7 @@ int	defload(char *fi,int md)
     if ((fp=fopen2( tmp0, "rb" ))==NULL) return(-1);
   } /* Oct.13.1998 by Daisuke Nagano */
   ln=fread(dat,1,work_size,fp);ad=0;nm=99999;
+  memset(part_written, 0, sizeof part_written);
 
 #if	STED
   if(md==0){
@@ -549,7 +984,10 @@ int	defload(char *fi,int md)
 
 #endif
 
-      if( str_search(li2,"#MODULE=")>0 ){strlcpy(module,&li[8],sizeof module);}
+      /* #module=: compat only (still kept in module[]); chips use #id=. */
+      if( str_search(li2,"#MODULE=")>0 ){
+	strlcpy(module,&li[8],sizeof module);
+      }
 
       if( str_search(li2,"#ID=")>0 ){
 	strcpy(tmp1,&li2[4]);
@@ -557,6 +995,8 @@ int	defload(char *fi,int md)
 	if( str_search(tmp1,"SC55")>0 ){mdlflag|=2;}
 	if( str_search(tmp1,"SC88")>0 ){mdlflag|=3;}
 	if( str_search(tmp1,"05RW")>0 ){mdlflag|=4;}
+	/* Original-case value from li (li2 is uppercased). */
+	module_id_store_scope(&li[4]);
       }
       if( str_search(li2,"#MUTE=")>0 ){
 	strcpy(tmp1,&li2[6]);mutef=0;
@@ -584,12 +1024,16 @@ int	defload(char *fi,int md)
 	c=str_search(li,"=");
 	if(c!=0){
 	  n=0;if(li2[7]=='B'){n=16;}
-	  strcpy(tmp1,&li[c]);strcat(tmp1,",");
-	  while(n<32){
-	    c=str_search(tmp1,",");if(c==0){break;}
-	    strcpy(tmp0,tmp1);tmp0[c-1]=0;
-	    n++;tim_asin2[n]=str_val(tmp0);
-        memmove(tmp1, &tmp1[c], strlen(&tmp1[c]) + 1);
+	  /* Partial UNIT SEL: apply only the selected port's #group_*. */
+	  if(!(def_load_scope == DEF_SCOPE_A && n == 16) &&
+	     !(def_load_scope == DEF_SCOPE_B && n == 0)){
+	    strcpy(tmp1,&li[c]);strcat(tmp1,",");
+	    while(n<32){
+	      c=str_search(tmp1,",");if(c==0){break;}
+	      strcpy(tmp0,tmp1);tmp0[c-1]=0;
+	      n++;tim_asin2[n]=str_val(tmp0);
+	      memmove(tmp1, &tmp1[c], strlen(&tmp1[c]) + 1);
+	    }
 	  }
 	}
       }
@@ -597,29 +1041,46 @@ int	defload(char *fi,int md)
 	int n=str_val(&li[9]);if(n>=0 && n<=16){card_no[0]=n;}
       }
 
-      if( str_search(li2,"#PART=")>0 ){
-	int	ch,c,n;
-	ch=str_val(&li2[6])-1;
-	c=str_search(li,",");
-	if(ch>=0 && ch<400){
-	  strcpy(tmp1,&li[c]);strcat(tmp1,",");n=0;
-	  while(n<2){
-	    c=str_search(tmp1,",");if( c==0 ){break;}
-	    strcpy(tmp0,tmp1);tmp0[c-1]=0;
-	    if(n==0){strlcpy(tim_head[ch],tmp0,sizeof tim_head[ch]);}
-	    else{strlcpy(tim_sym[ch],tmp0,sizeof tim_sym[ch]);}
-        memmove(tmp1, &tmp1[c], strlen(&tmp1[c]) + 1);
-        n++;
-	  }
-	  nm=ch*128;if( ch==1 ){nm=192;}
-	  if(tmp1[0]!=0){nm+=str_val(tmp1);}
-
-	  if(ch>3){
-	    if(last_no<TIM_NAME_MAX-1){
-	      tim_name[last_no++][0]=0;
-	      tim_top[ch]=last_no;last_co=0;
-	      if(tmp1[0]!=0){last_co=str_val(tmp1);}
+      /* #part= (legacy≡A when shared), #part_a=, #part_b= */
+      if( str_search(li2,"#PART_A=")>0 || str_search(li2,"#PART_B=")>0 ||
+	  str_search(li2,"#PART=")>0 ){
+	int	ch,c,n,skip=0,is_a,is_b,off;
+	is_a = (str_search(li2,"#PART_A=")>0);
+	is_b = (!is_a && str_search(li2,"#PART_B=")>0);
+	if(is_a && def_load_scope == DEF_SCOPE_B) skip=1;
+	if(is_b && def_load_scope == DEF_SCOPE_A) skip=1;
+	/* Plain #part=: both ports on AB; on partial, applies to that port. */
+	if(skip){
+	  nm=99999;
+	}else{
+	  off = is_a ? 8 : (is_b ? 8 : 6);
+	  ch=str_val(&li2[off])-1;
+	  c=str_search(li,",");
+	  if(ch>=0 && ch<400){
+	    strcpy(tmp1,&li[c]);strcat(tmp1,",");n=0;
+	    while(n<2){
+	      c=str_search(tmp1,",");if( c==0 ){break;}
+	      strcpy(tmp0,tmp1);tmp0[c-1]=0;
+	      if(n==0){strlcpy(tim_head[ch],tmp0,sizeof tim_head[ch]);}
+	      else{strlcpy(tim_sym[ch],tmp0,sizeof tim_sym[ch]);}
+	      memmove(tmp1, &tmp1[c], strlen(&tmp1[c]) + 1);
+	      n++;
 	    }
+	    nm=ch*128;if( ch==1 ){nm=192;}
+	    if(tmp1[0]!=0){nm+=str_val(tmp1);}
+
+	    if(ch>3){
+	      if(last_no<TIM_NAME_MAX-1){
+		tim_name[last_no++][0]=0;
+		tim_top[ch]=last_no;last_co=0;
+		if(tmp1[0]!=0){last_co=str_val(tmp1);}
+	      }
+	    }
+	    part_written[ch]=1;
+	    if(def_load_scope == DEF_SCOPE_A || is_a)
+	      part_owner[ch]=PART_OWN_A;
+	    else if(def_load_scope == DEF_SCOPE_B || is_b)
+	      part_owner[ch]=PART_OWN_B;
 	  }
 	}
       }
@@ -686,7 +1147,11 @@ int	defload(char *fi,int md)
       if( str_search(li2,"#BANK=") >0 ){expand_bank_add(strchr(li,'=')+1);}
       if( str_search(li2,"#RBANK=")>0 ){expand_rbank_add(strchr(li,'=')+1);}
 
-      if( str_search(li2,"#GS_PBANK")>0 ){gs_mode[ 7]|=128   ;nm=0x10380;}
+      if( str_search(li2,"#GS_PBANK")>0 ){
+	gs_mode[ 7]|=128   ;nm=0x10380;
+	/* GS bank table replaces expand addressing for this load. */
+	expand_map=0;expand_bank_n=0;
+      }
       if( str_search(li2,"#GS_RBANK")>0 ){gs_mode[ 8]|=128+64;nm=0x10400;}
       if( str_search(li2,"#GM_PBANK")>0 ){gs_mode[ 9]|=128   ;nm=0x10480;}
       if( str_search(li2,"#GM_RBANK")>0 ){gs_mode[10]|=128+64;nm=0x10500;}
@@ -1068,12 +1533,16 @@ int	defsave(char *fi,int md,int mutef,int initf)
   n=buf_put("\r\n#module=",n);n=buf_put(module,n);n=buf_put("\r\n\r\n",n);
 
 
-  if(mdlflag&15){
+  if(module_id[0]!=0 || (mdlflag&15)){
     n=buf_put("#id=",n);
-    if((mdlflag&15)==1){n=buf_put("cm64",n);}
-    if((mdlflag&15)==2){n=buf_put("sc55",n);}
-    if((mdlflag&15)==3){n=buf_put("sc88",n);}
-    if((mdlflag&15)==4){n=buf_put("05rw",n);}
+    if(module_id[0]!=0){
+      n=buf_put(module_id,n);
+    }else{
+      if((mdlflag&15)==1){n=buf_put("cm64",n);}
+      if((mdlflag&15)==2){n=buf_put("sc55",n);}
+      if((mdlflag&15)==3){n=buf_put("sc88",n);}
+      if((mdlflag&15)==4){n=buf_put("05rw",n);}
+    }
     n=buf_put("\r\n",n);
   }
 
@@ -1436,8 +1905,15 @@ int	def_bload(char *fi,int md)
       || top_no>TIM_NAME_MAX || last_no>TIM_NAME_MAX
       || top_no>last_no ){goto bad;}
 
-  memcpy(module,&dat[0x0010],32);					/*module*/
-  mdlflag=dat[0x30];						/*id*/
+  memcpy(module,&dat[0x0010],32);				/*module (compat)*/
+  module[32]=0;
+  mdlflag=dat[0x30];						/*id flag*/
+  /* DFB has no id string — synthesize chip label from mdlflag. */
+  {
+    char idbuf[64];
+    module_id_from_mdlflag(idbuf, sizeof idbuf);
+    module_id_store_scope(idbuf);
+  }
   mutef=dat[0x32];						/*mute*/
   initf=dat[0x33];						/*init*/
   n=dat[0x34];if(n>127){n=-1;}lsp_wait=n;				/*lsp_wait*/
@@ -1460,7 +1936,11 @@ int	def_bload(char *fi,int md)
   }
 
   for(i=0;i<16;i++){memcpy(card_name[i+1],&dat[0x500+i*48],48);}	/*card*/
-  memcpy(&tim_asin2[1],&dat[0x800],32);				/*group*/
+  /* group: honor UNIT SEL A / B / A&B */
+  if(def_load_scope != DEF_SCOPE_B)
+    memcpy(&tim_asin2[1],&dat[0x800],16);			/*group_a*/
+  if(def_load_scope != DEF_SCOPE_A)
+    memcpy(&tim_asin2[17],&dat[0x800+16],16);			/*group_b*/
   memcpy(&gs_mode[4],&dat[0x820],14*2);				/*gsmode*/
   memcpy(&gs_bank[128*4],&dat[0x840],14*128*2);			/*gsbank*/
 

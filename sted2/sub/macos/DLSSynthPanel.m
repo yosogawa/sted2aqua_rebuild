@@ -7,7 +7,7 @@
 
 enum {
 	kPanelW = 468,
-	kPanelH = 610,
+	kPanelH = 646,
 	kMargin = 20,
 	kLabelW = 112,
 	kValueW = 78,
@@ -170,6 +170,7 @@ ReverbMixLabel(double v)
 	NSSlider *mixSlider;
 	NSSlider *limitSlider;
 	NSSlider *dlsMixSlider;
+	NSSlider *dlsMix2Slider;
 	NSSlider *amyMixSlider;
 	NSSlider *volumeSlider;
 	NSTextField *trimValue;
@@ -178,6 +179,7 @@ ReverbMixLabel(double v)
 	NSTextField *mixValue;
 	NSTextField *limitValue;
 	NSTextField *dlsMixValue;
+	NSTextField *dlsMix2Value;
 	NSTextField *amyMixValue;
 	NSTextField *volumeValue;
 }
@@ -289,6 +291,7 @@ static const char *kReverbNames[13] = {
 	[mixSlider release];
 	[limitSlider release];
 	[dlsMixSlider release];
+	[dlsMix2Slider release];
 	[amyMixSlider release];
 	[volumeSlider release];
 	[trimValue release];
@@ -297,6 +300,7 @@ static const char *kReverbNames[13] = {
 	[mixValue release];
 	[limitValue release];
 	[dlsMixValue release];
+	[dlsMix2Value release];
 	[amyMixValue release];
 	[volumeValue release];
 	[window release];
@@ -509,6 +513,7 @@ static const char *kReverbNames[13] = {
 	[mixValue setStringValue:ReverbMixLabel([mixSlider doubleValue])];
 	[limitValue setStringValue:PlainNumber([limitSlider doubleValue], 1, @" dB")];
 	[dlsMixValue setStringValue:VolumeDBLabel(ACurveGain([dlsMixSlider doubleValue]))];
+	[dlsMix2Value setStringValue:VolumeDBLabel(ACurveGain([dlsMix2Slider doubleValue]))];
 	[amyMixValue setStringValue:VolumeDBLabel(ACurveGain([amyMixSlider doubleValue]))];
 	[volumeValue setStringValue:VolumeDBLabel(ACurveGain([volumeSlider doubleValue]))];
 }
@@ -531,6 +536,7 @@ enum {
 	kResetMix,
 	kResetLimit,
 	kResetDlsMix,
+	kResetDlsMix2,
 	kResetAmyMix,
 	kResetVolume
 };
@@ -572,6 +578,9 @@ enum {
 		break;
 	case kResetDlsMix:
 		[dlsMixSlider setDoubleValue:1.0];
+		break;
+	case kResetDlsMix2:
+		[dlsMix2Slider setDoubleValue:1.0];
 		break;
 	case kResetAmyMix:
 		[amyMixSlider setDoubleValue:1.0];
@@ -684,9 +693,15 @@ enum {
 	[self addWideLabel:@"Mixer" y:y];
 	y -= kRowStep;
 	[self armReset:kResetDlsMix
-		label:[self addLabel:@"DLS Synth" y:y]
+		label:[self addLabel:@"DLS Synth 1" y:y]
 	       slider:(dlsMixSlider = [self addSliderAtY:y min:0.0 max:1.0 value:ACurvePosition(fx.dlsVolume)])
 		value:(dlsMixValue = [self addValueAtY:y])
+	       phrase:@"set 0 dB"];
+	y -= kRowStep;
+	[self armReset:kResetDlsMix2
+		label:[self addLabel:@"DLS Synth 2" y:y]
+	       slider:(dlsMix2Slider = [self addSliderAtY:y min:0.0 max:1.0 value:ACurvePosition(fx.dlsVolume2)])
+		value:(dlsMix2Value = [self addValueAtY:y])
 	       phrase:@"set 0 dB"];
 	y -= kRowStep;
 	[self armReset:kResetAmyMix
@@ -803,6 +818,7 @@ enum {
 	s.reverbMix = (float)[mixSlider doubleValue];
 	s.limiterBoost = (float)[limitSlider doubleValue];
 	s.dlsVolume = (float)ACurveGain([dlsMixSlider doubleValue]);
+	s.dlsVolume2 = (float)ACurveGain([dlsMix2Slider doubleValue]);
 	s.amyVolume = (float)ACurveGain([amyMixSlider doubleValue]);
 	s.volume = (float)ACurveGain([volumeSlider doubleValue]);
 	s.totalEffect = [totalEffectCheck state] == NSControlStateValueOn;

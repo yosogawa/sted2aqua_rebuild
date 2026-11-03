@@ -425,12 +425,23 @@ CoreMIDISend(uint8_t *ptr, int length, int port, MIDITimeStamp atTime)
 	return sts;
 }
 
+/* mix_out / sound-test destination. Sequencer playback uses CoreMIDISend's port arg. */
+static int sImmediateOutPort;
+
+void
+set_midi_output_port(int port)
+{
+	if (port < 0)
+		port = 0;
+	sImmediateOutPort = port % kMaxNumberOfPorts;
+}
+
 int
 send_midi_message(uint8_t *data, int length)
 {
 	if (data == NULL || length <= 0)
 		return 0;
-	return (int)CoreMIDISend(data, length, 0, 0);
+	return (int)CoreMIDISend(data, length, sImmediateOutPort, 0);
 }
 
 /*

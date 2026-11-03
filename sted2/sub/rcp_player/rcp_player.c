@@ -9,6 +9,8 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdarg.h>
+#include <time.h>
 
 #include "rcp_player.h"
 
@@ -18,6 +20,15 @@
 #include "rcpconv.h"
 #include "smf.h"
 #include "rcp_transport.h"
+
+/*
+ * Temporary full dump for A/B port bleed debugging.
+ * Writes /tmp/sted2_rcp_midi_dump.txt (and mirrors to stderr).
+ * Set to 0 when done investigating.
+ */
+#ifndef RCP_MIDI_PORT_DUMP
+#define RCP_MIDI_PORT_DUMP 0
+#endif
 
 /*  Functions in rcptomid.c  */
 extern int rcptomid_init_track_buffer( RCP_DATA * );
@@ -44,6 +55,103 @@ typedef struct rcpplayer_record {
 } RCPPLAYER;
 
 static RCPPLAYER sPlayer;
+
+#if RCP_MIDI_PORT_DUMP
+static FILE *sMidiDumpFp;
+
+static void
+rcp_midi_dump_close(void)
+{
+	if (sMidiDumpFp != NULL) {
+		fclose(sMidiDumpFp);
+		sMidiDumpFp = NULL;
+	}
+}
+
+static void
+rcp_midi_dumpf(const char *fmt, ...)
+{
+	va_list ap, ap2;
+	va_start(ap, fmt);
+	va_copy(ap2, ap);
+	vfprintf(stderr, fmt, ap);
+	if (sMidiDumpFp != NULL) {
+		vfprintf(sMidiDumpFp, fmt, ap2);
+		fflush(sMidiDumpFp);
+	}
+	va_end(ap2);
+	va_end(ap);
+}
+
+static void
+rcp_midi_dump_open(void)
+{
+	time_t now;
+	rcp_midi_dump_close();
+	sMidiDumpFp = fopen("/tmp/sted2_rcp_midi_dump.txt", "w");
+	now = time(NULL);
+	rcp_midi_dumpf("==== STed2 RCP MIDI dump %s", ctime(&now));
+	if (sMidiDumpFp == NULL)
+		rcp_midi_dumpf("(file open failed; stderr only)\n");
+	else
+		rcp_midi_dumpf("file=/tmp/sted2_rcp_midi_dump.txt\n");
+}
+
+static void
+rcp_midi_dump_tracks(const char *phase)
+{
+	int t, raw;
+	const uint8_t *ptr;
+
+	rcp_midi_dumpf("-- tracks @ %s  n=%d steddata=%d\n",
+		phase, sPlayer.rcp.tracks, sPlayer.rcp.steddata);
+	ptr = sPlayer.rcp.data;
+	for (t = 0; t < sPlayer.rcp.tracks; t++) {
+		raw = -1;
+		if (ptr != NULL && sPlayer.rcp.track[t].top >= 0 &&
+		    (size_t)(sPlayer.rcp.track[t].top + 4) < sPlayer.rcp.length)
+			raw = ptr[sPlayer.rcp.track[t].top + 4];
+		rcp_midi_dumpf(
+			"  tr=%02d en=%d fin=%d port=%d ch=%d mode=%d raw_hed4=0x%02x(%d) key=%d st=%d\n",
+			t,
+			sPlayer.rcp.track[t].enabled,
+			sPlayer.rcp.track[t].finished,
+			sPlayer.rcp.track[t].port,
+			sPlayer.rcp.track[t].midi_ch,
+			sPlayer.rcp.track[t].mode,
+			raw & 0xff, raw,
+			sPlayer.rcp.track[t].key,
+			sPlayer.rcp.track[t].st);
+	}
+}
+
+static void
+rcp_midi_dump_event(int32_t step, int tr, int port, const uint8_t *msg, int len)
+{
+	int i, ch;
+
+	ch = (tr >= 0 && tr < sPlayer.rcp.tracks) ? sPlayer.rcp.track[tr].midi_ch : -1;
+	rcp_midi_dumpf("step=%7ld tr=%02d port=%d midi_ch=%d evt=%02x gate=%d vel=%d |",
+		(long)step, tr, port, ch,
+		(tr >= 0 && tr < sPlayer.rcp.tracks) ? sPlayer.rcp.track[tr].event : -1,
+		(tr >= 0 && tr < sPlayer.rcp.tracks) ? sPlayer.rcp.track[tr].gate : -1,
+		(tr >= 0 && tr < sPlayer.rcp.tracks) ? sPlayer.rcp.track[tr].vel : -1);
+	if (msg == NULL || len <= 0) {
+		rcp_midi_dumpf(" (no midi)\n");
+		return;
+	}
+	for (i = 0; i < len && i < 32; i++)
+		rcp_midi_dumpf(" %02x", msg[i]);
+	if (len > 32)
+		rcp_midi_dumpf(" ...");
+	rcp_midi_dumpf("\n");
+}
+#else
+#define rcp_midi_dump_open() ((void)0)
+#define rcp_midi_dump_close() ((void)0)
+#define rcp_midi_dump_tracks(phase) ((void)0)
+#define rcp_midi_dump_event(step, tr, port, msg, len) ((void)0)
+#endif
 
 /* One-shot unget for seek_to_step: the event at/after the target is
    returned by the next rcpplayer_next_midi_event() call. */
@@ -149,6 +257,7 @@ rcpplayer_next_midi_event(int32_t *step, uint8_t **ptr, int *length, int *port)
 	uint8_t *s_ptr;
 	int s_length, s_maxlen;
 	int s_port;
+	int emit_tr = -1;
 	int n, min_step, min_track, min_note, nstep, tr;
 
 	if (sUngetValid) {
@@ -161,6 +270,7 @@ rcpplayer_next_midi_event(int32_t *step, uint8_t **ptr, int *length, int *port)
 			*length = sUngetLength;
 		if (port != NULL)
 			*port = sUngetPort;
+		rcp_midi_dump_event(sUngetStep, -1, sUngetPort, sUngetMsg, sUngetLength);
 		return 1;
 	}
 
@@ -168,6 +278,7 @@ rcpplayer_next_midi_event(int32_t *step, uint8_t **ptr, int *length, int *port)
 		sPlayer.total_step += sPlayer.delta_step;
 //		s_step = sPlayer.total_step;
 		sPlayer.rcp.result_smf[0] = SMF_TERM;
+		emit_tr = sPlayer.next_track;
 		/*  Is the next event note-off?  */
 		if (sPlayer.next_note >= 0) {
 			rcp_note_off(&sPlayer.rcp, sPlayer.next_track, sPlayer.next_note);
@@ -243,6 +354,8 @@ rcpplayer_next_midi_event(int32_t *step, uint8_t **ptr, int *length, int *port)
 		*length = s_length;
 	if (port != NULL)
 		*port = s_port;
+	if (emit_tr >= 0)
+		rcp_midi_dump_event(sPlayer.total_step, emit_tr, s_port, s_ptr, s_length);
 	return 1;
 }
 
@@ -257,13 +370,23 @@ rcpplayer_init(uint8_t *data_ptr, size_t data_length)
 	sPlayer.last_tempo = 500000;
 	sPlayer.rcp.data = data_ptr;
 	sPlayer.rcp.length = data_length;
+	rcp_midi_dump_open();
 	result = rcptomid_init_track_buffer(&sPlayer.rcp);
 	if (result == 0)
 		result = rcptomid_read_rcp_header(&sPlayer.rcp);
 	if (result == 0) {
+		rcp_midi_dump_tracks("after header");
 		sPlayer.total_step = -1;
 		rcpplayer_next_midi_event(NULL, NULL, NULL, NULL);
 		rcp_clock_set_tempo_us(sPlayer.last_tempo, sPlayer.rcp.timebase);
+#if RCP_MIDI_PORT_DUMP
+		rcp_midi_dumpf("-- event stream start\n");
+#endif
+	} else {
+#if RCP_MIDI_PORT_DUMP
+		rcp_midi_dumpf("rcpplayer_init failed result=%d\n", result);
+#endif
+		rcp_midi_dump_close();
 	}
 	return result;
 }

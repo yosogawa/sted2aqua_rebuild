@@ -6,6 +6,7 @@
 
 #include <CoreAudio/CoreAudio.h>
 #include <CoreMIDI/CoreMIDI.h>
+#include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -13,7 +14,36 @@
 #define kMaxPrefetchMicroseconds 100000
 #define kMaxMIDIMessageSize 256
 
+/* Keep in sync with rcp_player.c RCP_MIDI_PORT_DUMP. */
+#ifndef RCP_MIDI_PORT_DUMP
+#define RCP_MIDI_PORT_DUMP 0
+#endif
+
 extern OSStatus CoreMIDISend(uint8_t *ptr, int length, int port, MIDITimeStamp atTime);
+
+#if RCP_MIDI_PORT_DUMP
+static void
+rcp_engine_dump_send(int step, int port, const uint8_t *msg, int len)
+{
+	int i;
+	FILE *fp;
+
+	fprintf(stderr, "SEND step=%7d port=%d |", step, port);
+	for (i = 0; i < len && i < 16; i++)
+		fprintf(stderr, " %02x", msg[i]);
+	fprintf(stderr, "\n");
+	fp = fopen("/tmp/sted2_rcp_midi_dump.txt", "a");
+	if (fp != NULL) {
+		fprintf(fp, "SEND step=%7d port=%d |", step, port);
+		for (i = 0; i < len && i < 16; i++)
+			fprintf(fp, " %02x", msg[i]);
+		fprintf(fp, "\n");
+		fclose(fp);
+	}
+}
+#else
+#define rcp_engine_dump_send(step, port, msg, len) ((void)0)
+#endif
 
 static uint8_t sStopPlaying;
 static volatile uint8_t sRecording;
@@ -251,6 +281,11 @@ rcpplayer_engine(void)
 				break;
 			}
 			if (length == 0 || ptr == NULL || ptr[0] == 0xff) {
+#if RCP_MIDI_PORT_DUMP
+				if (ptr != NULL && length > 0 && ptr[0] == 0xff)
+					fprintf(stderr, "SKIP meta step=%d port=%d len=%d\n",
+						(int)step, port, length);
+#endif
 				rcpplayer_update_clock();
 				continue;
 			}
@@ -304,6 +339,7 @@ rcpplayer_engine(void)
 		if (sParkPort < 0 || sParkPort >= kMaxNumberOfPorts)
 			sParkPort = 0;
 		sLastTimeStamp = (nextTime != 0) ? nextTime : currentTime;
+		rcp_engine_dump_send((int)sParkStep, sParkPort, sParkMsg, sParkLen);
 		sts = CoreMIDISend(sParkMsg, sParkLen, sParkPort, nextTime);
 		sNextEarliestTimeForPort[sParkPort] = sLastTimeStamp + waitPerMIDIByte[sParkPort] * sParkLen;
 		sParked = 0;

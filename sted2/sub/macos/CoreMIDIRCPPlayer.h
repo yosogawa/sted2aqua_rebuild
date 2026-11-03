@@ -35,6 +35,8 @@ int pop_midi_in_ring_buffer(uint8_t *byte);
 int has_midi_in_ring_buffer(void);
 int send_midi_byte(uint8_t byte);
 int send_midi_message(uint8_t *data, int length);
+/* Port for send_midi_message / mix_out (sound test). 0=A, 1=B. */
+void set_midi_output_port(int port);
 
 #ifdef __cplusplus
 }

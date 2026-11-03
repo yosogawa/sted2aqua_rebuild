@@ -10,6 +10,7 @@
 #import "MIDISettingsController.h"
 #import "AboutPanelController.h"
 #import "DLSSynthPanel.h"
+#import "Sf2DefGenerator.h"
 
 #include <stdlib.h>
 #include "rcp_transport.h"
@@ -41,6 +42,7 @@ ApplyMidiSyncMode(int ext)
 @interface AppController (PrivateMenus)
 - (void)installViewMenu;
 - (void)installDLSSynthMenu;
+- (void)installSf2DefMenu;
 - (void)installThruModeMenu;
 - (void)installSyncModeMenu;
 @end
@@ -89,6 +91,7 @@ ApplyMidiSyncMode(int ext)
 	XSTed_init_window();
 	[self installViewMenu];
 	[self installDLSSynthMenu];
+	[self installSf2DefMenu];
 	[self installThruModeMenu];
 	[self installSyncModeMenu];
 	{
@@ -135,6 +138,12 @@ ApplyMidiSyncMode(int ext)
 	[DLSSynthPanel run];
 }
 
+- (IBAction)generateDefFromSf2:(id)sender
+{
+	(void)sender;
+	[Sf2DefGenerator run];
+}
+
 - (IBAction)allSoundOff:(id)sender
 {
 	CoreMIDIAllSoundOff();
@@ -170,6 +179,37 @@ ApplyMidiSyncMode(int ext)
 	[item release];
 }
 
+- (void)installSf2DefMenu
+{
+	NSMenu *mainMenu = [NSApp mainMenu];
+	NSMenu *midiMenu = nil;
+	NSMenuItem *item;
+	NSInteger i, n, at;
+
+	if (mainMenu == nil)
+		return;
+	n = [mainMenu numberOfItems];
+	for (i = 0; i < n; i++) {
+		NSMenuItem *top = [mainMenu itemAtIndex:i];
+		if ([[top title] isEqualToString:@"MIDI"]) {
+			midiMenu = [top submenu];
+			break;
+		}
+	}
+	if (midiMenu == nil)
+		return;
+	item = [[NSMenuItem alloc] initWithTitle:@"Generate DEF from SF2..."
+					  action:@selector(generateDefFromSf2:)
+				   keyEquivalent:@""];
+	[item setTarget:self];
+	at = [midiMenu indexOfItemWithTitle:@"DLS Synth..."];
+	if (at != NSNotFound)
+		[midiMenu insertItem:item atIndex:at + 1];
+	else
+		[midiMenu addItem:item];
+	[item release];
+}
+
 - (void)installThruModeMenu
 {
 	NSMenu *mainMenu = [NSApp mainMenu];
@@ -193,7 +233,9 @@ ApplyMidiSyncMode(int ext)
 					  action:@selector(toggleThruMode:)
 				   keyEquivalent:@""];
 	[item setTarget:self];
-	at = [midiMenu indexOfItemWithTitle:@"DLS Synth..."];
+	at = [midiMenu indexOfItemWithTitle:@"Generate DEF from SF2..."];
+	if (at == NSNotFound)
+		at = [midiMenu indexOfItemWithTitle:@"DLS Synth..."];
 	if (at != NSNotFound)
 		[midiMenu insertItem:item atIndex:at + 1];
 	else

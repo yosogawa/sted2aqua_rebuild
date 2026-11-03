@@ -1658,6 +1658,7 @@ XSTed_configure_mac_settings(const char *line)
 	 || strncasecmp(line, "#dls_reverb_mix=", 16) == 0
 	 || strncasecmp(line, "#dls_limiter_boost=", 19) == 0
 	 || strncasecmp(line, "#dls_mixer_dls=", 15) == 0
+	 || strncasecmp(line, "#dls_mixer_dls2=", 16) == 0
 	 || strncasecmp(line, "#dls_mixer_amy=", 15) == 0
 	 || strncasecmp(line, "#dls_volume=", 12) == 0) {
 		DLSEffectSettings fx;
@@ -1676,6 +1677,8 @@ XSTed_configure_mac_settings(const char *line)
 			fx.reverbMix = parse_dot_float(line + 16);
 		else if (strncasecmp(line, "#dls_limiter_boost=", 19) == 0)
 			fx.limiterBoost = parse_dot_float(line + 19);
+		else if (strncasecmp(line, "#dls_mixer_dls2=", 16) == 0)
+			fx.dlsVolume2 = parse_dot_float(line + 16);
 		else if (strncasecmp(line, "#dls_mixer_dls=", 15) == 0)
 			fx.dlsVolume = parse_dot_float(line + 15);
 		else if (strncasecmp(line, "#dls_mixer_amy=", 15) == 0)
@@ -2030,13 +2033,14 @@ XSTed_save_dls_settings(void)
 	DLSInternalReverb bus;
 	const char *font;
 	const char *font2;
-	NSString *values[14];
-	static const char *keys[14] = {
+	NSString *values[15];
+	static const char *keys[15] = {
 		"#dls_synth_font=",
 		"#dls_synth_font2=",
 		"#dls_synth_use_reverb=",
 		"#dls_synth_reverbtype=",
 		"#dls_mixer_dls=",
+		"#dls_mixer_dls2=",
 		"#dls_mixer_amy=",
 		"#dls_total_effect=",
 		"#dls_eq_global_gain=",
@@ -2082,24 +2086,25 @@ XSTed_save_dls_settings(void)
 	values[2] = [NSString stringWithFormat:@"#dls_synth_use_reverb=%d", bus.useReverb ? 1 : 0];
 	values[3] = [NSString stringWithFormat:@"#dls_synth_reverbtype=%d", bus.roomType];
 	values[4] = [NSString stringWithFormat:@"#dls_mixer_dls=%@", DotFloat(fx.dlsVolume, 3)];
-	values[5] = [NSString stringWithFormat:@"#dls_mixer_amy=%@", DotFloat(fx.amyVolume, 3)];
-	values[6] = [NSString stringWithFormat:@"#dls_total_effect=%d", fx.totalEffect ? 1 : 0];
-	values[7] = [NSString stringWithFormat:@"#dls_eq_global_gain=%@", DotFloat(fx.globalGain, 1)];
-	values[8] = [NSString stringWithFormat:@"#dls_bass_gain=%@", DotFloat(fx.bassGain, 1)];
-	values[9] = [NSString stringWithFormat:@"#dls_treble_gain=%@", DotFloat(fx.trebleGain, 1)];
-	values[10] = [NSString stringWithFormat:@"#dls_reverb_type=%d", fx.reverbPreset];
-	values[11] = [NSString stringWithFormat:@"#dls_reverb_mix=%@", DotFloat(fx.reverbMix, 1)];
-	values[12] = [NSString stringWithFormat:@"#dls_limiter_boost=%@", DotFloat(fx.limiterBoost, 1)];
-	values[13] = [NSString stringWithFormat:@"#dls_volume=%@", DotFloat(fx.volume, 3)];
+	values[5] = [NSString stringWithFormat:@"#dls_mixer_dls2=%@", DotFloat(fx.dlsVolume2, 3)];
+	values[6] = [NSString stringWithFormat:@"#dls_mixer_amy=%@", DotFloat(fx.amyVolume, 3)];
+	values[7] = [NSString stringWithFormat:@"#dls_total_effect=%d", fx.totalEffect ? 1 : 0];
+	values[8] = [NSString stringWithFormat:@"#dls_eq_global_gain=%@", DotFloat(fx.globalGain, 1)];
+	values[9] = [NSString stringWithFormat:@"#dls_bass_gain=%@", DotFloat(fx.bassGain, 1)];
+	values[10] = [NSString stringWithFormat:@"#dls_treble_gain=%@", DotFloat(fx.trebleGain, 1)];
+	values[11] = [NSString stringWithFormat:@"#dls_reverb_type=%d", fx.reverbPreset];
+	values[12] = [NSString stringWithFormat:@"#dls_reverb_mix=%@", DotFloat(fx.reverbMix, 1)];
+	values[13] = [NSString stringWithFormat:@"#dls_limiter_boost=%@", DotFloat(fx.limiterBoost, 1)];
+	values[14] = [NSString stringWithFormat:@"#dls_volume=%@", DotFloat(fx.volume, 3)];
 	text = [text stringByReplacingOccurrencesOfString:@"\r\n" withString:@"\n"];
 	text = [text stringByReplacingOccurrencesOfString:@"\r" withString:@"\n"];
 	lines = [NSMutableArray arrayWithArray:[text componentsSeparatedByString:@"\n"]];
 	n = [lines count];
 	for (i = 0; i < n; i++) {
 		const char *s = [[lines objectAtIndex:i] UTF8String];
-		if (cnf_line_key(s, keys, 14, 1) != 0)
+		if (cnf_line_key(s, keys, 15, 1) != 0)
 			continue;
-		if (cnf_line_key(s, keys, 14, 0) == 0)
+		if (cnf_line_key(s, keys, 15, 0) == 0)
 			activeAnchor = (NSInteger)i;
 		else
 			commentAnchor = (NSInteger)i;
@@ -2112,7 +2117,7 @@ XSTed_save_dls_settings(void)
 	for (i = 0; i < n; i++) {
 		NSString *line = [lines objectAtIndex:i];
 		const char *s = [line UTF8String];
-		int active = cnf_line_key(s, keys, 14, 0);
+		int active = cnf_line_key(s, keys, 15, 0);
 		if (anchor >= 0 && i == (NSUInteger)anchor) {
 			anchorOut = [kept count];
 			[kept addObject:line];
@@ -2136,7 +2141,7 @@ XSTed_save_dls_settings(void)
 	}
 	if (anchorIsComment || anchorOut == NSNotFound)
 		[kept insertObject:values[0] atIndex:insertAt++];
-	for (k = 1; k < 14; k++)
+	for (k = 1; k < 15; k++)
 		[kept insertObject:values[k] atIndex:insertAt++];
 	out = [kept componentsJoinedByString:@"\n"];
 	if (![out hasSuffix:@"\n"])
@@ -3331,8 +3336,10 @@ s_MacSelectFile(void **args)
 	char *fna, *path;
 	int is_save;
 	const char *mes, *ext;
+	int *def_scope_out;
 	id panel;
 	id formatNames = nil;
+	NSSegmentedControl *scopeSeg = nil;
 	int i;
 	char *p, *pp;
 	NSMutableArray *filetypes;
@@ -3343,6 +3350,7 @@ s_MacSelectFile(void **args)
 	is_save = (int)(intptr_t)args[2];
 	mes = (const char *)args[3];
 	ext = (const char *)args[4];
+	def_scope_out = (int *)args[5];
 	
 	if (is_save)
 		panel = [NSSavePanel savePanel];
@@ -3401,6 +3409,36 @@ s_MacSelectFile(void **args)
 		[panel setTitle:title];
 		[panel setMessage:title];
 	}
+	/* UNIT SEL: A / B / A&B target on the open panel accessory. */
+	if (!is_save && def_scope_out != NULL) {
+		NSView *acc;
+		NSTextField *lab;
+		NSInteger sel;
+
+		acc = [[[NSView alloc] initWithFrame:NSMakeRect(0, 0, 360, 36)] autorelease];
+		lab = [[[NSTextField alloc] initWithFrame:NSMakeRect(8, 8, 100, 20)] autorelease];
+		[lab setStringValue:@"Apply Part To:"];
+		[lab setBezeled:NO];
+		[lab setDrawsBackground:NO];
+		[lab setEditable:NO];
+		[lab setSelectable:NO];
+		[acc addSubview:lab];
+
+		scopeSeg = [[[NSSegmentedControl alloc]
+			initWithFrame:NSMakeRect(112, 6, 220, 24)] autorelease];
+		[scopeSeg setSegmentCount:3];
+		[scopeSeg setLabel:@"A" forSegment:0];
+		[scopeSeg setLabel:@"B" forSegment:1];
+		[scopeSeg setLabel:@"A&B" forSegment:2];
+		[scopeSeg setSelectedSegment:2]; /* default both — current behavior */
+		sel = *def_scope_out;
+		if (sel >= 0 && sel <= 2)
+			[scopeSeg setSelectedSegment:sel];
+		[acc addSubview:scopeSeg];
+		[panel setAccessoryView:acc];
+		if ([panel respondsToSelector:@selector(setAccessoryViewDisclosed:)])
+			[(NSOpenPanel *)panel setAccessoryViewDisclosed:YES];
+	}
 	if ([panel runModal] == NSModalResponseOK) {
 		NSString *pathstr = [[panel URL] path];
 		NSString *lastComp = [pathstr lastPathComponent];
@@ -3410,6 +3448,8 @@ s_MacSelectFile(void **args)
 		strncpy(path, [dirPath fileSystemRepresentation], PATHLEN - 2);
 		path[PATHLEN - 2] = 0;
 		strcat(path, "/");
+		if (def_scope_out != NULL && scopeSeg != nil)
+			*def_scope_out = (int)[scopeSeg selectedSegment];
 	} else {
 		fna[0] = 0;
 	}
@@ -3461,9 +3501,14 @@ s_line_input(void **args)
 }
 
 void
-MacSelectFile(char *fna, char *path, int is_save, const char *mes, const char *ext)
+MacSelectFile(char *fna, char *path, int is_save, const char *mes, const char *ext,
+	      int *def_scope_out)
 {
-	void *args[] = {(void *)s_MacSelectFile, (void *)fna, (void *)path, (void *)(intptr_t)is_save, (void *)mes, (void *)ext};
+	void *args[] = {
+		(void *)s_MacSelectFile, (void *)fna, (void *)path,
+		(void *)(intptr_t)is_save, (void *)mes, (void *)ext,
+		(void *)def_scope_out
+	};
 	sRequestAppKitArgs = args;
 	sRequestAppKitCall = 1;
 	while (sRequestAppKitCall == 1) {

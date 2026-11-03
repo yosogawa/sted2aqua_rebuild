@@ -44,6 +44,8 @@
 		A1DEF0092F0A4B0100E0E109 /* gm_amy.def in Resources */ = {isa = PBXBuildFile; fileRef = A1DEF00A2F0A4B0100E0E10A /* gm_amy.def */; };
 		A1DEF00B2F0A4B0100E0E10B /* dream.def in Resources */ = {isa = PBXBuildFile; fileRef = A1DEF00C2F0A4B0100E0E10C /* dream.def */; };
 		A1DLS0D12F0A4B0100DLS0D1 /* DLSSynthPanel.m in Sources */ = {isa = PBXBuildFile; fileRef = A1DLS0B12F0A4B0100DLS0B1 /* DLSSynthPanel.m */; };
+		A1SF2D012F0A4B0100SF2D01 /* Sf2DefGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = A1SF2B012F0A4B0100SF2B01 /* Sf2DefGenerator.m */; };
+		A1SF2D022F0A4B0100SF2D02 /* sf2_def_gen.c in Sources */ = {isa = PBXBuildFile; fileRef = A1SF2B022F0A4B0100SF2B02 /* sf2_def_gen.c */; };
 		A1E0E0032F0A4B0100E0E003 /* rcp_player_engine.c in Sources */ = {isa = PBXBuildFile; fileRef = A1E0E0012F0A4B0100E0E001 /* rcp_player_engine.c */; };
 		A1E0E0132F0A4B0100E0E013 /* InternalSynth.m in Sources */ = {isa = PBXBuildFile; fileRef = A1E0E0112F0A4B0100E0E011 /* InternalSynth.m */; };
 		A1F0E0111AC55B8700A70D01 /* KH-Dot-Kodenmachou-16.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A1F0E0131AC55B8700A70D03 /* KH-Dot-Kodenmachou-16.ttf */; };
@@ -164,6 +166,9 @@
 		A1AMY1012F0A4B0100E00021 /* amy_midi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = amy_midi.c; sourceTree = "<group>"; };
 		A1AMY1012F0A4B0100E00022 /* patches.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = patches.h; sourceTree = "<group>"; };
 		A1AMY1012F0A4B0100E00023 /* amy_platform.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = amy_platform.c; sourceTree = "<group>"; };
+		A1TSF0012F0A4B0100TSF001 /* tsf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tsf.h; sourceTree = "<group>"; };
+		A1TSF0022F0A4B0100TSF002 /* LICENSE.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
+		A1TSF0032F0A4B0100TSF003 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		A1AMY3012F0A4B0100E0E031 /* AmySynth.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AmySynth.m; sourceTree = "<group>"; };
 		A1AMY3022F0A4B0100E0E032 /* AmySynth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AmySynth.h; sourceTree = "<group>"; };
 		A1CK00012F0A4B0100E0E001 /* RcpClock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RcpClock.cpp; sourceTree = "<group>"; };
@@ -175,6 +180,10 @@
 		A1DEF00A2F0A4B0100E0E10A /* gm_amy.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = gm_amy.def; sourceTree = "<group>"; };
 		A1DEF00C2F0A4B0100E0E10C /* dream.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dream.def; sourceTree = "<group>"; };
 		A1DLS0B12F0A4B0100DLS0B1 /* DLSSynthPanel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DLSSynthPanel.m; sourceTree = "<group>"; };
+		A1SF2B002F0A4B0100SF2B00 /* Sf2DefGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Sf2DefGenerator.h; sourceTree = "<group>"; };
+		A1SF2B012F0A4B0100SF2B01 /* Sf2DefGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Sf2DefGenerator.m; sourceTree = "<group>"; };
+		A1SF2B022F0A4B0100SF2B02 /* sf2_def_gen.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sf2_def_gen.c; sourceTree = "<group>"; };
+		A1SF2B032F0A4B0100SF2B03 /* sf2_def_gen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sf2_def_gen.h; sourceTree = "<group>"; };
 		A1DLS0C12F0A4B0100DLS0C1 /* DLSSynthPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DLSSynthPanel.h; sourceTree = "<group>"; };
 		A1E0E0012F0A4B0100E0E001 /* rcp_player_engine.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = rcp_player_engine.c; sourceTree = "<group>"; };
 		A1E0E0022F0A4B0100E0E002 /* rcp_player_engine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rcp_player_engine.h; sourceTree = "<group>"; };
@@ -477,8 +486,19 @@
 			children = (
 				A1AMY00E2F0A4B0100E0E00E /* amy */,
 				A1AMY00A2F0A4B0100E0E00A /* amy_host */,
+				A1TSF0002F0A4B0100TSF000 /* TinySoundFont */,
 			);
 			path = third_party;
+			sourceTree = "<group>";
+		};
+		A1TSF0002F0A4B0100TSF000 /* TinySoundFont */ = {
+			isa = PBXGroup;
+			children = (
+				A1TSF0012F0A4B0100TSF001 /* tsf.h */,
+				A1TSF0022F0A4B0100TSF002 /* LICENSE.txt */,
+				A1TSF0032F0A4B0100TSF003 /* README.md */,
+			);
+			path = TinySoundFont;
 			sourceTree = "<group>";
 		};
 		A1AMY00A2F0A4B0100E0E00A /* amy_host */ = {
@@ -510,6 +530,17 @@
 				A1DLS0B12F0A4B0100DLS0B1 /* DLSSynthPanel.m */,
 			);
 			path = macos;
+			sourceTree = "<group>";
+		};
+		A1F0E08C2F0A4B0100E0E08C /* soundfont */ = {
+			isa = PBXGroup;
+			children = (
+				A1SF2B022F0A4B0100SF2B02 /* sf2_def_gen.c */,
+				A1SF2B032F0A4B0100SF2B03 /* sf2_def_gen.h */,
+				A1SF2B002F0A4B0100SF2B00 /* Sf2DefGenerator.h */,
+				A1SF2B012F0A4B0100SF2B01 /* Sf2DefGenerator.m */,
+			);
+			path = soundfont;
 			sourceTree = "<group>";
 		};
 		A1E0E0222F0A4B0100E0E022 /* rcp_player */ = {
@@ -703,6 +734,7 @@
 				A1F0E0621AC55B8700A70D62 /* curses */,
 				E40E95821ABA41ED0072AA0B /* aqua */,
 				A1E0E0212F0A4B0100E0E021 /* macos */,
+				A1F0E08C2F0A4B0100E0E08C /* soundfont */,
 				A1E0E0222F0A4B0100E0E022 /* rcp_player */,
 				E40E958B1ABA41ED0072AA0B /* basic.c */,
 				E40E958D1ABA41ED0072AA0B /* dos.c */,
@@ -926,6 +958,8 @@
 				E44E7DFD1AC4C94E00F71120 /* MyDialogController.m in Sources */,
 				A1AB0D011B01000100ABOUT1 /* AboutPanelController.m in Sources */,
 				A1DLS0D12F0A4B0100DLS0D1 /* DLSSynthPanel.m in Sources */,
+				A1SF2D022F0A4B0100SF2D02 /* sf2_def_gen.c in Sources */,
+				A1SF2D012F0A4B0100SF2D01 /* Sf2DefGenerator.m in Sources */,
 				E4F8616F1AC7D306007DF49E /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1112,7 +1146,11 @@
 				PRODUCT_NAME = STed2;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
-				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/third_party/amy/src";
+				USER_HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/third_party/amy/src",
+					"$(SRCROOT)/third_party/TinySoundFont",
+					"$(SRCROOT)/sted2/sub/soundfont",
+				);
 			};
 			name = Debug;
 		};
@@ -1147,7 +1185,11 @@
 				PRODUCT_NAME = STed2;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
-				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/third_party/amy/src";
+				USER_HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/third_party/amy/src",
+					"$(SRCROOT)/third_party/TinySoundFont",
+					"$(SRCROOT)/sted2/sub/soundfont",
+				);
 			};
 			name = Release;
 		};

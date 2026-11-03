@@ -73,10 +73,14 @@ void user_exc_init2(int i);
 void stgt_init(void);
 void stgt_init2(int i);
 void asin_change(void);
-void asin_init(void);
+void asin_init(void);			/* full A&B (compat) */
+void asin_init_scope(int scope);	/* DEF_SCOPE_A / B / AB */
 void cnfinit(void);
 void definit(void);
 int  defload(char *fi, int md);
+/* Partial UNIT SEL: one-time SHARED→SPLIT fork (snapshot/remap). */
+void *def_parts_prepare_partial(int scope);
+void def_parts_finish_partial(int scope, void *snap); /* always frees snap */
 void cnf_stgt(char *li, int nn);
 void cnf_rvel(char *li);
 void cnf_prog(char *li, char *li2, int md);

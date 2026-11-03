@@ -21,6 +21,7 @@
 - (IBAction)midiSettingsDialog:(id)sender;
 - (IBAction)showAboutPanel:(id)sender;
 - (IBAction)dlsSynthDialog:(id)sender;
+- (IBAction)generateDefFromSf2:(id)sender;
 - (IBAction)allSoundOff:(id)sender;
 - (IBAction)toggleThruMode:(id)sender;
 - (IBAction)setSyncMode:(id)sender;

@@ -45,8 +45,9 @@ char	rc_path[PATHLEN];
 
 int	cmdflagold,used_u=0;
 
-/* Display-only: MODULE: → A: so chip width 17 fits. module[] / .def stay unchanged until B: lands. */
-static char *module_label_for_display(void);
+/* A:/B: chips show #id= (module_id / module_id_b), width 17. */
+static char *module_chip_label(char port, const char *id);
+static void module_chips_draw(int y);
 
 
 
@@ -602,21 +603,45 @@ void	com_sel()
 	  fsel(tmp1,path2,0x004);
 	  if( es==0 && tmp1[0]!=0){
 	    int n;
+	    char asin_keep[16];
+	    int scope = def_sel_scope;
+	    void *part_snap = NULL;
 	    strcpy(tmp0,path2);strcat(tmp0,tmp1);
-	    card_no[0]=0;card_no[1]=0;definit();
+	    /* Keep the other port's #group_* across partial reload. */
+	    if(scope == DEF_SCOPE_A)
+	      memcpy(asin_keep, &tim_asin2[17], 16);
+	    else if(scope == DEF_SCOPE_B)
+	      memcpy(asin_keep, &tim_asin2[1], 16);
+	    card_no[0]=0;card_no[1]=0;
+	    if(scope == DEF_SCOPE_AB)
+	      definit();
+	    else
+	      part_snap = def_parts_prepare_partial(scope);
 	    cmdflag=cmdflagold;mdlflag=0;
+	    def_load_scope = scope;
 	    n=defload(tmp0,1);
+	    def_load_scope = DEF_SCOPE_AB;
 	    if(n==0){
+	      if(scope == DEF_SCOPE_A)
+		memcpy(&tim_asin2[17], asin_keep, 16);
+	      else if(scope == DEF_SCOPE_B)
+		memcpy(&tim_asin2[1], asin_keep, 16);
+	      /* SHARED→SPLIT fork at most once; later partials only avoid clashes. */
+	      def_parts_finish_partial(scope, part_snap);
+	      part_snap = NULL;
 	      card_name_get();
 
 	      if(!(cnfflag&0x0008)){strcpy(def_path,path2);}
 	      strcpy(def_file,tmp1);
 	      if(cm6_file[0]==0){cminit();}
 	      if(gsd_file[0]==0){gsinit();}
-	      asin_init();if(rcp_file[0]==0){user_exc_init();}
-	      msg_clr();sdis2(30+8,0,module_label_for_display(),17,15,8);
-	      sdis2(30+8+17+1,0," B:",17,15,8); /* B: placeholder */
-	    }else{if(n==-1){msg(_(": File not found.\n"));}}
+	      asin_init_scope(scope);
+	      if(rcp_file[0]==0){user_exc_init();}
+	      msg_clr();module_chips_draw(0);
+	    }else{
+	      def_parts_finish_partial(-1, part_snap);
+	      if(n==-1){msg(_(": File not found.\n"));}
+	    }
 	  }
 	}
 
@@ -1110,18 +1135,35 @@ int	yn_sel()
   return(ec);
 }
 
-static char *module_label_for_display(void)
+/* A: / B: chips use sdis2 width 17; longer ids must not spill into the next chip. */
+enum { MODULE_CHIP_COLS = 17 };
+
+static char *
+module_chip_label(char port, const char *id)
 {
-  static char buf[64];
-  const char *p = module;
-  while (*p == ' ') p++;
-  if (strncmp(p, "MODULE:", 7) == 0) {
-    p += 7;
-    while (*p == ' ') p++;
-    snprintf(buf, sizeof(buf), "A: %s", p);
-    return buf;
-  }
-  return module;
+  static char buf_a[64], buf_b[64];
+  char *buf = (port == 'B') ? buf_b : buf_a;
+  const char *name = (id != NULL) ? id : "";
+  size_t n;
+
+  while (*name == ' ')
+    name++;
+  if (name[0] == 0)
+    snprintf(buf, sizeof buf_a, "%c:", port);
+  else
+    snprintf(buf, sizeof buf_a, "%c: %s", port, name);
+  n = strlen(buf);
+  if (n > (size_t)MODULE_CHIP_COLS)
+    buf[MODULE_CHIP_COLS] = 0;
+  return buf;
+}
+
+static void
+module_chips_draw(int y)
+{
+  sdis2(30 + 8, y, module_chip_label('A', module_id), MODULE_CHIP_COLS, 15, 8);
+  sdis2(30 + 8 + MODULE_CHIP_COLS + 1, y,
+	module_chip_label('B', module_id_b), MODULE_CHIP_COLS, 15, 8);
 }
 
 /***************************/
@@ -1149,8 +1191,7 @@ void	sinit()
 
   CRTMOD(16);G_CLR_ON();WINDOW(0,0,1023,1023);home2(0);C_WINDOW(0,32);
   B_CLR_AL();dpl(1);tpl(1);logo(0);logo(512);
-  sdis2(30+8,0,module_label_for_display(),17,15,8);
-  sdis2(30+8+17+1,0," B:",17,15,8); /* B: placeholder */
+  module_chips_draw(0);
   box(0,43,96,99,14,65535);
   for(i=0;i<18;i++){sdis(1,112+i*21,menu1[i],8,15,8);}
   /* Copyright line is already cleared. Show the window with this screen. */
@@ -1222,16 +1263,23 @@ locator_refresh(int force)
 void
 transport_chip_refresh(int force)
 {
-  static int last = -1;
+  static int last_phase = -1;
+  static int last_active = -1;
   char label[8];
   int phase;
+  int active;
   int col=15;
 
   phase = rcp_transport_get_phase();
-  if (!force && phase == last)
+  active = rcp_transport_is_active() ? 1 : 0;
+  if (!force && phase == last_phase && active == last_active)
     return;
-  last = phase;
-  if (phase == RCP_TRANSPORT_RUNNING) {
+  last_phase = phase;
+  last_active = active;
+  /* Natural end clears active but may leave phase Running; show blank then. */
+  if (!active)
+     label[0] = 0;
+  else if (phase == RCP_TRANSPORT_RUNNING) {
       strcpy(label, "PLY");
       col = 10;
   }
@@ -1267,8 +1315,7 @@ void	logo(int y)
   }else{
     sdis2(0,y," FREE:",14,15,8);sdis2(15,y," USED:",14,15,8);
     sdis2(30,y," TR: 1",7,15,8);
-    /* B: chip: col 56 (A: at 38+17, +1 gap), width 17. Content TBD. */
-    sdis2(30+8+17+1,y," B:",17,15,8);
+    module_chips_draw(y);
     logo_status(y);
     trksize(-2);
   }

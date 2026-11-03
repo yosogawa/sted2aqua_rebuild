@@ -15,6 +15,9 @@ static char	*fsel_title[]={
   "PART","TEXT","EXCLUSIVE(TEXT)",
   "User Exclusive(ALL)","User Exclusive(ONE)","RHYTHM ASSIGN"};
 
+/* Last DEFINE open-panel A/B/A&B choice (see DEF_SCOPE_*). */
+int	def_sel_scope = DEF_SCOPE_AB;
+
 static char	speci_sym[24]={
   'G','M','T','P','C','K','L','D','V','N','E','H','A',0,'X','B','R','I',
   'E','E','N','N','R','R'};
@@ -87,13 +90,11 @@ int	timsel(int bmode,int bank,int gx,int prog)
     if(gs_mode[17]!=0 && as==8){as=gs_bank[17*128+bank_l];}
     */
   if((gs_mode[16]&4)!=0){
-    if((gs_mode[16]&128)!=0 && as==7){as=gs_bank[16*128+bank_l];}
-    /* XG expand / GM2 expand: the channel part stays. A CC#0 on the
-     * other port must not open that port's rhythm list.
-     */
+    /* XG expand / GM2 expand: keep the channel on its melody/rhythm part. */
+    if(!expand_map && (gs_mode[16]&128)!=0 && as==7){as=gs_bank[16*128+bank_l];}
     if(!expand_map && (gs_mode[17]&128)!=0 && as==8){as=gs_bank[17*128+bank_l];}
   }else{
-    if((gs_mode[16]&128)!=0 && as==7){as=gs_bank[16*128+bank];}
+    if(!expand_map && (gs_mode[16]&128)!=0 && as==7){as=gs_bank[16*128+bank];}
     if(!expand_map && (gs_mode[17]&128)!=0 && as==8){as=gs_bank[17*128+bank];}
   }
   /* XG expand / GM2 expand: an empty group must not drop the channel part. */
@@ -450,9 +451,9 @@ int	timsel2(int ch,int bank,int gx,int prog)
     if(gs_mode[16]!=0 && as==7){as=gs_bank[16*128+bank_l];}
     */
   if((gs_mode[16]&4)!=0){
-    if((gs_mode[16]&128)!=0 && as==7){as=gs_bank[16*128+bank_l];}
+    if(!expand_map && (gs_mode[16]&128)!=0 && as==7){as=gs_bank[16*128+bank_l];}
   }else{
-    if((gs_mode[16]&128)!=0 && as==7){as=gs_bank[16*128+bank];}
+    if(!expand_map && (gs_mode[16]&128)!=0 && as==7){as=gs_bank[16*128+bank];}
   }
 
 
@@ -635,6 +636,9 @@ int	varia(char *pname,int bank,int prg,int md)
       strcat(pname,tim_names(nexp));
       return(lsb_used);
     }
+    /* expand_map owns melody banks: do not fall through to leftover GS CAPITAL. */
+    pname[0]=':';pname[1]=0;
+    return(bank_l);
   }
 
   /*	if((md==7||md==9||md==11||md==13)&& (gs_mode[md]&4)){bank=bank_l;}
@@ -694,14 +698,16 @@ int	varia(char *pname,int bank,int prg,int md)
 /***************************/
 void	s_test(int ch,int bank,int prg,int note,int velo)
 {
-  int	bnk_m,bnk_l,pm,ch2;
+  int	bnk_m,bnk_l,pm,ch2,port;
   char	obuf[64];
 
   if(B_SFTSNS()&1){m_keyb(ch,bank,prg,velo);return;}
 
   if(!rcp_transport_is_active()){all_note_off(0);}
-  bnk_l=bank>>8;bnk_m=bank&0xff;ch=(ch-1)&31;ch2=ch&15;
+  bnk_l=bank>>8;bnk_m=bank&0xff;ch=(ch-1)&31;ch2=ch&15;port=ch>>4;
   pm=rcd->put_mode;rcd->put_mode=rcd->ch_port[ch];
+  /* Aqua: mix_out→send_midi_message ignored classic put_mode; route by A/B. */
+  set_midi_output_port(port);
   twait(5);
 
   if(bank>=0 && tim_asin[ch+1]>=7 && tim_asin[ch+1]<=14){
@@ -725,7 +731,7 @@ void	s_test(int ch,int bank,int prg,int note,int velo)
   obuf[0]=0x90+ch2;obuf[1]=note;obuf[2]=0;obuf[3]=255;
   (*rcd->mix_out)(obuf);
 
-  snsclr();rcd->put_mode=pm;
+  snsclr();rcd->put_mode=pm;set_midi_output_port(0);
 }
 
 /***************************/
@@ -958,7 +964,17 @@ void	fsel(char *fna,char *pth,int w)
 			MacErrorBox("Conversion by external package is not yet implemented.", 2);
 			return;
 		}
-		MacSelectFile(fna, pth, (cc & 1), fsel_title[w], fsel_ext[w]);
+		{
+			int scope = def_sel_scope;
+			int *pscope = NULL;
+			/* DEFINE open (not save): accessory A / B / A&B */
+			if (w == 4 && (cc & 1) == 0)
+				pscope = &scope;
+			MacSelectFile(fna, pth, (cc & 1), fsel_title[w], fsel_ext[w],
+				      pscope);
+			if (pscope != NULL)
+				def_sel_scope = scope;
+		}
 		es = 0;
 		return;
 	}
