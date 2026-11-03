@@ -748,6 +748,7 @@ void	rsttrc(int *no,int *cx,int flg,int pg)
       while(jj==rcd->bar[track] && ii==rcd->step[track]){
 	if(B_KEYSNS()!=0){break;}
 	if( !(rcd->active[track]) ){break;}
+	locator_refresh(0);
 	STed_MeasureConversion(track); /* Dec.11.1998 Daisuke Nagano */
       }
       rtrk_dis(pg,*cx,1);

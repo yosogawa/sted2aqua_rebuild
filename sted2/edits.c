@@ -287,6 +287,9 @@ void	sttrc(int *po,int *cy,int flg)
       while(jj==rcd->bar[track] && (ii==rcd->step[track] ||i<0)){
 	if(B_KEYSNS()!=0){break;}
 	if( !(rcd->active[track]) ){break;}
+	/* XF3/XF4 change phase on the AppKit thread without a key queue
+	   entry; poll here so PLY/PSE and the locator update during PAUSE. */
+	locator_refresh(0);
 	usleep(1000);
 	STed_MeasureConversion(track); /* Dec.11.1998 Daisuke Nagano */
       }
