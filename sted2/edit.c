@@ -1106,7 +1106,7 @@ void trk_ed_end(int po,int cx,int cy)
   trk_pos_set(po,cx,cy);
   trksize(track);if(edit_scr==0){track1=track;}else{track2=track;}
   B_CLR_AL();fnc_dis(-1);msg_clr();edit_scr=0;cons_md(0);
-  edfield(-1);sdis2(30+9,512,"",18,0,0);home2(0);
+  edfield(-1);sdis2(30+8,512,"",18,0,0);home2(0);
 }
 
 void trk_pos_set(int po,int cx,int cy)
@@ -1343,7 +1343,7 @@ int	retkey2(int ecode)
 /***************************/
 void	inmd_disp()
 {
-  sdis2(30+9,512,inmd[inpmode],18,15,8);
+  sdis2(30+8,512,inmd[inpmode],18,15,8);
 }
 
 /***************************/

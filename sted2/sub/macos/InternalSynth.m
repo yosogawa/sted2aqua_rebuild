@@ -165,6 +165,65 @@ SynthSampleRate(AudioUnit au, AVAudioEngine *engine)
 
 static OSStatus ScheduleToInternalSynth(int synth, const uint8_t *bytes, int length, MIDITimeStamp atTime);
 
+/*  GM / GM2 / GS / XG reset fingerprints. Device ID bytes are wildcards. */
+static int
+IsDlsResetSysex(const uint8_t *b, int n)
+{
+	if (b == NULL || n < 6 || b[0] != 0xf0 || b[n - 1] != 0xf7)
+		return 0;
+	/* GM System On (09 01) / GM2 System On (09 03): F0 7E dd 09 vv F7 */
+	if (n == 6 && b[1] == 0x7e && b[3] == 0x09 && (b[4] == 0x01 || b[4] == 0x03))
+		return 1;
+	/* GS Reset: F0 41 dd 42 12 40 00 7F 00 ck F7 */
+	if (n == 11 && b[1] == 0x41 && b[3] == 0x42 && b[4] == 0x12
+	    && b[5] == 0x40 && b[6] == 0x00 && b[7] == 0x7f && b[8] == 0x00)
+		return 1;
+	/* XG System On: F0 43 dd 4C 00 00 7E 00 F7 */
+	if (n == 9 && b[1] == 0x43 && b[3] == 0x4c
+	    && b[4] == 0x00 && b[5] == 0x00 && b[6] == 0x7e && b[7] == 0x00)
+		return 1;
+	return 0;
+}
+
+static void
+ScheduleShortMIDI(AUScheduleMIDIEventBlock schedule, AUEventSampleTime when,
+	uint8_t s0, uint8_t s1, uint8_t s2, int len)
+{
+	uint8_t msg[3];
+
+	msg[0] = s0;
+	msg[1] = s1;
+	msg[2] = s2;
+	schedule(when, 0, len, msg);
+}
+
+/*  DLS ignores reset SysEx; approximate GM-ish channel defaults instead.
+    Panel USE/Room for internal reverb is left alone — only CC#91 is set. */
+static void
+InjectDlsChannelDefaults(AUScheduleMIDIEventBlock schedule, AUEventSampleTime when)
+{
+	int ch;
+
+	for (ch = 0; ch < 16; ch++) {
+		uint8_t cc = (uint8_t)(0xb0 | ch);
+		uint8_t pc = (uint8_t)(0xc0 | ch);
+		uint8_t pb = (uint8_t)(0xe0 | ch);
+
+		ScheduleShortMIDI(schedule, when, cc, 120, 0, 3);   /* All Sound Off */
+		ScheduleShortMIDI(schedule, when, cc, 123, 0, 3);   /* All Notes Off */
+		ScheduleShortMIDI(schedule, when, cc, 121, 0, 3);   /* Reset All Controllers */
+		ScheduleShortMIDI(schedule, when, cc, 0, 0, 3);     /* Bank MSB */
+		ScheduleShortMIDI(schedule, when, cc, 32, 0, 3);    /* Bank LSB */
+		ScheduleShortMIDI(schedule, when, pc, 0, 0, 2);     /* Program */
+		ScheduleShortMIDI(schedule, when, cc, 7, 100, 3);   /* Volume */
+		ScheduleShortMIDI(schedule, when, cc, 11, 127, 3);  /* Expression */
+		ScheduleShortMIDI(schedule, when, cc, 10, 64, 3);   /* Pan */
+		ScheduleShortMIDI(schedule, when, pb, 0, 64, 3);    /* Pitch Bend center */
+		ScheduleShortMIDI(schedule, when, cc, 91, 40, 3);   /* Reverb Send */
+		ScheduleShortMIDI(schedule, when, cc, 93, 0, 3);    /* Chorus Send */
+	}
+}
+
 /*  Playback prefetches at most one second. Timestamps farther out are not from that clock. */
 int
 InternalSynthSchedule(MIDIEndpointRef dest, const uint8_t *bytes, int length,
@@ -222,6 +281,11 @@ ScheduleToInternalSynth(int synth, const uint8_t *bytes, int length, MIDITimeSta
 		deltaSeconds = (double)deltaTicks / sHostTicksPerSecond;
 		if (deltaSeconds >= 0.0 && deltaSeconds <= 2.0)
 			when = sampleTime + (AUEventSampleTime)llround(deltaSeconds * sSampleRate[synth]);
+	}
+	if (bytes[0] == 0xf0 && IsDlsResetSysex(bytes, length)) {
+		InjectDlsChannelDefaults(schedule, when);
+		pthread_mutex_unlock(&sSynthLock);
+		return noErr;
 	}
 	schedule(when, 0, length, bytes);
 	pthread_mutex_unlock(&sSynthLock);

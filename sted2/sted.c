@@ -45,6 +45,9 @@ char	rc_path[PATHLEN];
 
 int	cmdflagold,used_u=0;
 
+/* Display-only: MODULE: → A: so chip width 17 fits. module[] / .def stay unchanged until B: lands. */
+static char *module_label_for_display(void);
+
 
 
 
@@ -611,7 +614,8 @@ void	com_sel()
 	      if(cm6_file[0]==0){cminit();}
 	      if(gsd_file[0]==0){gsinit();}
 	      asin_init();if(rcp_file[0]==0){user_exc_init();}
-	      msg_clr();sdis2(30+9,0,module,22,15,8);
+	      msg_clr();sdis2(30+8,0,module_label_for_display(),17,15,8);
+	      sdis2(30+8+17+1,0," B:",17,15,8); /* B: placeholder */
 	    }else{if(n==-1){msg(_(": File not found.\n"));}}
 	  }
 	}
@@ -1106,6 +1110,20 @@ int	yn_sel()
   return(ec);
 }
 
+static char *module_label_for_display(void)
+{
+  static char buf[64];
+  const char *p = module;
+  while (*p == ' ') p++;
+  if (strncmp(p, "MODULE:", 7) == 0) {
+    p += 7;
+    while (*p == ' ') p++;
+    snprintf(buf, sizeof(buf), "A: %s", p);
+    return buf;
+  }
+  return module;
+}
+
 /***************************/
 void	form()
 {
@@ -1130,7 +1148,9 @@ void	sinit()
   int	i;
 
   CRTMOD(16);G_CLR_ON();WINDOW(0,0,1023,1023);home2(0);C_WINDOW(0,32);
-  B_CLR_AL();dpl(1);tpl(1);logo(0);logo(512);sdis2(30+9,0,module,22,15,8);
+  B_CLR_AL();dpl(1);tpl(1);logo(0);logo(512);
+  sdis2(30+8,0,module_label_for_display(),17,15,8);
+  sdis2(30+8+17+1,0," B:",17,15,8); /* B: placeholder */
   box(0,43,96,99,14,65535);
   for(i=0;i<18;i++){sdis(1,112+i*21,menu1[i],8,15,8);}
   /* Copyright line is already cleared. Show the window with this screen. */
@@ -1138,9 +1158,9 @@ void	sinit()
 }
 
 /***************************/
-/* Locator chip: MEAS:BEAT:STEP [SPP]. Both come from the same SPP quantum
-   (stepcount * 4 / tbase, one quantum = 6 MIDI clocks). Redraw only when
-   that quantum or the song meter changes. */
+/* Locator chip: MEAS:BEAT:STEP. Position is derived from the same SPP
+   quantum (stepcount * 4 / tbase, one quantum = 6 MIDI clocks). Redraw
+   only when that quantum or the song meter changes. SPP hex is omitted. */
 void
 locator_refresh(int force)
 {
@@ -1148,7 +1168,7 @@ locator_refresh(int force)
   static int last_barlen = -1;
   int32_t sc;
   int spp, barlen, meas, beat, step, q, rem, beat_len;
-  char buf[24];
+  char buf[16];
 
   /* Drain EXT FA/FB/FC off the MIDI callback, then paint the chip. */
   rcp_transport_drain_commands();
@@ -1187,16 +1207,16 @@ locator_refresh(int force)
     if (step > 999)
       step = 999;
   }
-  snprintf(buf, sizeof buf, "%03d:%03d:%03d [%04X]", meas, beat, step, spp);
-  /* 20-cell chip stays at column 62. The 18-character string starts one
-     column later, leaving one cell free on each side. */
-  sdis2(62, 0, "", 20, 15, 8);
-  g_print(63 * 8, 0, buf, 15);
-  sdis2(62, 512, "", 20, 15, 8);
-  g_print(63 * 8, 512, buf, 15);
+  snprintf(buf, sizeof buf, "%03d:%02d:%03d", meas, beat, step);
+  /* 12-cell chip at column 74; 10-character string at 75
+     (one cell free on each side). */
+  sdis2(74, 0, "", 12, 15, 8);
+  g_print(75 * 8, 0, buf, 15);
+  sdis2(74, 512, "", 12, 15, 8);
+  g_print(75 * 8, 512, buf, 15);
 }
 
-/* Transport chip, column 83, 5 cells. Running is PLAY, Held is PAUSE.
+/* Transport chip, column 87, 3 cells. Running is PLY, Held is PSE.
    Stopped and Search stay blank. Drawn from the UI poll, not from the
    clock or the MIDI callback. */
 void
@@ -1205,31 +1225,36 @@ transport_chip_refresh(int force)
   static int last = -1;
   char label[8];
   int phase;
+  int col=15;
 
   phase = rcp_transport_get_phase();
   if (!force && phase == last)
     return;
   last = phase;
-  if (phase == RCP_TRANSPORT_RUNNING)
-    strcpy(label, "PLAY");
-  else if (phase == RCP_TRANSPORT_HELD)
-    strcpy(label, "PAUSE");
+  if (phase == RCP_TRANSPORT_RUNNING) {
+      strcpy(label, "PLY");
+      col = 10;
+  }
+  else if (phase == RCP_TRANSPORT_HELD) {
+      strcpy(label, "PSE");
+      col = 9;
+  }
   else
-    label[0] = 0;
-  sdis2(83, 0, label, 5, 15, 8);
-  sdis2(83, 512, label, 5, 15, 8);
+     label[0] = 0;
+  sdis2(87, 0, label, 3, col, 8);
+  sdis2(87, 512, label, 3, col, 8);
 }
 
 /* Right side of the header, same chips as FREE/USED (palette 8 / 15).
-   Column 62 is the locator chip, 83 is transport, 89 is the small title.
-   Locator text is drawn at column 63. */
+   Column 74 is the locator chip, 87 is transport, 92 is the small title. */
 static void
 logo_status(int y)
 {
   fill(496, y + 16, 767, y + 31, 0);
-  sdis2(62, y, "", 20, 15, 8);
-  sdis2(83, y, "", 5, 15, 8);
-  sdis2(89, y, " STed", 7, 15, 8);
+  sdis2(74, y, "", 12, 15, 8);
+  sdis2(87, y, "", 3, 15, 8);
+  /* "STed" (no leading space); col 91, width 5. */
+  sdis2(91, y, "STed", 5, 1/*15*/, 8);
   locator_refresh(1);
   transport_chip_refresh(1);
 }
@@ -1241,7 +1266,9 @@ void	logo(int y)
     logo_status(512);
   }else{
     sdis2(0,y," FREE:",14,15,8);sdis2(15,y," USED:",14,15,8);
-    sdis2(30,y," TR.: 1",8,15,8);
+    sdis2(30,y," TR: 1",7,15,8);
+    /* B: chip: col 56 (A: at 38+17, +1 gap), width 17. Content TBD. */
+    sdis2(30+8+17+1,y," B:",17,15,8);
     logo_status(y);
     trksize(-2);
   }
