@@ -3409,6 +3409,18 @@ s_MacSelectFile(void **args)
 		[panel setTitle:title];
 		[panel setMessage:title];
 	}
+	/* Classic fsel starts in the caller path (e.g. #def_path= for UNIT SEL). */
+	if (path != NULL && path[0] != 0) {
+		NSString *dir = [NSString stringWithUTF8String:path];
+		NSURL *dirURL = (dir != nil) ? [NSURL fileURLWithPath:dir isDirectory:YES] : nil;
+		if (dirURL != nil)
+			[panel setDirectoryURL:dirURL];
+	}
+	if (is_save && fna != NULL && fna[0] != 0) {
+		NSString *name = [NSString stringWithUTF8String:fna];
+		if (name != nil)
+			[(NSSavePanel *)panel setNameFieldStringValue:name];
+	}
 	/* UNIT SEL: A / B / A&B target on the open panel accessory. */
 	if (!is_save && def_scope_out != NULL) {
 		NSView *acc;
