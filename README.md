@@ -1,8 +1,8 @@
 
-# STed for Aqua - Rebuild & Restore version 
+# STed plus for Mac - Rebuild & Restore & Feature expansion 
 =============
 
-"STed for Aqua," which was maintained between 2003 and 2015, was an experimental release and did not include the full feature set of STed2. Its final version only supported the Intel i386 architecture, making it incompatible with modern macOS. In 2025, I began the process of rebuilding it for contemporary environments (x86_64/arm64). Initially, this existed merely as a personal fork, but as of 2026, it has evolved into a full-scale restoration project, leveraging AI-powered code analysis.
+"STed for Aqua," which was maintained between 2003 and 2015, was an experimental release and did not include the full feature set of STed2. Its final version only supported the Intel i386 architecture, making it incompatible with modern macOS. In 2025, I began the process of rebuilding it for contemporary environments (x86_64/arm64). Initially, this existed merely as a personal fork, but as of 2026, it has evolved into a full-scale restoration project, leveraging AI-powered code analysis. Although compatibility has been preserved, the addition of various minor enhancements has led me to rename it "STed2 plus for Mac."
 
 ## Features:
 Unlike the original Human68K version, which required the companion program RCD.x, and the UNIX port version, which required support for Timidity++ or aplaymidi+FluidSynth, This is a self-contained software application.  It includes a built-in sequencer and integrates two types of synthesizers.
