@@ -9,10 +9,10 @@
 </head>
 <body style="font-size:10pt">
 
-<h1>STed2 for Mac - 修復 ＆ 機能拡張版</h1>
+<h1>STed2 plus for Mac - 修復 ＆ 機能拡張版</h1>
 
 <p>
-STed2 for Mac は、X680x0 用の名作 MIDI シーケンサ STed2 を macOS に移植したものです。
+STed2 plus for Mac は、X680x0 用の名作 MIDI シーケンサ STed2 を macOS に移植したものです。さらにオリジナルの機能に対して多少の拡張を行いました。オリジナル版と区別するために "STed2 plus版" と呼称します
 </p>
 
 <h2>本ソフトウェア誕生の経緯</h2>
@@ -20,7 +20,7 @@ STed2 for Mac は、X680x0 用の名作 MIDI シーケンサ STed2 を macOS に
 オリジナルの STed2 は故戸田貴之 (TURBO) 氏によるものです。戸田氏は 1997 年に 27 歳で世を去りました。その後、戸田氏のご遺族と有志の方々のご尽力により、STed2 を含む氏の作品のソースコードが公開されました。
 </p>
 <p>
-「<a href="tuitou_doc.html">STED2 最終版のソース公開にあたって --- 追悼の言葉と皆様へのお願い</a>」（ゆい工房　山本裕一郎氏）
+「<a href="tuitou_doc.html">STED2 最終版のソース公開にあたって --- 追悼の言葉と皆様へのお願い</a>」（ゆい工房 山本裕一郎氏）
 </p>
 <p>
 このソースコードを元にして、長野大介氏が X-Window 用の移植版を作成され、それを元に永田央氏が Mac OS X 版を作成しました。
@@ -45,7 +45,7 @@ STed2 for Mac は、X680x0 用の名作 MIDI シーケンサ STed2 を macOS に
 <li><a href="readme_mac_old.html">STed2 for Mac</a></li>
 </ul>
 
-<h2>修復版の詳細と機能拡張など</h2>
+<h2>plus版の詳細と機能拡張など</h2>
 <ul>
 <li>対応macOSバージョンは macOS 12 Monterey 以上です。intel 64bit と Apple Silicon に対応しています</li>
 <li>現代のAI解析を利用して、徹底的な脆弱性の追跡と排除、問題点を洗い出しました.
@@ -80,7 +80,7 @@ STed2 for Mac は、X680x0 用の名作 MIDI シーケンサ STed2 を macOS に
 <h2>今後のロードマップ</h2>
 <ul>
 	<li>短期目標：今のままのmacOS版で主だったバグを潰し、しっかり復刻、機能拡張版として普通に使えるシーケンサーとして最初のバージョンをリリースするのが当面の目標です</li>
-	<li>中長期目標：ベースとなるmacOS移植版が固まったら、STed2の軽快な操作性をさらに向上するために、描画性能の向上が見込めるGPUレンダラーベースのSDL3フレームワークへの移植を試みます。同時にこのフレームワークは、ハードウエアの抽象化レイヤーとしての側面を持ちますので、描画から始めて、キーボード入力、タイマ、スレッド、オーディオシステムなど
+	<li>中長期目標：ベースとなるmacOS版が固まったら、STed2の軽快な操作性をさらに向上するために、描画性能の向上が見込めるGPUレンダラーベースのSDL3フレームワークへの移植を試みます。同時にこのフレームワークは、ハードウエアの抽象化レイヤーとしての側面を持ちますので、描画から始めて、キーボード入力、タイマ、スレッド、オーディオシステムなど
 		macOS依存のコードがほぼ少なくなった段階で、他OSへの移植の道が開ける展開です。最初のターゲットは Windowsです。成功した暁には、LinuxかAndroidのGoogleBookOSなどへの展開を考えます。その先にSDL3が動作しそうだと噂のあるESP32マイコンなどの組み込み環境まで展開できればと思っています
 	</li>
 </ul>
@@ -99,8 +99,11 @@ STed2 オリジナル部分は、上記のドキュメントにある通り、�
 永田氏による Mac OS X 対応部分のコードは MIT ライセンスです。<br>
 <a href="http://opensource.org/licenses/mit-license.php">http://opensource.org/licenses/mit-license.php</a>
 <p>
-小川の修正分のコードも MIT ライセンスとします。<br>
+小川の修復＆機能拡張分のコードも MIT ライセンスとします。<br>
 </p>
+
+<p>AMYシンセサイザーは MIT ライセンスです</p>
+<p>TinySoundFont は MIT ライセンスです</p>
 
 </p>
 <p>
@@ -117,7 +120,7 @@ SIL Open Font License 1.1<br>
 <h2>
 <h2>更新履歴</h2>
 <ul>
-<li>2026.XX.XX. 小川嘉徳</li>
+<li>2026.XX.XX. 小川嘉徳plus版</li>
 <li>2015.3.29. 永田氏最終版公開</li>
 <li><a href="changelog_old.html">X-window 版の開発記録</a>（長野大介氏）</li>
 </ul>
