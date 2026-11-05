@@ -29,6 +29,28 @@ ResetRenderQueue(void)
 		sBank[i] = -1;
 }
 
+/* Juno on channel 1 and DX7 on channel 2. Channel 10 stays empty.
+ * pcm_tiny (patch 258) is not loaded. DX7 is assigned first, matching
+ * amy_default_synths(), so releasing the Juno does not fragment oscillators.
+ */
+static void
+InstallMelodySynths(void)
+{
+	amy_event event;
+
+	event = amy_default_event();
+	event.synth = 2;
+	event.num_voices = 6;
+	event.patch_number = 128;
+	amy_add_event(&event);
+
+	event = amy_default_event();
+	event.synth = 1;
+	event.num_voices = 6;
+	event.patch_number = 0;
+	amy_add_event(&event);
+}
+
 void
 AmySynthStart(void)
 {
@@ -46,18 +68,17 @@ AmySynthStart(void)
 	config.features.chorus = 1;
 	config.features.audio_in = 0;
 	config.features.startup_bleep = 0;
-	/* Channel 1 Juno, channel 2 DX7, channel 10 drums, so a song can sound
-	 * before its own program changes land.
+	/* amy_default_synths() also installs channel 10 patch 258. There is
+	 * no switch for the drums alone, so the whole set stays off and the
+	 * two melody patches are sent afterwards.
 	 */
-	config.features.default_synths = 1;
+	config.features.default_synths = 0;
 	config.platform.multithread = 0;
 	config.platform.multicore = 0;
 	config.overload_threshold = 0;
 	config.max_sequencer_tags = 0;
-	/* Channel 10 gets the built-in pcm_tiny kit (patch 258) from
-	 * AMY's default_synths. Gamma9001 is not used.
-	 */
 	amy_start(config);
+	InstallMelodySynths();
 	amy_external_midi_sync(AMY_MIDI_SYNC_OFF);
 	sAmyStarted = 1;
 }
@@ -228,7 +249,7 @@ AmySynthSendMIDI(const uint8_t *bytes, int length, uint64_t atTime)
 		if (length < 2)
 			return;
 		/* A program change with no CC#0 stays in the bank already sounding.
-		 * Channel 10 starts on patch 258 (pcm_tiny).
+		 * A channel with no patch yet uses bank 0 (Juno).
 		 */
 		bank = sBank[channel];
 		if (bank < 0)
@@ -244,19 +265,10 @@ AmySynthSendMIDI(const uint8_t *bytes, int length, uint64_t atTime)
 				bank = 0;
 		}
 		patch = data1 + 128 * bank;
-		/* Bank 2 programs 0-2 are patches 256-258. amy.def and gm_amy.def
-		 * do not list them. A track may still contain CC#0=2. Do not load
-		 * these three, and do not substitute another patch.
+		/* Patches 256-258 and 384-390 are not in the def files.
+		 * A track may still contain those bank selects. Do not load them.
 		 */
-		if (patch >= 256 && patch <= 258)
-			return;
-		/* Bank 3 / program 0 is listed as the drum kit in amy.def. That
-		 * maps to patch 384 in AMY's numbering, which is a Gamma9001 kit.
-		 * Load pcm_tiny MIDI drums (258) instead. Ignore 385-390.
-		 */
-		if (patch == 384)
-			patch = 258;
-		else if (patch >= 385 && patch <= 390)
+		if ((patch >= 256 && patch <= 258) || (patch >= 384 && patch <= 390))
 			return;
 		event.patch_number = (uint16_t)patch;
 		SendEvent(&event, atTime);
