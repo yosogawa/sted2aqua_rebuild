@@ -28,7 +28,7 @@ Unlike the original Human68K version, which required the companion program RCD.x
 The primary objective is to restore the full functionality of STed2 on modern macOS. The goal is for the restored software to operate as a fully functional sequencer—supporting playback, input, and recording—just as the original Human68k version of STed2 did.
 
 ## Medium- to long-term goals:
-Building upon this project, I aim to extend support to other operating systems. At that stage, the "STed for Aqua" branding will be retired. I plan to implement a hardware abstraction layer (HAL) between the hardware and the application, transforming the software into a portable system capable of running in a variety of environments.
+Building upon this project, I aim to extend support to other operating systems. I plan to implement a hardware abstraction layer (HAL) between the hardware and the application, transforming the software into a portable system capable of running in a variety of environments.
 
 
 
