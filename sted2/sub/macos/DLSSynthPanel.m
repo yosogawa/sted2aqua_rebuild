@@ -1,5 +1,6 @@
 #import "DLSSynthPanel.h"
 #import "InternalSynth.h"
+#import "MIDISettingsController.h"
 
 #include "sted.h"
 
@@ -209,7 +210,7 @@ static const char *kReverbNames[13] = {
 	[sPanel show];
 }
 
-- (void)defaultsDidChange:(NSNotification *)note
+- (void)midiPortsChanged:(NSNotification *)note
 {
 	(void)note;
 	[self syncBankEnabled];
@@ -221,38 +222,26 @@ static const char *kReverbNames[13] = {
 		return;
 	observingPorts = 0;
 	[[NSNotificationCenter defaultCenter] removeObserver:self
-							name:NSUserDefaultsDidChangeNotification
-						      object:[NSUserDefaults standardUserDefaults]];
-	NSUserDefaultsController *udc = [NSUserDefaultsController sharedUserDefaultsController];
-	@try {
-		[udc removeObserver:self forKeyPath:@"values.midiout1"];
-		[udc removeObserver:self forKeyPath:@"values.midiout2"];
-	} @catch (__unused NSException *ex) {
-	}
+							name:MIDIPortSettingsChangedNotification
+						      object:nil];
 }
 
 - (void)startObservingPorts
 {
-	NSUserDefaultsController *udc;
-
 	if (observingPorts)
 		return;
-	udc = [NSUserDefaultsController sharedUserDefaultsController];
-	[udc addObserver:self forKeyPath:@"values.midiout1" options:0 context:NULL];
-	[udc addObserver:self forKeyPath:@"values.midiout2" options:0 context:NULL];
 	[[NSNotificationCenter defaultCenter]
 		addObserver:self
-		   selector:@selector(defaultsDidChange:)
-		       name:NSUserDefaultsDidChangeNotification
-		     object:[NSUserDefaults standardUserDefaults]];
+		   selector:@selector(midiPortsChanged:)
+		       name:MIDIPortSettingsChangedNotification
+		     object:nil];
 	observingPorts = 1;
 }
 
 - (void)syncBankEnabled
 {
-	NSUserDefaults *def = [NSUserDefaults standardUserDefaults];
-	NSString *out1 = [def stringForKey:@"midiout1"];
-	NSString *out2 = [def stringForKey:@"midiout2"];
+	NSString *out1 = [MIDISettingsController outputNameForPort:0];
+	NSString *out2 = [MIDISettingsController outputNameForPort:1];
 	BOOL en1 = [out1 isEqualToString:@"Apple DLS Synth"];
 	BOOL en2 = [out2 isEqualToString:@"Apple DLS Synth 2"];
 
@@ -260,19 +249,6 @@ static const char *kReverbNames[13] = {
 	[bankPopup1 setEnabled:en1];
 	[bankLabel2 setEnabled:en2];
 	[bankPopup2 setEnabled:en2];
-}
-
-- (void)observeValueForKeyPath:(NSString *)keyPath
-		      ofObject:(id)object
-			change:(NSDictionary *)change
-		       context:(void *)context
-{
-	(void)object;
-	(void)change;
-	(void)context;
-	if ([keyPath isEqualToString:@"values.midiout1"] ||
-	    [keyPath isEqualToString:@"values.midiout2"])
-		[self syncBankEnabled];
 }
 
 - (void)dealloc

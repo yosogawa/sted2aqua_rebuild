@@ -6,6 +6,7 @@
 #import "X68kView.h"
 #import "CoreMIDIRCPPlayer.h"
 #import "InternalSynth.h"
+#import "MIDISettingsController.h"
 #import <CoreText/CoreText.h>
 #import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 
@@ -1522,47 +1523,46 @@ XSTed_register_key(const char *str)
 void
 XSTed_register_midi_device(const char *str)
 {
-	char buf[128];
+	char buf[512];
 	char *p, *q, *r;
 	int n;
 	uint8_t input_flag;
 
-	NSUserDefaults *def = [NSUserDefaults standardUserDefaults];
-	
-	strncpy(buf, str, 127);
-	buf[127] = 0;
+	strncpy(buf, str, sizeof buf - 1);
+	buf[sizeof buf - 1] = 0;
 	p = buf + 13;  /*  skip "#midi_device_"  */
 	q = strsep(&p, "=");
 	while ((r = strrchr(q, ' ')) != NULL)
 		*r = 0;	
+	if (strcasecmp(q, "output_clock") == 0) {
+		int clk[2];
+		int nclk = 0;
+		clk[0] = clk[1] = 0;
+		while ((q = strsep(&p, ",")) != NULL && nclk < 2) {
+			while (*q == ' ' || *q == '\t')
+				q++;
+			clk[nclk++] = atoi(q) != 0;
+		}
+		[MIDISettingsController noteOutputClock:clk[0] port:0];
+		[MIDISettingsController noteOutputClock:clk[1] port:1];
+		return;
+	}
 	if (strcasecmp(q, "input") == 0) {
 		input_flag = 1;
 	} else if (strcasecmp(q, "output") == 0) {
 		input_flag = 0;
 	} else return;
-	
+
 	n = 0;
 	while ((q = strsep(&p, ",")) != NULL) {
-		while (*q == ' ')
+		while (*q == ' ' || *q == '\t')
 			q++;
 		if (*q == 0)
 			continue;
-		if (input_flag == 0) {
-			const char *canon = CoreMIDICanonicalOutputName(q);
-			NSString *chosen;
-			if (CoreMIDISelectDeviceByNameForPort(canon, n) < 0) {
-				canon = (n == 0) ? "Apple DLS Synth" : "Apple DLS Synth 2";
-				CoreMIDISelectDeviceByNameForPort(canon, n);
-			}
-			chosen = CoreMIDISelectedOutputName(n);
-			if (chosen == nil && canon != NULL)
-				chosen = [NSString stringWithUTF8String:canon];
-			if (chosen != nil)
-				[def setValue:chosen forKey:[NSString stringWithFormat:@"midiout%d", n + 1]];
-		} else if (input_flag == 1) {
-			CoreMIDISelectInputDeviceByName(q);
-			[def setValue:[NSString stringWithUTF8String:q] forKey:@"midiin"];
-		}
+		if (input_flag == 0)
+			[MIDISettingsController noteOutputDeviceName:q port:n];
+		else
+			[MIDISettingsController noteInputDeviceName:q];
 		n++;
 	}
 }
@@ -2008,6 +2008,148 @@ XSTed_save_thrumode(int on)
 			[lines addObject:added];
 	}
 	out = [lines componentsJoinedByString:nl];
+	if (![out hasSuffix:nl])
+		out = [out stringByAppendingString:nl];
+	if (enc == 0)
+		enc = NSUTF8StringEncoding;
+	err = nil;
+	if (![out writeToFile:filePath atomically:YES encoding:enc error:&err]) {
+		NSLog(@"could not write %@: %@", filePath, err);
+		return -1;
+	}
+	return 0;
+}
+
+static int
+cnf_line_is_end(const char *s)
+{
+	if (s == NULL)
+		return 0;
+	while (*s == ' ' || *s == '\t')
+		s++;
+	if (*s == '*')
+		return 0;
+	if (strncasecmp(s, "#end", 4) != 0)
+		return 0;
+	s += 4;
+	while (*s == ' ' || *s == '\t')
+		s++;
+	return *s == 0;
+}
+
+/* defload stops at #end. MIDI port lines in the user's file sit after it. */
+void
+XSTed_apply_midi_port_settings(void)
+{
+	char path[PATHLEN];
+	FILE *fp;
+	char line[512];
+
+	[MIDISettingsController noteInputDeviceName:""];
+	[MIDISettingsController noteOutputDeviceName:"" port:0];
+	[MIDISettingsController noteOutputDeviceName:"" port:1];
+	[MIDISettingsController noteOutputClock:0 port:0];
+	[MIDISettingsController noteOutputClock:0 port:1];
+	if (!resolve_sted2_cnf(path, sizeof path))
+		return;
+	fp = fopen(path, "r");
+	if (fp == NULL)
+		return;
+	while (fgets(line, (int)sizeof line, fp) != NULL) {
+		char *p = line;
+		size_t n;
+		while (*p == ' ' || *p == '\t')
+			p++;
+		if (*p == '*' || *p == 0 || *p == '\n' || *p == '\r')
+			continue;
+		n = strlen(p);
+		while (n > 0 && (p[n - 1] == '\n' || p[n - 1] == '\r' || p[n - 1] == ' ' || p[n - 1] == '\t'))
+			p[--n] = 0;
+		if (strncasecmp(p, "#midi_device_", 13) == 0)
+			XSTed_register_midi_device(p);
+	}
+	fclose(fp);
+}
+
+int
+XSTed_save_midi_port_settings(const char *inName, const char *out1, const char *out2, int clock1, int clock2)
+{
+	char path[PATHLEN];
+	NSString *filePath;
+	NSError *err = nil;
+	NSStringEncoding enc = 0;
+	NSString *text, *out, *nl;
+	NSMutableArray *lines, *kept;
+	NSString *values[3];
+	static const char *keys[3] = {
+		"#midi_device_output_clock=",
+		"#midi_device_output=",
+		"#midi_device_input=",
+	};
+	NSInteger insertAt = -1;
+	NSInteger endAt = -1;
+	NSUInteger i, n;
+
+	if (inName == NULL)
+		inName = "";
+	if (out1 == NULL)
+		out1 = "";
+	if (out2 == NULL)
+		out2 = "";
+	clock1 = clock1 ? 1 : 0;
+	clock2 = clock2 ? 1 : 0;
+	if (!resolve_sted2_cnf(path, sizeof path)) {
+		NSLog(@"sted2.cnf was not found; MIDI port settings were not saved");
+		return -1;
+	}
+	filePath = [NSString stringWithUTF8String:path];
+	text = [NSString stringWithContentsOfFile:filePath usedEncoding:&enc error:&err];
+	if (text == nil) {
+		enc = NSUTF8StringEncoding;
+		err = nil;
+		text = [NSString stringWithContentsOfFile:filePath encoding:NSUTF8StringEncoding error:&err];
+	}
+	if (text == nil) {
+		NSLog(@"could not read %@: %@", filePath, err);
+		return -1;
+	}
+	if ([text rangeOfString:@"\r\n"].location != NSNotFound)
+		nl = @"\r\n";
+	else if ([text rangeOfString:@"\r"].location != NSNotFound)
+		nl = @"\r";
+	else
+		nl = @"\n";
+	values[0] = [NSString stringWithFormat:@"#midi_device_input=%s", inName];
+	values[1] = [NSString stringWithFormat:@"#midi_device_output=%s, %s", out1, out2];
+	values[2] = [NSString stringWithFormat:@"#midi_device_output_clock=%d,%d", clock1, clock2];
+	text = [text stringByReplacingOccurrencesOfString:@"\r\n" withString:@"\n"];
+	text = [text stringByReplacingOccurrencesOfString:@"\r" withString:@"\n"];
+	lines = [NSMutableArray arrayWithArray:[text componentsSeparatedByString:@"\n"]];
+	kept = [NSMutableArray array];
+	n = [lines count];
+	for (i = 0; i < n; i++) {
+		NSString *line = [lines objectAtIndex:i];
+		const char *s = [line UTF8String];
+		if (cnf_line_key(s, keys, 3, 0) >= 0)
+			continue;
+		if (cnf_line_is_end(s))
+			endAt = (NSInteger)[kept count];
+		[kept addObject:line];
+		if (cnf_line_key(s, keys, 3, 1) >= 0)
+			insertAt = (NSInteger)[kept count];
+	}
+	/* A comment anchor after #end would be ignored on the next launch. */
+	if (endAt >= 0 && (insertAt < 0 || insertAt > endAt))
+		insertAt = endAt;
+	if (insertAt < 0) {
+		insertAt = (NSInteger)[kept count];
+		if (insertAt > 0 && [[kept lastObject] length] == 0)
+			insertAt--;
+	}
+	[kept insertObject:values[0] atIndex:(NSUInteger)insertAt++];
+	[kept insertObject:values[1] atIndex:(NSUInteger)insertAt++];
+	[kept insertObject:values[2] atIndex:(NSUInteger)insertAt++];
+	out = [kept componentsJoinedByString:nl];
 	if (![out hasSuffix:nl])
 		out = [out stringByAppendingString:nl];
 	if (enc == 0)

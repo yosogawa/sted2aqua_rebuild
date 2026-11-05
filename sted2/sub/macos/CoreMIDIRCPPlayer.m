@@ -10,6 +10,7 @@
 #import "rcp_player_engine.h"
 #import "CoreMIDIRCPPlayer.h"
 #import "InternalSynth.h"
+#import "MIDISettingsController.h"
 
 #include <CoreMIDI/CoreMIDI.h>
 #include <unistd.h>
@@ -186,14 +187,13 @@ CoreMIDIInitIfNeeded(void)
 	rcpplayer_set_output_timing(300, 1);
 }
 void CoreMIDIConnectDefaultInputs(void) {
-	if (sMIDIInputPortRef == 0) return;
+	const char *savedInputName;
 
-	NSUserDefaults *def = [NSUserDefaults standardUserDefaults];
-	NSString *savedInputName = [def stringForKey:@"midiin"];
-
-	if (savedInputName != nil && [savedInputName length] > 0) {
-		CoreMIDISelectInputDeviceByName([savedInputName UTF8String]);
-	}
+	if (sMIDIInputPortRef == 0)
+		return;
+	savedInputName = MIDISettingsSavedInputName();
+	if (savedInputName != NULL && savedInputName[0] != '\0')
+		CoreMIDISelectInputDeviceByName(savedInputName);
 }
 
 

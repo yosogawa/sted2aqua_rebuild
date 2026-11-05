@@ -48,6 +48,8 @@
 
 			* '-F'無指定時に使用する音源定義ファイル
 			* (default=STed2.def)
+			* #def_file_a / #def_file_b があればそのポートだけ別ファイル。
+			* 空の側は #def_file。それも空なら STed2.def。
 *#def_file=cm64.def
 *#def_file=sc55.def
 *#def_file=sc55mk2.def
@@ -215,9 +217,11 @@
 
 *=============================================================================
 * MIDI 入出力に使用するデバイス名の設定 (macOS)
+* #midi_device_output_clock は Out 1, Out 2 の Clock / RTC / SPP（0=オフ, 1=オン）
 
 *#midi_device_input=
 #midi_device_output=Apple DLS Synth, Apple DLS Synth 2
+#midi_device_output_clock=0,0
 
 *=============================================================================
 * Apple DLS Synth に読み込むサウンドバンク（サウンドフォント）ファイル(macOS only)

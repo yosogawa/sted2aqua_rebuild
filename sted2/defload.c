@@ -778,12 +778,34 @@ void	definit()
 	+-------gs bar display	(0=normal 1=reverse)
 	*/
 
+/* Items a partial load may leave alone. A text file that omits the key
+ * keeps the previous value. A .dfb always stores the block; all-empty
+ * is treated as omitted.
+ */
+struct DefSharedSnap {
+  char rec_met[10];
+  char rhy_stest[8];
+  char rhy_name[32][15];
+  uint8_t rhy_no[32][2];
+  char exc_memo[8][25];
+  uint8_t exc_data[8][24];
+  uint8_t init_exc[258];
+};
+typedef struct DefSharedSnap DefSharedSnap;
+static void def_shared_save(DefSharedSnap *s);
+static void def_shared_restore_all(const DefSharedSnap *s);
+static void def_shared_restore_missing(const DefSharedSnap *s, int saw_rec,
+    int saw_rhy, int saw_exc, int saw_init_exc);
+static void def_shared_restore_unset(const DefSharedSnap *s);
+
 int	defload(char *fi,int md)
 {
   /* Line buffer sized to PATHLEN (same idea as classic MAXPATHLEN). */
   char	tmp0[PATHLEN * 2],tmp1[PATHLEN],li[PATHLEN],li2[PATHLEN];
   int	ad,nm,ln,n,i0=0,i1=0,f,mutef=0,initf=0;
   int	last_no=4*128,last_co=0;
+  int	partial=0, saw_rec_met=0, saw_rhy_as=0, saw_user_exc=0, saw_init_exc=0;
+  DefSharedSnap snap;
   FILE	*fp;
 
   if(str_search(fi,".dfb")||str_search(fi,".DFB")>0){return def_bload(fi,md);}
@@ -799,6 +821,9 @@ int	defload(char *fi,int md)
   } /* Oct.13.1998 by Daisuke Nagano */
   ln=fread(dat,1,work_size,fp);ad=0;nm=99999;
   memset(part_written, 0, sizeof part_written);
+  partial = (def_load_scope == DEF_SCOPE_A || def_load_scope == DEF_SCOPE_B);
+  if (partial)
+    def_shared_save(&snap);
 
 #if	STED
   if(md==0){
@@ -836,6 +861,7 @@ int	defload(char *fi,int md)
 	if(md==1){msg(_("Invalid file."));}
 	else{B_PRINT(_("Invalid file.\n"));}
 #endif
+	if(partial){def_shared_restore_all(&snap);}
 	fclose(fp);
 	return(-1);
       }
@@ -858,7 +884,11 @@ int	defload(char *fi,int md)
 #if	STED
       if( str_search(li2,"#COMMENT=")>0 ){strlcpy(comment,&li[9],sizeof comment);}
 
-      if( str_search(li2,"#DEF_FILE=")>0 ){
+      if( str_search(li2,"#DEF_FILE_A=")>0 ){
+	if(def_file_a[0]==0){strcpy(def_file_a,&li[12]);spcut(def_file_a);}}
+      else if( str_search(li2,"#DEF_FILE_B=")>0 ){
+	if(def_file_b[0]==0){strcpy(def_file_b,&li[12]);spcut(def_file_b);}}
+      else if( str_search(li2,"#DEF_FILE=")>0 ){
 	if(def_file[0]==0){strcpy(def_file,&li[10]);}}
       if( str_search(li2,"#DEF_PATH=")>0 ){
 	if(def_path[0]==0){strcpy(def_path,&li[10]);}}
@@ -1085,6 +1115,7 @@ int	defload(char *fi,int md)
 	}
       }
       if( str_search(li2,"#USER_EXC=")>0 ){
+	saw_user_exc=1;
 	int	ch,c;
 	char	tmp9[128];
 	ch=str_val(&li2[10]);
@@ -1122,7 +1153,7 @@ int	defload(char *fi,int md)
 	  }
 	}
       }
-      if( str_search(li2,"#INIT_EXC=")>0 ){def_init(li);}
+      if( str_search(li2,"#INIT_EXC=")>0 ){saw_init_exc=1;def_init(li);}
 
       if( str_search(li2,"#CARD=")>0 ){
 	int	c,ch;
@@ -1186,6 +1217,7 @@ int	defload(char *fi,int md)
       }
 
       if( str_search(li2,"#RHY_AS=")>0 ){
+	saw_rhy_as=1;
 	int	c;
 	nm=0x10000+128*18;i0=0;i1=0;
 
@@ -1208,6 +1240,7 @@ int	defload(char *fi,int md)
 
 
       if( str_search(li2,"#REC_MET")>0 ){
+	saw_rec_met=1;
 	int	c,n;
 	c=str_search(li,"=");
 	if(c!=0){
@@ -1354,7 +1387,125 @@ int	defload(char *fi,int md)
 	}
 	/*  End Toshi Nagata  */
 
+  if(partial){
+    def_shared_restore_missing(&snap, saw_rec_met, saw_rhy_as,
+	saw_user_exc, saw_init_exc);
+  }
+
   return(0);
+}
+
+static int
+def_load_is_partial(void)
+{
+  return def_load_scope == DEF_SCOPE_A || def_load_scope == DEF_SCOPE_B;
+}
+
+static void
+def_shared_save(DefSharedSnap *s)
+{
+  memcpy(s->rec_met, rec_met, sizeof s->rec_met);
+  memcpy(s->rhy_stest, rhy_stest, sizeof s->rhy_stest);
+  memcpy(s->rhy_name, defrhyna, sizeof s->rhy_name);
+  memcpy(s->rhy_no, defrhyno, sizeof s->rhy_no);
+  memcpy(s->exc_memo, def_user_exc_memo, sizeof s->exc_memo);
+  memcpy(s->exc_data, def_user_exc_data, sizeof s->exc_data);
+  memcpy(s->init_exc, init_exc_data, sizeof s->init_exc);
+}
+
+static void
+def_shared_restore_all(const DefSharedSnap *s)
+{
+  memcpy(rec_met, s->rec_met, sizeof rec_met);
+  memcpy(rhy_stest, s->rhy_stest, sizeof rhy_stest);
+  memcpy(defrhyna, s->rhy_name, sizeof defrhyna);
+  memcpy(defrhyno, s->rhy_no, sizeof defrhyno);
+  memcpy(def_user_exc_memo, s->exc_memo, sizeof def_user_exc_memo);
+  memcpy(def_user_exc_data, s->exc_data, sizeof def_user_exc_data);
+  memcpy(init_exc_data, s->init_exc, sizeof s->init_exc);
+}
+
+static void
+def_shared_restore_missing(const DefSharedSnap *s, int saw_rec, int saw_rhy,
+    int saw_exc, int saw_init_exc)
+{
+  if (!saw_rec)
+    memcpy(rec_met, s->rec_met, sizeof rec_met);
+  if (!saw_rhy) {
+    memcpy(rhy_stest, s->rhy_stest, sizeof rhy_stest);
+    memcpy(defrhyna, s->rhy_name, sizeof defrhyna);
+    memcpy(defrhyno, s->rhy_no, sizeof defrhyno);
+  }
+  if (!saw_exc) {
+    memcpy(def_user_exc_memo, s->exc_memo, sizeof def_user_exc_memo);
+    memcpy(def_user_exc_data, s->exc_data, sizeof def_user_exc_data);
+  }
+  if (!saw_init_exc)
+    memcpy(init_exc_data, s->init_exc, sizeof s->init_exc);
+}
+
+static int
+def_rec_met_unset(void)
+{
+  int i;
+  for (i = 0; i < 10; i++)
+    if (rec_met[i] >= 0)
+      return 0;
+  return 1;
+}
+
+static int
+def_rhy_para_unset(void)
+{
+  int i;
+  for (i = 0; i < 6; i++)
+    if (rhy_stest[i] >= 0)
+      return 0;
+  return 1;
+}
+
+static int
+def_rhy_names_unset(void)
+{
+  int i;
+  for (i = 0; i < 32; i++)
+    if (defrhyna[i][0] != 0 || defrhyno[i][0] != 0 || defrhyno[i][1] != 0)
+      return 0;
+  return 1;
+}
+
+static int
+def_user_exc_unset(void)
+{
+  int i, j;
+  for (i = 0; i < 8; i++) {
+    if (def_user_exc_memo[i][0] != 0)
+      return 0;
+    for (j = 0; j < 24; j++)
+      if (def_user_exc_data[i][j] != 0xf7)
+	return 0;
+  }
+  return 1;
+}
+
+/* .dfb always stores these blocks. All-empty means the source had no value. */
+static void
+def_shared_restore_unset(const DefSharedSnap *s)
+{
+  if (def_rec_met_unset())
+    memcpy(rec_met, s->rec_met, sizeof rec_met);
+  if (def_rhy_para_unset())
+    memcpy(rhy_stest, s->rhy_stest, sizeof rhy_stest);
+  if (def_rhy_names_unset()) {
+    memcpy(defrhyna, s->rhy_name, sizeof defrhyna);
+    memcpy(defrhyno, s->rhy_no, sizeof defrhyno);
+  }
+  if (def_user_exc_unset()) {
+    memcpy(def_user_exc_memo, s->exc_memo, sizeof def_user_exc_memo);
+    memcpy(def_user_exc_data, s->exc_data, sizeof def_user_exc_data);
+  }
+  if (init_exc_data[0] == 0xff)
+    memcpy(init_exc_data, s->init_exc, sizeof s->init_exc);
 }
 
 /***************************//*4.66(2.18) 4.00(1.85)*/
@@ -1865,6 +2016,8 @@ int	def_bsave(char *fi,int last_no,int mutef,int initf)
 int	def_bload(char *fi,int md)
 {
   int	i,ln,n,f,top_no,last_no,mutef=0,initf=0,cc,ad;
+  int	partial=0, saved=0;
+  DefSharedSnap snap;
   FILE	*fp;
 
   strmfe(fi, PATHLEN, fi, "dfb");
@@ -1894,6 +2047,9 @@ int	def_bload(char *fi,int md)
 #endif
 
   if( strncmp(&dat[0x0000],DFB_MAGIC,DFB_MAGIC_LEN)!=0 ){goto bad;}
+
+  partial = def_load_is_partial();
+  if(partial){def_shared_save(&snap);saved=1;}
 
   cc=dat[DFB_OFF_CC]*256+dat[DFB_OFF_CC+1];
   last_no=dat[DFB_OFF_LAST_NO]*256+dat[DFB_OFF_LAST_NO+1];
@@ -1934,6 +2090,8 @@ int	def_bload(char *fi,int md)
     defrhyno[i][0]=dat[0x300+i*16+14];
     defrhyno[i][1]=dat[0x300+i*16+15];
   }
+  /* Empty blocks are omitted keys. mute and init use 0 the same way. */
+  if(partial){def_shared_restore_unset(&snap);}
 
   for(i=0;i<16;i++){memcpy(card_name[i+1],&dat[0x500+i*48],48);}	/*card*/
   /* group: honor UNIT SEL A / B / A&B */
@@ -1982,6 +2140,7 @@ int	def_bload(char *fi,int md)
   return(0);
 
 bad:
+  if(saved){def_shared_restore_all(&snap);}
   msg(_("Invalid file."));
   fclose(fp);
   return(-1);

@@ -140,6 +140,8 @@ _extern char	prt_path[PATHLEN + PATH_DRIVE_EXTRA];	/* .prt path name		*/
 _extern char	trk_path[PATHLEN + PATH_DRIVE_EXTRA];	/* .trk path name		*/
 
 _extern char	def_file[PATHLEN * 2 + PATH_DRIVE_EXTRA];	/* .def file name		*/
+_extern char	def_file_a[PATHLEN * 2 + PATH_DRIVE_EXTRA];	/* cnf #def_file_a	*/
+_extern char	def_file_b[PATHLEN * 2 + PATH_DRIVE_EXTRA];	/* cnf #def_file_b	*/
 _extern char	rcp_file[PATHLEN];			/* .rcp file name		*/
 _extern char	prt_file[PATHLEN];			/* .prt file name		*/
 _extern char	trk_file[PATHLEN];			/* .trk file name		*/
@@ -369,6 +371,8 @@ void tpl(int a);
 void XSTed_configure_mac_settings(const char *line);
 int XSTed_save_dls_settings(void);
 int XSTed_save_mac_font(const char *psName);
+int XSTed_save_midi_port_settings(const char *inName, const char *out1, const char *out2, int clock1, int clock2);
+void XSTed_apply_midi_port_settings(void);
 const char *XSTed_mac_font_name(void);
 
 #endif /* _STED_H_ */

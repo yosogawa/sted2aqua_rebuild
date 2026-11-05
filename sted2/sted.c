@@ -73,6 +73,409 @@ static char version_id[1024];
 
 #define	Trap14		(0x002e)	/*TRAP	#14ǻȤ٥*/
 
+/* Open one tone DEF. Same search as the old startup path: the name itself,
+ * then #def_path, then the directory of the executable. .dfb is tried before
+ * .def when the name has no extension. On success def_file is the path used.
+ */
+static char boot_argv0[PATHLEN * 2];
+
+/* key is "#def_file_a" or "#def_file_b", without '='. Comments are ignored. */
+static int
+cnf_is_port_key(const char *s, const char *key)
+{
+  size_t n;
+
+  while (*s == ' ' || *s == '\t')
+    s++;
+  if (*s == '*')
+    return 0;
+  n = strlen(key);
+  if (strncasecmp(s, key, n) != 0)
+    return 0;
+  s += n;
+  while (*s == ' ' || *s == '\t')
+    s++;
+  return *s == '=';
+}
+
+/* "*#def_file_a=" example. These sit in the #def_file list and hide the real lines. */
+static int
+cnf_is_port_comment(const char *s, const char *key)
+{
+  size_t n;
+
+  while (*s == ' ' || *s == '\t')
+    s++;
+  if (*s != '*')
+    return 0;
+  s++;
+  while (*s == ' ' || *s == '\t')
+    s++;
+  n = strlen(key);
+  if (strncasecmp(s, key, n) != 0)
+    return 0;
+  s += n;
+  while (*s == ' ' || *s == '\t')
+    s++;
+  return *s == '=';
+}
+
+/* "#def_file=" or "*#def_file=". "#def_file_a=" and "#def_file_b=" do not match. */
+static int
+cnf_is_plain_def_file(const char *s)
+{
+  while (*s == ' ' || *s == '\t')
+    s++;
+  if (*s == '*') {
+    s++;
+    while (*s == ' ' || *s == '\t')
+      s++;
+  }
+  if (strncasecmp(s, "#def_file", 9) != 0)
+    return 0;
+  s += 9;
+  if (*s == '_')
+    return 0;
+  while (*s == ' ' || *s == '\t')
+    s++;
+  return *s == '=';
+}
+
+static int
+cnf_later_plain_def_file(const char *buf, size_t len, size_t from)
+{
+  char line[PATHLEN * 2];
+  size_t i = from;
+
+  while (i < len) {
+    size_t start = i;
+    size_t n;
+    while (i < len && buf[i] != '\n' && buf[i] != '\r')
+      i++;
+    n = i - start;
+    if (n >= sizeof line)
+      n = sizeof line - 1;
+    memcpy(line, buf + start, n);
+    line[n] = 0;
+    if (cnf_is_plain_def_file(line))
+      return 1;
+    if (i < len && buf[i] == '\r')
+      i++;
+    if (i < len && buf[i] == '\n')
+      i++;
+  }
+  return 0;
+}
+
+static void
+cnf_port_value(const char *s, char *dst, size_t n)
+{
+  const char *eq;
+
+  dst[0] = 0;
+  eq = strchr(s, '=');
+  if (eq == NULL)
+    return;
+  eq++;
+  while (*eq == ' ' || *eq == '\t')
+    eq++;
+  while (n > 1 && *eq != 0 && *eq != ' ' && *eq != '\t' &&
+      *eq != '\r' && *eq != '\n' && *eq != '*') {
+    *dst++ = *eq++;
+    n--;
+  }
+  *dst = 0;
+}
+
+static int
+cnf_append(char **out, size_t *len, size_t *cap, const void *src, size_t n)
+{
+  char *grown;
+
+  if (*len + n + 1 > *cap) {
+    size_t ncap = (*cap * 2) + n + 64;
+    grown = realloc(*out, ncap);
+    if (grown == NULL)
+      return -1;
+    *out = grown;
+    *cap = ncap;
+  }
+  if (n > 0)
+    memcpy(*out + *len, src, n);
+  *len += n;
+  (*out)[*len] = 0;
+  return 0;
+}
+
+/* Same file startup reads: beside the executable, else Application Support. */
+static int
+resolve_boot_cnf(char *path, size_t pathSize)
+{
+  char tmp[PATHLEN * 2];
+  const char *argv0;
+  const char *base;
+  struct stat st;
+
+  argv0 = boot_argv0[0] != 0 ? boot_argv0 : "sted2";
+  strmfe(tmp, sizeof tmp, argv0, "cnf");
+  if (stat(tmp, &st) == 0 && S_ISREG(st.st_mode)) {
+    strlcpy(path, tmp, pathSize);
+    return 1;
+  }
+  if (s_sted_default_path[0] != 0) {
+    base = strrchr(tmp, '/');
+    snprintf(path, pathSize, "%s/%s", s_sted_default_path,
+	base != NULL ? base + 1 : tmp);
+    if (stat(path, &st) == 0 && S_ISREG(st.st_mode))
+      return 1;
+  }
+  path[0] = 0;
+  return 0;
+}
+
+/* Put #def_file_a= and #def_file_b= on the lines after the #def_file=
+ * / *#def_file= group. The other port's active line moves with them.
+ */
+static int
+cnf_remember_port_def(int scope, const char *filename)
+{
+  char path[PATHLEN * 2];
+  char tmp_path[PATHLEN * 2 + 8];
+  char keep_a[PATHLEN], keep_b[PATHLEN];
+  char line[PATHLEN * 2];
+  char built[PATHLEN * 2];
+  const char *nl = "\n";
+  char *buf = NULL, *out = NULL;
+  FILE *fp;
+  long sz;
+  size_t len, i, out_len = 0, out_cap = 0;
+  int saw_a = 0, saw_b = 0;
+  const char *base;
+
+  if (filename == NULL || filename[0] == 0)
+    return -1;
+  if (scope != DEF_SCOPE_A && scope != DEF_SCOPE_B)
+    return 0;
+  base = strrchr(filename, '/');
+  base = (base != NULL) ? base + 1 : filename;
+  if (base[0] == 0)
+    return -1;
+  if (!resolve_boot_cnf(path, sizeof path))
+    return -1;
+  fp = fopen2(path, "rb");
+  if (fp == NULL)
+    return -1;
+  if (fseek(fp, 0, SEEK_END) != 0) {
+    fclose(fp);
+    return -1;
+  }
+  sz = ftell(fp);
+  if (sz < 0 || sz > 1024 * 1024) {
+    fclose(fp);
+    return -1;
+  }
+  if (fseek(fp, 0, SEEK_SET) != 0) {
+    fclose(fp);
+    return -1;
+  }
+  buf = malloc((size_t)sz + 1);
+  if (buf == NULL) {
+    fclose(fp);
+    return -1;
+  }
+  len = fread(buf, 1, (size_t)sz, fp);
+  fclose(fp);
+  buf[len] = 0;
+  if (strstr(buf, "\r\n") != NULL)
+    nl = "\r\n";
+  else if (strchr(buf, '\n') == NULL && strchr(buf, '\r') != NULL)
+    nl = "\r";
+
+  keep_a[0] = 0;
+  keep_b[0] = 0;
+  i = 0;
+  while (i < len) {
+    size_t start = i;
+    size_t n;
+    while (i < len && buf[i] != '\n' && buf[i] != '\r')
+      i++;
+    n = i - start;
+    if (n >= sizeof line)
+      n = sizeof line - 1;
+    memcpy(line, buf + start, n);
+    line[n] = 0;
+    if (cnf_is_port_key(line, "#def_file_a") && scope != DEF_SCOPE_A)
+      cnf_port_value(line, keep_a, sizeof keep_a);
+    if (cnf_is_port_key(line, "#def_file_b") && scope != DEF_SCOPE_B)
+      cnf_port_value(line, keep_b, sizeof keep_b);
+    if (buf[i] == '\r')
+      i++;
+    if (i < len && buf[i] == '\n')
+      i++;
+  }
+  if (scope == DEF_SCOPE_A)
+    strlcpy(keep_a, base, sizeof keep_a);
+  else
+    strlcpy(keep_b, base, sizeof keep_b);
+
+  i = 0;
+  while (i < len) {
+    size_t start = i;
+    size_t n;
+    int had_break;
+    while (i < len && buf[i] != '\n' && buf[i] != '\r')
+      i++;
+    if (buf[i] == '\r')
+      i++;
+    if (i < len && buf[i] == '\n')
+      i++;
+    had_break = (i > start && (buf[i - 1] == '\n' || buf[i - 1] == '\r'));
+    n = i - start;
+    if (n >= sizeof line)
+      n = sizeof line - 1;
+    memcpy(line, buf + start, n);
+    line[n] = 0;
+    if (cnf_is_port_key(line, "#def_file_a") || cnf_is_port_key(line, "#def_file_b"))
+      continue;
+    if (cnf_is_port_comment(line, "#def_file_a") || cnf_is_port_comment(line, "#def_file_b"))
+      continue;
+    if (cnf_append(&out, &out_len, &out_cap, buf + start, i - start) != 0)
+      goto fail;
+    if (!saw_a && !saw_b && cnf_is_plain_def_file(line) &&
+	!cnf_later_plain_def_file(buf, len, i)) {
+      if (!had_break && cnf_append(&out, &out_len, &out_cap, nl, strlen(nl)) != 0)
+	goto fail;
+      if (keep_a[0] != 0) {
+	saw_a = 1;
+	snprintf(built, sizeof built, "#def_file_a=%s%s", keep_a, nl);
+	if (cnf_append(&out, &out_len, &out_cap, built, strlen(built)) != 0)
+	  goto fail;
+      }
+      if (keep_b[0] != 0) {
+	saw_b = 1;
+	snprintf(built, sizeof built, "#def_file_b=%s%s", keep_b, nl);
+	if (cnf_append(&out, &out_len, &out_cap, built, strlen(built)) != 0)
+	  goto fail;
+      }
+    }
+  }
+  if ((keep_a[0] != 0 && !saw_a) || (keep_b[0] != 0 && !saw_b)) {
+    if (out_len > 0 && out[out_len - 1] != '\n' && out[out_len - 1] != '\r') {
+      if (cnf_append(&out, &out_len, &out_cap, nl, strlen(nl)) != 0)
+	goto fail;
+    }
+    if (keep_a[0] != 0 && !saw_a) {
+      snprintf(built, sizeof built, "#def_file_a=%s%s", keep_a, nl);
+      if (cnf_append(&out, &out_len, &out_cap, built, strlen(built)) != 0)
+	goto fail;
+    }
+    if (keep_b[0] != 0 && !saw_b) {
+      snprintf(built, sizeof built, "#def_file_b=%s%s", keep_b, nl);
+      if (cnf_append(&out, &out_len, &out_cap, built, strlen(built)) != 0)
+	goto fail;
+    }
+  }
+  snprintf(tmp_path, sizeof tmp_path, "%s.tmp", path);
+  fp = fopen2(tmp_path, "wb");
+  if (fp == NULL)
+    goto fail;
+  if (out_len > 0 && fwrite(out, 1, out_len, fp) != out_len) {
+    fclose(fp);
+    remove(tmp_path);
+    goto fail;
+  }
+  if (fclose(fp) != 0) {
+    remove(tmp_path);
+    goto fail;
+  }
+  if (rename(tmp_path, path) != 0) {
+    remove(tmp_path);
+    goto fail;
+  }
+  if (scope == DEF_SCOPE_A)
+    strlcpy(def_file_a, keep_a, sizeof def_file_a);
+  else
+    strlcpy(def_file_b, keep_b, sizeof def_file_b);
+  free(buf);
+  free(out);
+  return 0;
+
+fail:
+  free(buf);
+  free(out);
+  return -1;
+}
+
+static int
+boot_def_load(const char *src, char *argv0)
+{
+  char name[PATHLEN * 2 + PATH_DRIVE_EXTRA];
+  char tmp0[PATHLEN * 2], tmp1[PATHLEN * 2];
+  int lvl, i;
+
+  strlcpy(name, src, sizeof name);
+  str_change(name);
+  lvl = 0;
+  if (str_search(name, ".") == 0)
+    lvl = 2;
+loop:
+  if (lvl == 2)
+    strmfe(name, sizeof name, name, "dfb");
+  if (lvl == 1)
+    strmfe(name, sizeof name, name, "def");
+
+  i = defload(name, 0);
+  if (i != 0) {
+    strcpy(tmp0, def_path);
+    if (str_last(tmp0) != '/')
+      strcat(tmp0, "/");
+    strcat(tmp0, name);
+    i = defload(tmp0, 0);
+    if (i != 0) {
+      strcpy(tmp1, argv0);
+      path_cut(tmp0, tmp1);
+      strcat(tmp0, name);
+      i = defload(tmp0, 0);
+      if (i != 0) {
+	if (lvl == 2) {
+	  lvl--;
+	  goto loop;
+	}
+	if (i == -1) {
+	  B_PRINT(name);
+	  B_PRINT(_(": File not found.\n"));
+	}
+	return -1;
+      }
+    }
+    strcpy(def_file, tmp0);
+  } else {
+    strcpy(tmp1, name);
+    path_cut(tmp0, tmp1);
+    if (tmp0[0] == 0) {
+      name[0] = 0;
+      path_set(name);
+      strcat(name, tmp1);
+    }
+    strcpy(def_file, name);
+  }
+  return 0;
+}
+
+/* specific if set, otherwise common, otherwise the executable name + .def. */
+static void
+pick_port_def(char *dst, size_t n, const char *specific, const char *common, char *argv0)
+{
+  if (specific[0] != 0)
+    strlcpy(dst, specific, n);
+  else if (common[0] != 0)
+    strlcpy(dst, common, n);
+  else {
+    strlcpy(dst, argv0, n);
+    strmfe(dst, n, dst, "def");
+  }
+}
+
 /********** program start **********/
 int	main(int argc,char *argv[])
 {
@@ -82,6 +485,8 @@ int	main(int argc,char *argv[])
   FILE	*fp;
 
   STed_system_initialize( &argc, &argv ); /* Aug.08.1998 Daisuke Nagano */
+  if (argv[0] != NULL)
+    strlcpy(boot_argv0, argv[0], sizeof boot_argv0);
   if (s_sted_default_path[0]==0) strcpy(s_sted_default_path, STED_DEFAULT_PATH); /* Jun.01.2003 Toshi Nagata */
 
 #ifdef VERSION_ID
@@ -98,7 +503,7 @@ int	main(int argc,char *argv[])
   TRACK_SIZE=64;buff_max=256*36*1024;
   rcp_path[0]=0;prt_path[0]=0;trk_path[0]=0;
   rcp_file[0]=0;prt_file[0]=0;trk_file[0]=0;
-  def_path[0]=0;def_file[0]=0;
+  def_path[0]=0;def_file[0]=0;def_file_a[0]=0;def_file_b[0]=0;
   fon_path[0]=0;hlp_path[0]=0;rc_path[0]=0;
   card_no[0]=0;
 
@@ -360,46 +765,71 @@ realc:
     strcat(tmp0, "/.sted2rc");
     defload(tmp0, 2);  /* Mar.05.1999 */
   }
+#if defined(USE_MACGUI)
+  /* Lines after #end are invisible to defload. MIDI ports are stored there. */
+  XSTed_apply_midi_port_settings();
+#endif
 
   if(tm_lag==0){tm_lag=8000;}
   cmdflagold=cmdflag;
 
   stgt_init();filt_init();
 
-  if(def_file[0]==0){strcpy(def_file,argv[0]);strmfe(def_file, sizeof def_file, def_file, "def");}
-  str_change(def_file);
-
   {
-    int lvl=0;
-    if(str_search(def_file,".")==0){lvl=2;}
-  loop:
-    if(lvl==2){strmfe(def_file, sizeof def_file, def_file, "dfb");}
-    if(lvl==1){strmfe(def_file, sizeof def_file, def_file, "def");}
+    char name_a[PATHLEN * 2 + PATH_DRIVE_EXTRA];
+    char name_b[PATHLEN * 2 + PATH_DRIVE_EXTRA];
+    char base_name[PATHLEN * 2 + PATH_DRIVE_EXTRA];
+    char over_name[PATHLEN * 2 + PATH_DRIVE_EXTRA];
+    int scope, two;
 
-    i=defload(def_file,0);
-    if(i!=0){
-      strcpy(tmp0,def_path);
-      if(str_last(tmp0)!='/'){strcat(tmp0,"/");}
-      strcat(tmp0,def_file);
+    /* A uses #def_file_a, else #def_file, else STed2.def. B is the same
+     * with #def_file_b. One file loads both ports. Two files load the
+     * fallback (or A) across both ports, then UNIT SEL's partial load
+     * replaces the other port. Keys that file omits stay as they were.
+     */
+    pick_port_def(name_a, sizeof name_a, def_file_a, def_file, argv[0]);
+    pick_port_def(name_b, sizeof name_b, def_file_b, def_file, argv[0]);
+    two = strcmp(name_a, name_b) != 0;
+    if (!two) {
+      strcpy(base_name, name_a);
+      scope = DEF_SCOPE_AB;
+    } else if (def_file_a[0] != 0 && def_file_b[0] == 0) {
+      strcpy(base_name, name_b);
+      strcpy(over_name, name_a);
+      scope = DEF_SCOPE_A;
+    } else {
+      strcpy(base_name, name_a);
+      strcpy(over_name, name_b);
+      scope = DEF_SCOPE_B;
+    }
 
-      i=defload(tmp0,0);
-      if(i!=0){
-	strcpy(tmp1,argv[0]);path_cut(tmp0,tmp1);
-	strcat(tmp0,def_file);
+    def_load_scope = DEF_SCOPE_AB;
+    if (boot_def_load(base_name, argv[0]) != 0)
+      sted_fail(1);
+    if (two) {
+      char asin_keep[16];
+      void *part_snap;
 
-	i=defload(tmp0,0);
-	if(i!=0){
-	  if(lvl==2){lvl--;goto loop;}
-	  if(i==-1){B_PRINT(def_file);B_PRINT(_(": File not found.\n"));}
-	  sted_fail(1);}
+      if (scope == DEF_SCOPE_A)
+	memcpy(asin_keep, &tim_asin2[17], 16);
+      else
+	memcpy(asin_keep, &tim_asin2[1], 16);
+      part_snap = def_parts_prepare_partial(scope);
+      def_load_scope = scope;
+      if (boot_def_load(over_name, argv[0]) != 0) {
+	def_load_scope = DEF_SCOPE_AB;
+	def_parts_finish_partial(-1, part_snap);
+	sted_fail(1);
       }
-      strcpy(def_file,tmp0);
-    }else{
-      strcpy(tmp1,def_file);path_cut(tmp0,tmp1);
-      if(tmp0[0]==0){def_file[0]=0;path_set(def_file);strcat(def_file,tmp1);}
+      def_load_scope = DEF_SCOPE_AB;
+      if (scope == DEF_SCOPE_A)
+	memcpy(&tim_asin2[17], asin_keep, 16);
+      else
+	memcpy(&tim_asin2[1], asin_keep, 16);
+      def_parts_finish_partial(scope, part_snap);
     }
   }
-  path_cut(def_path,def_file);
+  path_cut(def_path, def_file);
 
   card_name_get();
 
@@ -637,7 +1067,16 @@ void	com_sel()
 	      if(gsd_file[0]==0){gsinit();}
 	      asin_init_scope(scope);
 	      if(rcp_file[0]==0){user_exc_init();}
-	      msg_clr();module_chips_draw(0);
+	      /* A&B is left out of sted2.cnf. It may be a one-off load. */
+	      {
+		int cnf_err = 0;
+		if(scope == DEF_SCOPE_A || scope == DEF_SCOPE_B)
+		  cnf_err = cnf_remember_port_def(scope, def_file) != 0;
+		msg_clr();
+		if(cnf_err)
+		  msg(_("Could not update sted2.cnf."));
+		module_chips_draw(0);
+	      }
 	    }else{
 	      def_parts_finish_partial(-1, part_snap);
 	      if(n==-1){msg(_(": File not found.\n"));}
