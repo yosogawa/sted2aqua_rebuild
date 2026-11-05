@@ -1344,6 +1344,7 @@ int	retkey2(int ecode)
 void	inmd_disp()
 {
   sdis2(30+8,512,inmd[inpmode],18,15,8);
+  module_chip_b_clear(512);
 }
 
 /***************************/

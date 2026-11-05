@@ -1605,6 +1605,13 @@ module_chips_draw(int y)
 	module_chip_label('B', module_id_b), MODULE_CHIP_COLS, 15, 8);
 }
 
+/* EDIT replaces the A chip. Hide B for the same span until logo() redraws it. */
+void
+module_chip_b_clear(int y)
+{
+  sdis2(30 + 8 + MODULE_CHIP_COLS + 1, y, "", MODULE_CHIP_COLS, 0, 0);
+}
+
 /***************************/
 void	form()
 {
@@ -1749,7 +1756,7 @@ logo_status(int y)
 void	logo(int y)
 {
   if(y<0){
-    fill(496, 512, 767, 512 + 31, 0);
+    /* Do not clear the header. x=496 is inside the B chip now. */
     logo_status(512);
   }else{
     sdis2(0,y," FREE:",14,15,8);sdis2(15,y," USED:",14,15,8);

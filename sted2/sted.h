@@ -339,6 +339,7 @@ char *sted_to_locale_display(char *s);
 
 void form3(void);
 void logo(int y);
+void module_chip_b_clear(int y);
 int  option(int md, int sm);
 int  option2(int md, int sm, int ad, int ew);
 void load_sub(int sh);
