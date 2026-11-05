@@ -198,7 +198,8 @@ ApplyMidiSyncMode(int ext)
 	}
 	if (midiMenu == nil)
 		return;
-	item = [[NSMenuItem alloc] initWithTitle:@"Generate DEF from SF2..."
+	item = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(
+					@"Generate DEF from SF2...", @"MIDI menu")
 					  action:@selector(generateDefFromSf2:)
 				   keyEquivalent:@""];
 	[item setTarget:self];
@@ -233,7 +234,8 @@ ApplyMidiSyncMode(int ext)
 					  action:@selector(toggleThruMode:)
 				   keyEquivalent:@""];
 	[item setTarget:self];
-	at = [midiMenu indexOfItemWithTitle:@"Generate DEF from SF2..."];
+	at = [midiMenu indexOfItemWithTitle:NSLocalizedString(
+			@"Generate DEF from SF2...", @"MIDI menu")];
 	if (at == NSNotFound)
 		at = [midiMenu indexOfItemWithTitle:@"DLS Synth..."];
 	if (at != NSNotFound)

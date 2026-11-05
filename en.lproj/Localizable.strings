@@ -20,3 +20,23 @@
 "about.license" = "(draft)\nThe parts written by the porters are under GNU GPL Version 2. The full text will be taken from sted2/doc/STed2_help/gpl.html. The original program follows its own distribution terms.\n\nThe screen font KH Dot Kodenmachou 16 is under the SIL Open Font License 1.1. The full text will be taken from sted2/fonts/OFL.txt.\nCopyright (c) Keitarou Hiraki, Font Silo. 1990-2015\n";
 
 "about.thanks" = "(draft)\nOriginal: TURBO (Takayuki Toda)\nUNIX port: Daisuke Nagano\nMac(Aqua) port: Toshi Nagata\nRebuild: Yoshinori Ogawa\n\nThe description of each person's work will be summarized later from README.jp and README.md.\n";
+
+/* MIDI → Generate DEF from SF2 */
+"Generate DEF from SF2..." = "Generate DEF from SF2...";
+"Generate DEF from SF2" = "Generate DEF from SF2";
+"Choose a SoundFont under ~/Library/Audio/Sounds/Banks" = "Choose a SoundFont under ~/Library/Audio/Sounds/Banks";
+"SF2 → DEF failed" = "SF2 → DEF failed";
+"Could not build output path." = "Could not build output path.";
+"Replace existing DEF?" = "Replace existing DEF?";
+"A file with this name already exists and may have been edited.\n\n%@\n\nReplace it?" = "A file with this name already exists and may have been edited.\n\n%@\n\nReplace it?";
+"Replace" = "Replace";
+"Cancel" = "Cancel";
+"OK" = "OK";
+"SF2 → DEF" = "SF2 → DEF";
+"Wrote %d preset(s).\n\n%@" = "Wrote %d preset(s).\n\n%@";
+"Unknown error" = "Unknown error";
+"invalid arguments" = "invalid arguments";
+"file already exists" = "file already exists";
+"out of memory" = "out of memory";
+"Could not read the SF2 file" = "Could not read the SF2 file";
+"No presets found in the SoundFont" = "No presets found in the SoundFont";

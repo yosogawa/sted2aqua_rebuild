@@ -5,6 +5,15 @@
 
 #include "sf2_def_gen.h"
 
+/* C errors are English keys. Unknown text (strerror) is shown as-is. */
+static NSString *
+Sf2DefMessage(const char *err)
+{
+	const char *msg = (err != NULL && err[0] != 0) ? err : "Unknown error";
+	return NSLocalizedString([NSString stringWithUTF8String:msg],
+				 @"SF2 to DEF error");
+}
+
 @implementation Sf2DefGenerator
 
 + (void)run
@@ -18,8 +27,11 @@
 	[panel setCanChooseFiles:YES];
 	[panel setCanChooseDirectories:NO];
 	[panel setAllowsMultipleSelection:NO];
-	[panel setTitle:@"Generate DEF from SF2"];
-	[panel setMessage:@"Choose a SoundFont under ~/Library/Audio/Sounds/Banks"];
+	[panel setTitle:NSLocalizedString(@"Generate DEF from SF2",
+					 @"SF2 open panel title")];
+	[panel setMessage:NSLocalizedString(
+		@"Choose a SoundFont under ~/Library/Audio/Sounds/Banks",
+		@"SF2 open panel message")];
 	if (@available(macOS 11.0, *)) {
 		UTType *sf2 = [UTType typeWithFilenameExtension:@"sf2"];
 		if (sf2 != nil)
@@ -57,9 +69,12 @@
 		if (sf2_def_planned_out_path(sf2Path, out_dir, out_path,
 					     sizeof out_path) != SF2_DEF_OK) {
 			alert = [[[NSAlert alloc] init] autorelease];
-			[alert setMessageText:@"SF2 → DEF failed"];
-			[alert setInformativeText:@"Could not build output path."];
-			[alert addButtonWithTitle:@"OK"];
+			[alert setMessageText:NSLocalizedString(@"SF2 → DEF failed",
+								@"SF2 to DEF alert")];
+			[alert setInformativeText:NSLocalizedString(
+				@"Could not build output path.",
+				@"SF2 to DEF alert")];
+			[alert addButtonWithTitle:NSLocalizedString(@"OK", @"Alert button")];
 			[alert runModal];
 			return;
 		}
@@ -67,13 +82,15 @@
 		outPathStr = [NSString stringWithUTF8String:out_path];
 		if ([[NSFileManager defaultManager] fileExistsAtPath:outPathStr]) {
 			alert = [[[NSAlert alloc] init] autorelease];
-			[alert setMessageText:@"Replace existing DEF?"];
+			[alert setMessageText:NSLocalizedString(@"Replace existing DEF?",
+								@"SF2 to DEF alert")];
 			[alert setInformativeText:
-				[NSString stringWithFormat:
+				[NSString stringWithFormat:NSLocalizedString(
 					@"A file with this name already exists and may have been edited.\n\n%@\n\nReplace it?",
+					@"SF2 to DEF overwrite"),
 					outPathStr]];
-			[alert addButtonWithTitle:@"Replace"];
-			[alert addButtonWithTitle:@"Cancel"];
+			[alert addButtonWithTitle:NSLocalizedString(@"Replace", @"Alert button")];
+			[alert addButtonWithTitle:NSLocalizedString(@"Cancel", @"Alert button")];
 			if ([alert runModal] != NSAlertFirstButtonReturn)
 				return;
 			overwrite = 1;
@@ -84,13 +101,15 @@
 		if (rc == SF2_DEF_EXISTS) {
 			/* Race: appeared after our check — ask once more. */
 			alert = [[[NSAlert alloc] init] autorelease];
-			[alert setMessageText:@"Replace existing DEF?"];
+			[alert setMessageText:NSLocalizedString(@"Replace existing DEF?",
+								@"SF2 to DEF alert")];
 			[alert setInformativeText:
-				[NSString stringWithFormat:
-					@"A file with this name already exists and may have been edited.\n\n%s\n\nReplace it?",
-					out_path]];
-			[alert addButtonWithTitle:@"Replace"];
-			[alert addButtonWithTitle:@"Cancel"];
+				[NSString stringWithFormat:NSLocalizedString(
+					@"A file with this name already exists and may have been edited.\n\n%@\n\nReplace it?",
+					@"SF2 to DEF overwrite"),
+					[NSString stringWithUTF8String:out_path]]];
+			[alert addButtonWithTitle:NSLocalizedString(@"Replace", @"Alert button")];
+			[alert addButtonWithTitle:NSLocalizedString(@"Cancel", @"Alert button")];
 			if ([alert runModal] != NSAlertFirstButtonReturn)
 				return;
 			rc = sf2_def_generate(sf2Path, out_dir, out_path, sizeof out_path,
@@ -98,21 +117,24 @@
 		}
 		if (rc != SF2_DEF_OK) {
 			alert = [[[NSAlert alloc] init] autorelease];
-			[alert setMessageText:@"SF2 → DEF failed"];
-			[alert setInformativeText:
-				[NSString stringWithUTF8String:err[0] ? err : "Unknown error"]];
-			[alert addButtonWithTitle:@"OK"];
+			[alert setMessageText:NSLocalizedString(@"SF2 → DEF failed",
+								@"SF2 to DEF alert")];
+			[alert setInformativeText:Sf2DefMessage(err)];
+			[alert addButtonWithTitle:NSLocalizedString(@"OK", @"Alert button")];
 			[alert runModal];
 			return;
 		}
 
 		alert = [[[NSAlert alloc] init] autorelease];
-		[alert setMessageText:@"SF2 → DEF"];
+		[alert setMessageText:NSLocalizedString(@"SF2 → DEF",
+							@"SF2 to DEF success title")];
 		[alert setInformativeText:
-			[NSString stringWithFormat:
-				@"Wrote %d preset slot(s) from %d TinySoundFont preset(s).\n\n%s",
-				result.preset_slots, result.tsf_preset_count, out_path]];
-		[alert addButtonWithTitle:@"OK"];
+			[NSString stringWithFormat:NSLocalizedString(
+				@"Wrote %d preset(s).\n\n%@",
+				@"SF2 to DEF success"),
+				result.preset_slots,
+				[NSString stringWithUTF8String:out_path]]];
+		[alert addButtonWithTitle:NSLocalizedString(@"OK", @"Alert button")];
 		[alert runModal];
 	}
 }

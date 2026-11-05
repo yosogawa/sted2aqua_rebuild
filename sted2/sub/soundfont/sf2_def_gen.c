@@ -1131,7 +1131,7 @@ sf2_def_generate(const char *sf2_path, const char *out_dir,
 	font = tsf_load_filename(sf2_path);
 	if (font == NULL) {
 		free(presets);
-		sf2_set_err(errbuf, errbuf_sz, "TinySoundFont failed to load the SF2 file");
+		sf2_set_err(errbuf, errbuf_sz, "Could not read the SF2 file");
 		return SF2_DEF_ERR;
 	}
 
