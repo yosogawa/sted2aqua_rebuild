@@ -49,6 +49,8 @@
 		A1F0E0121AC55B8700A70D02 /* OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = A1F0E0141AC55B8700A70D04 /* OFL.txt */; };
 		A1F0E0311AC55B8700A70D21 /* AVFAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1F0E0321AC55B8700A70D22 /* AVFAudio.framework */; };
 		A1L10C011B01000100L10C01 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = A1L10C041B01000100L10C01 /* Localizable.strings */; };
+		A1RAS0012F0A4B0100E0E201 /* gm.ras in Resources */ = {isa = PBXBuildFile; fileRef = A1RAS0022F0A4B0100E0E202 /* gm.ras */; };
+		A1RAS0032F0A4B0100E0E203 /* mt32.ras in Resources */ = {isa = PBXBuildFile; fileRef = A1RAS0042F0A4B0100E0E204 /* mt32.ras */; };
 		A1SF2D012F0A4B0100SF2D01 /* Sf2DefGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = A1SF2B012F0A4B0100SF2B01 /* Sf2DefGenerator.m */; };
 		A1SF2D022F0A4B0100SF2D02 /* sf2_def_gen.c in Sources */ = {isa = PBXBuildFile; fileRef = A1SF2B022F0A4B0100SF2B02 /* sf2_def_gen.c */; };
 		A1TR00042F0A4B0100E0E004 /* RcpTransport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1TR00012F0A4B0100E0E001 /* RcpTransport.cpp */; };
@@ -190,6 +192,8 @@
 		A1F0E0511AC55B8700A70D51 /* X68kWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = X68kWindow.h; sourceTree = "<group>"; };
 		A1L10C021B01000100L10C01 /* en */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		A1L10C031B01000100L10C01 /* ja */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
+		A1RAS0022F0A4B0100E0E202 /* gm.ras */ = {isa = PBXFileReference; explicitFileType = text; path = gm.ras; sourceTree = "<group>"; };
+		A1RAS0042F0A4B0100E0E204 /* mt32.ras */ = {isa = PBXFileReference; explicitFileType = text; path = mt32.ras; sourceTree = "<group>"; };
 		A1SF2B002F0A4B0100SF2B00 /* Sf2DefGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Sf2DefGenerator.h; sourceTree = "<group>"; };
 		A1SF2B012F0A4B0100SF2B01 /* Sf2DefGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Sf2DefGenerator.m; sourceTree = "<group>"; };
 		A1SF2B022F0A4B0100SF2B02 /* sf2_def_gen.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sf2_def_gen.c; sourceTree = "<group>"; };
@@ -570,6 +574,15 @@
 			path = soundfont;
 			sourceTree = "<group>";
 		};
+		A1RAS0102F0A4B0100E0E210 /* partfile */ = {
+			isa = PBXGroup;
+			children = (
+				A1RAS0022F0A4B0100E0E202 /* gm.ras */,
+				A1RAS0042F0A4B0100E0E204 /* mt32.ras */,
+			);
+			path = partfile;
+			sourceTree = "<group>";
+		};
 		A1TSF0002F0A4B0100TSF000 /* TinySoundFont */ = {
 			isa = PBXGroup;
 			children = (
@@ -630,6 +643,7 @@
 			isa = PBXGroup;
 			children = (
 				E40E951F1ABA41ED0072AA0B /* deffile */,
+				A1RAS0102F0A4B0100E0E210 /* partfile */,
 				E40E95241ABA41ED0072AA0B /* sted2.cnf */,
 				E40E95251ABA41ED0072AA0B /* sted2.fon */,
 			);
@@ -858,6 +872,8 @@
 				A1DEF0052F0A4B0100E0E105 /* gm2.def in Resources */,
 				A1DEF0072F0A4B0100E0E107 /* xg.def in Resources */,
 				A1DEF00B2F0A4B0100E0E10B /* dream.def in Resources */,
+				A1RAS0012F0A4B0100E0E201 /* gm.ras in Resources */,
+				A1RAS0032F0A4B0100E0E203 /* mt32.ras in Resources */,
 				AFA1A099308ED36600F7328B /* sted.icns in Resources */,
 				E40E95C61ABA41ED0072AA0B /* cm64.def in Resources */,
 				E40E95C71ABA41ED0072AA0B /* sc55.def in Resources */,

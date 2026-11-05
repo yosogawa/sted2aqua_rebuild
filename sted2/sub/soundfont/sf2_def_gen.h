@@ -2,6 +2,7 @@
  * sf2_def_gen.h — SF2 analysis → STed .def skeleton (portable C).
  *
  * TinySoundFont (third_party/TinySoundFont) is used for preset enumeration.
+ * Bank 128 key names for #rhy_as are read from the SF2 preset data directly.
  * UI lives in Sf2DefGenerator (ObjC); this unit has no Cocoa dependency.
  */
 

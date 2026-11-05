@@ -3522,11 +3522,17 @@ s_MacSelectFile(void **args)
 			 * exported type whose only extension is "mid". Opening still
 			 * resolves "mid" through typeWithFilenameExtension:, which
 			 * returns public.midi-audio, so .midi files stay selectable.
+			 * Unknown extensions such as ras have no system type. A tag
+			 * type keeps them in the filter instead of dropping them.
 			 */
 			if (is_save && [extString isEqualToString:@"mid"])
 				type = [UTType exportedTypeWithIdentifier:@"com.github.STed2.mid"];
 			else
 				type = [UTType typeWithFilenameExtension:extString];
+			if (type == nil)
+				type = [UTType typeWithTag:extString
+						  tagClass:UTTagClassFilenameExtension
+					   conformingToType:UTTypeData];
 			if (type != nil)
 				[contentTypes addObject:type];
 		}
@@ -3544,10 +3550,24 @@ s_MacSelectFile(void **args)
 		}
 	}
 	if (mes != NULL) {
+		NSMutableString *extHint = [NSMutableString string];
+		NSString *one;
 		/* Title is often hidden on modern open/save panels; message shows
-		 * inside the sheet (e.g. "LOAD DEFINE FILE..."). */
-		title = [NSString stringWithFormat:@"%s %s FILE...",
-			(is_save ? "SAVE" : "LOAD"), mes];
+		 * inside the sheet. The open panel has no format menu, so the
+		 * extension list is the guide (e.g. LOAD RHYTHM ASSIGN FILE... (.ras)). */
+		if (filetypes != nil) {
+			for (one in filetypes) {
+				if ([extHint length] > 0)
+					[extHint appendString:@", "];
+				[extHint appendFormat:@".%@", one];
+			}
+		}
+		if ([extHint length] > 0)
+			title = [NSString stringWithFormat:@"%s %s FILE... (%@)",
+				(is_save ? "SAVE" : "LOAD"), mes, extHint];
+		else
+			title = [NSString stringWithFormat:@"%s %s FILE...",
+				(is_save ? "SAVE" : "LOAD"), mes];
 		[panel setTitle:title];
 		[panel setMessage:title];
 	}

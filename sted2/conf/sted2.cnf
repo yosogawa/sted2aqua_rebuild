@@ -46,6 +46,10 @@
 			* 音源定義ファイルが存在するパス
 *#def_path=/usr/local/lib/sted/deffile
 
+			* パート／リズムアサイン等のファイルが存在するパス
+			* 未設定時は Application Support/sted/partfile
+*#prt_path=/usr/local/lib/sted/partfile
+
 			* '-F'無指定時に使用する音源定義ファイル
 			* (default=STed2.def)
 			* #def_file_a / #def_file_b があればそのポートだけ別ファイル。

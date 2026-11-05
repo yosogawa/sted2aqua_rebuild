@@ -1386,6 +1386,11 @@ int	defload(char *fi,int md)
 		snprintf(def_path, sizeof def_path, "%s/deffile", s_sted_default_path);
 	}
 	/*  End Toshi Nagata  */
+	/* Empty #prt_path uses the support-folder library, same as #def_path.
+	 * sted.c still copies rcp_path if this stays empty. */
+	if (prt_path[0] == 0 && s_sted_default_path[0] != 0) {
+		snprintf(prt_path, sizeof prt_path, "%s/partfile", s_sted_default_path);
+	}
 
   if(partial){
     def_shared_restore_missing(&snap, saw_rec_met, saw_rhy_as,
