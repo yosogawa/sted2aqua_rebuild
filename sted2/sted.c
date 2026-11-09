@@ -1152,6 +1152,8 @@ void	save_sub(int sh)
   }else{
     if(str_search(rcp_file,".R36")>0){
       strmfe(tmp1, sizeof tmp1, tmp1, "RCP");sh=0;
+    }else if(str_search(rcp_file,".abc")>0 || str_search(rcp_file,".ABC")>0){
+      sh=0;
     }else{
       strmfe(tmp1, sizeof tmp1, tmp1, "R36");sh=1;
     }

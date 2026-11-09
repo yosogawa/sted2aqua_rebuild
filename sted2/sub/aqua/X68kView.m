@@ -3527,6 +3527,8 @@ s_MacSelectFile(void **args)
 			 */
 			if (is_save && [extString isEqualToString:@"mid"])
 				type = [UTType exportedTypeWithIdentifier:@"com.github.STed2.mid"];
+			else if (is_save && [extString isEqualToString:@"abc"])
+				type = [UTType exportedTypeWithIdentifier:@"com.github.STed2.abc"];
 			else
 				type = [UTType typeWithFilenameExtension:extString];
 			if (type == nil)

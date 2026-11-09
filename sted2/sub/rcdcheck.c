@@ -463,6 +463,7 @@ int STed_InitMeasureConversion() {
 
 /* converts from total step to measure & relative step */
 static int stp_ad( int tr, int meas, int step );
+static void fold_cross_bar_repeat( int t, int bar, int off, int abs_t, int *bar_io, int *step_io );
 int STed_MeasureConversion( int tr ) {
 
   int i;
@@ -493,19 +494,255 @@ int STed_MeasureConversion( int tr ) {
     rcd->step[tr]=0;
     rcd->active[tr]=0;
   } else {
+    int off=c-bar_st[tr][i];
+    int bar=i;
+    int step=stp_ad(tr, i, off);
+
+    /* A REPEAT that crosses a bar line stores later laps in the 0xF8
+       bar. Point those laps back at the 0xF9 bars. */
+    fold_cross_bar_repeat(tr, i, off, c, &bar, &step);
     rcd->active[tr]=1;
-    rcd->bar[tr] = i;
-    rcd->step[tr] = stp_ad(tr, i, c-bar_st[tr][i]);
+    rcd->bar[tr] = bar;
+    rcd->step[tr] = step;
   }
 
   return 0;
+}
+
+/* Bar address used by stp_ad. poft shifts playback that starts mid-song. */
+static int play_bar_po( int t, int measure )
+{
+  int tr, po;
+
+  measure+=(poft&0xffff);
+  if (( poft&0xffff)==0 ) measure++;
+  tr=track;
+  track=t;
+  po=meas_add(measure);
+  track=tr;
+  return po;
+}
+
+static int match_f9( const uint8_t *bp, int f8 )
+{
+  int po, depth;
+
+  depth=0;
+  for(po=f8-4; po>=0; po-=4){
+    if(bp[po]==0xf8){depth++;}
+    else if(bp[po]==0xf9){
+      if(depth==0){return po;}
+      depth--;
+    }
+  }
+  return -1;
+}
+
+/* add_set marks whose stored address is in (from, to]. */
+static int bar_marks_between( const uint8_t *bp, int from, int to, int len )
+{
+  int n, j;
+
+  n=0;
+  for(j=0; j+4<=to && j+4<=len; j+=4){
+    int mark, at;
+
+    mark=(bp[j]>=0xfc || (j+4<len && bp[j+4]==0xfc));
+    at=j+4;
+    if(mark && at>from && at<=to){n++;}
+  }
+  return n;
+}
+
+/* Step index of the event after 0xF9. Notes earlier in that bar count. */
+static int step_at_f9( const uint8_t *bp, int f9, int len )
+{
+  int start, po, s;
+
+  start=0;
+  for(po=0; po+4<=f9 && po+4<=len; po+=4){
+    if(bp[po]>=0xfc || (po+4<len && bp[po+4]==0xfc)){start=po+4;}
+  }
+  s=1;
+  for(po=start; po<f9; po+=4){
+    if(bp[po]==0xf7){continue;}
+    if(bp[po]<0xf8){s++;}
+  }
+  return s;
+}
+
+/* pos is ticks from the event after 0xF9. Inner loops keep counting s. */
+static void map_body( int t, int f9, int bar0, int s0, int pos, int *bar, int *step )
+{
+  uint8_t *bp=trk[t];
+  int len=tr_len[t];
+  int po=f9+4;
+  int lpad[16], lpco[16];
+  int lpnn=0;
+  int s=s0;
+  int b=bar0;
+  int guard=0;
+
+  while(pos>0 && po>=0 && po<len && guard<100000){
+    uint8_t a=bp[po];
+    int ct;
+
+    guard++;
+    if(a==0xf7){po+=4;continue;}
+    if(a>0xfc){
+      if(a==0xfe){break;}
+      b++;
+      s=1;
+      po+=4;
+      continue;
+    }
+    if(a==0xfc){break;}
+    if(a<0xf0){
+      pos-=bp[po+1];
+      if(pos<0){break;}
+    }
+    if(a<0xf8){s++;}
+    po+=4;
+    if(a==0xf9 && lpnn<16){
+      lpnn++;
+      lpad[lpnn]=po;
+      lpco[lpnn]=0;
+    }
+    if(a==0xf8 && lpnn>0){
+      lpco[lpnn]+=1;
+      ct=bp[po-3];
+      if(ct==0 || ct==255){ct=1;}
+      if(lpco[lpnn]<ct){
+	po=lpad[lpnn];
+	continue;
+      }
+      lpnn--;
+    }
+  }
+  *bar=b;
+  *step=s;
+}
+
+/* Ticks from the screen walker's start. Bar 0 means "do not skip". */
+static int walker_origin( int t )
+{
+  int tr, po, me;
+
+  me=(poft&0xffff)+1;
+  tr=track;
+  track=t;
+  po=meas_add(me);
+  track=tr;
+  return po;
+}
+
+/* Event index from the walker start, counting every lap. */
+static int map_cumulative( int t, int origin, int abs_t )
+{
+  uint8_t *bp=trk[t];
+  int len=tr_len[t];
+  int po=origin;
+  int s=1;
+  int lpad[16], lpco[16];
+  int lpnn=0;
+  int guard=0;
+  int pos=abs_t;
+
+  if(po<0){return 1;}
+  while(pos>0 && po>=0 && po<len && guard<100000){
+    uint8_t a=bp[po];
+    int ct;
+
+    guard++;
+    if(a==0xf7){po+=4;continue;}
+    if(a==0xfe){break;}
+    if(a==0xfc){break;}
+    if(a>0xfc){po+=4;continue;}
+    if(a<0xf0){
+      pos-=bp[po+1];
+      if(pos<0){break;}
+    }
+    if(a<0xf8){s++;}
+    po+=4;
+    if(a==0xf9 && lpnn<16){
+      lpnn++;
+      lpad[lpnn]=po;
+      lpco[lpnn]=0;
+    }
+    if(a==0xf8 && lpnn>0){
+      lpco[lpnn]+=1;
+      ct=bp[po-3];
+      if(ct==0 || ct==255){ct=1;}
+      if(lpco[lpnn]<ct){
+	po=lpad[lpnn];
+	continue;
+      }
+      lpnn--;
+    }
+  }
+  return s;
+}
+
+/* Later laps of a REPEAT that crosses a bar live in the 0xF8 bar's
+   expanded length. Report the bar and step of this lap instead.
+   Notes after that 0xF8 in the same bar are counted from the start,
+   because the screen walker replays the whole loop before them.
+   A loop closed inside one bar, and a body that contains SAME MEAS,
+   keep the stp_ad result. */
+static void fold_cross_bar_repeat( int t, int bar, int off, int abs_t, int *bar_io, int *step_io )
+{
+  uint8_t *bp=trk[t];
+  int len=tr_len[t];
+  int start, po, f8, f9, ct, body, tail, extra, pos;
+
+  if(off<0){return;}
+  start=play_bar_po(t, bar);
+  if(start<0 || start>=len){return;}
+
+  f8=-1;
+  f9=-1;
+  po=start;
+  while(po>=0 && po<len){
+    uint8_t a=bp[po];
+    int m9;
+
+    if(a==0xf7){po+=4;continue;}
+    if(a>=0xfc){break;}
+    if(a==0xf8){
+      m9=match_f9(bp, po);
+      if(m9>=0 && m9<start){
+	f8=po;
+	f9=m9;
+      }
+    }
+    po+=4;
+  }
+  if(f8<0){return;}
+  for(po=f9; po<f8; po+=4){
+    if(po+4<=len && (bp[po]==0xfc || bp[po+4]==0xfc)){return;}
+  }
+  ct=bp[f8+1];
+  if(ct==0 || ct==255){ct=1;}
+  if(ct<2){return;}
+  body=step_cluc2(t, f9, f8-f9);
+  tail=step_cluc2(t, start, f8-start);
+  if(body<=0 || tail<0){return;}
+  extra=(ct-1)*body;
+  if(off<tail){return;}
+  if(off>=tail+extra){
+    *bar_io=0;
+    *step_io=map_cumulative(t, walker_origin(t), abs_t);
+    return;
+  }
+  pos=(off-tail)%body;
+  map_body(t, f9, bar-bar_marks_between(bp, f9, start, len),
+	   step_at_f9(bp, f9, len), pos, bar_io, step_io);
 }
 
 static int stp_ad( int t, int measure, int step ) {
 
   uint8_t a;
   int po;
-  int tr;
   int s;
   uint8_t *bp=trk[t];
   int me_ad[2048];
@@ -516,16 +753,12 @@ static int stp_ad( int t, int measure, int step ) {
   int lpnn;
   int jj, ii, ct, depth;
 
-  measure+=(poft&0xffff);
-  if (( poft&0xffff)==0 ) measure++;
-  tr=track;
-  track=t;
-  po = meas_add(measure);
-  track=tr;
+  po=play_bar_po(t, measure);
 
-  /* Bar length already expands SAME MEAS. Follow that source, and repeat
-     loops inside it the same number of times, so the cursor index moves
-     for the whole bar. Events other than 0xfc are counted as before. */
+  /* Bar length already expands SAME MEAS and REPEAT. Follow that source,
+     and repeat loops the same number of times, so the cursor index moves
+     for the whole bar. Edit and score do not consume the index on 0xF8
+     or 0xF9, so those events rewind without advancing s. */
   max=add_set(t, me_ad);
   retad=0;
   lpnn=0;
@@ -566,10 +799,9 @@ static int stp_ad( int t, int measure, int step ) {
       step-=bp[po+1];
       if (step<0) break;
     }
-    s++;
+    if(a<0xf8){s++;}
     po=po+4;
 
-    if(retad==0) continue;
     if(a==0xf9 && lpnn<16){
       lpnn++;
       lpad[lpnn]=po;

@@ -18,6 +18,7 @@
 #include	"rcp_transport_cmd.h"
 
 #include        "rcpconv.h"
+#include        "abc2rcp/abc2rcp.h"
 
 /* 123456789012345678901234567890 */
 /*static char	sted_id[]="STedV2.0(C)TURBO\r\n";*/		/* 18byte */
@@ -116,6 +117,177 @@ static int smfload( char *fna ) {
   return(0);
 }
 
+static int ends_with_abc(const char *fna)
+{
+  const char *s;
+  int n;
+
+  if (fna == NULL)
+    return 0;
+  n = (int)strlen(fna);
+  if (n < 4)
+    return 0;
+  s = fna + n - 4;
+  return s[0] == '.' &&
+    (s[1] == 'a' || s[1] == 'A') &&
+    (s[2] == 'b' || s[2] == 'B') &&
+    (s[3] == 'c' || s[3] == 'C');
+}
+
+/* %%MIDI channel 10 is an in-track 0xE6. Track key 128 skips play bias. */
+static int track_has_channel_10(const uint8_t *p, int n)
+{
+  int i;
+
+  for (i = 0; i + RCP_EVENT_SIZE <= n; i += RCP_EVENT_SIZE) {
+    if (p[i] == RCP_EOT)
+      break;
+    if (p[i] == 0xe6 && p[i + 2] == 10)
+      return 1;
+  }
+  return 0;
+}
+
+static int abcload(char *fna)
+{
+  FILE *fp;
+  long sz;
+  char *text;
+  AbcSong song;
+  int i, n, len;
+
+  if (!(fp = fopen2(fna, "rb"))) {
+    msg(_("File not found."));
+    return -1;
+  }
+  if (fseek(fp, 0, SEEK_END) != 0) {
+    fclose(fp);
+    msg(_("Invalid file."));
+    return -1;
+  }
+  sz = ftell(fp);
+  if (sz < 0 || sz > 8 * 1024 * 1024) {
+    fclose(fp);
+    msg(_("Invalid file."));
+    return -1;
+  }
+  if (fseek(fp, 0, SEEK_SET) != 0) {
+    fclose(fp);
+    msg(_("Invalid file."));
+    return -1;
+  }
+  text = (char *)malloc((size_t)sz + 1);
+  if (text == NULL) {
+    fclose(fp);
+    return -1;
+  }
+  if (sz > 0 && fread(text, 1, (size_t)sz, fp) != (size_t)sz) {
+    free(text);
+    fclose(fp);
+    msg(_("Invalid file."));
+    return -1;
+  }
+  fclose(fp);
+  text[sz] = 0;
+  if (abc_import_text(text, (int)sz, &song) != 0) {
+    free(text);
+    msg(_("Invalid file format."));
+    return -1;
+  }
+  free(text);
+
+  dinit();
+  memcpy(mtitle, song.title, 64);
+  mtitle[64] = 0;
+  mtempo = song.tempo;
+  if (mtempo < 8)
+    mtempo = 8;
+  if (mtempo > 255)
+    mtempo = 255;
+  tbase = ABC_TIMEBASE;
+  beat1 = song.beat1;
+  beat2 = song.beat2;
+  bkey = song.key & 31;
+  trrhy[9] = 0;
+  trkey[9] = 0;
+  for (i = 0; i < 32; i++) {
+    rhyna[i][0] = 0;
+    rhyno[i][0] = 0;
+    rhyno[i][1] = 0;
+  }
+
+  n = song.ntracks;
+  if (n > 36)
+    n = 36;
+  for (i = 0; i < n; i++) {
+    len = song.len[i];
+    if (len < RCP_EVENT_SIZE || len > TRACK_SIZE || song.trk[i] == NULL) {
+      msg(_("Track buffer exhausted."));
+      abc_song_free(&song);
+      return -1;
+    }
+    if (size_change(i, len)) {
+      msg(_("Track buffer exhausted."));
+      abc_song_free(&song);
+      return -1;
+    }
+    memcpy(trk[i], song.trk[i], (size_t)len);
+    tr_len[i] = len;
+    mch[i] = song.mch[i];
+    memcpy(trkmemo[i], song.memo[i], 36);
+    trkmemo[i][36] = 0;
+    if (track_has_channel_10(trk[i], len))
+      trkey[i] = 128;
+    track = i;
+    trk_cluc();
+  }
+  for (i = n; i < 36; i++)
+    mch[i] = 0;
+  abc_song_free(&song);
+  trksize_c();
+  return 0;
+}
+
+static int abcsave(char *fna)
+{
+  AbcSong song;
+  char *text = NULL;
+  FILE *fp;
+  int i, n, wr;
+
+  memset(&song, 0, sizeof song);
+  memcpy(song.title, mtitle, 64);
+  song.title[64] = 0;
+  song.tempo = mtempo;
+  song.beat1 = beat1;
+  song.beat2 = beat2;
+  song.key = bkey;
+  song.timebase = tbase > 0 ? tbase : ABC_TIMEBASE;
+  song.ntracks = 36;
+  for (i = 0; i < 36; i++) {
+    song.trk[i] = trk[i];
+    song.len[i] = tr_len[i];
+    song.mch[i] = mch[i];
+  }
+  if (abc_export_text(&song, &text) != 0 || text == NULL)
+    return -1;
+  if (!(fp = fopen2(fna, "wb"))) {
+    msg(_("Cannot open file."));
+    free(text);
+    return -1;
+  }
+  n = (int)strlen(text);
+  wr = (int)fwrite(text, 1, (size_t)n, fp);
+  fclose(fp);
+  free(text);
+  if (wr != n) {
+    msg(_("Cannot write file."));
+    unlink(fna);
+    return -1;
+  }
+  return 0;
+}
+
 int	dload(char *fna,int md)
 {
   int	i,j,size,size2,ln,md2=0,stra=0,max;
@@ -123,6 +295,9 @@ int	dload(char *fna,int md)
 
   if(str_search(fna,".MID")>0 || str_search(fna,".mid")>0 )
     {return(smfload(fna));}
+
+  if (ends_with_abc(fna))
+    return abcload(fna);
 
   if(str_search(fna,".R36")>0 || str_search(fna,".r36")>0){md2=1;}
 
@@ -223,6 +398,9 @@ int	dsave(char *fna)
   dclr();
   if(str_search(fna,".MID")>0 || str_search(fna,".mid")>0 )
     {return(smfsave(fna));}
+
+  if (ends_with_abc(fna))
+    return abcsave(fna);
 
   if(str_search(fna,".R36")>0 || str_search(fna,".r36")>0){md2=1;}
 
@@ -1480,7 +1658,9 @@ int	lsp_para_set(int tr,int po,int *me_ad,int wcc)
 	}
       }else{
 	if( d==0xf6 ){
-	  while(ptr[j+4]==0xf7){j+=4;}
+	  j+=4;
+	  while(j<po && ptr[j]==0xf7){j+=4;}
+	  if(j>=po){break;}
 	  goto top;
 	}
 

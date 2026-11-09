@@ -44,6 +44,18 @@
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
+			<string>ABC</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.github.STed2.abc</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeName</key>
 			<string>MID</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
@@ -85,6 +97,8 @@
 	<string>NSApplication</string>
 	<key>STedSaveFormatNames</key>
 	<dict>
+		<key>com.github.STed2.abc</key>
+		<string>.abc — ABC notation</string>
 		<key>com.github.STed2.mid</key>
 		<string>.mid — Standard MIDI</string>
 		<key>com.github.STed2.r36</key>
@@ -146,6 +160,23 @@
 				<key>public.filename-extension</key>
 				<array>
 					<string>trk</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>ABC notation</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.github.STed2.abc</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>abc</string>
 				</array>
 			</dict>
 		</dict>

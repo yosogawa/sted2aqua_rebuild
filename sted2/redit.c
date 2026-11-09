@@ -722,7 +722,9 @@ void	rsttrc(int *no,int *cx,int flg,int pg)
     if(ca==0xf9 && nn<16){
       nn++;lpad[nn]=ad;lprt[nn]=rad;lpco[nn]=0;
     }
-    if(ca==0xf8 && nn>0){
+    /* Skipping bars (j>0) must not replay a REPEAT that already ended.
+       Inside the destination bar, j==0, the jump still runs. */
+    if(ca==0xf8 && nn>0 && j==0){
       lpco[nn]+=1;
       if(lpco[nn]!=ptr[ad+1-4]){ad=lpad[nn];rad=lprt[nn];goto loop1;}
       nn--;
