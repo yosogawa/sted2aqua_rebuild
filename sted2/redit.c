@@ -78,7 +78,7 @@ void rtrk_ed(int md,int sh)
       fill(cx*16+144+32,640,cx*16+144+32,15*16+655+50,15);
       */
     /* Jul.02.1998 by Daisuke Nagano */
-    if (!isconsole) {
+    if (displayMode == DISPLAY_GUI) {
       txxline(128+32,cy*16+143+yy,65*8,0,65535);
       txyline(cx*16+144+32,128,16*16+48,0,65535);
     } else {
@@ -123,7 +123,7 @@ void rtrk_ed(int md,int sh)
       fill(cx*16+144+32,640,cx*16+144+32,15*16+655+50,0);
       */
     /* Jul.02.1998 by Daisuke Nagano */
-    if (!isconsole) {
+    if (displayMode == DISPLAY_GUI) {
       txxline(128+32,cy*16+143+yy,65*8,0,0);
       txyline(cx*16+144+32,128,16*16+48,0,0);
     } else {

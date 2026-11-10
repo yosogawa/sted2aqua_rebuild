@@ -381,7 +381,7 @@ MaxHeightScaleFactorForWindow(NSWindow *w)
 	int i;
 	FILE *fp;
 
-	if (isconsole) {
+	if (displayMode == DISPLAY_CONSOLE) {
 		[[self window] orderOut:nil];
 		return;
 	}
@@ -1372,7 +1372,7 @@ s_present_main_window_main(void)
 void
 XSTed_present_main_window(void)
 {
-	if (isconsole || sMainWindowShown || sMainView == nil)
+	if (displayMode == DISPLAY_CONSOLE || sMainWindowShown || sMainView == nil)
 		return;
 	if ([NSThread isMainThread]) {
 		s_present_main_window_main();

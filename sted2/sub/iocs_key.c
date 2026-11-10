@@ -27,9 +27,9 @@ void XSTed_ledmod(int, int);
 
 void _iocs_ledmod( int code, int onoff ) {
 
-  if ( isconsole ) {
+  if ( displayMode == DISPLAY_CONSOLE ) {
     curses_ledmod( code, onoff );
-  } else if ( isGUI ) {
+  } else if ( displayMode == DISPLAY_GUI ) {
     XSTed_ledmod( code, onoff );
   }
 
@@ -41,9 +41,9 @@ int _iocs_b_keyinp( void ) {
   int ret;
 
   ret=0;
-  if ( isconsole ) {
+  if ( displayMode == DISPLAY_CONSOLE ) {
     ret=curses_keyinp();
-  } else if ( isGUI ) {
+  } else if ( displayMode == DISPLAY_GUI ) {
     ret=XSTed_keyinp();
   }
 
@@ -55,9 +55,9 @@ int _iocs_b_keysns( void ) {
   int ret;
 
   ret=0;
-  if ( isconsole ) {
+  if ( displayMode == DISPLAY_CONSOLE ) {
     ret=(curses_keyin(0xfe)==0)?0:1;
-  } else if ( isGUI ) {
+  } else if ( displayMode == DISPLAY_GUI ) {
     ret=XSTed_keysns();
   }
 
@@ -68,9 +68,9 @@ int _iocs_b_sftsns( void ) {
 
   int ret=0;
 
-  if ( isconsole ) {
+  if ( displayMode == DISPLAY_CONSOLE ) {
     ret=curses_sftsns();
-  } else if ( isGUI ) {
+  } else if ( displayMode == DISPLAY_GUI ) {
     ret=XSTed_sftsns();
   }
   return ret;
@@ -80,7 +80,7 @@ int _iocs_bitsns( int group ) {
 
   int ret=0;
 
-  if ( isGUI ) {
+  if ( displayMode == DISPLAY_GUI ) {
     ret = XSTed_bitsns( group );
   }
   return ret;

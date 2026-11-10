@@ -55,9 +55,9 @@ int _iocs_b_color( int color ) {
   int c;
   c=iocs_current_color;
   iocs_current_color = color;
-  if ( isconsole ) {
+  if ( displayMode == DISPLAY_CONSOLE ) {
     curses_tcolor( color );
-  } else if ( isGUI ) {
+  } else if ( displayMode == DISPLAY_GUI ) {
     XSTed_tcolor( color );
   }
 
@@ -72,9 +72,9 @@ int _iocs_b_print( const char *message ) {
     printf("%s", message );
     return 0;
   }
-  if ( isconsole )
+  if ( displayMode == DISPLAY_CONSOLE )
     curses_tputs( message );
-  else if ( isGUI )
+  else if ( displayMode == DISPLAY_GUI )
     XSTed_tputs( message );
 
   x = iocs_current_text_x + strlen(message);
@@ -98,14 +98,14 @@ int _iocs_b_putmes ( int col, int x, int y, int width, const char *str ) {
 
   int c;
 
-  if ( isconsole ) {
+  if ( displayMode == DISPLAY_CONSOLE ) {
     curses_tcolor(col);
     curses_tlocate( x, y );
     curses_tputs( str );
     curses_tcolor( iocs_current_color );
     curses_tlocate( iocs_current_text_x+iocs_console_xtop,
 		    iocs_current_text_y+iocs_console_ytop );
-  } else if ( isGUI ) {
+  } else if ( displayMode == DISPLAY_GUI ) {
     c=XSTed_tcolor( col );
     XSTed_tlocate( x, y );
     XSTed_tputs( str );
@@ -135,9 +135,9 @@ int _iocs_b_locate( int x0, int y0 ) {
     x = x0+iocs_console_xtop;
     y = y0+iocs_console_ytop;
 
-    if ( isconsole )
+    if ( displayMode == DISPLAY_CONSOLE )
       curses_tlocate( x, y );
-    else if ( isGUI )
+    else if ( displayMode == DISPLAY_GUI )
       XSTed_tlocate( x, y );
   }
 
@@ -146,9 +146,9 @@ int _iocs_b_locate( int x0, int y0 ) {
 
 void _iocs_b_clr_al( void ) {
 
-  if ( isconsole ) {
+  if ( displayMode == DISPLAY_CONSOLE ) {
     curses_cls_al();
-  } else if ( isGUI ) {
+  } else if ( displayMode == DISPLAY_GUI ) {
     XSTed_cls_al();
   }
 
@@ -161,9 +161,9 @@ void _iocs_b_clr_al( void ) {
 
 void _iocs_b_clr_ed ( void ) {
 
-  if ( isconsole ) {
+  if ( displayMode == DISPLAY_CONSOLE ) {
     curses_cls_ed();
-  } else if ( isGUI ) {
+  } else if ( displayMode == DISPLAY_GUI ) {
     XSTed_cls_ed();
   }
   return;
@@ -172,9 +172,9 @@ void _iocs_b_clr_ed ( void ) {
 /* fonts */
 
 int _iocs_defchr( int type, int code, const void *buff ) {
-  if ( isconsole )
+  if ( displayMode == DISPLAY_CONSOLE )
     return 0;
-  if ( isGUI )
+  if ( displayMode == DISPLAY_GUI )
     return XSTed_defchr(type, code, buff);
   return 0;
 }

@@ -24,10 +24,10 @@ void curses_gfill(int, int, int, int, int);
 
 void fill( int x1, int y1, int x2, int y2, unsigned int col ) {
 
-  if ( isconsole ) {
+  if ( displayMode == DISPLAY_CONSOLE ) {
     curses_gfill( x1, y1, x2, y2, col );
 
-  } else if ( isGUI ) {
+  } else if ( displayMode == DISPLAY_GUI ) {
     XSTed_gfill( x1, y1, x2, y2, col );
   }
   return;
@@ -35,7 +35,7 @@ void fill( int x1, int y1, int x2, int y2, unsigned int col ) {
 
 void box( int x1, int y1, int x2, int y2, unsigned int col, unsigned int ls ) {
 
-  if ( isGUI ) {
+  if ( displayMode == DISPLAY_GUI ) {
     XSTed_gbox( x1, y1, x2, y2, col, ls );
   }
   return;
@@ -44,7 +44,7 @@ void box( int x1, int y1, int x2, int y2, unsigned int col, unsigned int ls ) {
 int point( int x, int y ) {
 
   int ret=0;
-  if ( isGUI ) {
+  if ( displayMode == DISPLAY_GUI ) {
     ret = XSTed_gpoint( x, y );
   }
   return ret;
@@ -52,7 +52,7 @@ int point( int x, int y ) {
 
 void line( int x1, int y1, int x2, int y2, int col, int ls ) {
 
-  if ( isGUI ) {
+  if ( displayMode == DISPLAY_GUI ) {
     XSTed_gline( x1, y1, x2, y2, col ,ls );
   }
   return;
@@ -61,11 +61,11 @@ void line( int x1, int y1, int x2, int y2, int col, int ls ) {
 void symbol( int x, int y, char *st, char h,
 	     char v, char mo, int p, char an ) {
 
-  if ( isconsole ) {
+  if ( displayMode == DISPLAY_CONSOLE ) {
     curses_gcolor( p );
     curses_gputs( x, y, st );
 
-  } else if ( isGUI ) {
+  } else if ( displayMode == DISPLAY_GUI ) {
     XSTed_gcolor( p );
     XSTed_gputs( x, y, st );
   }
@@ -105,7 +105,7 @@ int mspos( int *x, int *y ) {
 
   int ret=0;
 
-  if ( isGUI ) {
+  if ( displayMode == DISPLAY_GUI ) {
     XSTed_ms_pos( x, y );
   }
 

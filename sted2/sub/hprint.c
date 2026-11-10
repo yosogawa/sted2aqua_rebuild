@@ -46,9 +46,9 @@ H_PRINT(char *s1, char *s2, char *s3)
   x = x >> 16;
 
   B_LOCATE(0, y);
-  if (isconsole)
+  if (displayMode == DISPLAY_CONSOLE)
     curses_cls_eol();
-  else if (isGUI)
+  else if (displayMode == DISPLAY_GUI)
     XSTed_cls_eol();
 
   B_LOCATE(x, y);

@@ -8,7 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-extern int isconsole;
+#include "sted.h"
 extern int sted_saved_argc;
 extern char **sted_saved_argv;
 extern void sted_select_ui(int *argc, char ***argv);
@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
     sted_select_ui(&argc, &argv);
     sted_saved_argc = argc;
     sted_saved_argv = argv;
-    if (isconsole) {
+    if (displayMode == DISPLAY_CONSOLE) {
         sted_detach_from_gui();
         XSTed_setup_default_path();
         return sted2_main(argc, argv);

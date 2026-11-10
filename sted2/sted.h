@@ -291,9 +291,14 @@ _extern uint8_t	*dat2;			/* temporary			*/
 
 /* the following variables is only PC version available */
 
+#ifdef HAVE_SUPPORT_STED3
 extern int issted3;                     /* Am I a new version ? */
-extern int isconsole;                   /* is console mode? */
-extern int isGUI;                       /* is GUI mode? */
+#endif
+typedef enum {
+  DISPLAY_CONSOLE = 0,
+  DISPLAY_GUI = 1
+} DisplayMode;
+extern DisplayMode displayMode;
 /* Practical cap for player/port/font/display names (not an OS API max). */
 #define STED_NAMEBUF 1024
 extern char disp_text[1024];            /* SJIS → display conversion buffer */

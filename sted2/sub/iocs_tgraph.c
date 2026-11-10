@@ -26,7 +26,7 @@ int _iocs_tpalet( int no, int code ) {
 
   int ret=0;
 
-  if ( isGUI ) {
+  if ( displayMode == DISPLAY_GUI ) {
    ret=XSTed_tpalet( no, code );
   }
   return ret;
@@ -34,7 +34,7 @@ int _iocs_tpalet( int no, int code ) {
 
 void _iocs_txbox( const struct _x68_txfillptr *ptr ) {
 
-  if ( isGUI ) {
+  if ( displayMode == DISPLAY_GUI ) {
     XSTed_txbox( ptr->x, ptr->y, ptr->x1, ptr->y1, ptr->vram_page );
   }
   return;
@@ -42,9 +42,9 @@ void _iocs_txbox( const struct _x68_txfillptr *ptr ) {
 
 void _iocs_txfill ( const struct _x68_txfillptr *ptr ) {
 
-  if ( isconsole ) {
+  if ( displayMode == DISPLAY_CONSOLE ) {
     curses_tfill( ptr->vram_page, ptr->x, ptr->y, ptr->x1, ptr->y1, ptr->fill_patn );
-  } else if ( isGUI ) {
+  } else if ( displayMode == DISPLAY_GUI ) {
     XSTed_tfill( ptr->vram_page, ptr->x, ptr->y, ptr->x1, ptr->y1, ptr->fill_patn );
   }
 
@@ -53,9 +53,9 @@ void _iocs_txfill ( const struct _x68_txfillptr *ptr ) {
 
 void _iocs_txrascpy ( int sr_dst, int copy, int mode ) {
 
-  if ( isconsole ) {
+  if ( displayMode == DISPLAY_CONSOLE ) {
     curses_trascpy( sr_dst&0xff, sr_dst>>8, copy, mode );
-  } else if ( isGUI ) {
+  } else if ( displayMode == DISPLAY_GUI ) {
     XSTed_trascpy( sr_dst&0xff, sr_dst>>8, copy, mode );
   }
   return;
@@ -63,7 +63,7 @@ void _iocs_txrascpy ( int sr_dst, int copy, int mode ) {
 
 void _iocs_txxline ( const struct _x68_xlineptr *ptr ) {
 
-  if ( isGUI ) {
+  if ( displayMode == DISPLAY_GUI ) {
     XSTed_txxline( ptr->vram_page, ptr->x, ptr->y, ptr->x1, ptr->line_style );
   }
   return;
@@ -71,7 +71,7 @@ void _iocs_txxline ( const struct _x68_xlineptr *ptr ) {
 
 void _iocs_txyline ( const struct _x68_ylineptr *ptr ) {
 
-  if ( isGUI ) {
+  if ( displayMode == DISPLAY_GUI ) {
     XSTed_txyline( ptr->vram_page, ptr->x, ptr->y, ptr->y1, ptr->line_style );
   }
   return;

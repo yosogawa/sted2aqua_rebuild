@@ -59,10 +59,10 @@ int _dos_c_cls_ed( void ) {
 
 int _dos_c_curoff( void ) {
 
-  if ( isconsole ) {
+  if ( displayMode == DISPLAY_CONSOLE ) {
     curses_curoff();
 
-  } else if ( isGUI ) {
+  } else if ( displayMode == DISPLAY_GUI ) {
     XSTed_curoff();
   }
   return 0;
@@ -70,10 +70,10 @@ int _dos_c_curoff( void ) {
 int _dos_c_curon( void ) {
 
   if ( iswindowopened ) {
-    if ( isconsole ) {
+    if ( displayMode == DISPLAY_CONSOLE ) {
       curses_curon();
       
-    } else if (isGUI) {
+    } else if (displayMode == DISPLAY_GUI) {
       XSTed_curon();
     }
   }
@@ -102,10 +102,10 @@ int _dos_c_window( int x, int y ) {
   iocs_current_text_x = 0;
   iocs_current_text_y = 0;
 
-  if ( isconsole ) {
+  if ( displayMode == DISPLAY_CONSOLE ) {
     curses_tlocate( (int)iocs_console_xtop, top );
 
-  } else if ( isGUI ) {
+  } else if ( displayMode == DISPLAY_GUI ) {
     XSTed_tlocate( (int)iocs_console_xtop, top );
   }
   return 0;
@@ -164,10 +164,10 @@ int _dos_inpout( int code ) {
 
   if ( (code==0xfe) || (code==0xff) ) {
 
-    if ( isconsole ) {
+    if ( displayMode == DISPLAY_CONSOLE ) {
       ret=curses_keyin(code);
 
-    } else if ( isGUI ) {
+    } else if ( displayMode == DISPLAY_GUI ) {
       ret=XSTed_keyin(code);
     }
 

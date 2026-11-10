@@ -14,11 +14,11 @@
 
 #include <stdlib.h>
 #include "rcp_transport.h"
+#include "sted.h"
 
 // prototype added
 void  XSTed_init_window(void);
 void  XSTed_start_main(int (*)(int, char **), int, char **);
-extern int isconsole;
 extern int sted_saved_argc;
 extern char **sted_saved_argv;
 extern void sted_redraw_midi_in(void);
@@ -54,7 +54,7 @@ ApplyMidiSyncMode(int ext)
 	(void)notification;
 	/* Nib load can still order the window front. Keep it hidden until
 	   the main screen is drawn. */
-	if (!isconsole && myWindow != nil) {
+	if (displayMode == DISPLAY_GUI && myWindow != nil) {
 		[myWindow setAlphaValue:0];
 		[myWindow orderOut:nil];
 	}
@@ -78,7 +78,7 @@ ApplyMidiSyncMode(int ext)
 	char **argv = sted_saved_argv;
 	X68kView *xview;
 
-	if (isconsole) {
+	if (displayMode == DISPLAY_CONSOLE) {
 		[myWindow orderOut:nil];
 		[myWindow close];
 		return;

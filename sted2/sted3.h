@@ -9,8 +9,11 @@
 #ifndef _STED3_H_
 #define _STED3_H_
 
+#ifdef HAVE_SUPPORT_STED3
+
 #define STED3_VERSION             "0.01"
 #define STED3_MAX_PORT_NUMBER     16
 
+#endif
 
 #endif /* _STED3_H_ */

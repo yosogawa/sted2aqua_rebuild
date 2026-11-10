@@ -31,10 +31,10 @@ void curses_trev(int, int, int, int);
 
 void g_print( int x, int y, char *str, int col ) {
 
-  if ( isconsole ) {
+  if ( displayMode == DISPLAY_CONSOLE ) {
     curses_gcolor( col );
     curses_gputs( x, y, str );
-  } else if ( isGUI ) {
+  } else if ( displayMode == DISPLAY_GUI ) {
     XSTed_gcolor( col );
     XSTed_gputs( x, y, str );
   }
@@ -43,7 +43,7 @@ void g_print( int x, int y, char *str, int col ) {
 
 void rev_area( int r_ad, int r_ln, int edit_scr ) {
 
-  if ( isGUI ) {
+  if ( displayMode == DISPLAY_GUI ) {
     XSTed_rev_area( r_ad, r_ln, edit_scr );
   }
 
@@ -56,9 +56,9 @@ void tg_copy( int edit_scr ) {
   /* edit_scr=0 : left, edit_scr=1 : right  */
   /* (2,4)-(19,31)      (58, 4)-(75,31)     */
 
-  if ( isconsole ) {
+  if ( displayMode == DISPLAY_CONSOLE ) {
     curses_tg_copy( edit_scr );
-  } else if ( isGUI ) {
+  } else if ( displayMode == DISPLAY_GUI ) {
     XSTed_tg_copy( edit_scr );
   }
   return;
@@ -70,9 +70,9 @@ void tg_copy2( int edit_scr ) {
   /* edit_scr=0 : left, edit_scr=1 : right  */
   /* (0,6)-(27,29)         (38,6)-(65,29) */
 
-  if ( isconsole ) {
+  if ( displayMode == DISPLAY_CONSOLE ) {
     curses_tg_copy2( edit_scr );
-  } else  if ( isGUI ) {
+  } else  if ( displayMode == DISPLAY_GUI ) {
     XSTed_tg_copy2( edit_scr );
   }
 
@@ -82,9 +82,9 @@ void tg_copy2( int edit_scr ) {
 
 void t_scrw( int x1, int y1, int xs, int ys, int x2, int y2 ) {
 
-  if ( isconsole ) {
+  if ( displayMode == DISPLAY_CONSOLE ) {
     curses_t_scrw( x1, y1, xs, ys, x2, y2 );
-  } else if ( isGUI ) {
+  } else if ( displayMode == DISPLAY_GUI ) {
     XSTed_t_scrw( x1, y1, xs, ys, x2, y2 );
   }
 
@@ -97,10 +97,10 @@ void txcur( int a, int b, int c1, int c2, int cs ) {
 
   /* Right track pane only. Rhythm edit sets edit_scr to 2. */
   if ( edit_scr==1 ) a+=56;
-  if ( isconsole ) {
+  if ( displayMode == DISPLAY_CONSOLE ) {
     for ( i=0 ; i<c2 ; i++ )
       curses_trev( a, b+i, c1, cs );
-  } else if ( isGUI ) {
+  } else if ( displayMode == DISPLAY_GUI ) {
     for ( i=0 ; i<c2 ; i++ )
       XSTed_trev( a, b+i, c1, cs );
   }

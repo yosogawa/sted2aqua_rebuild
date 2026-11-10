@@ -26,8 +26,7 @@ int XSTed_key_readable(void);
 /* global variables */
 
 int iswindowopened = 0;
-int isGUI          = 0;
-int isconsole      = 0;
+DisplayMode displayMode = DISPLAY_GUI;
 int sted_saved_argc = 0;
 char **sted_saved_argv = NULL;
 
@@ -35,7 +34,9 @@ char disp_text[1024];
 int disp_conv      = 0;
 char *disp_codeset = "UTF-8";
 
+#ifdef HAVE_SUPPORT_STED3
 int issted3        = 0;
+#endif
 
 char s_sted_default_path[PATHLEN];	/* Jun.01.2003 Toshi Nagata */
 
@@ -194,18 +195,18 @@ int child( char *cl ) {
 
 int key_input_ready( void )
 {
-  if ( isconsole )
+  if ( displayMode == DISPLAY_CONSOLE )
     return (curses_keyin(0xfe) == 0) ? 0 : 1;
-  if ( isGUI )
+  if ( displayMode == DISPLAY_GUI )
     return XSTed_key_readable();
   return 0;
 }
 
 void key_wait( void ){
 
-  if ( isconsole ) {
+  if ( displayMode == DISPLAY_CONSOLE ) {
     curses_key_wait();
-  } else if ( isGUI ) {
+  } else if ( displayMode == DISPLAY_GUI ) {
     XSTed_key_wait();
   }
 
@@ -214,9 +215,9 @@ void key_wait( void ){
 
 void key_midi_wait( void ){
 
-  if ( isconsole ) {
+  if ( displayMode == DISPLAY_CONSOLE ) {
     curses_midi_wait();
-  } else if ( isGUI ) {
+  } else if ( displayMode == DISPLAY_GUI ) {
     XSTed_midi_wait();
   }
   return;
@@ -226,9 +227,9 @@ void key_mouse_wait( void ) {
 
   int was_active;
 
-  if ( isconsole ) {
+  if ( displayMode == DISPLAY_CONSOLE ) {
     curses_key_wait();
-  } else if ( isGUI ) {
+  } else if ( displayMode == DISPLAY_GUI ) {
     /* Rhythm editor only. PLAY returns before the player marks transport
        active, and this wait is the next stop. Leave when that flag rises
        so follow can start. Already active on entry means ESC left follow
@@ -390,22 +391,19 @@ sted_select_ui(int *argc, char ***argv)
 
   if (want) {
 #if USE_CURSES
-    isconsole = 1;
-    isGUI = 0;
+    displayMode = DISPLAY_CONSOLE;
 #else
     exit(-1);
 #endif
   } else {
 #ifdef __APPLE__
 #if defined(USE_MACGUI)
-    isconsole = 0;
-    isGUI = 1;
+    displayMode = DISPLAY_GUI;
 #else
     exit(-1);
 #endif
 #else
-    isconsole = 0;
-    isGUI = 1;
+    displayMode = DISPLAY_GUI;
 #endif
   }
 }
@@ -419,8 +417,10 @@ void STed_system_initialize( int *argc, char ***argv ) {
     /* init parameters */
     
     rcd = NULL;
+#ifdef HAVE_SUPPORT_STED3
     /* May.06.2001 NAGANO Daisuke <breeze.nagano@nifty.ne.jp> */
     issted3 = 1;
+#endif
 
     sted_select_ui(argc, argv);
 
@@ -462,7 +462,7 @@ void
 sted_show_main_window(void)
 {
 #ifdef __APPLE__
-  if (isGUI)
+  if (displayMode == DISPLAY_GUI)
     XSTed_present_main_window();
 #endif
 }
