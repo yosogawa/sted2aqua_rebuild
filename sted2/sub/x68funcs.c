@@ -9,9 +9,14 @@
 
 #include "sted.h"
 #include "rcp_transport.h"
+#include "rcp_transport_cmd.h"
 
 #include <locale.h>
 #include <langinfo.h>
+#include <pthread.h>
+#include <stdatomic.h>
+#include <strings.h>
+#include <sys/stat.h>
 
 /* prototype */
 void curses_key_wait(void);
@@ -457,4 +462,170 @@ sted_show_main_window(void)
   if (displayMode == DISPLAY_GUI)
     XSTed_present_main_window();
 #endif
+}
+
+/*
+  Finder open and window drop.
+
+  Before sted_finder_go_live(), one valid path is kept for a private argv
+  copy. The process argv and sted_saved_argv are never written.
+  After go_live(), a path is queued only while MAIN is in its own key wait
+  and the sequencer is stopped. com_sel asks before dload.
+*/
+
+static pthread_mutex_t sFinderMu = PTHREAD_MUTEX_INITIALIZER;
+static atomic_int sFinderLive;
+static atomic_int sFinderIdle;
+static atomic_int sFinderConfirm;
+static atomic_int sFinderPending;
+static char sFinderLaunch[PATHLEN];
+static char sFinderQueued[PATHLEN];
+
+static int
+sted_finder_ext_is(const char *base, const char *ext)
+{
+  const char *dot = strrchr(base, '.');
+
+  if (dot == NULL || dot == base || dot[1] == '\0')
+    return 0;
+  return strcasecmp(dot + 1, ext) == 0;
+}
+
+int
+sted_finder_path_ok(const char *path)
+{
+  const char *base;
+  struct stat st;
+
+  if (path == NULL || path[0] == '\0' || strlen(path) >= PATHLEN)
+    return 0;
+  if (stat(path, &st) != 0 || !S_ISREG(st.st_mode))
+    return 0;
+  base = strrchr(path, '/');
+  base = (base != NULL) ? base + 1 : path;
+  return sted_finder_ext_is(base, "rcp") || sted_finder_ext_is(base, "r36") ||
+    sted_finder_ext_is(base, "mid") || sted_finder_ext_is(base, "abc");
+}
+
+int
+sted_finder_still_safe(void)
+{
+#if defined(__APPLE__)
+  if (XSTed_appkit_request_busy())
+    return 0;
+  if (rcp_transport_is_active())
+    return 0;
+  if (is_coremidi_playing())
+    return 0;
+  if (rcp_transport_play_prepare_busy())
+    return 0;
+  return 1;
+#else
+  return 0;
+#endif
+}
+
+int
+sted_finder_can_accept(void)
+{
+  if (!atomic_load(&sFinderLive))
+    return 0;
+  if (atomic_load(&sFinderConfirm) || atomic_load(&sFinderPending))
+    return 0;
+  if (!atomic_load(&sFinderIdle))
+    return 0;
+  return sted_finder_still_safe();
+}
+
+void
+sted_finder_go_live(void)
+{
+  atomic_store(&sFinderLive, 1);
+}
+
+int
+sted_finder_take_launch_path(char *dst, size_t n)
+{
+  int ok = 0;
+
+  if (dst == NULL || n == 0)
+    return 0;
+  pthread_mutex_lock(&sFinderMu);
+  if (sFinderLaunch[0] != '\0' && strlen(sFinderLaunch) < n) {
+    memcpy(dst, sFinderLaunch, strlen(sFinderLaunch) + 1);
+    sFinderLaunch[0] = '\0';
+    ok = 1;
+  }
+  pthread_mutex_unlock(&sFinderMu);
+  return ok;
+}
+
+int
+sted_finder_receive(const char *path)
+{
+  int stored = 0;
+
+  if (!sted_finder_path_ok(path))
+    return 0;
+  if (!atomic_load(&sFinderLive)) {
+    pthread_mutex_lock(&sFinderMu);
+    if (sFinderLaunch[0] == '\0') {
+      memcpy(sFinderLaunch, path, strlen(path) + 1);
+      stored = 1;
+    }
+    pthread_mutex_unlock(&sFinderMu);
+    return stored;
+  }
+  if (!sted_finder_can_accept())
+    return 0;
+  pthread_mutex_lock(&sFinderMu);
+  if (!atomic_load(&sFinderConfirm) && !atomic_load(&sFinderPending) &&
+      sted_finder_can_accept()) {
+    memcpy(sFinderQueued, path, strlen(path) + 1);
+    atomic_store(&sFinderPending, 1);
+    stored = 1;
+  }
+  pthread_mutex_unlock(&sFinderMu);
+  return stored;
+}
+
+int
+sted_finder_request_pending(void)
+{
+  return atomic_load(&sFinderPending);
+}
+
+int
+sted_finder_take_pending(char *dst, size_t n)
+{
+  int ok = 0;
+
+  if (dst == NULL || n == 0)
+    return 0;
+  pthread_mutex_lock(&sFinderMu);
+  if (atomic_load(&sFinderPending) && strlen(sFinderQueued) < n) {
+    memcpy(dst, sFinderQueued, strlen(sFinderQueued) + 1);
+    atomic_store(&sFinderPending, 0);
+    ok = 1;
+  }
+  pthread_mutex_unlock(&sFinderMu);
+  return ok;
+}
+
+void
+sted_finder_set_confirming(int on)
+{
+  atomic_store(&sFinderConfirm, on ? 1 : 0);
+}
+
+void
+sted_main_idle_set(int on)
+{
+  atomic_store(&sFinderIdle, on ? 1 : 0);
+}
+
+int
+sted_main_idle_waiting(void)
+{
+  return atomic_load(&sFinderIdle);
 }

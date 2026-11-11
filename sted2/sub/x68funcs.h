@@ -74,6 +74,21 @@ extern int sted_is_host_arg( const char * );
 extern int sted_saved_argc;
 extern char **sted_saved_argv;
 
+/* Finder open / window drop. Wake is returned only from com_sel's own inkey3. */
+#define STED_FINDER_WAKE (-1)
+extern void sted_finder_go_live( void );
+extern int sted_finder_take_launch_path( char *dst, size_t n );
+extern int sted_finder_receive( const char *path );
+extern int sted_finder_path_ok( const char *path );
+extern int sted_finder_can_accept( void );
+extern int sted_finder_still_safe( void );
+extern int sted_finder_request_pending( void );
+extern int sted_finder_take_pending( char *dst, size_t n );
+extern void sted_finder_set_confirming( int on );
+extern void sted_main_idle_set( int on );
+extern int sted_main_idle_waiting( void );
+extern int XSTed_appkit_request_busy( void );
+
 #endif /* _X68FUNCS_H_ */
 
 

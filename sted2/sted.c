@@ -953,6 +953,84 @@ void	rst_errvect()
 #endif /* X680x0 */
 }
 
+/* Finder open while MAIN is idle. File panel and Shift+L stay in load_sub. */
+static void sted_finder_apply(const char *full)
+{
+  char namebuf[PATHLEN];
+  char dir[PATHLEN + PATH_DRIVE_EXTRA];
+  char tmp[PATHLEN * 2];
+  const char *slash;
+  size_t dlen, nlen;
+
+  slash = strrchr(full, '/');
+  if (slash == NULL || slash[1] == '\0') {
+    msg(_("Invalid file."));
+    return;
+  }
+  dlen = (size_t)(slash - full) + 1;
+  nlen = strlen(slash + 1);
+  if (dlen >= sizeof dir || nlen >= sizeof namebuf || nlen >= sizeof rcp_file) {
+    msg(_("Invalid file."));
+    return;
+  }
+  memcpy(dir, full, dlen);
+  dir[dlen] = '\0';
+  memcpy(namebuf, slash + 1, nlen + 1);
+
+  msg(_("Loading ..."));
+  if (dload((char *)full, 0) != 0)
+    return;
+  cminit();
+  gsinit();
+  if (cm6_file[0] != 0) {
+    snprintf(tmp, sizeof tmp, "%s%s", dir, cm6_file);
+    if (timload(tmp) != 0) {
+      msg((char *)sted_filename_for_font(cm6_file));
+      B_PRINT(_(": File not found.\n"));
+      cm6_file[0] = 0;
+    }
+  }
+  if (gsd_file[0] != 0) {
+    snprintf(tmp, sizeof tmp, "%s%s", dir, gsd_file);
+    if (gsdload(tmp) != 0) {
+      msg((char *)sted_filename_for_font(gsd_file));
+      B_PRINT(_(": File not found.\n"));
+      gsd_file[0] = 0;
+    }
+  }
+  if (!(cnfflag & 0x0008))
+    strcpy(rcp_path, dir);
+  strcpy(rcp_file, namebuf);
+  form2();
+  timtra();
+  msg_clr();
+}
+
+static void sted_finder_offer(void)
+{
+  char full[PATHLEN];
+  const char *base;
+  const char *shown;
+  char line[96];
+
+  if (!sted_finder_take_pending(full, sizeof full))
+    return;
+  if (!sted_finder_still_safe())
+    return;
+  base = strrchr(full, '/');
+  base = (base != NULL && base[1] != '\0') ? base + 1 : full;
+  shown = sted_filename_for_font(base);
+  sted_finder_set_confirming(1);
+  if (shown != NULL && shown[0] != '\0' && strlen(shown) <= 40)
+    snprintf(line, sizeof line, "%s %s", _("Load this file"), shown);
+  else
+    snprintf(line, sizeof line, "%s", _("Load this file"));
+  msg(line);
+  if (yn_sel() > 0 && sted_finder_still_safe())
+    sted_finder_apply(full);
+  sted_finder_set_confirming(0);
+}
+
 /***************************/
 void	com_sel()
 {
@@ -965,7 +1043,15 @@ void	com_sel()
 
   while( 1){
     sdis(1,112+cy*21,menu1[cy],8,0,15);
-    ke=inkey3();sh=ke>>8;ke=ke&0xff;
+    sted_main_idle_set(1);
+    ke=inkey3();
+    sted_main_idle_set(0);
+    if (ke == STED_FINDER_WAKE) {
+      sdis(1,112+cy*21,menu1[cy],8,15,8);
+      sted_finder_offer();
+      continue;
+    }
+    sh=ke>>8;ke=ke&0xff;
     if(ke>='a' && ke<='z'){ke-=32;}
     sdis(1,112+cy*21,menu1[cy],8,15,8);
 

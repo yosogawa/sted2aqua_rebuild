@@ -29,6 +29,8 @@ const char *CoreMIDICanonicalOutputName(const char *name);
 int CoreMIDISelectDeviceByNameForPort(const char *name, int port);
 void CoreMIDISelectInputDeviceByName(const char *name);
 void CoreMIDIAllSoundOff(void);
+/* GM System On (F0 7E 7F 09 01 F7) to ports whose destination is a DLS synth. */
+void CoreMIDISendGmSystemOnToDls(void);
 
 void push_midi_in_ring_buffer(uint8_t byte);
 int pop_midi_in_ring_buffer(uint8_t *byte);

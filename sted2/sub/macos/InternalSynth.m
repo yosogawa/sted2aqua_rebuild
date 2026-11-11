@@ -679,6 +679,20 @@ InternalSynthIsAmyDestination(MIDIEndpointRef dest)
 }
 
 int
+InternalSynthIsDlsDestination(MIDIEndpointRef dest)
+{
+	int i;
+
+	if (dest == 0)
+		return 0;
+	for (i = 0; i < 2; i++) {
+		if (sInternalDest[i] != 0 && dest == sInternalDest[i])
+			return 1;
+	}
+	return 0;
+}
+
+int
 InternalSynthAnyDestination(const MIDIEndpointRef *dests)
 {
 	int i, j;

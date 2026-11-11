@@ -42,6 +42,7 @@ ApplyMidiSyncMode(int ext)
 @interface AppController (PrivateMenus)
 - (void)installViewMenu;
 - (void)installDLSSynthMenu;
+- (void)installGmSystemOnMenu;
 - (void)installSf2DefMenu;
 - (void)installThruModeMenu;
 - (void)installSyncModeMenu;
@@ -70,6 +71,53 @@ ApplyMidiSyncMode(int ext)
     return YES;
 }
 
+static char sFinderArg[PATHLEN];
+static char *sFinderArgv[48];
+
+/* Copy of the stripped argv plus, when present, one launch path.
+   sted_saved_argv itself is left unchanged. */
+static char **
+sted_argv_with_launch_file(int *argcIO, char **argv)
+{
+	int argc, i, positional;
+
+	if (argcIO == NULL || argv == NULL)
+		return argv;
+	argc = *argcIO;
+	if (sFinderArg[0] == '\0' || argc < 1 || argc + 1 >= 48)
+		return argv;
+	positional = 0;
+	for (i = 1; i < argc; i++) {
+		if (argv[i] != NULL && argv[i][0] != '\0' && argv[i][0] != '-' &&
+		    strcmp(argv[i], "YES") != 0 && strcmp(argv[i], "NO") != 0 &&
+		    strcmp(argv[i], "TRUE") != 0 && strcmp(argv[i], "FALSE") != 0)
+			positional = 1;
+	}
+	if (positional)
+		return argv;
+	for (i = 0; i < argc; i++)
+		sFinderArgv[i] = argv[i];
+	sFinderArgv[argc] = sFinderArg;
+	sFinderArgv[argc + 1] = NULL;
+	*argcIO = argc + 1;
+	return sFinderArgv;
+}
+
+- (void)application:(NSApplication *)application openURLs:(NSArray<NSURL *> *)urls
+{
+	NSURL *u;
+	const char *fs;
+
+	(void)application;
+	if ([urls count] != 1)
+		return;
+	u = [urls objectAtIndex:0];
+	if (u == nil || ![u isFileURL])
+		return;
+	fs = [u fileSystemRepresentation];
+	sted_finder_receive(fs);
+}
+
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
 	extern int sted2_main(int, char**);
@@ -84,6 +132,10 @@ ApplyMidiSyncMode(int ext)
 		return;
 	}
 
+	sFinderArg[0] = '\0';
+	sted_finder_take_launch_path(sFinderArg, sizeof sFinderArg);
+	sted_finder_go_live();
+
 	xview = (X68kView *)[myWindow contentView];
 
 	[X68kView initializeX68k];
@@ -91,6 +143,7 @@ ApplyMidiSyncMode(int ext)
 	XSTed_init_window();
 	[self installViewMenu];
 	[self installDLSSynthMenu];
+	[self installGmSystemOnMenu];
 	[self installSf2DefMenu];
 	[self installThruModeMenu];
 	[self installSyncModeMenu];
@@ -105,6 +158,7 @@ ApplyMidiSyncMode(int ext)
 		argc = 1;
 		argv = fallback;
 	}
+	argv = sted_argv_with_launch_file(&argc, argv);
 	XSTed_start_main(sted2_main, argc, argv);
 }
 
@@ -147,6 +201,45 @@ ApplyMidiSyncMode(int ext)
 - (IBAction)allSoundOff:(id)sender
 {
 	CoreMIDIAllSoundOff();
+}
+
+- (IBAction)sendGmSystemOnToDls:(id)sender
+{
+	(void)sender;
+	if (rcp_transport_is_active())
+		return;
+	CoreMIDISendGmSystemOnToDls();
+}
+
+- (void)installGmSystemOnMenu
+{
+	NSMenu *mainMenu = [NSApp mainMenu];
+	NSMenu *midiMenu = nil;
+	NSMenuItem *item;
+	NSInteger i, n, at;
+
+	if (mainMenu == nil)
+		return;
+	n = [mainMenu numberOfItems];
+	for (i = 0; i < n; i++) {
+		NSMenuItem *top = [mainMenu itemAtIndex:i];
+		if ([[top title] isEqualToString:@"MIDI"]) {
+			midiMenu = [top submenu];
+			break;
+		}
+	}
+	if (midiMenu == nil)
+		return;
+	item = [[NSMenuItem alloc] initWithTitle:@"Send 'GM system On' to DLS synth"
+					  action:@selector(sendGmSystemOnToDls:)
+				   keyEquivalent:@""];
+	[item setTarget:self];
+	at = [midiMenu indexOfItemWithTitle:@"All Sound Off"];
+	if (at != NSNotFound)
+		[midiMenu insertItem:item atIndex:at + 1];
+	else
+		[midiMenu addItem:item];
+	[item release];
 }
 
 - (void)installDLSSynthMenu
@@ -690,6 +783,8 @@ objectValueForTableColumn:(NSTableColumn *)tableColumn
 				    ? NSOnState : NSOffState];
 		return YES;
 	}
+	if ([menuItem action] == @selector(sendGmSystemOnToDls:))
+		return !rcp_transport_is_active();
 	return YES;
 }
 

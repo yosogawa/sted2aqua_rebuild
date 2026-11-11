@@ -12,6 +12,8 @@
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		A1AB0D011B01000100ABOUT1 /* AboutPanelController.m in Sources */ = {isa = PBXBuildFile; fileRef = A1AB0D041B01000100ABOUT1 /* AboutPanelController.m */; };
 		A1AB0D021B01000100ABOUT1 /* AboutPanel.xib in Resources */ = {isa = PBXBuildFile; fileRef = A1AB0D061B01000100ABOUT1 /* AboutPanel.xib */; };
+		A1ABC0512F0A4B0100ABC051 /* abc_import.c in Sources */ = {isa = PBXBuildFile; fileRef = A1ABC0312F0A4B0100ABC031 /* abc_import.c */; };
+		A1ABC0612F0A4B0100ABC061 /* abc_export.c in Sources */ = {isa = PBXBuildFile; fileRef = A1ABC0412F0A4B0100ABC041 /* abc_export.c */; };
 		A1AMY00D2F0A4B0100E0E00D /* libamy.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A1AMY0022F0A4B0100E0E002 /* libamy.a */; };
 		A1AMY2012F0A4B0100E00001 /* algorithms.c in Sources */ = {isa = PBXBuildFile; fileRef = A1AMY1012F0A4B0100E00001 /* algorithms.c */; };
 		A1AMY2012F0A4B0100E00002 /* amy.c in Sources */ = {isa = PBXBuildFile; fileRef = A1AMY1012F0A4B0100E00002 /* amy.c */; };
@@ -75,8 +77,6 @@
 		E40E95E31ABA41ED0072AA0B /* file.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E95411ABA41ED0072AA0B /* file.c */; };
 		E40E95E41ABA41ED0072AA0B /* graphic.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E95421ABA41ED0072AA0B /* graphic.c */; };
 		E40E95E61ABA41ED0072AA0B /* itor.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E95461ABA41ED0072AA0B /* itor.c */; };
-		A1ABC0512F0A4B0100ABC051 /* abc_import.c in Sources */ = {isa = PBXBuildFile; fileRef = A1ABC0312F0A4B0100ABC031 /* abc_import.c */; };
-		A1ABC0612F0A4B0100ABC061 /* abc_export.c in Sources */ = {isa = PBXBuildFile; fileRef = A1ABC0412F0A4B0100ABC041 /* abc_export.c */; };
 		E40E95E81ABA41ED0072AA0B /* key_sub.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E954C1ABA41ED0072AA0B /* key_sub.c */; };
 		E40E95E91ABA41ED0072AA0B /* mkeyb.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E954E1ABA41ED0072AA0B /* mkeyb.c */; };
 		E40E95EA1ABA41ED0072AA0B /* record.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E95501ABA41ED0072AA0B /* record.c */; };
@@ -145,6 +145,9 @@
 		A1AB0D031B01000100ABOUT1 /* AboutPanelController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AboutPanelController.h; sourceTree = "<group>"; };
 		A1AB0D041B01000100ABOUT1 /* AboutPanelController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AboutPanelController.m; sourceTree = "<group>"; };
 		A1AB0D051B01000100ABOUT1 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/AboutPanel.xib; sourceTree = "<group>"; };
+		A1ABC0212F0A4B0100ABC021 /* abc2rcp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = abc2rcp.h; sourceTree = "<group>"; };
+		A1ABC0312F0A4B0100ABC031 /* abc_import.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = abc_import.c; sourceTree = "<group>"; };
+		A1ABC0412F0A4B0100ABC041 /* abc_export.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = abc_export.c; sourceTree = "<group>"; };
 		A1AMY0022F0A4B0100E0E002 /* libamy.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libamy.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1AMY1012F0A4B0100E00001 /* algorithms.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = algorithms.c; sourceTree = "<group>"; };
 		A1AMY1012F0A4B0100E00002 /* amy.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = amy.c; sourceTree = "<group>"; };
@@ -249,9 +252,6 @@
 		E40E95411ABA41ED0072AA0B /* file.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = file.c; sourceTree = "<group>"; };
 		E40E95421ABA41ED0072AA0B /* graphic.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = graphic.c; sourceTree = "<group>"; };
 		E40E95461ABA41ED0072AA0B /* itor.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = itor.c; sourceTree = "<group>"; };
-		A1ABC0212F0A4B0100ABC021 /* abc2rcp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = abc2rcp.h; sourceTree = "<group>"; };
-		A1ABC0312F0A4B0100ABC031 /* abc_import.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = abc_import.c; sourceTree = "<group>"; };
-		A1ABC0412F0A4B0100ABC041 /* abc_export.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = abc_export.c; sourceTree = "<group>"; };
 		E40E95471ABA41ED0072AA0B /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
 		E40E95481ABA41ED0072AA0B /* rcddef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rcddef.h; sourceTree = "<group>"; };
 		E40E95491ABA41ED0072AA0B /* rcpdef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rcpdef.h; sourceTree = "<group>"; };
@@ -367,13 +367,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		080E96DDFE201D6D7F000001 /* Classes */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Classes;
-			sourceTree = "<group>";
-		};
 		1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -410,7 +403,6 @@
 		29B97314FDCFA39411CA2CEA /* STed2_aqua2 */ = {
 			isa = PBXGroup;
 			children = (
-				080E96DDFE201D6D7F000001 /* Classes */,
 				29B97315FDCFA39411CA2CEA /* Other Sources */,
 				E40E95071ABA41ED0072AA0B /* sted2 */,
 				A1AMY0092F0A4B0100E0E009 /* third_party */,
@@ -456,6 +448,16 @@
 				1058C7A2FEA54F0111CA2CBB /* Other Frameworks */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		A1ABC0112F0A4B0100ABC011 /* abc2rcp */ = {
+			isa = PBXGroup;
+			children = (
+				A1ABC0212F0A4B0100ABC021 /* abc2rcp.h */,
+				A1ABC0312F0A4B0100ABC031 /* abc_import.c */,
+				A1ABC0412F0A4B0100ABC041 /* abc_export.c */,
+			);
+			path = abc2rcp;
 			sourceTree = "<group>";
 		};
 		A1AMY0082F0A4B0100E0E008 /* src */ = {
@@ -600,14 +602,18 @@
 		E40E95071ABA41ED0072AA0B /* sted2 */ = {
 			isa = PBXGroup;
 			children = (
+				A1ABC0112F0A4B0100ABC011 /* abc2rcp */,
+				E40E951E1ABA41ED0072AA0B /* conf */,
+				E40E95291ABA41ED0072AA0B /* doc */,
+				E40E95431ABA41ED0072AA0B /* itor */,
+				E40E95521ABA41ED0072AA0B /* sayleen */,
+				E40E95681ABA41ED0072AA0B /* sub */,
 				E40E951C1ABA41ED0072AA0B /* assign.c */,
 				E40E95B41ABA41ED0072AA0B /* assign.h */,
 				E40E951D1ABA41ED0072AA0B /* cm6con.c */,
-				E40E951E1ABA41ED0072AA0B /* conf */,
 				E40E95261ABA41ED0072AA0B /* config.h */,
 				E40E95271ABA41ED0072AA0B /* defload.c */,
 				E40E95281ABA41ED0072AA0B /* disp.c */,
-				E40E95291ABA41ED0072AA0B /* doc */,
 				E40E953E1ABA41ED0072AA0B /* edit.c */,
 				AFCF00FA307B7FC20040EB6F /* edit.h */,
 				E40E953F1ABA41ED0072AA0B /* edits.c */,
@@ -615,8 +621,6 @@
 				E40E95401ABA41ED0072AA0B /* exclu.c */,
 				E40E95411ABA41ED0072AA0B /* file.c */,
 				E40E95421ABA41ED0072AA0B /* graphic.c */,
-				A1ABC0112F0A4B0100ABC011 /* abc2rcp */,
-				E40E95431ABA41ED0072AA0B /* itor */,
 				E40E954C1ABA41ED0072AA0B /* key_sub.c */,
 				A1F0E0431AC55B8700A70D33 /* key_sub.h */,
 				E40E954D1ABA41ED0072AA0B /* machin.h */,
@@ -625,13 +629,11 @@
 				E40E95501ABA41ED0072AA0B /* record.c */,
 				E40E95511ABA41ED0072AA0B /* redit.c */,
 				A1F0E0441AC55B8700A70D34 /* redit.h */,
-				E40E95521ABA41ED0072AA0B /* sayleen */,
 				E40E95631ABA41ED0072AA0B /* score.c */,
 				E40E95641ABA41ED0072AA0B /* select.c */,
 				E40E95651ABA41ED0072AA0B /* sted.c */,
 				E40E95661ABA41ED0072AA0B /* sted.h */,
 				E40E95B31ABA41ED0072AA0B /* sted_keysym.h */,
-				E40E95681ABA41ED0072AA0B /* sub */,
 				E40E95AD1ABA41ED0072AA0B /* track.c */,
 				E40E95B11ABA41ED0072AA0B /* track.h */,
 				E40E95AE1ABA41ED0072AA0B /* trkset.c */,
@@ -711,16 +713,6 @@
 			path = sted207;
 			sourceTree = "<group>";
 		};
-		A1ABC0112F0A4B0100ABC011 /* abc2rcp */ = {
-			isa = PBXGroup;
-			children = (
-				A1ABC0212F0A4B0100ABC021 /* abc2rcp.h */,
-				A1ABC0312F0A4B0100ABC031 /* abc_import.c */,
-				A1ABC0412F0A4B0100ABC041 /* abc_export.c */,
-			);
-			path = abc2rcp;
-			sourceTree = "<group>";
-		};
 		E40E95431ABA41ED0072AA0B /* itor */ = {
 			isa = PBXGroup;
 			children = (
@@ -755,12 +747,12 @@
 		E40E95681ABA41ED0072AA0B /* sub */ = {
 			isa = PBXGroup;
 			children = (
-				A1F0E0601AC55B8700A70D60 /* X11 */,
-				A1F0E0621AC55B8700A70D62 /* curses */,
 				E40E95821ABA41ED0072AA0B /* aqua */,
+				A1F0E0621AC55B8700A70D62 /* curses */,
 				A1E0E0212F0A4B0100E0E021 /* macos */,
-				A1F0E08C2F0A4B0100E0E08C /* soundfont */,
 				A1E0E0222F0A4B0100E0E022 /* rcp_player */,
+				A1F0E08C2F0A4B0100E0E08C /* soundfont */,
+				A1F0E0601AC55B8700A70D60 /* X11 */,
 				E40E958B1ABA41ED0072AA0B /* basic.c */,
 				E40E958D1ABA41ED0072AA0B /* dos.c */,
 				E40E958E1ABA41ED0072AA0B /* doslib.h */,

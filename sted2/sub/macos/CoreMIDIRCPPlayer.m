@@ -557,6 +557,27 @@ send_midi_byte(uint8_t byte)
 
 
 void
+CoreMIDISendGmSystemOnToDls(void)
+{
+	int port;
+	uint8_t msg[6];
+
+	if (rcp_transport_is_active())
+		return;
+	msg[0] = 0xf0;
+	msg[1] = 0x7e;
+	msg[2] = 0x7f;
+	msg[3] = 0x09;
+	msg[4] = 0x01;
+	msg[5] = 0xf7;
+	for (port = 0; port < kMaxNumberOfPorts; port++) {
+		if (!InternalSynthIsDlsDestination(sDest[port]))
+			continue;
+		CoreMIDISend(msg, 6, port, 0);
+	}
+}
+
+void
 CoreMIDIAllSoundOff(void)
 {
 	int port, ch;

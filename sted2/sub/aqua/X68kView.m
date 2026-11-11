@@ -72,6 +72,12 @@ static int sMsX, sMsY, sMsButtons;
 static int sMsMinX, sMsMinY, sMsMaxX, sMsMaxY;
 
 static int sRequestAppKitCall;
+
+int
+XSTed_appkit_request_busy(void)
+{
+	return sRequestAppKitCall != 0;
+}
 static void **sRequestAppKitArgs;
 
 //  End of shared memory variables
@@ -404,6 +410,7 @@ MaxHeightScaleFactorForWindow(NSWindow *w)
 	   Stay hidden until XSTed_present_main_window(). The timer must run
 	   anyway: file dialogs wait on it. */
 	sMainView = self;
+	[self registerForDraggedTypes:@[NSPasteboardTypeFileURL]];
 	[[self window] setAlphaValue:0];
 	[[self window] orderOut:nil];
 	if (sTimer == nil) {
@@ -824,6 +831,66 @@ s_RegisterKeyDown(uint32_t ch)
 - (void)mouseUp:(NSEvent *)theEvent
 {
 	[self updateMouseFromEvent:theEvent];
+}
+
+/* Finder file drop. mouseDragged stays the X68000 mouse. */
+static int
+sted_drop_song_path(id<NSDraggingInfo> sender, char *dst, size_t n)
+{
+	NSPasteboard *pb;
+	NSArray *urls;
+	NSURL *u;
+	const char *fs;
+	size_t len;
+
+	if (sender == nil || dst == NULL || n == 0)
+		return 0;
+	pb = [sender draggingPasteboard];
+	urls = [pb readObjectsForClasses:@[[NSURL class]]
+				 options:@{NSPasteboardURLReadingFileURLsOnlyKey: @YES}];
+	if (urls == nil || [urls count] != 1)
+		return 0;
+	u = [urls objectAtIndex:0];
+	if (u == nil || ![u isFileURL])
+		return 0;
+	fs = [u fileSystemRepresentation];
+	if (!sted_finder_path_ok(fs))
+		return 0;
+	len = strlen(fs);
+	if (len >= n)
+		return 0;
+	memcpy(dst, fs, len + 1);
+	return 1;
+}
+
+- (NSDragOperation)draggingEntered:(id<NSDraggingInfo>)sender
+{
+	char path[PATHLEN];
+
+	if (!sted_drop_song_path(sender, path, sizeof path))
+		return NSDragOperationNone;
+	if (!sted_finder_can_accept())
+		return NSDragOperationNone;
+	return NSDragOperationCopy;
+}
+
+- (NSDragOperation)draggingUpdated:(id<NSDraggingInfo>)sender
+{
+	return [self draggingEntered:sender];
+}
+
+- (BOOL)prepareForDragOperation:(id<NSDraggingInfo>)sender
+{
+	return [self draggingEntered:sender] == NSDragOperationCopy;
+}
+
+- (BOOL)performDragOperation:(id<NSDraggingInfo>)sender
+{
+	char path[PATHLEN];
+
+	if (!sted_drop_song_path(sender, path, sizeof path))
+		return NO;
+	return sted_finder_receive(path) ? YES : NO;
 }
 
 - (void)rightMouseDown:(NSEvent *)theEvent
@@ -3673,6 +3740,7 @@ s_line_input(void **args)
 	[sMainView addSubview:tf];
 	[[sMainView window] makeFirstResponder:tf];
 	[tf selectText:nil];
+	[tf unregisterDraggedTypes];
 	args[2] = (void *)0;  /*  Avoid duplicate call  */
 }
 

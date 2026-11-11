@@ -10,6 +10,7 @@ extern "C" {
 void InternalSynthCreateDestinations(MIDIClientRef client);
 int InternalSynthAnyDestination(const MIDIEndpointRef *dests);
 int InternalSynthIsAmyDestination(MIDIEndpointRef dest);
+int InternalSynthIsDlsDestination(MIDIEndpointRef dest);
 void InternalSynthApplyAmyPort(const MIDIEndpointRef *dests);
 void InternalSynthEnsureRunning(void);
 void InternalSynthEnsureStopped(void);

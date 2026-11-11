@@ -201,6 +201,10 @@ int	inkey3(void)
   while(INPOUT(0xfe)!=0){INPOUT(0xff);}
   while(ke==0){
     locator_refresh(0);
+    /* Finder open is handled by com_sel only. Other inkey3 callers leave
+       the idle flag clear, so this does not load from those screens. */
+    if (sted_main_idle_waiting() && sted_finder_request_pending())
+      return STED_FINDER_WAKE;
     /* 0xff sleeps until a character key is buffered. Modifier make/break
        stays queued and must not stop this refresh. */
     if(key_input_ready()==0){
