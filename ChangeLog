@@ -1,3 +1,10 @@
+2026-11-11
+
+	UNIX 版の README と ChangeLog を分け、Mac 版の説明を README_utf8.md にまとめた。
+	UNIX 版で定義されたまま途中で止めていた STed3 拡張を削除した。
+	Finder で .rcp / .r36 / .mid / .abc をダブルクリックすると STed2 が開くようにした。起動後は MAIN で待機しているときだけ確認して読み込む。ウィンドウへのドロップも同じ条件。
+	MIDI メニューに send 'GM system On' to DLS synth を追加した。出力先が DLS のポートだけに送り、再生中は選べない。
+
 2026-11-10
 
 	isconsole と isGUI をやめ、表示モードを displayMode に統一した。
