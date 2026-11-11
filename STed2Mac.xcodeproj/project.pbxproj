@@ -278,7 +278,6 @@
 		E40E95641ABA41ED0072AA0B /* select.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = select.c; sourceTree = "<group>"; };
 		E40E95651ABA41ED0072AA0B /* sted.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sted.c; sourceTree = "<group>"; };
 		E40E95661ABA41ED0072AA0B /* sted.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sted.h; sourceTree = "<group>"; };
-		E40E95671ABA41ED0072AA0B /* sted3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sted3.h; sourceTree = "<group>"; };
 		E40E95831ABA41ED0072AA0B /* AppController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppController.h; sourceTree = "<group>"; };
 		E40E95841ABA41ED0072AA0B /* AppController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppController.m; sourceTree = "<group>"; };
 		E40E95851ABA41ED0072AA0B /* CoreMIDIRCPPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreMIDIRCPPlayer.h; sourceTree = "<group>"; };
@@ -632,7 +631,6 @@
 				E40E95651ABA41ED0072AA0B /* sted.c */,
 				E40E95661ABA41ED0072AA0B /* sted.h */,
 				E40E95B31ABA41ED0072AA0B /* sted_keysym.h */,
-				E40E95671ABA41ED0072AA0B /* sted3.h */,
 				E40E95681ABA41ED0072AA0B /* sub */,
 				E40E95AD1ABA41ED0072AA0B /* track.c */,
 				E40E95B11ABA41ED0072AA0B /* track.h */,

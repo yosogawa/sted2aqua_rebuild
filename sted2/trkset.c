@@ -187,15 +187,7 @@ void	trk_set(int md)
 
 	strcpy(tmp0,chstr(mch[i]));
 	B_LOCATE(21,y);sinput(tmp0,0x803);ex=strch(mch[i],tmp0);
-#ifdef HAVE_SUPPORT_STED3
-	/* May.06.2001 NAGANO Daisuke <breeze.nagano@nifty.ne.jp> */
-	if ( issted3 ) {
-	  if(es==0 && ex<=STED3_MAX_PORT_NUMBER*16 && ex>=0 ){mch[i]=ex;}
-	} else
-#endif
-	  {
-	    if(es==0 && ex<33 && ex>=0 ){mch[i]=ex;}
-	  }
+	if(es==0 && ex<33 && ex>=0 ){mch[i]=ex;}
       }
       if( cx==2 ){
 	int	ex=trst[i];if(ex>127){ex=ex-256;}
@@ -230,15 +222,7 @@ void	trk_set(int md)
 
 	tmp0[0]=ke;tmp0[1]=0;
 	B_LOCATE(21,y);sinput(tmp0,0x403);ex=strch(mch[i],tmp0);
-#ifdef HAVE_SUPPORT_STED3
-	/* May.06.2001 NAGANO Daisuke <breeze.nagano@nifty.ne.jp> */
-	if ( issted3 ) {
-	  if(es==0 && ex<=STED3_MAX_PORT_NUMBER*16 && ex>=0 ){mch[i]=ex;}
-	} else
-#endif
-	  {
-	    if(es==0 && ex<33 && ex>=0 ){mch[i]=ex;}
-	  }
+	if(es==0 && ex<33 && ex>=0 ){mch[i]=ex;}
       }
       if( cx==2 ){
 	int	ex=trst[i];if(ex>127){ex=ex-256;}

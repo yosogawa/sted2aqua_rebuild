@@ -106,10 +106,6 @@ extern "C" {
 #include "assign.h"
 #include "sub/encoding.h"
 
-#ifdef HAVE_SUPPORT_STED3
-# include "sted3.h"
-#endif
-
 void rcd_check( void );
 void rcd_open_device( void );
 extern struct RCD_HEAD	*rcd;
@@ -291,9 +287,6 @@ _extern uint8_t	*dat2;			/* temporary			*/
 
 /* the following variables is only PC version available */
 
-#ifdef HAVE_SUPPORT_STED3
-extern int issted3;                     /* Am I a new version ? */
-#endif
 typedef enum {
   DISPLAY_CONSOLE = 0,
   DISPLAY_GUI = 1

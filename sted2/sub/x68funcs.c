@@ -34,10 +34,6 @@ char disp_text[1024];
 int disp_conv      = 0;
 char *disp_codeset = "UTF-8";
 
-#ifdef HAVE_SUPPORT_STED3
-int issted3        = 0;
-#endif
-
 char s_sted_default_path[PATHLEN];	/* Jun.01.2003 Toshi Nagata */
 
 /* Display conversion only. RCP / track memo / title stay Shift_JIS in memory. */
@@ -417,10 +413,6 @@ void STed_system_initialize( int *argc, char ***argv ) {
     /* init parameters */
     
     rcd = NULL;
-#ifdef HAVE_SUPPORT_STED3
-    /* May.06.2001 NAGANO Daisuke <breeze.nagano@nifty.ne.jp> */
-    issted3 = 1;
-#endif
 
     sted_select_ui(argc, argv);
 

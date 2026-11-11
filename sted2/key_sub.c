@@ -650,26 +650,12 @@ char	*chstr(int ex)
 {
   static char	tmp0[8];
 
-#ifdef HAVE_SUPPORT_STED3
-  if ( issted3 ) {
-    if ( ex<1 || ex>STED3_MAX_PORT_NUMBER * 16 ) {
-      strcpy(tmp0, "OFF");
-    }
-    else {
-      tmp0[0]=((ex-1)>>4)+'A';tmp0[1]=0;
-      strcat(tmp0,fstr(((ex-1)&15)+1,2));
-    }
+  if(ex<1 || ex>32){
+    strcpy(tmp0,"OFF");
+  }else{
+    tmp0[0]=((ex-1)>>4)+'A';tmp0[1]=0;
+    strcat(tmp0,fstr(((ex-1)&15)+1,2));
   }
-  else
-#endif
-    {
-      if(ex<1 || ex>32){
-	strcpy(tmp0,"OFF");
-      }else{
-	tmp0[0]=((ex-1)>>4)+'A';tmp0[1]=0;
-	strcat(tmp0,fstr(((ex-1)&15)+1,2));
-      }
-    }
   return(tmp0);
 }
 /***************************/
@@ -687,37 +673,18 @@ int	strch(int och,char *tmp0)
   jstrupr(tmp0);
 
   port_number = tmp0[0]-'A';
-#ifdef HAVE_SUPPORT_STED3
-  if ( issted3 ) {
-    if( port_number >= 0 && port_number < STED3_MAX_PORT_NUMBER){
-      ex=str_val(&tmp0[1]);
-      if(ex<1 || ex>16){ex=1;}
-      
-      if(tmp0[1]==0 && och>0){ex=((och-1)&15)+1;}
-      
-      ex+=port_number*16;
-    }else {
-      ex=str_val(tmp0);
-      if(ex<0 || ex>32){ex=0;}
-      if(och>16 && ex<17){ex+=16;}
-    }
+  if( port_number==0 || port_number==1 ){
+    ex=str_val(&tmp0[1]);
+    if(ex<1 || ex>16){ex=1;}
+
+    if(tmp0[1]==0 && och>0){ex=((och-1)&15)+1;}
+
+    ex+=port_number*16;
+  }else{
+    ex=str_val(tmp0);
+    if(ex<0 || ex>32){ex=0;}
+    if(och>16 && ex<17){ex+=16;}
   }
-  else
-#endif
-    {
-      if( port_number==0 || port_number==1 ){
-	ex=str_val(&tmp0[1]);
-	if(ex<1 || ex>16){ex=1;}
-	
-	if(tmp0[1]==0 && och>0){ex=((och-1)&15)+1;}
-	
-	ex+=port_number*16;
-      }else{
-	ex=str_val(tmp0);
-	if(ex<0 || ex>32){ex=0;}
-	if(och>16 && ex<17){ex+=16;}
-      }
-    }
   
   return(ex);
 }

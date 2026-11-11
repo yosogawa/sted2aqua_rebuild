@@ -32,8 +32,6 @@ static char	res_id[] ="STedV2.0U_EXC\r\n";			/* 15byte */
 
 static char	ras_id[] ="STedV2.0R_ASS\r\n";			/* 15byte */
 
-static char     sted_id[] = "STEDDATAx.xxDedicatedToTURBO\r\n"; /* 30bytes */
-
 /*prt rex -> grt gex v2.5g*/
 
 
@@ -971,15 +969,7 @@ void	hedset(int max)
   int	i;
 
   hed[30]=0;hed[31]=0;sset(mtitle,0x20,64);
-#ifdef HAVE_SUPPORT_STED3
-  if ( issted3 ) {
-    sset(sted_id,0,30);
-    sset(STED3_VERSION, 8,4);
-  } else
-#endif
-    {
-      sset(rcp_id,0,30);
-    }
+  sset(rcp_id,0,30);
 
   rcp_ctlname_fit(cm6_file,sizeof cm6_file,"CM6");
   rcp_ctlname_fit(gsd_file,sizeof gsd_file,"GSD");

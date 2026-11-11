@@ -138,16 +138,7 @@ ass_ret:
       B_LOCATE(6,7);
       strcpy(tmp0,chstr(rhy_stest[0]));
       sinput(tmp0,0x803);n=strch(rhy_stest[0],tmp0);
-#ifdef HAVE_SUPPORT_STED3
-      /* May.06.2001 NAGANO Daisuke <breeze.nagano@nifty.ne.jp> */
-      if ( issted3 ) {
-	if(es==0 && n>=0 && n<=STED3_MAX_PORT_NUMBER*16){rhy_stest[0]=n;}
-      }
-      else
-#endif
-	{
-	  if(es==0 && n>=0 && n<=32){rhy_stest[0]=n;}
-	}
+      if(es==0 && n>=0 && n<=32){rhy_stest[0]=n;}
       rhy_as_para();
     }
     if(a=='B'){
