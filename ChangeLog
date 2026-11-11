@@ -1,32 +1,203 @@
-2002-11-04  Daisuke Nagano  <breeze.nagano@nifty.ne.jp>
-	* sted2/Makefile.am: Fixed missing entry: sted3.h.
-	(Thanks to hma@syd.odn.ne.jp)
+2026-11-10
 
-	* sted2/sub/rcdcheck.c: Fixed methos of creation temporary
-	file: replacing using 'tmpnam' to 'mkstemp'.
+	isconsole と isGUI をやめ、表示モードを displayMode に統一した。
 
-	* sted2/*.c: Added #ifdef HAVE_SUPPORT_STED3 to each sted3-related
-	codes.
+2026-11-09
 
-	* Updated automake to 1.7, and autoconf to 2.54
+	ABC ファイルのインポートとエクスポートを実装した。
 
-2002-11-02  Daisuke Nagano  <breeze.nagano@nifty.ne.jp>
+2026-11-05
 
-	* sted2/sub/Makefile.am: fixed some symbol-error about
-	sayleen.
-	(Thanks to hma@syd.odn.ne.jp)
+	アプリの呼称を STed2 plus版 に改めた。
+	EDIT 画面の描画で、モジュール B の表示がステータス行に消されないようにした。
+	DEF 生成ダイアログのメッセージを日本語にした。
+	リズムアサイン用の partfile を追加し、GM と MT-32 系の .ras を同梱した。SF2 から DEF を作るとき、リズムマップがあれば定義に含める。
+	MIDI 出力の呼称を Out 1 / Out 2 から MIDI Out A / MIDI Out B に改めた。
+	sted2.cnf に #def_file_a と #def_file_b を追加した。未指定のポートは従来の #def_file を使う。
+	AMY のドラムバンクを無効にした。どの音でも発音が暴走するため。
 
-2002-10-17  Daisuke Nagano  <breeze.nagano@nifty.ne.jp>
+2026-11-03
 
-	* sted2/sayleen: removed rcpconv and introduced sayleen.
+	UNIT SEL のファイルダイアログが、sted2.cnf の #def_path から開くようにした。
+	SF2 から音源定義ファイルを作るメニューを追加した。DLS 1 と DLS 2 のミキサーを分け、UNIT SEL ではポート A/B に別の定義を読み込める。解析には TinySoundFont を使っている。
+	EDIT 画面で PAUSE / CONTINUE したとき、ロケーターとトランスポート表示が追従するようにした。
+	Apple DLS 向けに、GM / GS / GM2 / XG のリセットを検出し、DLS が解釈できるコントロールチェンジへ翻訳するようにした。
 
-2001-05-06  Daisuke Nagano  <breeze.nagano@nifty.ne.jp>
+2026-11-01
 
-	* sted2/sted3.h: Created. All definitions, parameters and 
-	entries for new codes must be described in this file.
+	休符だけの小節でも、EDIT 画面の MEAS 表示が更新されるようにした。
+	スコア画面で、中身が休符の SAME MEAS でも再生カーソルが動くようにした。
+	SMF 変換のメモリ確保失敗を、ポインタの大小ではなく NULL で判定するようにした。
 
-	* sted2/file.c: Add codes for supporting port changes.
+2026-10-30
 
-	* sted2/key_sub.c (strch, chstr): If sted3 mode is enabled,
-	change the way to treat parameters to fit the mode.
+	MIDI 出力ポートの設定に、CLK / RTC / SPP を送るかどうかの項目を追加した。内部シンセには送らない。
 
+2026-10-29
+
+	EDIT 画面の更新が、EOT の一つ前の小節で止まっていたのを直した。
+	View メニューにフォント選択を追加した。
+	メイン画面の FILE NAME 表示から、空の日付欄を外した。
+	メインパネルに SYNC MODE と THRU MODE の表示を戻した。
+	画面解像度を変えるとき、拡大率に合わせて補間の精度も切り替えるようにした。
+	英語キーボード向けのキー割り当て例を sted2.cnf に追加し、Insert の割り当てを control-_ に改めた。
+
+2026-10-28
+
+	MIDI のリアルタイムメッセージ（FA / FB / FC）とソングポジションポインタの受信を実装した。
+	GNU GPL v2 のライセンス文を追加した。
+
+2026-10-27
+
+	SMF 読み込みで、トラックサイズの比較を間違えていたのを直した。
+	再生開始直後、キー入力までロケーターと画面更新が止まっていたのを直した。
+	About パネルを追加した。同梱の原文ドキュメントは UTF-8 にした。
+	画面右上に、ロケーターとトランスポート状態を表示するようにした。
+
+2026-10-26
+
+	EXT 同期のとき、FA / FB / FC を再生の開始、続行、停止に使うようにした。
+	アプリアイコンを整理し、生成スクリプトと icns を更新した。
+
+2026-10-25
+
+	バージョン番号と、リリース用パッケージの作成を整理した。
+
+2026-10-24
+
+	曲の時刻を RcpClock に分離した。EXT（F8）同期と録画の SYNC が同じ時計を参照する。
+
+2026-10-23
+
+	DREAM SAM2695 用の音色定義 dream.def を追加した。
+	バッファサイズの直書きを名前のある定数にし、ファイルパスは PATHLEN を使うようにした。
+	ファイル読み込みと SMF 変換で、バッファを超える書き込みを防いだ。
+	AMY の GAMMA9001 オプションを外した。動作が不安定なため。
+	SAME MEAS で MEAS カウンタが止まるのを直した。
+
+2026-10-22
+
+	PAUSE / CONTINUE を、参照時計を止める方式に作り直した。
+	SMF の 1 トラックを、タイムベースを曲に合わせて現在のトラックへ読み込めるようにした。
+
+2026-10-21
+
+	保存ダイアログで .RCP / .R36 / .MID を指定して保存できるようにした。
+	macOS が付ける .midi 拡張子で保存されないようにした。
+
+2026-10-20
+
+	AMY の bank 2 の音色を外した。クラッシュの原因だった。All Sound Off の対象に AMY も含めた。
+	ポート A を DLS、ポート B を AMY とする gm_amy.def を追加した。
+	GM / GM2 / XG の音源定義を追加し、CC#0 と CC#32 でバンクを選ぶようにした。
+
+2026-10-19
+
+	再生状態の遷移を、C++ のクラスで管理するようにした。
+
+2026-10-18
+
+	バンクセレクト（CC#0）を 0 から 127 まで受け付けるようにした。
+	AMY 1.2.200 を組み込み、内蔵シンセとして接続した。
+	CoreMIDI と DLS シンセを sub/macos/ に移し、再生エンジンを sub/rcp_player/ に分けた。
+	Xcode の個人設定と、使っていないプロジェクトファイルを削除した。
+
+2026-10-17
+
+	ビルド時の警告を幾つか直した。
+	MIDI THRU モードをメニューに追加した。
+	X11 のソースを sub/X11/ へ、curses を sub/curses/ へ移した。
+	macOS 12 で非推奨になった API を、現行のものに置き換えた。
+
+2026-10-16
+
+	リズムトラックエディタで、演奏位置の線が正しい位置に出るようにした。
+	起動時に Aqua のウィンドウを出すタイミングを直した。
+	strcpy と、そのバッファサイズの組み合わせを見直した。
+	ファイルパスの上限が Human68k 由来の 30 文字のままになっていた箇所を直し、終了時のクラッシュを防いだ。
+
+2026-10-15
+
+	トラックイベント画面上部の MEAS 表示が更新されないのを直した。
+	Dock 用の 128x128 アイコンを追加した。元絵は UNIX 版のものを流用している。
+	curses の使用とリンクを止めた。
+
+2026-10-14
+
+	塗りつぶしが隣の文字を消していたのを直し、ファンクションキー表示が欠けるのを防いだ。
+	内蔵 DLS シンセに、QuickTime Player 互換のリバーブバス制御を追加した。
+
+2026-10-13
+
+	DLS シンセの出力に、EQ、リバーブ、リミッタ、音量を追加した。
+
+2026-10-12
+
+	シーケンサに PAUSE と CONTINUE を追加した。
+	キー割り当てを見直し、XF1 から XF5 を使えるようにした。
+	macOS で MIDI メッセージをバイト単位で送っていた箇所を、パケット送信に合わせた。
+
+2026-10-11
+
+	テキストの改行と、テキストウィンドウ指定（C_WINDOW）が動いていなかったのを直した。
+	Apple DLS Synth を戻し、sf2 と dls の読み込みに対応した。
+	メイン画面の MIDI IN 表示を、実際の接続状態に合わせるようにした。
+	テキストフォントを設定に従わせ、既定を KHドット小伝馬町16 にした。
+	シーケンサが曲の終了でループから抜けるようにした。
+
+2026-10-09
+
+	MIDI 入力の待ちが、入力が届いた時点で戻るようにした。
+	ワンタッチ ST/GT のファンクションキー表示を、ST/GT ASSIGN の内容と常に一致するようにした。
+
+2026-10-08
+
+	ワンタッチ ST/GT のファンクションキー UI を追加した。
+	英語版リソースの雛型を en.lproj に置いた。
+	編集、トラック、キーシンボルの宣言を edits.h、track.h、sted_keysym.h に分けた。
+	日本語表示の文字化けを一部直した。
+
+2026-10-07
+
+	画面の拡大率を変更できるようにした。
+
+2026-10-06
+
+	MIDI ファイルの TITLE が空のとき、前の曲の TITLE を表示したままにしていたのを直した。
+
+2026-10-05
+
+	ファンクションキーで、シフトキーとメニューの切り替えを見るようにした。
+	マウス入力を有効にした。
+	音符フォントに漢字コード変換がかかっていたのをやめた。
+	kanjiconv を encoding に改め、nkf_ 接頭辞を外した。curses モードを戻した。
+
+2026-10-04
+
+	nkf による漢字変換を iconv に入れ替え、日本語ファイル名の表示を直した。
+	EUC-JP 向けの記述を削除し、nkflib を kanjiconv に改名した。
+
+2026-10-02
+
+	macOS の CoreMIDI 入力を 1 系統追加し、設定ダイアログを広げた。リアルタイム録音とステップ入力を直した。
+
+2026-09-30
+
+	トラックバッファなどの unsigned char と char を、uint8_t と int8_t に置き換えた。
+	不要な stdint.h の include を外した。
+	重なる strcpy を許していた ALLOW_STRCPY_OVERRAP を削除した。
+
+2026-09-29
+
+	画面、編集、ファイルの宣言を disp.h、edit.h、file.h に分け、各ソースから外へ出した。
+	long と short を int32_t と int16_t に置き換えた。
+	イベント編集で Return キーの動作を直した。
+
+2025-12-11
+
+	重なる strcpy を memmove に置き換え、起動時のクラッシュを防いだ。
+	curses を ncurses に切り替え、表示切替の名前を USE_MACGUI と isGUI に改めた。
+
+2025-12-10
+
+	現行の Xcode でビルドできるよう、ソースを書き換えた。内蔵シンセは、使っていた API がビルドできないため一旦外した。

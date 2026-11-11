@@ -19,7 +19,7 @@
 
 "about.license" = "(draft)\nThe parts written by the porters are under GNU GPL Version 2. The full text will be taken from sted2/doc/STed2_help/gpl.html. The original program follows its own distribution terms.\n\nThe screen font KH Dot Kodenmachou 16 is under the SIL Open Font License 1.1. The full text will be taken from sted2/fonts/OFL.txt.\nCopyright (c) Keitarou Hiraki, Font Silo. 1990-2015\n";
 
-"about.thanks" = "(draft)\nOriginal: TURBO (Takayuki Toda)\nUNIX port: Daisuke Nagano\nMac(Aqua) port: Toshi Nagata\nPlus version: Yoshinori Ogawa\n\nThe description of each person's work will be summarized later from README.jp and README.md.\n";
+"about.thanks" = "(draft)\nOriginal: TURBO (Takayuki Toda)\nUNIX port: Daisuke Nagano\nMac(Aqua) port: Toshi Nagata\nPlus version: Yoshinori Ogawa\n\nThe description of each person's work will be summarized later from README_unix.jp and README.md.\n";
 
 /* MIDI → Generate DEF from SF2 */
 "Generate DEF from SF2..." = "Generate DEF from SF2...";
