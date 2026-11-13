@@ -239,6 +239,7 @@ void key_mouse_wait( void ) {
     while ( XSTed_keyin(0xfe) == 0 ) {
       /* Drain EXT FA/FB/FC; same need as EDIT key_midi_wait. */
       locator_refresh(0);
+      sted_reset_sysex_poll();
       if ( !was_active && rcp_transport_is_active() )
         return;
       usleep(10000);
@@ -616,6 +617,31 @@ void
 sted_finder_set_confirming(int on)
 {
   atomic_store(&sFinderConfirm, on ? 1 : 0);
+}
+
+static atomic_int sResetSysexReq;
+static atomic_int sResetSysexBusy;
+
+void
+sted_reset_sysex_post(void)
+{
+  atomic_store(&sResetSysexReq, 1);
+}
+
+void
+sted_reset_sysex_poll(void)
+{
+  if (atomic_load(&sResetSysexReq) == 0)
+    return;
+  if (rcp_transport_is_active()) {
+    atomic_store(&sResetSysexReq, 0);
+    return;
+  }
+  if (atomic_exchange(&sResetSysexBusy, 1) != 0)
+    return;
+  atomic_store(&sResetSysexReq, 0);
+  timtra();
+  atomic_store(&sResetSysexBusy, 0);
 }
 
 void

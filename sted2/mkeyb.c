@@ -143,5 +143,5 @@ void	m_keyb(int ch,int bank,int prg,int velo)
 	 }
 	 */
 
-  snsclr();rcd->put_mode=pm;set_midi_output_port(0);msg_clr();
+  snsclr();rcd->put_mode=pm;set_midi_output_port(MIDI_PORT_A);msg_clr();
 }

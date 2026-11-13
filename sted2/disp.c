@@ -205,6 +205,7 @@ int	inkey3(void)
        the idle flag clear, so this does not load from those screens. */
     if (sted_main_idle_waiting() && sted_finder_request_pending())
       return STED_FINDER_WAKE;
+    sted_reset_sysex_poll();
     /* 0xff sleeps until a character key is buffered. Modifier make/break
        stays queued and must not stop this refresh. */
     if(key_input_ready()==0){

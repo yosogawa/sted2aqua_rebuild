@@ -13,6 +13,11 @@
 
 #id=Dream
 
+* General MIDI reset
+#init_exc=F07E7F0901F7
+* GS reset (SAM2695 datasheet, device ID 00h). Comment out the GM line above to use this.
+*#init_exc=F04100421240007F0041F7
+
 * 演奏時のラストパラメータ送信のウエイト
 #lsp_wait=1	* (0～16= wait×0～16 / -1=パラメータを送信しない)
 

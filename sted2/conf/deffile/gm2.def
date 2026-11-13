@@ -15,6 +15,9 @@
 
 #id=GM2
 
+* GM2 System On
+#init_exc=F07E7F0903F7
+
 #lsp_wait=1
 
 *        ch prg  key gt vel  key gt vel

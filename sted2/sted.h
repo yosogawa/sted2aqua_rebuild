@@ -207,8 +207,16 @@ _extern int	bend_range;			/* piche bend range		*/
 
 _extern char	tim_asin[33];			/* tone list channle assign	*/
 extern char	tim_asin2[33];			/* DEF #group_a/#group_b (defined in defload.c) */
-/* UNIT SEL: which port(s) receive the loaded DEF. 0=A, 1=B, 2=A&B */
-enum { DEF_SCOPE_A = 0, DEF_SCOPE_B = 1, DEF_SCOPE_AB = 2 };
+enum { /* MIDI output ports. MIDI_PORT_A / MIDI_PORT_B are set_midi_output_port indexes. */
+    MIDI_PORT_A = 0,
+    MIDI_PORT_B = 1,
+    MIDI_PORT_NUM
+};
+enum { /* UNIT SEL: which port(s) receive the loaded DEF. 0=A, 1=B, 2=A&B */
+    DEF_SCOPE_A = 0,
+    DEF_SCOPE_B = 1,
+    DEF_SCOPE_AB = 2
+};
 extern int	def_load_scope;			/* defined in defload.c */
 extern int	def_sel_scope;			/* last DEFINE open-panel choice (select.c) */
 #define TIM_PART_MAX	400			/* tim_head / tim_sym / tim_top	*/
@@ -244,7 +252,7 @@ _extern int		expand_lsb_pick;	/* tone list LSB, -1 if unused */
 _extern char	rhy_stest[8];			/* rhythm sound test ch. & para	*/
 _extern char	rec_met[10];			/* recording metoro tone	*/
 
-_extern uint8_t	init_exc_data[258];	/* init exclusive data		*/
+_extern uint8_t	init_exc_data[MIDI_PORT_NUM][258];	/* init exclusive, per port	*/
 
 /*** rcp format head parameter ***/
 _extern char	mtitle[65];			/* music title			*/

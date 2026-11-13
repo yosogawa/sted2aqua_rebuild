@@ -414,7 +414,7 @@ rcpplayer_send_pending_note_offs(void)
 	UInt64 nextTime;
 
 	nextTime = sLastTimeStamp;
-	for (port = 0; port < 2; port++) {
+	for (port = MIDI_PORT_A; port < MIDI_PORT_NUM; port++) {
 		for (ch = 0; ch < 16; ch++) {
 			for (i = 0; i < 128; i++) {
 				for (j = sNoteOnTable[port][ch][i]; j > 0; j--) {

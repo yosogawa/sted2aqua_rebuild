@@ -608,8 +608,8 @@ int	countstart(int md,int smeas)
   (*rcd->init)();
 
   if(cm6_file[0]==0 && gsd_file[0]==0){
-    if(init_exc_data[0]==255){(*rcd->setup)();
-    }else{(*rcd->mix_out)(init_exc_data);twait(5);}
+    if(init_exc_data[MIDI_PORT_A][0]==255){(*rcd->setup)();
+    }else{(*rcd->mix_out)(init_exc_data[MIDI_PORT_A]);twait(5);}
   }
 
   metoro_trk=met;

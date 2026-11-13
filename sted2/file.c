@@ -1215,10 +1215,10 @@ rcp_play_image_setup_devices(int with_file_tones)
     if(gsd_file[0]!=0){gsd_buf_trns();}
   }
   if(cm6_file[0]==0 && gsd_file[0]==0){
-    if(init_exc_data[0]==255){
+    if(init_exc_data[MIDI_PORT_A][0]==255){
       if(rcd->setup){(*rcd->setup)();}
     }else if(rcd->mix_out){
-      (*rcd->mix_out)(init_exc_data);twait(5);
+      (*rcd->mix_out)(init_exc_data[MIDI_PORT_A]);twait(5);
     }
   }
 }

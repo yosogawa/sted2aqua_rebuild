@@ -16,6 +16,9 @@
 
 #id=XG
 
+* XG System On
+#init_exc=F043104C00007E00F7
+
 #lsp_wait=1
 
 *        ch prg  key gt vel  key gt vel

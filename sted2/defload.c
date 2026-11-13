@@ -688,7 +688,8 @@ void	definit()
   for(i=0;i<8;i++){for(j=0;j<24;j++){
     def_user_exc_memo[i][j]=0;def_user_exc_data[i][j]=0xf7;}}
 
-  init_exc_data[0]=255;
+  init_exc_data[MIDI_PORT_A][0]=255;
+  init_exc_data[MIDI_PORT_B][0]=255;
 
   for(i=0;i<18*128;i++){gs_bank[i]=0;}
   for(i=0;i<18;i++){gs_mode[i]=0;}
@@ -1396,6 +1397,10 @@ int	defload(char *fi,int md)
     def_shared_restore_missing(&snap, saw_rec_met, saw_rhy_as,
 	saw_user_exc, saw_init_exc);
   }
+  /* Port B keeps this file's #init_exc=, or 0xFF when the line is absent.
+   * A partial load of A does not clear B. */
+  if(def_load_scope != DEF_SCOPE_A && !saw_init_exc)
+    init_exc_data[MIDI_PORT_B][0]=0xff;
 
   return(0);
 }
@@ -1415,7 +1420,7 @@ def_shared_save(DefSharedSnap *s)
   memcpy(s->rhy_no, defrhyno, sizeof s->rhy_no);
   memcpy(s->exc_memo, def_user_exc_memo, sizeof s->exc_memo);
   memcpy(s->exc_data, def_user_exc_data, sizeof s->exc_data);
-  memcpy(s->init_exc, init_exc_data, sizeof s->init_exc);
+  memcpy(s->init_exc, init_exc_data[MIDI_PORT_A], sizeof s->init_exc);
 }
 
 static void
@@ -1427,7 +1432,7 @@ def_shared_restore_all(const DefSharedSnap *s)
   memcpy(defrhyno, s->rhy_no, sizeof defrhyno);
   memcpy(def_user_exc_memo, s->exc_memo, sizeof def_user_exc_memo);
   memcpy(def_user_exc_data, s->exc_data, sizeof def_user_exc_data);
-  memcpy(init_exc_data, s->init_exc, sizeof s->init_exc);
+  memcpy(init_exc_data[MIDI_PORT_A], s->init_exc, sizeof s->init_exc);
 }
 
 static void
@@ -1446,7 +1451,7 @@ def_shared_restore_missing(const DefSharedSnap *s, int saw_rec, int saw_rhy,
     memcpy(def_user_exc_data, s->exc_data, sizeof def_user_exc_data);
   }
   if (!saw_init_exc)
-    memcpy(init_exc_data, s->init_exc, sizeof s->init_exc);
+    memcpy(init_exc_data[MIDI_PORT_A], s->init_exc, sizeof s->init_exc);
 }
 
 static int
@@ -1509,8 +1514,8 @@ def_shared_restore_unset(const DefSharedSnap *s)
     memcpy(def_user_exc_memo, s->exc_memo, sizeof def_user_exc_memo);
     memcpy(def_user_exc_data, s->exc_data, sizeof def_user_exc_data);
   }
-  if (init_exc_data[0] == 0xff)
-    memcpy(init_exc_data, s->init_exc, sizeof s->init_exc);
+  if (init_exc_data[MIDI_PORT_A][0] == 0xff)
+    memcpy(init_exc_data[MIDI_PORT_A], s->init_exc, sizeof s->init_exc);
 }
 
 /***************************//*4.66(2.18) 4.00(1.85)*/
@@ -1623,12 +1628,25 @@ void	cnf_repl(char *li,char *li2,int md)
 #endif
 
 /***************************/
+/* Copy one parsed row onto the ports this load applies to. */
+static void
+init_exc_store(const uint8_t *src, size_t n)
+{
+  if(n>258){n=258;}
+  if(def_load_scope != DEF_SCOPE_B)
+    memcpy(init_exc_data[MIDI_PORT_A], src, n);
+  if(def_load_scope != DEF_SCOPE_A)
+    memcpy(init_exc_data[MIDI_PORT_B], src, n);
+}
+
 void	def_init(char *li)
 {
   char	tmp0[1024];
   char	tmp1[1024];
+  uint8_t row[258];
   int	i=0,j=0,sum=0;
 
+  memset(row, 0xff, sizeof row);
   strcpy(tmp0,&li[10]);
   spcut(tmp0);
 
@@ -1645,12 +1663,13 @@ void	def_init(char *li)
       a=str_val(tmp1);tmp1[2]=0;
       if(strcmp(tmp1,"CS")==0){sum=0;goto ne;}
       if(strcmp(tmp1,"SS")==0){a=(127-(sum&0x7f)&0x7f);}
-      init_exc_data[j++]=a;sum+=a;
+      row[j++]=a;sum+=a;
     }
   ne:
     i=i+2;
   }
-  init_exc_data[j]=0xff;
+  row[j]=0xff;
+  init_exc_store(row, sizeof row);
 }
 
 /***************************/
@@ -1746,9 +1765,9 @@ int	defsave(char *fi,int md,int mutef,int initf)
   }
   n=buf_put("\r\n",n);
 
-  if(init_exc_data[0]!=0xff){
+  if(init_exc_data[MIDI_PORT_A][0]!=0xff){
     n=buf_put("#init_exc=",n);
-    n=buf_put(exc_str(init_exc_data,256,1),n);
+    n=buf_put(exc_str(init_exc_data[MIDI_PORT_A],256,1),n);
     n=buf_put("\r\n\r\n",n);
   }
 
@@ -1969,7 +1988,7 @@ int	def_bsave(char *fi,int last_no,int mutef,int initf)
     memcpy(&dat[0x40+i*48],def_user_exc_memo[i],24);
     memcpy(&dat[0x40+i*48+24],def_user_exc_data[i],24);	/*USER_EXC*/
   }
-  memcpy(&dat[0x01c0],init_exc_data,256);				/*INIT_EXC*/
+  memcpy(&dat[0x01c0],init_exc_data[MIDI_PORT_A],256);		/*INIT_EXC*/
 
   for(i=0;i<10;i++){n=rec_met[i];if(n<0){n=128;}dat[0x2c0+i]=n;}	/*REC_MET*/
   for(i=0;i<6;i++){n=rhy_stest[i];if(n<0){n=128;}dat[0x2ca+i]=n;}	/*RHY_AS*/
@@ -2085,7 +2104,7 @@ int	def_bload(char *fi,int md)
     memcpy(def_user_exc_memo[i],&dat[0x40+i*48],24);
     memcpy(def_user_exc_data[i],&dat[0x40+i*48+24],24);	/*USER_EXC*/
   }
-  memcpy(init_exc_data,&dat[0x01c0],256);				/*INIT_EXC*/
+  init_exc_store((const uint8_t *)&dat[0x01c0], 256);		/*INIT_EXC*/
 
   for(i=0;i<10;i++){n=dat[0x2c0+i];if(n>127){n=-1;}rec_met[i]=n;}	/*REC_MET*/
   for(i=0;i<6;i++){n=dat[0x2ca+i];if(n>127){n=-1;}rhy_stest[i]=n;}/*RHY_AS*/

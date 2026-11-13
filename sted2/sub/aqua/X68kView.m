@@ -1610,8 +1610,8 @@ XSTed_register_midi_device(const char *str)
 				q++;
 			clk[nclk++] = atoi(q) != 0;
 		}
-		[MIDISettingsController noteOutputClock:clk[0] port:0];
-		[MIDISettingsController noteOutputClock:clk[1] port:1];
+		[MIDISettingsController noteOutputClock:clk[0] port:MIDI_PORT_A];
+		[MIDISettingsController noteOutputClock:clk[1] port:MIDI_PORT_B];
 		return;
 	}
 	if (strcasecmp(q, "input") == 0) {
@@ -2113,10 +2113,10 @@ XSTed_apply_midi_port_settings(void)
 	char line[512];
 
 	[MIDISettingsController noteInputDeviceName:""];
-	[MIDISettingsController noteOutputDeviceName:"" port:0];
-	[MIDISettingsController noteOutputDeviceName:"" port:1];
-	[MIDISettingsController noteOutputClock:0 port:0];
-	[MIDISettingsController noteOutputClock:0 port:1];
+	[MIDISettingsController noteOutputDeviceName:"" port:MIDI_PORT_A];
+	[MIDISettingsController noteOutputDeviceName:"" port:MIDI_PORT_B];
+	[MIDISettingsController noteOutputClock:0 port:MIDI_PORT_A];
+	[MIDISettingsController noteOutputClock:0 port:MIDI_PORT_B];
 	if (!resolve_sted2_cnf(path, sizeof path))
 		return;
 	fp = fopen(path, "r");
@@ -3370,6 +3370,7 @@ void
 XSTed_key_wait(void)
 {
 	while (XSTed_keyin(0xfe) == 0) {
+		sted_reset_sysex_poll();
 		usleep(50000);
 	}
 }
@@ -3389,6 +3390,7 @@ XSTed_midi_wait(void)
 		locator_refresh(0);
 		if (XSTed_keysns())
 			return;
+		sted_reset_sysex_poll();
 		if (is_midi_in())
 			return;
 		if (!was_active && rcp_transport_is_active())

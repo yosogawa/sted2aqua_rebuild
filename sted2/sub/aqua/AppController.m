@@ -203,12 +203,12 @@ sted_argv_with_launch_file(int *argcIO, char **argv)
 	CoreMIDIAllSoundOff();
 }
 
-- (IBAction)sendGmSystemOnToDls:(id)sender
+- (IBAction)sendResetSysEx:(id)sender
 {
 	(void)sender;
 	if (rcp_transport_is_active())
 		return;
-	CoreMIDISendGmSystemOnToDls();
+	sted_reset_sysex_post();
 }
 
 - (void)installGmSystemOnMenu
@@ -230,10 +230,13 @@ sted_argv_with_launch_file(int *argcIO, char **argv)
 	}
 	if (midiMenu == nil)
 		return;
-	item = [[NSMenuItem alloc] initWithTitle:@"Send 'GM system On' to DLS synth"
-					  action:@selector(sendGmSystemOnToDls:)
-				   keyEquivalent:@""];
+	item = [[NSMenuItem alloc] initWithTitle:@"Send Reset SysEX"
+					  action:@selector(sendResetSysEx:)
+				   keyEquivalent:@"z"];
+	/* Plain Z is a label. The emulator still receives the key. */
+	[item setKeyEquivalentModifierMask:0];
 	[item setTarget:self];
+	[midiMenu setDelegate:self];
 	at = [midiMenu indexOfItemWithTitle:@"All Sound Off"];
 	if (at != NSNotFound)
 		[midiMenu insertItem:item atIndex:at + 1];
@@ -766,6 +769,15 @@ objectValueForTableColumn:(NSTableColumn *)tableColumn
 	[alert release];
 }
 
+- (BOOL)menuHasKeyEquivalent:(NSMenu *)menu forEvent:(NSEvent *)event target:(id *)target action:(SEL *)action
+{
+	(void)menu;
+	(void)event;
+	(void)target;
+	(void)action;
+	return NO;
+}
+
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem
 {
 	if ([menuItem action] == @selector(setDisplayScale:)) {
@@ -783,7 +795,7 @@ objectValueForTableColumn:(NSTableColumn *)tableColumn
 				    ? NSOnState : NSOffState];
 		return YES;
 	}
-	if ([menuItem action] == @selector(sendGmSystemOnToDls:))
+	if ([menuItem action] == @selector(sendResetSysEx:))
 		return !rcp_transport_is_active();
 	return YES;
 }

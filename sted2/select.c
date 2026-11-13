@@ -731,7 +731,7 @@ void	s_test(int ch,int bank,int prg,int note,int velo)
   obuf[0]=0x90+ch2;obuf[1]=note;obuf[2]=0;obuf[3]=255;
   (*rcd->mix_out)(obuf);
 
-  snsclr();rcd->put_mode=pm;set_midi_output_port(0);
+  snsclr();rcd->put_mode=pm;set_midi_output_port(MIDI_PORT_A);
 }
 
 /***************************/

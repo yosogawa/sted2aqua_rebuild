@@ -8,7 +8,7 @@
 @class X68kWindow;
 @class X68kView;
 
-@interface AppController : NSObject <NSApplicationDelegate, NSTableViewDataSource, NSTableViewDelegate>
+@interface AppController : NSObject <NSApplicationDelegate, NSMenuDelegate, NSTableViewDataSource, NSTableViewDelegate>
 {
     IBOutlet NSWindow *myWindow;
     NSFont *fontPanelPendingFont;
@@ -23,7 +23,7 @@
 - (IBAction)dlsSynthDialog:(id)sender;
 - (IBAction)generateDefFromSf2:(id)sender;
 - (IBAction)allSoundOff:(id)sender;
-- (IBAction)sendGmSystemOnToDls:(id)sender;
+- (IBAction)sendResetSysEx:(id)sender;
 - (IBAction)toggleThruMode:(id)sender;
 - (IBAction)setSyncMode:(id)sender;
 - (IBAction)setDisplayScale:(id)sender;

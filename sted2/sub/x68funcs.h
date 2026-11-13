@@ -88,6 +88,9 @@ extern void sted_finder_set_confirming( int on );
 extern void sted_main_idle_set( int on );
 extern int sted_main_idle_waiting( void );
 extern int XSTed_appkit_request_busy( void );
+/* MIDI menu posts this. The emulator thread runs timtra() on its next wait. */
+extern void sted_reset_sysex_post( void );
+extern void sted_reset_sysex_poll( void );
 
 #endif /* _X68FUNCS_H_ */
 

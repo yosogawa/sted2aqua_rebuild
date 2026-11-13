@@ -638,18 +638,18 @@ enum {
 
 	bankLabel1 = [self addLabel:@"DLS 1 Bank" y:y];
 	bankPopup1 = [self addPopupAtY:y];
-	[bankPopup1 setTag:0];
+	[bankPopup1 setTag:MIDI_PORT_A];
 	[bankPopup1 setTarget:self];
 	[bankPopup1 setAction:@selector(bankChanged:)];
-	[self fillBankPopup:bankPopup1 port:0];
+	[self fillBankPopup:bankPopup1 port:MIDI_PORT_A];
 	y -= kRowStep;
 
 	bankLabel2 = [self addLabel:@"DLS 2 Bank" y:y];
 	bankPopup2 = [self addPopupAtY:y];
-	[bankPopup2 setTag:1];
+	[bankPopup2 setTag:MIDI_PORT_B];
 	[bankPopup2 setTarget:self];
 	[bankPopup2 setAction:@selector(bankChanged:)];
-	[self fillBankPopup:bankPopup2 port:1];
+	[self fillBankPopup:bankPopup2 port:MIDI_PORT_B];
 	y -= kRowStep;
 
 	[self syncBankEnabled];

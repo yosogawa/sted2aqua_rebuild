@@ -1011,8 +1011,20 @@ void	timtra()
   (*rcd->init)();
 
   if(cm6_file[0]==0 && gsd_file[0]==0){
-    if(init_exc_data[0]!=255){(*rcd->setup)();
-    }else{(*rcd->mix_out)(init_exc_data);twait(12);}
+    int	port,sent;
+
+    sent=0;
+    if(rcd->mix_out){
+      for(port=MIDI_PORT_A;port<MIDI_PORT_NUM;port++){
+	if(init_exc_data[port][0]==255){continue;}
+	set_midi_output_port(port);
+	(*rcd->mix_out)(init_exc_data[port]);
+	twait(12);
+	sent=1;
+      }
+    }
+    if(sent){set_midi_output_port(MIDI_PORT_A);
+    }else if(rcd->setup){(*rcd->setup)();}
   }else{
     if((mdlflag&3)!=0){
       if( cm6_file[0]!=0 ){

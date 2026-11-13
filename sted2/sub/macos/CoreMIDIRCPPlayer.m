@@ -585,7 +585,7 @@ CoreMIDIAllSoundOff(void)
 	/*  Flush all output that are scheduled for future delivery  */
 	MIDIFlushOutput(0);
 	/*  All sound off  */
-	for (port = 0; port < 2; port++) {
+	for (port = MIDI_PORT_A; port < MIDI_PORT_NUM; port++) {
 		for (ch = 0; ch < 16; ch++) {
 			uint8_t buf[4];
 			/*  All sound off  */

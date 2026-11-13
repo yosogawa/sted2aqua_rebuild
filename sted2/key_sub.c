@@ -673,7 +673,7 @@ int	strch(int och,char *tmp0)
   jstrupr(tmp0);
 
   port_number = tmp0[0]-'A';
-  if( port_number==0 || port_number==1 ){
+  if( port_number==MIDI_PORT_A || port_number==MIDI_PORT_B ){
     ex=str_val(&tmp0[1]);
     if(ex<1 || ex>16){ex=1;}
 
