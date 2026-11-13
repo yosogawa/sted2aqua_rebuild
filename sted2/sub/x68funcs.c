@@ -69,9 +69,7 @@ sted_init_display_codeset(void)
   disp_conv = 0;
   disp_codeset = "UTF-8";
 
-#ifndef ENABLE_NLS
   setlocale(LC_CTYPE, "");
-#endif
 
   cs = nl_langinfo(CODESET);
   if (cs != NULL && cs[0] != '\0') {
@@ -421,34 +419,6 @@ void STed_system_initialize( int *argc, char ***argv ) {
     rcd = NULL;
 
     sted_select_ui(argc, argv);
-
-  /* get message catalogues */
-
-#ifdef ENABLE_NLS
-# ifdef STED_DEFAULT_PATH
-  if ( buf!=NULL ) {
-    int l;
-    if ( (p=getenv("NLSPATH")) == NULL ) {
-      l = strlen(STED_DEFAULT_PATH "/nls/%L/%N.cat")+9;
-      buf = (char *)malloc(sizeof(char)*l);
-      if( snprintf(buf, l, "NLSPATH=%s", STED_DEFAULT_PATH "/nls/%L/%N.cat") > 0 )
-	putenv(buf);
-    } else {
-      if ( strstr(p, STED_DEFAULT_PATH "/nls/%L/%N.cat") == NULL ) {
-	l = strlen(p)+strlen(STED_DEFAULT_PATH "/nls/%L/%N.cat")+10;
-	buf = (char *)malloc(sizeof(char)*l);
-	if ( snprintf(buf, l, "NLSPATH=%s:%s",p, STED_DEFAULT_PATH "/nls/%L/%N.cat") > 0 )
-	  putenv(buf);
-      }
-    }
-  }
-# endif /* STED_DEFAULT_PATH */
-
-  setlocale(LC_ALL, "");
-  bindtextdomain("sted2", STED_LOCALE_DIR);
-  textdomain("sted2");
-
-#endif /* HAVE_NLS */
 
   /* locale codeset for X11/curses; RCP text stays Shift_JIS */
   sted_init_display_codeset();

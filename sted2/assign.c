@@ -125,7 +125,7 @@ ass_ret:
 
     }
     if( a==12 ){
-      msg(_("Initialize assign"));
+      msg("Initialize assign");
       if(yn_sel()>0){msg_clr();rhinit();goto redis;}
     }
     if( a==32 ){
@@ -284,7 +284,7 @@ ass_ret:
       fsel(tmp1,path2,0x00b);
       if( es==0 && tmp1[0]!=0){
 	strcpy(tmp0,path2);strcat(tmp0,tmp1);
-	msg(_("Loading Rhythm assign file"));
+	msg("Loading Rhythm assign file");
 	if(ras_load(tmp0)==0 ){msg_clr();
 	if(!(cnfflag&0x0008)){strcpy(prt_path,path2);}
 	}
@@ -300,7 +300,7 @@ ass_ret:
       fsel(tmp1,path2,0x10b);
       if( es==0 && tmp1[0]!=0){
 	strcpy(tmp0,path2);strcat(tmp0,tmp1);
-	msg(_("Saving Rhythm assign file"));
+	msg("Saving Rhythm assign file");
 	if(ras_save(tmp0)==0 ){msg_clr();
 	if(!(cnfflag&0x0008)){strcpy(prt_path,path2);}
 	}
@@ -310,7 +310,7 @@ ass_ret:
 
     if(a=='A'){
       int i,n,a;
-      msg(_("Change all rhythm name"));
+      msg("Change all rhythm name");
       a=yn_sel();msg_clr();if(a==0){goto ass_ret;}
 
       for(i=0;i<32;i++){
@@ -370,7 +370,7 @@ ass_ret:
 	}
       }
       if( f==0 ){break;}
-      msg(_("Find repetition of key number. Ok"));
+      msg("Find repetition of key number. Ok");
       if(yn_sel()<1){msg_clr();goto redis;}
       break;
 
@@ -383,12 +383,12 @@ ass_ret:
   if(f!=0 && (cmdflag&0x800)==0){
     int a=1;
     if((cmdflag&0x400)==0){
-      msg(_("Replace all track datas"));
+      msg("Replace all track datas");
       a=yn_sel();if(a==0){msg_clr();goto ass_ret;}
     }
     if(a>0){
       int	i,j,n;
-      msg(_("Now processing ..."));
+      msg("Now processing ...");
       for(i=0;i<36;i++){
 	if((trrhy[i]&128)!=0){
 	  for(j=0;j<tr_len[i];j=j+4){
@@ -608,7 +608,7 @@ top:
     }
 
     if( ke==12 ){
-      msg(_("Initialize assign"));
+      msg("Initialize assign");
       if(yn_sel()>0){msg_clr();asin_init();goto top;}
     }
   }
@@ -807,7 +807,7 @@ top:
     if( ke==0x04 ){x++;if( x>1 ){x=0;}}
 
     if( ke==12 ){
-      msg(_("Init. Ok"));
+      msg("Init. Ok");
       if(yn_sel()>0){
 	msg_clr();filt_init();goto top;
       }
@@ -890,7 +890,7 @@ redis:
       }
       */
     if( a==12 ){
-      msg(_("Initialize assign"));
+      msg("Initialize assign");
       if(yn_sel()>0){msg_clr();stgt_init();goto redis;}
     }
     if( a==32 ){

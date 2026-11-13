@@ -452,7 +452,7 @@ void	trk_set(int md)
     if( ke==12 || ke=='D' ){
       B_LOCATE(55,6);B_PRINT("Erase Track Data");
       B_LOCATE(79,7);B_PRINT("Track=");B_PRINT(fstr(i+1,2));
-      msg(_("Delete all track data"));
+      msg("Delete all track data");
       if(yn_sel()>0){ts_clear(i);trk_lin(i,-1,0);}
       B_CLR_AL();
     }
@@ -460,7 +460,7 @@ void	trk_set(int md)
       B_LOCATE(55,6);B_PRINT("Optimize Track Data");
       B_LOCATE(79,7);B_PRINT("Track=");
       if(sh&1){B_PRINT("All");}else{B_PRINT(fstr(i+1,2));}
-      msg(_("Optimize track data"));
+      msg("Optimize track data");
       if(yn_sel()>0){
 	if(sh&1){
 	  int j;
@@ -484,7 +484,7 @@ void	trk_set(int md)
       }
       B_LOCATE(79,7);B_PRINT("Track=");
       if(sh&1){B_PRINT("All");}else{B_PRINT(fstr(i+1,2));}
-      msg(_("Compress track data"));
+      msg("Compress track data");
       if(yn_sel()>0){
 	int t=track;
 	size_ref();
@@ -519,7 +519,7 @@ void	trk_set(int md)
       B_LOCATE(55,6);B_PRINT("SameMeas/Repeat Extract Track Data");
       B_LOCATE(79,7);B_PRINT("Track=");
       if(sh&1){B_PRINT("All");}else{B_PRINT(fstr(i+1,2));}
-      msg(_("Extrack track data"));
+      msg("Extrack track data");
       if(yn_sel()>0){
 	if(sh&1){
 	  int j;
@@ -553,14 +553,14 @@ void	trk_set(int md)
 	if( es==0 && trk_file[0]!=0 ){
 	  strcpy(tmp0,path2);strcat(tmp0,trk_file);
 	  if(str_search(trk_file,".mid")>0 || str_search(trk_file,".MID")>0){
-	    msg(_("Loading track data ..."));
+	    msg("Loading track data ...");
 	    if(trk_load_mid(tmp0)==0){
 	      if(!(cnfflag&0x0008)){strcpy(trk_path,path2);}
 	      trk_lin(track,-1,0);
 	      msg_clr();
 	    }
 	  }else{
-	    msg(_("Loading track data ..."));
+	    msg("Loading track data ...");
 	    if(trk_load(tmp0)==0){
 	      if(!(cnfflag&0x0008)){strcpy(trk_path,path2);}
 	      trk_lin(track,-1,0);
@@ -580,9 +580,9 @@ void	trk_set(int md)
 	if( es==0 && trk_file[0]!=0 ){
 	  strcpy(tmp0,path2);strcat(tmp0,trk_file);
 	  if(str_search(trk_file,".mid")>0 || str_search(trk_file,".MID")>0){
-	    msg(_("MIDI track save is not yet implemented."));
+	    msg("MIDI track save is not yet implemented.");
 	  }else{
-	    msg(_("Saving track data ..."));
+	    msg("Saving track data ...");
 	    if(trk_save(tmp0)==0){
 	      if(!(cnfflag&0x0008)){strcpy(trk_path,path2);}
 	      msg_clr();

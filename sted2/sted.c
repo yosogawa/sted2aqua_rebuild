@@ -443,7 +443,7 @@ loop:
 	}
 	if (i == -1) {
 	  B_PRINT(name);
-	  B_PRINT(_(": File not found.\n"));
+	  B_PRINT(": File not found.\n");
 	}
 	return -1;
       }
@@ -628,35 +628,35 @@ int	main(int argc,char *argv[])
   if( f!=0 ){
     B_PRINT("usage: STed2 [option...] [file name] (.RCP/.R36/.MDF)\n");
     B_PRINT("options\r\n");
-    B_PRINT( _("\t-M<size>\t Set the max size of track\n") );
-    B_PRINT( _("\t-U<size>\t Set the size of track buffer\n") );
-    B_PRINT( _("\t-W<size>\t Set the size of recording buffer\n") );
-    B_PRINT( _("\t-F<file>\t Specify Module configuration file\n") );
-    B_PRINT( _("\t-B<num>\t\t Specify the name of PCM card (CM64)\n") );
-    B_PRINT( _("\t-D<path>\t Specify the data directory\n") );
-    B_PRINT( _("\t-R\t\t Do pointplay with RCD function\n") );
-    B_PRINT( _("\t-P\t\t Set panel displaying as default playing command\n") );
-    B_PRINT( _("\t-L\t\t Read the data in RCD buffer at boot time\n") );
-    B_PRINT( _("\t-S\t\t Don't copy the data to RCD buffer when exit\n") );
+    B_PRINT( "\t-M<size>\t Set the max size of track\n" );
+    B_PRINT( "\t-U<size>\t Set the size of track buffer\n" );
+    B_PRINT( "\t-W<size>\t Set the size of recording buffer\n" );
+    B_PRINT( "\t-F<file>\t Specify Module configuration file\n" );
+    B_PRINT( "\t-B<num>\t\t Specify the name of PCM card (CM64)\n" );
+    B_PRINT( "\t-D<path>\t Specify the data directory\n" );
+    B_PRINT( "\t-R\t\t Do pointplay with RCD function\n" );
+    B_PRINT( "\t-P\t\t Set panel displaying as default playing command\n" );
+    B_PRINT( "\t-L\t\t Read the data in RCD buffer at boot time\n" );
+    B_PRINT( "\t-S\t\t Don't copy the data to RCD buffer when exit\n" );
 #ifdef USE_CURSES
-    B_PRINT( _("\t-nw\t\t Start in console (curses) mode\n") );
+    B_PRINT( "\t-nw\t\t Start in console (curses) mode\n" );
 #endif
-    B_PRINT( _("\t-g\t\t Start in GUI mode\n\n") );
+    B_PRINT( "\t-g\t\t Start in GUI mode\n\n" );
     sted_fail(1);
   }
 
   if( rcd == NULL ) {
-    B_PRINT(_("RCD is not running.\n"));sted_fail(1);
+    B_PRINT("RCD is not running.\n");sted_fail(1);
   }else{
     if( strcmp(rcd_version,"3.01")<0 || strcmp(rcd_version,"3.09")>0 ){
-      B_PRINT(_("Invalid RCD version.\n"));
+      B_PRINT("Invalid RCD version.\n");
       sted_fail(1);
     }
   }
 
   if( card_no[0]<0 || card_no[0]>16 || TRACK_SIZE<32 || TRACK_SIZE>256 ||
       buff_max<64*1024 || buff_max>256*36*1024 ){
-    B_PRINT(_("Invalid options.\n"));sted_fail(1);
+    B_PRINT("Invalid options.\n");sted_fail(1);
   }
 
   TRACK_SIZE=TRACK_SIZE*1024-48;buff_size=TRACK_SIZE*36;
@@ -674,7 +674,7 @@ int	main(int argc,char *argv[])
      (Human68k: 確保失敗は NULL ではなく 0x81000000 以上の符号化値) */
 #if 0
   if((int)dat>=0x81000000){
-    B_PRINT(_("Cannot allocate track buffers.\n"));exit(1);}
+    B_PRINT("Cannot allocate track buffers.\n");exit(1);}
 #endif
 
 realc:
@@ -686,7 +686,7 @@ realc:
     if(!used_u){
       buff_size=((int)trk[0])&0xfffffc;if(buff_size>=64*1024){goto realc;}
     }
-    B_PRINT(_("Cannot allocate track buffers.\n"));exit(1);
+    B_PRINT("Cannot allocate track buffers.\n");exit(1);
   }
 #endif
 
@@ -694,11 +694,11 @@ realc:
 
   /*
   if(TGUSEMD(0,-1)==1){
-    B_PRINT(_("G-RAM is active. Init. OK?(Y/N)"));
+    B_PRINT("G-RAM is active. Init. OK?(Y/N)");
     while(1){
       i=inkey2();
       if(i=='Y'||i=='y'){break;}
-      if(i=='N'||i=='n'){B_PRINT(_(": Terminated.\r\n"));exit(1);}
+      if(i=='N'||i=='n'){B_PRINT(": Terminated.\r\n");exit(1);}
     }
   }
   */
@@ -746,7 +746,7 @@ realc:
 
     if(!(fp= fopen2(rcp_file,"rb"))){
       B_PRINT(sted_filename_for_font(rcp_file));
-      B_PRINT(_(": File not found.\n"));sted_fail(1);
+      B_PRINT(": File not found.\n");sted_fail(1);
     }
     fclose(fp);
     path_cut(rcp_path,rcp_file);
@@ -755,7 +755,7 @@ realc:
   definit();
   strmfe(tmp0, sizeof tmp0, argv[0], "cnf");
   if(defload(tmp0,2)!=0){
-    B_PRINT(tmp0);B_PRINT(_(": File not found.\n"));sted_fail(1);}
+    B_PRINT(tmp0);B_PRINT(": File not found.\n");sted_fail(1);}
 
   strmfe(tmp0, sizeof tmp0, argv[0], "cf2");defload(tmp0,2);
   /*		1997-07-20	STed2.cf2Фɤ߹褦ˤ*/
@@ -897,14 +897,14 @@ realc:
 	snprintf(tmp0,sizeof tmp0,"%s%s",rcp_path,cm6_file);
 	if(timload(tmp0)!=0){
 	  msg(sted_filename_for_font(cm6_file));
-	  B_PRINT(_(": File not found.\n"));cm6_file[0]=0;
+	  B_PRINT(": File not found.\n");cm6_file[0]=0;
 	}
       }
       if(gsd_file[0]!=0){
 	snprintf(tmp0,sizeof tmp0,"%s%s",rcp_path,gsd_file);
 	if(gsdload(tmp0)!=0){
 	  msg(sted_filename_for_font(gsd_file));
-	  B_PRINT(_(": File not found.\n"));gsd_file[0]=0;
+	  B_PRINT(": File not found.\n");gsd_file[0]=0;
 	}
       }
     }
@@ -964,20 +964,20 @@ static void sted_finder_apply(const char *full)
 
   slash = strrchr(full, '/');
   if (slash == NULL || slash[1] == '\0') {
-    msg(_("Invalid file."));
+    msg("Invalid file.");
     return;
   }
   dlen = (size_t)(slash - full) + 1;
   nlen = strlen(slash + 1);
   if (dlen >= sizeof dir || nlen >= sizeof namebuf || nlen >= sizeof rcp_file) {
-    msg(_("Invalid file."));
+    msg("Invalid file.");
     return;
   }
   memcpy(dir, full, dlen);
   dir[dlen] = '\0';
   memcpy(namebuf, slash + 1, nlen + 1);
 
-  msg(_("Loading ..."));
+  msg("Loading ...");
   if (dload((char *)full, 0) != 0)
     return;
   cminit();
@@ -986,7 +986,7 @@ static void sted_finder_apply(const char *full)
     snprintf(tmp, sizeof tmp, "%s%s", dir, cm6_file);
     if (timload(tmp) != 0) {
       msg((char *)sted_filename_for_font(cm6_file));
-      B_PRINT(_(": File not found.\n"));
+      B_PRINT(": File not found.\n");
       cm6_file[0] = 0;
     }
   }
@@ -994,7 +994,7 @@ static void sted_finder_apply(const char *full)
     snprintf(tmp, sizeof tmp, "%s%s", dir, gsd_file);
     if (gsdload(tmp) != 0) {
       msg((char *)sted_filename_for_font(gsd_file));
-      B_PRINT(_(": File not found.\n"));
+      B_PRINT(": File not found.\n");
       gsd_file[0] = 0;
     }
   }
@@ -1022,9 +1022,9 @@ static void sted_finder_offer(void)
   shown = sted_filename_for_font(base);
   sted_finder_set_confirming(1);
   if (shown != NULL && shown[0] != '\0' && strlen(shown) <= 40)
-    snprintf(line, sizeof line, "%s %s", _("Load this file"), shown);
+    snprintf(line, sizeof line, "%s %s", "Load this file", shown);
   else
-    snprintf(line, sizeof line, "%s", _("Load this file"));
+    snprintf(line, sizeof line, "%s", "Load this file");
   msg(line);
   if (yn_sel() > 0 && sted_finder_still_safe())
     sted_finder_apply(full);
@@ -1097,7 +1097,7 @@ void	com_sel()
 	if( cy==6 ){beat_set();}
 	if( cy==7 ){
 	  if(sh&1){
-	    msg(_("Input new title"));
+	    msg("Input new title");
 	    if(yn_sel()>0){mtitle[0]=0;}
 	  }
 	  /*  2015.3.27. Toshi Nagata; support inline input  */
@@ -1160,23 +1160,23 @@ void	com_sel()
 		  cnf_err = cnf_remember_port_def(scope, def_file) != 0;
 		msg_clr();
 		if(cnf_err)
-		  msg(_("Could not update sted2.cnf."));
+		  msg("Could not update sted2.cnf.");
 		module_chips_draw(0);
 	      }
 	    }else{
 	      def_parts_finish_partial(-1, part_snap);
-	      if(n==-1){msg(_(": File not found.\n"));}
+	      if(n==-1){msg(": File not found.\n");}
 	    }
 	  }
 	}
 
 	if( cy==16 ){
-	  msg(_("Initialize all data"));
+	  msg("Initialize all data");
 	  if(yn_sel()>0){dinit();rcp_file[0]=0;timtra();form2();}
 	}
 	if( cy==17 ){
 	  if((sh & 1)!=0){end_proc();}
-	  msg(_("Exit"));
+	  msg("Exit");
 	  if(yn_sel()>0){end_proc();}
 	}
 	C_WINDOW(0,31);B_LOCATE(0,2);C_CLS_ED();
@@ -1203,20 +1203,20 @@ void	load_sub(int sh)
   strcpy(path2,rcp_path);fsel(tmp1,path2,0x001);
   if( es==0 && tmp1[0]!=0){
     strcpy(tmp0,path2);strcat(tmp0,tmp1);
-    msg(_("Loading ..."));
+    msg("Loading ...");
     if(dload(tmp0,sh&1)==0 ){
       cminit();gsinit();
       snprintf(tmp0,sizeof tmp0,"%s%s",path2,cm6_file);
       if(cm6_file[0]!=0){
 	if(timload(tmp0)!=0){
-	  msg(sted_filename_for_font(cm6_file));B_PRINT(_(": File not found.\n"));
+	  msg(sted_filename_for_font(cm6_file));B_PRINT(": File not found.\n");
 	  cm6_file[0]=0;
 	}
       }
       snprintf(tmp0,sizeof tmp0,"%s%s",path2,gsd_file);
       if(gsd_file[0]!=0){
 	if(gsdload(tmp0)!=0){
-	  msg(sted_filename_for_font(gsd_file));B_PRINT(_(": File not found.\n"));
+	  msg(sted_filename_for_font(gsd_file));B_PRINT(": File not found.\n");
 	  gsd_file[0]=0;
 	}
       }
@@ -1248,7 +1248,7 @@ void	save_sub(int sh)
   strcpy(path2,rcp_path);fsel(tmp1,path2,0x100+(sh&1));
   if( es==0 && tmp1[0]!=0 ){
     strcpy(tmp0,path2);strcat(tmp0,tmp1);
-    msg(_("Saving ..."));
+    msg("Saving ...");
     if(dsave(tmp0)==0){
       if(!(cnfflag&0x0008)){strcpy(rcp_path,path2);}
       strcpy(rcp_file,tmp1);
@@ -1268,7 +1268,7 @@ void	memo_ed(int sh)
 
   if(sh&1){
   redraw:
-    msg(_("Initialize memo"));
+    msg("Initialize memo");
     if(yn_sel()>0){for(i=0;i<12;i++){memo[i][0]=0;}}
   }
   msg_clr();
@@ -1350,7 +1350,7 @@ int	option(int md,int sm)
       cmd=progmode(tmp2);
 
       if((cmd&512)!=0 && sm){
-	msg(_("This function is not available except for Main Menu."));
+	msg("This function is not available except for Main Menu.");
 	if(md<0){goto top;}
 	break;
       }
@@ -1428,7 +1428,7 @@ redraw:
       cmd=progmode(tmp2);
 
       if((cmd&512)!=0 && sm){
-	msg(_("This function is not available except for Main Menu."));
+	msg("This function is not available except for Main Menu.");
 	if(md<0){goto top;}
 	break;
       }
@@ -1489,7 +1489,7 @@ inline int	option2(int md,int sm,int ad,int ew)
     cmd=progmode(tmp2);
 
     if((cmd&512)!=0 && sm){
-      msg(_("This function is not available except for Main Menu."));
+      msg("This function is not available except for Main Menu.");
       goto ext;
     }
 
@@ -1638,7 +1638,7 @@ int	progmode(char *tmp2)
 /***************************/
 void	key_pause()
 {
-  B_COLOR(1);B_LOCATE(0,31);B_PRINT(_("Return to STed2 ! Press [RET]"));
+  B_COLOR(1);B_LOCATE(0,31);B_PRINT("Return to STed2 ! Press [RET]");
   while(inkey2()!=13){}
   B_COLOR(1);B_LOCATE(0,31);B_PRINT("                                        ");
 }
@@ -1649,9 +1649,9 @@ int	yn_sel()
   int	ke,ec=0;
   int y,n;
 
-  y=*_("Y");
-  n=*_("N");
-  B_PRINT(_("? (Y/N)"));
+  y=*"Y";
+  n=*"N";
+  B_PRINT("? (Y/N)");
   while(1){
     ke=inkey2();
     if(ke==y || ke==tolower(y)||ke==13){ec= 1;break;}
@@ -2211,7 +2211,7 @@ void	fonload(char *fi)
     strcat( tmp0, "/" );
     strcat( tmp0, (strrchr(fi,'/')==NULL)?fi:(strrchr(fi,'/')+1) );
     if (!(fp=fopen2( tmp0, "rb" ))) {
-      B_PRINT(fi);B_PRINT(_(": File not found.\n"));sted_fail(1);
+      B_PRINT(fi);B_PRINT(": File not found.\n");sted_fail(1);
     }
   } /* Oct.13.1998 by Daisuke Nagano */
   fread(dat,1,12*1024,fp);fclose(fp);

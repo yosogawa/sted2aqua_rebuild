@@ -8,43 +8,43 @@
 uint8_t	fnc_dat[9*10][9]={
 
   /*edit*/
-  N_("  TOP   "),N_(" BOTTOM "),N_("REPLACE "),N_("  FIND  "),N_(" F.NEXT "),
-  N_("  MARK  "),N_(" DELETE "),N_("  COPY  "),N_("  PASTE "),N_(" DOUBLE "),
+  "  TOP   "," BOTTOM ","REPLACE ","  FIND  "," F.NEXT ",
+  "  MARK  "," DELETE ","  COPY  ","  PASTE "," DOUBLE ",
 
   /*edit shift*/
-  N_(" NOTES  "),N_(" OPTIM. "),N_(" S.DEL  "),N_(" F.BACK "),N_(" F.PREV "),
-  N_("SET UNDO"),N_("DO UNDO "),N_("MIX PST."),N_("REV.PST."),N_("        "),
+  " NOTES  "," OPTIM. "," S.DEL  "," F.BACK "," F.PREV ",
+  "SET UNDO","DO UNDO ","MIX PST.","REV.PST.","        ",
 
   /*
    * fnc_dat[2] はダミー。表示には使わない。
    * 画面の文字列は fnc_dis() が stgt_tbl から作る。
    */
-  N_("  192   "),N_("  144   "),N_("   96   "),N_("   72   "),N_("   48   "),
-  N_("   36   "),N_("   24   "),N_("   18   "),N_("   12   "),N_("    6   "),
+  "  192   ","  144   ","   96   ","   72   ","   48   ",
+  "   36   ","   24   ","   18   ","   12   ","    6   ",
 
   /*cm64 con*/
-  N_(" SYSTEM "),N_("LA PATCH"),N_("PCM PAT."),N_("RHY.PAT."),N_(" TIMBRE "),
-  N_("LOAD CM6"),N_("SAVE CM6"),N_("  PLAY  "),N_("CM6 INIT"),N_("  EXIT  "),
+  " SYSTEM ","LA PATCH","PCM PAT.","RHY.PAT."," TIMBRE ",
+  "LOAD CM6","SAVE CM6","  PLAY  ","CM6 INIT","  EXIT  ",
 
   /*trk.exclu. edit*/
-  N_("SEND GT "),N_("SEND VEL"),N_("SEND CH."),N_("CLR SUM "),N_("SEND SUM"),
-  N_("END EXCL"),N_("        "),N_("CHEK.SUM"),N_("EXC LOAD"),N_("EXC SAVE"),
+  "SEND GT ","SEND VEL","SEND CH.","CLR SUM ","SEND SUM",
+  "END EXCL","        ","CHEK.SUM","EXC LOAD","EXC SAVE",
 
   /*visual edit*/
-  N_("TOP POSI"),N_("LAST POS"),N_("  LINE  "),N_("        "),N_(" WAVE-A "),
-  N_(" WAVE-B "),N_("SIN +CRV"),N_("SIN WAVE"),N_("TRIANGLE"),N_(" SQUARE "),
+  "TOP POSI","LAST POS","  LINE  ","        "," WAVE-A ",
+  " WAVE-B ","SIN +CRV","SIN WAVE","TRIANGLE"," SQUARE ",
 
   /*visual edit shift*/
-  N_("REV. U&D"),N_("REV. L&R"),N_(" RANDOM "),N_("        "),N_("R.WAVE-A"),
-  N_("R.WAVE-B"),N_("SIN -CRV"),N_("SIN WA/C"),N_("TRIANG/C"),N_("SQUARE/C"),
+  "REV. U&D","REV. L&R"," RANDOM ","        ","R.WAVE-A",
+  "R.WAVE-B","SIN -CRV","SIN WA/C","TRIANG/C","SQUARE/C",
 
   /*user exclu. edit*/
-  N_("SEND GT "),N_("SEND VEL"),N_("SEND CH."),N_("CLR SUM "),N_("SEND SUM"),
-  N_("END EXCL"),N_("        "),N_("CHEK.SUM"),N_("REX LOAD"),N_("REX SAVE"),
+  "SEND GT ","SEND VEL","SEND CH.","CLR SUM ","SEND SUM",
+  "END EXCL","        ","CHEK.SUM","REX LOAD","REX SAVE",
 
   /*one touch velo*/
-  N_("        "),N_("  ppp   "),N_("   pp   "),N_("   p    "),N_("   mp   "),
-  N_("   mf   "),N_("   f    "),N_("   ff   "),N_("  fff   "),N_("        ")};
+  "        ","  ppp   ","   pp   ","   p    ","   mp   ",
+  "   mf   ","   f    ","   ff   ","  fff   ","        "};
 
 char	hex_code[16]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 
@@ -441,7 +441,7 @@ void	fnc_dis(int n)
 	  stlab[5]=' ';stlab[6]=' ';stlab[7]=' ';stlab[8]=0;
 	  B_PUTMES(fcol,j,31,7,stlab);
 	}else{
-	  B_PUTMES(fcol,j,31,7,_(fnc_dat[n*10+i]));
+	  B_PUTMES(fcol,j,31,7,fnc_dat[n*10+i]);
 	}
       }
     }
@@ -629,7 +629,7 @@ int	help(int md)
   FILE	*fp;
 
   if(!(fp= fopen2(hlp_path,"rb"))){
-    msg(_("Cannot find help file."));return(1);}
+    msg("Cannot find help file.");return(1);}
   ln=fread(dat,1,63*1024,fp);fclose(fp);
 
   ad=0;poi[0]=0;dat[ln]=0x1a;
@@ -646,7 +646,7 @@ int	help(int md)
   fill(0,544,767,1001,0);box(0,564,767,1001,14,65535);
   sdis(0,548," COMMAND HELP",14,15,8);home2(512);
   C_WINDOW(0,32);
-  B_LOCATE(0,31);B_PRINT(_(" [SPC]/[R.UP] NEXT PAGE  [BS]/[R.DOWN] PREV. PAGE  [TAB] SPECIFY PAGE  [ESC] EXIT"));
+  B_LOCATE(0,31);B_PRINT(" [SPC]/[R.UP] NEXT PAGE  [BS]/[R.DOWN] PREV. PAGE  [TAB] SPECIFY PAGE  [ESC] EXIT");
 
   C_WINDOW(0,31);
 

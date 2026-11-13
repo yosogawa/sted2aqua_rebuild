@@ -54,7 +54,7 @@ static int smfload( char *fna ) {
   int rcpsize;
 
   fp = fopen2(fna,"rb");
-  if ( fp == NULL ) {msg(_("File not found."));return(-1);}
+  if ( fp == NULL ) {msg("File not found.");return(-1);}
   fseek(fp,0,SEEK_END);
   size=ftell(fp);
   fseek(fp,0,SEEK_SET);
@@ -68,7 +68,7 @@ static int smfload( char *fna ) {
   if ( rcpbuf == NULL ) {free(smfbuf);return(-1);}
   
   if ( (rcpsize=itor( smfbuf, (size_t)size, rcpbuf )) == 0 ) {
-    msg(_("Invalid file."));
+    msg("Invalid file.");
     free(rcpbuf);free(smfbuf);return(-1);
   }
   free(smfbuf);
@@ -77,7 +77,7 @@ static int smfload( char *fna ) {
   memmove( hed, rcpbuf+ptr, RCP_FILE_HEADER_SIZE );
   ptr+=RCP_FILE_HEADER_SIZE;
   if ( strcmp(sread(0,30),rcp_id)!=0 ) {
-    msg(_("Invalid file format."));free(rcpbuf);return(-1);
+    msg("Invalid file format.");free(rcpbuf);return(-1);
   }
   if(hed[0x1e6]==36){md2=1;}else{md2=0;}
   if(md2==0){max=18;}else{max=36;}
@@ -86,7 +86,7 @@ static int smfload( char *fna ) {
   for(i=stra;i<max;i++){
     memmove(hed,rcpbuf+ptr,RCP_TRACK_HEADER_SIZE);size=thedread(i);size2=0;
     ptr+=RCP_TRACK_HEADER_SIZE;
-    if( size<RCP_EVENT_SIZE ){msg(_("Invalid file."));break;}
+    if( size<RCP_EVENT_SIZE ){msg("Invalid file.");break;}
     if( size>TRACK_SIZE ){size2=(int)size;size=TRACK_SIZE;}
 
     if(size_change(i,(int)size)){break;}
@@ -95,14 +95,14 @@ static int smfload( char *fna ) {
     if( rcpsize<ptr+size ) ln=0;
     ptr+=size;
 
-    if( ln!=size ){if(i==18){break;}msg(_("Invalid file."));size=ln;break;}
+    if( ln!=size ){if(i==18){break;}msg("Invalid file.");size=ln;break;}
 
     size=gomi_cut(trk[i],(int)size);
-    if( size<RCP_EVENT_SIZE ){msg(_("Invalid file."));break;}
+    if( size<RCP_EVENT_SIZE ){msg("Invalid file.");break;}
     tr_len[i]=(int)size;trk[i][size-RCP_EVENT_SIZE]=RCP_EOT;
 
     if( size2>0){
-      msg(_("Track buffer exhausted."));size2-=(int)size;
+      msg("Track buffer exhausted.");size2-=(int)size;
       while( size2>0 ){
 	if( size2>TRACK_SIZE ){j=TRACK_SIZE;}else{j=size2;}
 	memmove(dat,rcpbuf+ptr,j);ptr+=j;
@@ -155,23 +155,23 @@ static int abcload(char *fna)
   int i, n, len;
 
   if (!(fp = fopen2(fna, "rb"))) {
-    msg(_("File not found."));
+    msg("File not found.");
     return -1;
   }
   if (fseek(fp, 0, SEEK_END) != 0) {
     fclose(fp);
-    msg(_("Invalid file."));
+    msg("Invalid file.");
     return -1;
   }
   sz = ftell(fp);
   if (sz < 0 || sz > 8 * 1024 * 1024) {
     fclose(fp);
-    msg(_("Invalid file."));
+    msg("Invalid file.");
     return -1;
   }
   if (fseek(fp, 0, SEEK_SET) != 0) {
     fclose(fp);
-    msg(_("Invalid file."));
+    msg("Invalid file.");
     return -1;
   }
   text = (char *)malloc((size_t)sz + 1);
@@ -182,14 +182,14 @@ static int abcload(char *fna)
   if (sz > 0 && fread(text, 1, (size_t)sz, fp) != (size_t)sz) {
     free(text);
     fclose(fp);
-    msg(_("Invalid file."));
+    msg("Invalid file.");
     return -1;
   }
   fclose(fp);
   text[sz] = 0;
   if (abc_import_text(text, (int)sz, &song) != 0) {
     free(text);
-    msg(_("Invalid file format."));
+    msg("Invalid file format.");
     return -1;
   }
   free(text);
@@ -220,12 +220,12 @@ static int abcload(char *fna)
   for (i = 0; i < n; i++) {
     len = song.len[i];
     if (len < RCP_EVENT_SIZE || len > TRACK_SIZE || song.trk[i] == NULL) {
-      msg(_("Track buffer exhausted."));
+      msg("Track buffer exhausted.");
       abc_song_free(&song);
       return -1;
     }
     if (size_change(i, len)) {
-      msg(_("Track buffer exhausted."));
+      msg("Track buffer exhausted.");
       abc_song_free(&song);
       return -1;
     }
@@ -270,7 +270,7 @@ static int abcsave(char *fna)
   if (abc_export_text(&song, &text) != 0 || text == NULL)
     return -1;
   if (!(fp = fopen2(fna, "wb"))) {
-    msg(_("Cannot open file."));
+    msg("Cannot open file.");
     free(text);
     return -1;
   }
@@ -279,7 +279,7 @@ static int abcsave(char *fna)
   fclose(fp);
   free(text);
   if (wr != n) {
-    msg(_("Cannot write file."));
+    msg("Cannot write file.");
     unlink(fna);
     return -1;
   }
@@ -299,12 +299,12 @@ int	dload(char *fna,int md)
 
   if(str_search(fna,".R36")>0 || str_search(fna,".r36")>0){md2=1;}
 
-  if(!(fp= fopen2(fna,"rb"))){msg(_("File not found."));return(-1);}
+  if(!(fp= fopen2(fna,"rb"))){msg("File not found.");return(-1);}
 
   fread(hed,1,RCP_FILE_HEADER_SIZE,fp);
 
   if( strcmp(sread(0,30),rcp_id)!=0 ){
-    msg(_("Invalid file format."));fclose(fp);return(-1);}
+    msg("Invalid file format.");fclose(fp);return(-1);}
 
   if(hed[0x1e6]==36){md2=1;}else{md2=0;}
   if(md2==0){max=18;}else{max=36;}
@@ -312,20 +312,20 @@ int	dload(char *fna,int md)
 
   for(i=stra;i<max;i++){
     fread(hed,1,RCP_TRACK_HEADER_SIZE,fp);size=thedread(i);size2=0;
-    if( size<RCP_EVENT_SIZE ){msg(_("Invalid file."));break;}
+    if( size<RCP_EVENT_SIZE ){msg("Invalid file.");break;}
     if( size>TRACK_SIZE ){size2=size;size=TRACK_SIZE;}
 
     if(size_change(i,size)){break;}
     ln=fread(trk[i],1,size,fp);
 
-    if( ln!=size ){if(i==18){break;}msg(_("Invalid file."));size=ln;break;}
+    if( ln!=size ){if(i==18){break;}msg("Invalid file.");size=ln;break;}
 
     size=gomi_cut(trk[i],size);
-    if( size<RCP_EVENT_SIZE ){msg(_("Invalid file."));break;}
+    if( size<RCP_EVENT_SIZE ){msg("Invalid file.");break;}
     tr_len[i]=size;trk[i][size-RCP_EVENT_SIZE]=RCP_EOT;
 
     if( size2>0){
-      msg(_("Track buffer exhausted."));size2-=size;
+      msg("Track buffer exhausted.");size2-=size;
       while( size2>0 ){
 	if( size2>TRACK_SIZE ){j=TRACK_SIZE;}else{j=size2;}
 	fread(dat,1,j,fp);size2=size2-j;
@@ -371,7 +371,7 @@ static int smfsave(char *fna) {
   if ( smfsize<0 ) return(-1);
 
   if ((fp=fopen2(fna,"wb"))==NULL) {
-    msg(_("Cannot open file."));
+    msg("Cannot open file.");
     free(smfdata);
     return (-1);
   }
@@ -380,7 +380,7 @@ static int smfsave(char *fna) {
   free( smfdata );
 
   if ( i!=smfsize ) {
-    msg(_("Cannot write file."));
+    msg("Cannot write file.");
     unlink(fna);
     return(-1);
   }
@@ -402,7 +402,7 @@ int	dsave(char *fna)
 
   if(str_search(fna,".R36")>0 || str_search(fna,".r36")>0){md2=1;}
 
-  if(!(fp= fopen2(fna,"wb"))){msg(_("Cannot open file."));return(-1);}
+  if(!(fp= fopen2(fna,"wb"))){msg("Cannot open file.");return(-1);}
 
   for(i=18;i<36;i++){
     if(tr_len[i]>RCP_EVENT_SIZE || trkmemo[i][0]!=0){md2=1;}
@@ -420,7 +420,7 @@ int	dsave(char *fna)
   }
   fclose(fp);
 
-  if(ef!=0){msg(_("Cannot write file."));unlink(fna);return(-1);}
+  if(ef!=0){msg("Cannot write file.");unlink(fna);return(-1);}
   return(0);
 }
 
@@ -430,13 +430,13 @@ int	part_load(char *fna)
   int	ln,sz;
   FILE	*fp;
 
-  if(!(fp= fopen2(fna,"rb"))){msg(_("File not found."));return(-1);}
+  if(!(fp= fopen2(fna,"rb"))){msg("File not found.");return(-1);}
   fread(hed,1,8,fp);ln=fread(dat,1,work_size,fp);fclose(fp);
   if( strcmp(sread(0,5),prt_id)!=0 ){
-    msg(_("Invalid file format."));return(-1);}
+    msg("Invalid file format.");return(-1);}
   sz=hed[7]*256+hed[6];
 
-  if( ln<sz ){msg(_("Invalid file."));sz=-1;}
+  if( ln<sz ){msg("Invalid file.");sz=-1;}
   return(sz);
 }
 
@@ -446,11 +446,11 @@ int	part_save(char *fna,int ln)
   int	fr;
   FILE	*fp;
 
-  if(!(fp= fopen2(fna,"wb"))){msg(_("Cannot open file."));return(-1);}
+  if(!(fp= fopen2(fna,"wb"))){msg("Cannot open file.");return(-1);}
   sset(prt_id,0,5);hed[5]=track+1;hed[6]=ln&0xff;hed[7]=ln>>8;
   fwrite(hed,1,8,fp);fr=fwrite(dat,1,ln,fp);fclose(fp);
 
-  if( fr!=ln ){msg(_("Cannot write file."));unlink(fna);return(-1);}
+  if( fr!=ln ){msg("Cannot write file.");unlink(fna);return(-1);}
   return(0);
 }
 
@@ -566,18 +566,18 @@ int	trk_load(char *fna)
   int	ln,sz;
   FILE	*fp;
 
-  if(!(fp= fopen2(fna,"rb"))){msg(_("File not found."));return(-1);}
+  if(!(fp= fopen2(fna,"rb"))){msg("File not found.");return(-1);}
 
   fread(hed,1,16,fp);
   if( strcmp(sread(0,15),trk_id)!=0 ){
-    msg(_("Invalid file format."));fclose(fp);return(-1);}
+    msg("Invalid file format.");fclose(fp);return(-1);}
 
   fread(hed,1,RCP_TRACK_HEADER_SIZE,fp);ln=fread(dat,1,work_size,fp);fclose(fp);
   sz=hed[0]+hed[1]*256-RCP_TRACK_HEADER_SIZE;
-  if( sz<RCP_EVENT_SIZE || ln<sz ){msg(_("Invalid file."));return(-1);}
+  if( sz<RCP_EVENT_SIZE || ln<sz ){msg("Invalid file.");return(-1);}
 
   sz=gomi_cut(dat,sz);
-  if( sz<RCP_EVENT_SIZE ){msg(_("Invalid file."));return(-1);}
+  if( sz<RCP_EVENT_SIZE ){msg("Invalid file.");return(-1);}
   if(size_change(track,sz)){return -1;}
 
   thedread(track);memcpy_l(trk[track],dat,ln);tr_len[track]=sz;
@@ -593,14 +593,14 @@ int	trk_save(char *fna)
   int	fr,ln;
   FILE	*fp;
 
-  if(!(fp= fopen2(fna,"wb"))){msg(_("Cannot open file."));return(-1);}
+  if(!(fp= fopen2(fna,"wb"))){msg("Cannot open file.");return(-1);}
 
   dclr();
   sset(trk_id,0,15);hed[15]=0x1a;fwrite(hed,1,16,fp);
   ln=tr_len[track];thedset(track,ln+RCP_TRACK_HEADER_SIZE);fwrite(hed,1,RCP_TRACK_HEADER_SIZE,fp);
   fr=fwrite(trk[track],1,ln,fp);fclose(fp);
 
-  if( fr!=ln ){msg(_("Cannot write file."));unlink(fna);return(-1);}
+  if( fr!=ln ){msg("Cannot write file.");unlink(fna);return(-1);}
   return(0);
 }
 
@@ -622,7 +622,7 @@ int	trk_load_mid(char *fna)
 
   fp = fopen2(fna, "rb");
   if (fp == NULL) {
-    msg(_("File not found."));
+    msg("File not found.");
     return -1;
   }
   fseek(fp, 0, SEEK_END);
@@ -630,7 +630,7 @@ int	trk_load_mid(char *fna)
   fseek(fp, 0, SEEK_SET);
   if (size <= 0) {
     fclose(fp);
-    msg(_("Invalid file."));
+    msg("Invalid file.");
     return -1;
   }
   smfbuf = (uint8_t *)malloc(sizeof(uint8_t) * size);
@@ -641,7 +641,7 @@ int	trk_load_mid(char *fna)
   if (fread(smfbuf, 1, size, fp) != (size_t)size) {
     fclose(fp);
     free(smfbuf);
-    msg(_("Invalid file."));
+    msg("Invalid file.");
     return -1;
   }
   fclose(fp);
@@ -656,7 +656,7 @@ int	trk_load_mid(char *fna)
   if (rcpsize == 0 || rcpsize < RCP_FILE_HEADER_SIZE ||
       memcmp(rcpbuf, rcp_id, 30) != 0) {
     free(rcpbuf);
-    msg(_("Invalid file."));
+    msg("Invalid file.");
     return -1;
   }
 
@@ -681,12 +681,12 @@ int	trk_load_mid(char *fna)
   }
   if (notes == 0) {
     free(rcpbuf);
-    msg(_("This MIDI file has no note track."));
+    msg("This MIDI file has no note track.");
     return -1;
   }
   if (notes > 1) {
     free(rcpbuf);
-    msg(_("This MIDI file has more than one note track."));
+    msg("This MIDI file has more than one note track.");
     return -1;
   }
 
@@ -697,7 +697,7 @@ int	trk_load_mid(char *fna)
     sz = gomi_cut(dat, sz);
   if (sz < RCP_EVENT_SIZE) {
     free(rcpbuf);
-    msg(_("Track buffer exhausted."));
+    msg("Track buffer exhausted.");
     return -1;
   }
   /* size_change reports "Track buffer exhausted." itself. */
@@ -735,12 +735,12 @@ int	part_text_save(char *fna,int ad,int ln)
   char	tmp0[4096+1024];
   uint8_t a;
 
-  if(!(fp= fopen2(fna,"wb"))){msg(_("Cannot open file."));return(-1);}
+  if(!(fp= fopen2(fna,"wb"))){msg("Cannot open file.");return(-1);}
 
   i=ad;
   while(ln>0){
     int	lp;
-    if(INPOUT(0xff)==27 ){msg(_("Terminated."));j=-1;break;}
+    if(INPOUT(0xff)==27 ){msg("Terminated.");j=-1;break;}
 
     lp=0;tmp0[0]=0;
     while(lp<64 && ln>0){
@@ -753,7 +753,7 @@ int	part_text_save(char *fna,int ad,int ln)
     }
     ll=strlen(tmp0);fr=fwrite(tmp0,1,ll,fp);
 
-    if(fr<ll){msg(_("Disk exhausted."));j=-1;break;}
+    if(fr<ll){msg("Disk exhausted.");j=-1;break;}
   }
   fclose(fp);
   snsclr();return(j);
@@ -792,18 +792,18 @@ int	rex_load(char *fna,int mo)
 
   if(mo<0){sz=410;}else{sz=48+16;}
 
-  if(!(fp= fopen2(fna,"rb"))){msg(_("File not found."));return(-1);}
+  if(!(fp= fopen2(fna,"rb"))){msg("File not found.");return(-1);}
   ln=fread(hed,1,sz,fp);fclose(fp);
-  if( ln!=sz ){msg(_("Invalid file."));return -1;}
+  if( ln!=sz ){msg("Invalid file.");return -1;}
 
   if(mo<0){
     if( strcmp(sread(0,25),rex_id)!=0 ){
-      msg(_("Invalid file format."));return(-1);}
+      msg("Invalid file format.");return(-1);}
 
     for(i=0;i<8;i++){uex_read(26,i);}
   }else{
     if( strcmp(sread(0,15),res_id)!=0 ){
-      msg(_("Invalid file format."));return(-1);}
+      msg("Invalid file format.");return(-1);}
 
     uex_read(16,mo);
   }
@@ -817,7 +817,7 @@ int	rex_save(char *fna,int mo)
   int	ln,i,sz;
   FILE	*fp;
 
-  if(!(fp= fopen2(fna,"wb"))){msg(_("Cannot open file."));return(-1);}
+  if(!(fp= fopen2(fna,"wb"))){msg("Cannot open file.");return(-1);}
 
   if(mo<0){sz=410;}else{sz=48+16;}
 
@@ -831,7 +831,7 @@ int	rex_save(char *fna,int mo)
 
   ln=fwrite(hed,1,sz,fp);fclose(fp);
 
-  if( ln!=sz ){msg(_("Cannot write file."));unlink(fna);return(-1);}
+  if( ln!=sz ){msg("Cannot write file.");unlink(fna);return(-1);}
   return(0);
 }
 
@@ -841,12 +841,12 @@ int	ras_load(char *fna)
   int	ln,i;
   FILE	*fp;
 
-  if(!(fp= fopen2(fna,"rb"))){msg(_("File not found."));return(-1);}
+  if(!(fp= fopen2(fna,"rb"))){msg("File not found.");return(-1);}
   ln=fread(hed,1,528,fp);fclose(fp);
-  if( ln!=528 ){msg(_("Invalid file."));return -1;}
+  if( ln!=528 ){msg("Invalid file.");return -1;}
 
   if( strcmp(sread(0,15),ras_id)!=0 ){
-    msg(_("Invalid file format."));return(-1);}
+    msg("Invalid file format.");return(-1);}
 
   for(i=0;i<32;i++){
     strcpy(rhyna[i],sread(0x10+i*16,14));
@@ -862,7 +862,7 @@ int	ras_save(char *fna)
   int	ln,i;
   FILE	*fp;
 
-  if(!(fp= fopen2(fna,"wb"))){msg(_("Cannot open file."));return(-1);}
+  if(!(fp= fopen2(fna,"wb"))){msg("Cannot open file.");return(-1);}
 
   sset(ras_id,0,15);hed[15]=0x1a;
 
@@ -873,7 +873,7 @@ int	ras_save(char *fna)
 
   ln=fwrite(hed,1,528,fp);fclose(fp);
 
-  if( ln!=528 ){msg(_("Cannot write file."));unlink(fna);return(-1);}
+  if( ln!=528 ){msg("Cannot write file.");unlink(fna);return(-1);}
   return(0);
 }
 
@@ -882,7 +882,7 @@ int	timload(char *fna)
 {
   FILE	*fp;
 
-  if(!(fp= fopen2(fna,"rb"))){msg(_("File not found."));return(-1);}
+  if(!(fp= fopen2(fna,"rb"))){msg("File not found.");return(-1);}
   fread(cm6,1,22601,fp);fclose(fp);
   tim_name_read();asin_change();
   return(0);
@@ -894,9 +894,9 @@ int	timsave(char *fna)
   int	fr;
   FILE	*fp;
 
-  if(!(fp= fopen2(fna,"wb"))){msg(_("Cannot open file."));return(-1);}
+  if(!(fp= fopen2(fna,"wb"))){msg("Cannot open file.");return(-1);}
   fr=fwrite(cm6,1,22601,fp);fclose(fp);
-  if( fr!=22601 ){msg(_("Cannot write file."));unlink(fna);return(-1);}
+  if( fr!=22601 ){msg("Cannot write file.");unlink(fna);return(-1);}
   return(0);
 }
 
@@ -905,7 +905,7 @@ int	gsdload(char *fna)
 {
   FILE	*fp;
 
-  if(!(fp= fopen2(fna,"rb"))){msg(_("File not found."));return(-1);}
+  if(!(fp= fopen2(fna,"rb"))){msg("File not found.");return(-1);}
   fread(gsd,1,4096,fp);fclose(fp);
   return(0);
 }
@@ -1077,13 +1077,13 @@ int	bufload()
   int	bpo=0,i,size,size2,max;
 
   if( (rcd->data_valid==0 && rcd->tone_valid==0 ) ||(rcd->fmt!=2 && rcd->fmt!=1)){
-    msg(_("Buffer is empty."));return(-1);
+    msg("Buffer is empty.");return(-1);
   }
 
   if( rcd->data_valid!=0 ){
     bpo=rcp_buf_get(hed,0,RCP_FILE_HEADER_SIZE);
     if( strcmp(sread(0,30),rcp_id)!=0 ){
-      msg(_("Buffer is empty."));return(-1);
+      msg("Buffer is empty.");return(-1);
     }
     dinit();
     hedread();
@@ -1096,15 +1096,15 @@ int	bufload()
       if((rcd->totalcount)<bpo){break;}
 
       size=thedread(i);size2=0;
-      if( size<RCP_EVENT_SIZE ){msg(_("Invalid file."));break;}
+      if( size<RCP_EVENT_SIZE ){msg("Invalid file.");break;}
       if( size>TRACK_SIZE ){size2=size;size=TRACK_SIZE;}
       if(size_change(i,size)){break;}
 
       bpo=rcp_buf_get(trk[i],bpo,size);
       size=gomi_cut(trk[i],size);
-      if( size<RCP_EVENT_SIZE ){msg(_("Invalid file."));break;}
+      if( size<RCP_EVENT_SIZE ){msg("Invalid file.");break;}
       tr_len[i]=size;trk[i][size-RCP_EVENT_SIZE]=RCP_EOT;
-      if( size2>0){msg(_("Track buffer exhausted."));bpo=bpo+(size2-size);}
+      if( size2>0){msg("Track buffer exhausted.");bpo=bpo+(size2-size);}
     }
     strlcpy(rcp_file,rcd->filename,sizeof rcp_file);
     if(rcp_file[0]!=0){
@@ -1148,7 +1148,7 @@ int	bufset()
     bpo=rcp_buf_put(trk[i],bpo,tr_len[i]);
   }
 
-  if((rcd->bufcap)<bpo){msg(_("Too small RCD buffer."));return(-1);}
+  if((rcd->bufcap)<bpo){msg("Too small RCD buffer.");return(-1);}
 
   rcd->fmt=2;rcd->totalcount=bpo;rcd->data_valid=1;rcd->word_valid=0;
   rcd->tone_valid=0;rcd->gsd_valid=0;
@@ -1166,17 +1166,17 @@ int	bufload_trk(int tr)
   int	bpo=0,size;
 
   if( (rcd->data_valid==0) || rcd->fmt!=99 ){
-    msg(_("Buffer is empty."));return(-1);
+    msg("Buffer is empty.");return(-1);
   }
 
   bpo=rcp_buf_get(hed,bpo,RCP_TRACK_HEADER_SIZE);size=thedread(tr);
-  if( size<RCP_EVENT_SIZE ){msg(_("Invalid file."));goto ext;}
-  if( size>TRACK_SIZE ){size=TRACK_SIZE;msg(_("Track buffer exhausted."));}
+  if( size<RCP_EVENT_SIZE ){msg("Invalid file.");goto ext;}
+  if( size>TRACK_SIZE ){size=TRACK_SIZE;msg("Track buffer exhausted.");}
   if(size_change(tr,size)){goto ext;}
 
   bpo=rcp_buf_get(trk[tr],bpo,size);
   size=gomi_cut(trk[tr],size);
-  if( size<RCP_EVENT_SIZE ){msg(_("Invalid file."));goto ext;}
+  if( size<RCP_EVENT_SIZE ){msg("Invalid file.");goto ext;}
   tr_len[tr]=size;trk[tr][size-RCP_EVENT_SIZE]=RCP_EOT;
 
   /*	trksize_c();*/
@@ -1195,7 +1195,7 @@ int	bufset_trk(int tr)
   thedset(tr,tr_len[tr]+RCP_TRACK_HEADER_SIZE);bpo=rcp_buf_put(hed,bpo,RCP_TRACK_HEADER_SIZE);
   bpo=rcp_buf_put(trk[tr],bpo,tr_len[tr]);
 
-  if((rcd->bufcap)<bpo){msg(_("Too small RCD buffer."));return(-1);}
+  if((rcd->bufcap)<bpo){msg("Too small RCD buffer.");return(-1);}
 
   rcd->fmt=99;rcd->totalcount=bpo;rcd->data_valid=1;rcd->word_valid=0;
   return(0);
@@ -1256,7 +1256,7 @@ rcp_build_play_image(void)
   }
 
   if((rcd->bufcap)<bpo){
-    msg(_("Too small RCD buffer."));
+    msg("Too small RCD buffer.");
     if(owned_prepare){rcp_transport_play_prepare_end();}
     return -1;
   }
@@ -1330,7 +1330,7 @@ start:
     CRTMOD(16+256);OnGraphic();dpl(1);tpl(1);
     WINDOW(0,0,1023,1023);
 
-    if( f<0 ){msg(_("Cannot start panel display."));}
+    if( f<0 ){msg("Cannot start panel display.");}
   }else{
     if(meas>1){rcp_transport_search(tr,meas-1);}
     rcp_transport_launch_player();
@@ -1482,7 +1482,7 @@ void	cdplay(int tr,int po,int ln,int md)
   track=dumy;
 
   if((rcd->bufcap)<bpo){
-    msg(_("Too small RCD buffer."));
+    msg("Too small RCD buffer.");
     rcp_transport_play_prepare_end();
     return;
   }
@@ -1549,7 +1549,7 @@ void	cntplay(int tr,int po)
   track=dumy;
 
   if((rcd->bufcap)<bpo){
-    msg(_("Too small RCD buffer."));
+    msg("Too small RCD buffer.");
     rcp_transport_play_prepare_end();
     return;
   }

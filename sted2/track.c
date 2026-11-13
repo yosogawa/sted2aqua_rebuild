@@ -177,9 +177,9 @@ int	trk_ext_sub(int tr,char *exbuf)
   int	po;
 
   po=same_ext_sub(tr,0,tr_len[tr],0);
-  if(po>TRACK_SIZE){msg(_("Track buffer exhausted."));return 0;}
+  if(po>TRACK_SIZE){msg("Track buffer exhausted.");return 0;}
   po=repeat_ext(exbuf,po);
-  if(po>TRACK_SIZE){msg(_("Track buffer exhausted."));return 0;}
+  if(po>TRACK_SIZE){msg("Track buffer exhausted.");return 0;}
 
   return po;
 }
@@ -305,7 +305,7 @@ int	same_meas_conv(int tr)
     }
   }
 
-  msg(_("SAME MEAS converting ..."));
+  msg("SAME MEAS converting ...");
   
   for(i=0;i<m_max;i++){
     if(i<2048){po=add[i];}else{po=meas_add(i+1);}
@@ -348,9 +348,9 @@ int	same_meas_conv(int tr)
   tr_len[tr]=co;
 
   if(count>0){
-    msg(fstr(count,4));B_PRINT(_(" measures are converted."));
+    msg(fstr(count,4));B_PRINT(" measures are converted.");
   }else{
-    msg(_("No repeated measures."));
+    msg("No repeated measures.");
   }
   snsclr();
   return(0);
@@ -398,9 +398,9 @@ int	same_ext_sub(int tr,int p1,int p2,int md)
 
   if(md){
     if(count>0){
-      msg(fstr(count,4));B_PRINT(_(" measures are extracted."));
+      msg(fstr(count,4));B_PRINT(" measures are extracted.");
     }else{
-      msg(_("No measures are extracted."));
+      msg("No measures are extracted.");
     }
   }
 
@@ -865,10 +865,10 @@ static int	size_add(int tr,int size)
   uint8_t	*ptr_s,*ptr_d;
 
   if(buff_free<size){
-    msg(_("Track buffer exhausted."));return(-1);}
+    msg("Track buffer exhausted.");return(-1);}
 
   if(tr_alc[tr]+size>TRACK_SIZE){
-    msg(_("Track buffer exhausted."));return(-1);}
+    msg("Track buffer exhausted.");return(-1);}
 
   if(tr<35){
     int	i;

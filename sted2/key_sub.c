@@ -99,7 +99,7 @@ void	inpmon()
   B_LOCATE(2,31);B_PRINT("MIDI IN:");B_PRINT(mdinport());
 
   B_LOCATE(25,31);B_PRINT("OUT MIDI CH.:THRU");
-  B_LOCATE(76,31);B_PRINT(_("[ESC] to exit."));
+  B_LOCATE(76,31);B_PRINT("[ESC] to exit.");
   C_WINDOW(5,29);B_LOCATE(0,0);
   midi_clr();
 
@@ -725,7 +725,7 @@ char	*scale_str(int da)
   if(a==0 || a==8){
     strcat(tmp0,"     ");
   }else{
-    if(a>7 ){strcat(tmp0,_("(b  )"));}else{strcat(tmp0,_("(#  )"));}
+    if(a>7 ){strcat(tmp0,"(b  )");}else{strcat(tmp0,"(#  )");}
     tmp0[11]='0'+(a&7);
   }
   return(tmp0);

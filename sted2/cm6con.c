@@ -278,7 +278,7 @@ void	cm64_con()
 	ke=user_tone_list();goto recontrol;
       }else{
 	all_note_off(0);temporary_set();
-	msg(_("Sending voice data (  )"));
+	msg("Sending voice data (  )");
 	for(i=0;i<64;i++){
 	  if(trf[i]==0){
 	    B_LOCATE(20,1);B_PRINT(fstr(64-i,2));trf[i]=1;
@@ -289,7 +289,7 @@ void	cm64_con()
 	ex=exe("te.x -i");C_FNKMOD(3);if(ex>0){key_pause();}
 	C_CUROFF();B_COLOR(3);B_CLR_AL();tim_var_read();
 	C_WINDOW(0,31);home2(512);OnGraphic();dpl(1);
-	if(ex<0){msg(_("Cannot execute: TE.x"));}
+	if(ex<0){msg("Cannot execute: TE.x");}
       }
     }
 
@@ -322,7 +322,7 @@ void	cm64_con()
     if( ke==0xf7 ){poplay(0,1);}
 
     if( ke==0xf8 ){
-      msg(_("Initialize all control data"));
+      msg("Initialize all control data");
       if(yn_sel()>0){
 	cminit();all_note_off(1);trns_check();
       }
@@ -824,7 +824,7 @@ int	user_tone_list()
       }
 
       if( a==12 ){
-	msg(_("Clear control data"));
+	msg("Clear control data");
 	if(yn_sel()>0){
 	  tim_name[i+128][0]=0;
 	  ad1=0xe34+i*256;trf[i]=1;
@@ -1028,10 +1028,10 @@ void	timtra()
   }else{
     if((mdlflag&3)!=0){
       if( cm6_file[0]!=0 ){
-	msg(_("Sending control data ..."));tim_buf_trns();
+	msg("Sending control data ...");tim_buf_trns();
       }
       if( gsd_file[0]!=0 ){
-	msg(_("Sending control data ..."));gsd_buf_trns();
+	msg("Sending control data ...");gsd_buf_trns();
       }
       (*rcd->setup)();
       msg_clr();
@@ -1136,7 +1136,7 @@ void	gsd_con()
   C_WINDOW(0,31);OnGraphic();dpl(1);
   WINDOW(0,0,1023,1023);
 
-  if(ex<0){msg(_("Cannot execute: GE.x"));}
+  if(ex<0){msg("Cannot execute: GE.x");}
   sdis2(72,64,sted_filename_for_font(gsd_file),15,15,0);
 }
 

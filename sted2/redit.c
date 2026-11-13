@@ -552,7 +552,7 @@ void	rtopat(int me)
     uint8_t	a,b,c,d;
     a=trk[track][ad];b=trk[track][ad+1];c=trk[track][ad+2];d=trk[track][ad+3];
     if(xp>63){
-      msg(_("This track has too many steps. Cannot edit."));
+      msg("This track has too many steps. Cannot edit.");
       xp++;rpar[64][0]=1;break;}
     if(a>0xfb){if(rpar[xp][0]){xp++;}
     break;}

@@ -258,8 +258,8 @@ resame:
 
 		if(vis_a_in_co(po,ln,vmo)==0 && vis_a_in_st(po,ln)>1){goto rest;}
 
-		if(co<2||st<2){msg(_("Too few data."));return(po);}
-		if(co>768||st>barlen*8){msg(_("Too many data."));return(po);}
+		if(co<2||st<2){msg("Too few data.");return(po);}
+		if(co>768||st>barlen*8){msg("Too many data.");return(po);}
 	}
 
 	ost=st;
@@ -532,7 +532,7 @@ rezm:
 			msg("STEP=");j=vinput(st,0x804);msg_clr();
 
 			if( es==0 && j>0 ){
-			  if(j>barlen*8){msg(_("Too many data."));goto rezm;}
+			  if(j>barlen*8){msg("Too many data.");goto rezm;}
 			  else{vis_zom(co,st,j,step,step);extmd=1;}
 			}
 			goto redraw;
@@ -546,7 +546,7 @@ reis:
 				msg("Change STEP=");j=vinput(step[cx],0x804);msg_clr();
 
 				if( es==0 && j>0 ){
-					if(st+j>barlen*8){msg(_("Too many data."));goto reis;}
+					if(st+j>barlen*8){msg("Too many data.");goto reis;}
 					else{
 						step[cx]=j;extmd=1;}
 				}
@@ -555,7 +555,7 @@ reis:
 					msg("Insert STEP=");j=vinput(0,0x804);msg_clr();
 
 					if( es==0 && j>0 ){
-						if(st+j>barlen*8){msg(_("Too many data."));goto reis;
+						if(st+j>barlen*8){msg("Too many data.");goto reis;
 						}else{
 							for(i=co;i>cx;i--){step[i]=step[i-1];para[i]=para[i-1];}
 							co++;st+=j;

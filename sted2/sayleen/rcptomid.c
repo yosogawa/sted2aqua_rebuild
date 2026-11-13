@@ -46,7 +46,6 @@
 #include "rcp.h"
 #include "smf.h"
 #include "rcp_functions.h"
-#include "gettext_wrapper.h"
 #include "version.h"
 
 /* ------------------------------------------------------------------- */

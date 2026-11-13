@@ -330,19 +330,6 @@ extern int disp_conv;
 /* SJIS RCP text → locale for X11/curses. Mac kanji ROM blit does not use this. */
 char *sted_to_locale_display(char *s);
 
-#ifdef ENABLE_NLS
-# include <locale.h>
-# include <libintl.h>
-# undef _
-# define _(String) gettext(String)
-# define N_(String) (String)
-
-#else /* ENABLE_NLS */
-# define _(String) (String)
-# define N_(String) (String)
-#endif /* ENABLE_NLS */
-
-
 void form3(void);
 void logo(int y);
 void module_chip_b_clear(int y);

@@ -10,9 +10,6 @@
 /* #undef C_ALLOCA */
 
 /* */
-/* #undef ENABLE_NLS */
-
-/* */
 #define HAS_CURSES 1
 
 /* Define to 1 if you have `alloca', as a function or macro. */

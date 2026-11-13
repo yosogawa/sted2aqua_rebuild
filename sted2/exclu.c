@@ -80,7 +80,7 @@ redis:
 
     if( ke==1 ){break;}
     if( ke==0x3f ){
-      msg(_("Init all exclusive data"));
+      msg("Init all exclusive data");
       if(yn_sel()>0){msg_clr();user_exc_init();C_CLS_AL();goto redis;}
     }
     if( kc==32 ){
@@ -197,7 +197,7 @@ redis:
 	int ec;
 	strcpy(tmp0,path2);strcat(tmp0,tmp1);
 
-	msg(_("Loading Usr.Exc. file."));
+	msg("Loading Usr.Exc. file.");
 	if((sh&1)==0){
 	  ec=rex_load(tmp0,-1);
 	}else{
@@ -220,7 +220,7 @@ redis:
 	int	ec;
 	strcpy(tmp0,path2);strcat(tmp0,tmp1);
 
-	msg(_("Saving Usr.Exc. file."));
+	msg("Saving Usr.Exc. file.");
 	if((sh&1)==0){
 	  ec=rex_save(tmp0,-1);
 	}else{
@@ -453,7 +453,7 @@ top:
 	int ec;
 	strcpy(tmp0,path2);strcat(tmp0,tmp1);
 
-	msg(_("Loading Exclusive file."));
+	msg("Loading Exclusive file.");
 	ec=exc_load(tmp0);
 	if(ec>=0 ){msg_clr();
 	if(!(cnfflag&0x0008)){strcpy(prt_path,path2);}
@@ -472,7 +472,7 @@ top:
 	int ec;
 	strcpy(tmp0,path2);strcat(tmp0,tmp1);
 
-	msg(_("Saving Exclusive."));
+	msg("Saving Exclusive.");
 	ec=exc_save(tmp0,co);
 	if(ec>=0 ){msg_clr();
 	if(!(cnfflag&0x0008)){strcpy(prt_path,path2);}
@@ -710,7 +710,7 @@ int	exc_load(char *fna)
   uint8_t	a;
   FILE	*fp;
 
-  if(!(fp= fopen2(fna,"rb"))){msg(_("File not found."));return(-1);}
+  if(!(fp= fopen2(fna,"rb"))){msg("File not found.");return(-1);}
   ln=fread(dat,1,32*1024,fp);fclose(fp);
   j=0;ad=0;
 
@@ -784,7 +784,7 @@ int	exc_save(char *fna,int co)
   uint8_t	buf[4096];
   FILE	*fp;
 
-  if(!(fp= fopen2(fna,"wb"))){msg(_("Cannot open file."));return(-1);}
+  if(!(fp= fopen2(fna,"wb"))){msg("Cannot open file.");return(-1);}
 
   strcpy(buf,"F0 ");dat[co++]=0xf7;
 
@@ -859,7 +859,7 @@ int	dot_ed(int dx,int co)
       dat[0]=0x41;dat[1]=0x10;dat[2]=0x45;dat[3]=0x12;
       dat[4]=0x83;dat[5]=0x10;dat[6]=1;dat[7]=0x00;
     }else{
-      msg(_("Not a GS BAR DISPLAY DATA."));return co;
+      msg("Not a GS BAR DISPLAY DATA.");return co;
     }
   }
 

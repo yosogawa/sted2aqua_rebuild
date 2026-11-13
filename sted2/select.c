@@ -1027,7 +1027,7 @@ void	fsel(char *fna,char *pth,int w)
 
     if(w<6){memo_disp();}
     B_COLOR(3);
-    B_LOCATE(cx+1,29);B_PRINT(_("         [DOWN]SELECTER  [ESC]CANCEL  [RET]SELECT"));
+    B_LOCATE(cx+1,29);B_PRINT("         [DOWN]SELECTER  [ESC]CANCEL  [RET]SELECT");
 
     frees(pth,cx);
 
@@ -1094,15 +1094,15 @@ void	fsel(char *fna,char *pth,int w)
     nm=fdir(pth,exts,dir,w);
 
     if( nm==0 || nm==-2 ){nm=0;/*msg("•’•°•§•Î§¨§¢§Í§ﬁ§ª§Û°£");goto reinp;*/}
-    if( nm==-3         ){msg(_("Directory not found."));goto reinp;}
-    if( nm==-13        ){msg(_("Invalid directory name."));goto reinp;}
+    if( nm==-3         ){msg("Directory not found.");goto reinp;}
+    if( nm==-13        ){msg("Invalid directory name.");goto reinp;}
     if( nm<0 && nm!=-2 ){msg("err.");B_PRINT(fstr(nm,4));goto reinp;}
 
     /*		B_LOCATE(cx+1,29);B_PRINT("[¢™]/[¢´]•…•È•§•÷∞‹∆∞   ");*/
 #if 0 /* ignore drive change Jun.23.1998 Daisuke Nagano */
-    B_LOCATE(cx+1,29);B_PRINT(_("  /   CHANGE DRIVE   /  SELECT"));
+    B_LOCATE(cx+1,29);B_PRINT("  /   CHANGE DRIVE   /  SELECT");
 #else
-    B_LOCATE(cx+1,29);B_PRINT(_("                                      [RET]SELECT"));
+    B_LOCATE(cx+1,29);B_PRINT("                                      [RET]SELECT");
 #endif 0
     frees(pth,cx);B_LOCATE(cx+45,8);B_PRINT(fstr(nm,3));
 
@@ -1231,7 +1231,7 @@ void	fsel(char *fna,char *pth,int w)
   if(es==0){strcpy(tmp0,pth);strcat(tmp0,fna);
   if((cc&1)!=0){
     if((DRVCTRL(0,drv_code(pth))&8)!=0){
-      msg(_("Write protected."));goto reinp;}
+      msg("Write protected.");goto reinp;}
     if(file_check(tmp0,1)!=0){es=1;}else{file_back(tmp0);}
   }else{
     if(file_check(tmp0,0)==0){goto reinp;}
@@ -1316,15 +1316,15 @@ int	file_check(char *fna,int cc)
 
   if((cc&1)!=0 && (cnfflag&0x0002)==0){return(0);}
   if(!(fp= fopen2(fna,"rb"))){
-    if((cc&1)==0){msg(_("No file."));}
+    if((cc&1)==0){msg("No file.");}
     return(0);}
   fclose(fp);
 
   if((cc&1)!=0){
-    msg(_("Overwrite"));
+    msg("Overwrite");
     if(yn_sel()>0){msg_clr();return(0);}
 
-    msg(_("Terminate writing."));
+    msg("Terminate writing.");
   }
   return(-1);
 }
@@ -1353,9 +1353,9 @@ int	drvchk(char *pth)
 
   a=DRVCTRL(0,drv_code(pth));
 
-  if(a<0){     msg(_("Invalid drive name."));return -2;}
-  if((a&2)==0){msg(_("Disk is not inserted."));return -1;}
-  if((a&4)!=0){msg(_("Disk is not ready."));return -1;}
+  if(a<0){     msg("Invalid drive name.");return -2;}
+  if((a&2)==0){msg("Disk is not inserted.");return -1;}
+  if((a&4)!=0){msg("Disk is not ready.");return -1;}
 
   return 0;
 }
@@ -1495,7 +1495,7 @@ int	fdir(char *pth,char *exts,X68_DIR *dir,int w)
       if(as>0){strcpy(tmp1,spadd(&tmp1[as],3));}else{tmp1[0]=0;}
 
       if( buffer->atr&0x10 || (buffer->atr&0x20 && str_search(tmp0,tmp1)>0) ){
-	if(nm>=512){msg(_("Too many files."));break;}
+	if(nm>=512){msg("Too many files.");break;}
 
 	strcpy(dir[nm].name,buffer->name);dir[nm].far=buffer->atr;
 	dir[nm].fln=buffer->filelen;dir[nm].fdt=buffer->date;

@@ -71,7 +71,7 @@ rewrite:
 
   B_LOCATE(2,31);B_PRINT("RECORDING CH.: 1   OUT MODE:THRU   METORO:ON   SYNC:INT");
 
-  B_LOCATE(76,31);B_PRINT(_("[ESC] to exit"));
+  B_LOCATE(76,31);B_PRINT("[ESC] to exit");
 
 
   B_LOCATE(23,12);B_PRINT("RECORD MEAS:   1- 999");
@@ -91,9 +91,9 @@ restart:
 
   mm=0;
   for(i=0;i<36;i++){if(trmod[i]&2){mm++;}}
-  if(mm==0){msg(_("Recording track is not specified."));}
+  if(mm==0){msg("Recording track is not specified.");}
 
-  B_LOCATE(1,4);B_PRINT(_("Waiting for Recording ..."));
+  B_LOCATE(1,4);B_PRINT("Waiting for Recording ...");
 
   midi_clr();a=0;ccc=0;stm=0;
 
@@ -312,7 +312,7 @@ restart:
 	}
       }
     next:
-      if(ad+512>=work_size){msg(_("Recording buffer is exhausted."));break;}
+      if(ad+512>=work_size){msg("Recording buffer is exhausted.");break;}
     }
     if( INPOUT(0xfe)!=0 ){
       int k=INPOUT(0xff);
@@ -331,7 +331,7 @@ restart:
   dat[ad++]=0xff;dat[ad++]=0x2f;
   (*rcd->end)();
 
-  B_LOCATE(1,6);B_PRINT(_("Recording finished."));
+  B_LOCATE(1,6);B_PRINT("Recording finished.");
 
   if(stm==0 && topmeas==1){stc-=barlen*2;}
   B_PRINT("Total ST=");B_PRINT(fstr(stc+co,8));
@@ -339,10 +339,10 @@ restart:
     B_PRINT("    Used Size=");B_PRINT(fstr(ad,6));B_PRINT("byte");
     */
 
-  B_LOCATE(1,8);B_PRINT(_("Now Converting ... "));
+  B_LOCATE(1,8);B_PRINT("Now Converting ... ");
   if(stc+co>0){lastptr=ad;rec_conv(mm);}
-  B_LOCATE(16,8);B_PRINT(_("Finished"));
-  B_LOCATE(1,10);B_PRINT(_("Press any key."));
+  B_LOCATE(16,8);B_PRINT("Finished");
+  B_LOCATE(1,10);B_PRINT("Press any key.");
 
   /*while( INPOUT(0xff)==0){}*/ /* Jun.28.1998 Daisuke Nagano */
   key_wait();
@@ -599,7 +599,7 @@ int	countstart(int md,int smeas)
     track=dumy;
   }
 
-  if((rcd->bufcap)<bpo){msg(_("Too small RCD buffer."));return 0;}
+  if((rcd->bufcap)<bpo){msg("Too small RCD buffer.");return 0;}
 
   rcd->fmt=2;rcd->totalcount=bpo;
   rcd->data_valid=1;rcd->word_valid=0;rcd->tone_valid=0;rcd->gsd_valid=0;
@@ -660,7 +660,7 @@ void put_delta( int p ,int val)
 
 void entry( int d0, int d1, int d2, int d3 )
 {
-  if( len+4 >= TRACK_SIZE ){msg(_("Track size exhausted."));return;}
+  if( len+4 >= TRACK_SIZE ){msg("Track size exhausted.");return;}
 
   note[len++] = d0;note[len++] = d1;note[len++] = d2;note[len++] = d3;
 
@@ -797,7 +797,7 @@ int search( int pp )
 	  return(0);
 	  break;
 	default :
-	  B_PRINT(_("Invalid format.\n"));
+	  B_PRINT("Invalid format.\n");
 	  return(0);
 	  break;
 	}
@@ -1017,7 +1017,7 @@ void proc_next( void )
       case 0xe0: check( dat[pt] ); pt_bend(pt+1);  pt += 3; break;
       case 0xf0:
 	if( code != 0xf0 && code != 0xf7 ) {
-	  B_PRINT(_("Invalid MIDI messages.\n"));
+	  B_PRINT("Invalid MIDI messages.\n");
 	  return;
 	}
 	pt++;

@@ -348,7 +348,7 @@ track_edit_top:
 	    if( es==0 && da==0xfc ){
 	      if(ct>1024||ct<1|| ct>=meas_no(ad) ||\
 		 trk[track][meas_add(ct)]==0xfc ){
-		msg(_("Invalid measure number."));
+		msg("Invalid measure number.");
 		goto resame;
 	      }else{
 		ct--;
@@ -493,7 +493,7 @@ track_edit_top:
 	  if( es==0 ){
 	    if( j<0 || j>1023 || (j+1)>=meas_no(ad) ||
 		meas_add(j+1)>=65536-44 ){
-	      msg(_("Invalid measure number."));
+	      msg("Invalid measure number.");
 	      goto resame2;
 	    }
 	  }
@@ -870,7 +870,7 @@ track_edit_top:
       if( (sh&1)!=0){
 	if( ke==0x68 ){
 	  undobuf(0);
-	  msg(_("Set undo buffer"));
+	  msg("Set undo buffer");
 	}else{
 	  undobuf(1);
 	  if(real_ad(po,cy)>=tr_len[track]){
@@ -985,7 +985,7 @@ track_edit_top:
 	edfield(0);po=tr_pos[track][edit_scr][0];cx=0;cy=0;trk_no();
 	trk_cluc();trk_dis(6,po,24);rc=tm_lag-1;
       }else{
-	msg(_("Rhythm track only."));
+	msg("Rhythm track only.");
       }
     }
 

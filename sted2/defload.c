@@ -831,11 +831,11 @@ int	defload(char *fi,int md)
     /*B_PRINT("եΥǤ\r\n");*/ /* Oct.17.1998 by Daisuke Nagano */
   }
   if(md==1){
-    msg(_("Loading config file.\n"));
+    msg("Loading config file.\n");
   }
 #endif
 #if	CONV
-  B_PRINT(_("Compiling config file.\n"));
+  B_PRINT("Compiling config file.\n");
 #endif
 
   while(ln>0){
@@ -859,8 +859,8 @@ int	defload(char *fi,int md)
       }
       if( n>=PATHLEN-1 ){
 #if	STED
-	if(md==1){msg(_("Invalid file."));}
-	else{B_PRINT(_("Invalid file.\n"));}
+	if(md==1){msg("Invalid file.");}
+	else{B_PRINT("Invalid file.\n");}
 #endif
 	if(partial){def_shared_restore_all(&snap);}
 	fclose(fp);
@@ -1916,7 +1916,7 @@ int	defsave(char *fi,int md,int mutef,int initf)
 
   fclose(fp);
 
-  B_PRINT(_("Compile complete.\n"));
+  B_PRINT("Compile complete.\n");
   exit(1);
 
   return(0);
@@ -1971,7 +1971,7 @@ int	def_bsave(char *fi,int last_no,int mutef,int initf)
   FILE	*fp;
 
   strmfe(fi, PATHLEN, fi, "dfb");
-  if(!(fp=fopen2(fi,"wb"))){B_PRINT(_("Cannot open file.\n"));exit(1);}
+  if(!(fp=fopen2(fi,"wb"))){B_PRINT("Cannot open file.\n");exit(1);}
 
   for(i=0;i<work_size;i++){dat[i]=0;}
 
@@ -2029,7 +2029,7 @@ int	def_bsave(char *fi,int last_no,int mutef,int initf)
 
   fclose(fp);
 
-  B_PRINT(_("Compile complete.\n"));
+  B_PRINT("Compile complete.\n");
   exit(1);
 
   return(0);
@@ -2060,14 +2060,14 @@ int	def_bload(char *fi,int md)
 
 #if	STED
   if(md==0){
-    B_PRINT(_("Loading config file.\n"));
+    B_PRINT("Loading config file.\n");
   }
   if(md==1){
-    msg(_("Loading config file.\n"));
+    msg("Loading config file.\n");
   }
 #endif
 #if	CONV
-  B_PRINT(_("Dis-compiling config file.\n"));
+  B_PRINT("Dis-compiling config file.\n");
 #endif
 
   if( strncmp(&dat[0x0000],DFB_MAGIC,DFB_MAGIC_LEN)!=0 ){goto bad;}
@@ -2165,7 +2165,7 @@ int	def_bload(char *fi,int md)
 
 bad:
   if(saved){def_shared_restore_all(&snap);}
-  msg(_("Invalid file."));
+  msg("Invalid file.");
   fclose(fp);
   return(-1);
 }

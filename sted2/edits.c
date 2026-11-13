@@ -84,7 +84,7 @@ void	partf(int a,int ad)
     strcpy(path2,prt_path);fsel(prt_file,path2,0x006+e*0x200);
     if( es==0 && prt_file[0]!=0 ){
       strcpy(tmp0,path2);strcat(tmp0,prt_file);
-      msg(_("Loading part data."));
+      msg("Loading part data.");
       ex=part_load(tmp0);
       if(ex>0){
 	if(trk_check(ex)==0){
@@ -107,7 +107,7 @@ void	partf(int a,int ad)
 	  cplen=abs(cpadd-ad);if(cpadd>ad ){cpadd=ad;}
 	  ex=same_ext_sub(track,cpadd,cpadd+cplen,0);
 
-	  msg(_("Saving part data."));
+	  msg("Saving part data.");
 	  if(part_save(tmp0,ex)==0){
 	    if(!(cnfflag&0x0008)){strcpy(prt_path,path2);}
 	    msg_clr();}
@@ -123,7 +123,7 @@ void	partf(int a,int ad)
 	  strcpy(tmp0,path2);strcat(tmp0,part_file);
 	  cplen=abs(cpadd-ad);if(cpadd>ad ){cpadd=ad;}
 
-	  msg(_("Saving in text format."));
+	  msg("Saving in text format.");
 	  if(part_text_save(tmp0,cpadd,cplen)==0){msg_clr();}
 	}
       }
@@ -409,7 +409,7 @@ top:
 	if(tmp0[1]=='*'){ftg[nm]=-4;tmp0[1]='0';}
 	if(tmp0[2]=='*'){ftg[nm]=-4;tmp0[2]='0';}
 	trg[nm]=ctc(256,tmp0,0);
-	if(trg[nm]<0){msg(_("Invalid syntax."));return -1;}
+	if(trg[nm]<0){msg("Invalid syntax.");return -1;}
       }
     }
   skip0:
@@ -426,7 +426,7 @@ top:
       ct=0;ctl=-1;if(rep[2][0]==0 && rep[3][0]==0){ftg[0]=-6;goto skip;}
     }
 
-    if(ct==0){msg(_("Invalid syntax."));return -1;}
+    if(ct==0){msg("Invalid syntax.");return -1;}
     trg[0]=ct;ftg[0]=0;if(ctl>=0){trg[2]=ctl;ftg[2]=0;rep[2][0]=0;}
 
 
@@ -474,7 +474,7 @@ top:
 	  strcpy(rep[2],"@2");strcpy(rep[3],"0");}
 
 	goto skip2;
-      }else{msg(_("Invalid syntax."));return -1;}
+      }else{msg("Invalid syntax.");return -1;}
     }
   skip:
     rep[0][0]=0;
@@ -493,9 +493,9 @@ skip2:
 
   if((trg[0]==0xec || trg[0]==0xe2)&& ftg[2]!=-1 && (cmdflag&0x20)!=0){trg[2]--;}
 
-  if(trg[0]>252){msg(_("Invalid syntax."));return -1;}
+  if(trg[0]>252){msg("Invalid syntax.");return -1;}
   undobuf(0);
-  if(sh==0){msg(_("Replace ..."));}else{if(sh==1){msg(_("Delete ..."));}else{msg(_("Find ..."));}}
+  if(sh==0){msg("Replace ...");}else{if(sh==1){msg("Delete ...");}else{msg("Find ...");}}
   
   i=po;j=0;ln2=0;
   while(1){
@@ -633,7 +633,7 @@ skip2:
     }
   next:
 
-    if(INPOUT(0xff)==27 ){msg(_("Terminated."));return i;}
+    if(INPOUT(0xff)==27 ){msg("Terminated.");return i;}
 
     if( v==0 ){
       i=i+4;if(i>=po+ln){break;}
@@ -683,7 +683,7 @@ skip2:
 
       if(addf!=0 && dat[i]!=0 && dat2[i+4]!=0xf7 ){
 
-	if(a>=TRACK_SIZE){msg(_("Track buffer exhausted."));
+	if(a>=TRACK_SIZE){msg("Track buffer exhausted.");
 	memcpy_l(ptr,dat2,tr_len[track]);goto ext;}
 
 	cpbuf[a++]=dat2[i];cpbuf[a++]=0/*dat2[i+1]*/;
@@ -691,7 +691,7 @@ skip2:
       }
       ii=i;aa=a;
     loop1:
-      if(a>=TRACK_SIZE){msg(_("Track buffer exhausted."));
+      if(a>=TRACK_SIZE){msg("Track buffer exhausted.");
       memcpy_l(ptr,dat2,tr_len[track]);goto ext;}
 
       cpbuf[a++]=ptr[i];cpbuf[a++]=ptr[i+1];
@@ -705,7 +705,7 @@ skip2:
 	if(cpbuf[aa]<0xf0){cpbuf[aa+1]=240;ss-=240;}
 
 	while(ss>0){
-	  if(a>=TRACK_SIZE){msg(_("Track buffer exhausted."));
+	  if(a>=TRACK_SIZE){msg("Track buffer exhausted.");
 	  memcpy_l(ptr,dat2,tr_len[track]);goto ext;}
 
 	  if(ss>240){
@@ -866,13 +866,13 @@ int	find(int po,int h)
     if(mo==0){
       msg("SPCIAL CONTROLER");
     }else{
-      if(mo==1){msg(_("Strings"));}else{msg(_("Except specified TOTAL ST"));}
+      if(mo==1){msg("Strings");}else{msg("Except specified TOTAL ST");}
     }
 
-    B_PRINT(_(" Find ..."));
+    B_PRINT(" Find ...");
     i=po;j=-1;h=h&1;
     while(1){
-      if(INPOUT(0xff)==27 ){msg(_("Terminated."));return(i);snsclr();}
+      if(INPOUT(0xff)==27 ){msg("Terminated.");return(i);snsclr();}
       if( h==0 ){
       next:
 	i=i+4;if(i>=tr_len[track]){break;}
@@ -903,7 +903,7 @@ int	find(int po,int h)
     }
   }
 
-  msg_clr();if(j<0){msg(_("Pattern not found."));}
+  msg_clr();if(j<0){msg("Pattern not found.");}
   snsclr();return(j);
 
 }
@@ -919,10 +919,10 @@ int	find_rep(int po)
   if(trk[track][i]==0xf8){h=1;}/*]*/
   if(h<0){snsclr();return(j);}
 
-  msg(_("Searching companion REPEAT ..."));
+  msg("Searching companion REPEAT ...");
 
   while(1){
-    if(INPOUT(0xff)==27 ){msg(_("Terminated."));return(i);snsclr();}
+    if(INPOUT(0xff)==27 ){msg("Terminated.");return(i);snsclr();}
     if( h==0 ){
     next:
       i=i+4;if(i>=tr_len[track]){break;}
@@ -942,7 +942,7 @@ int	find_rep(int po)
     ct=trk[track][i];if(flg==0){j=i;break;}
   }
 
-  msg_clr();if(j<0){msg(_("Pattern not found."));}
+  msg_clr();if(j<0){msg("Pattern not found.");}
   snsclr();return(j);
 }
 
@@ -1307,7 +1307,7 @@ void	undobuf(int a)
     undof[0]=track;undof[1]=tr_len[track];rcpf=-1;
   }else{
     if(rcpf>=0 || track!=undof[0]){
-      msg(_("UNDO buffer is empty."));return;}
+      msg("UNDO buffer is empty.");return;}
 
     if(size_change(track,undof[1])){return;}
 
@@ -1315,7 +1315,7 @@ void	undobuf(int a)
       d=trk[track][i];trk[track][i]=rcpbuf[i];rcpbuf[i]=d;
     }
     d=tr_len[track];tr_len[track]=undof[1];undof[1]=d;
-    msg(_("UNDO !"));
+    msg("UNDO !");
   }
   snsclr();
 }
@@ -1404,7 +1404,7 @@ void	same_shift(int spo,int m,int cu)
   if(ec!=0){
     char b[4096];
     int ret;
-    ret=snprintf(b,sizeof(b),_("%4d times of SAME MEAS is invalid"),ec);
+    ret=snprintf(b,sizeof(b),"%4d times of SAME MEAS is invalid",ec);
     if ( ret > 0 ) {
       msg(b);
     }
@@ -1420,7 +1420,7 @@ int	same_meas_extr(int tr,int ad,int ln)
   int	po;
 
   if(ln==0){return(0);}
-  undobuf(0);msg(_("Extracting SAME MEAS ..."));po=same_ext_sub(tr,ad,ad+ln,1);
+  undobuf(0);msg("Extracting SAME MEAS ...");po=same_ext_sub(tr,ad,ad+ln,1);
   
   if(ad>0 && trk[tr][ad]==0xfc && trk[tr][ad-4]<0xfc){
     memcpy_l(&dat[4],dat,po);dat[0]=0xfd;po+=4;
@@ -1443,7 +1443,7 @@ int	cpybuf_set(int tr,int ad,int ln)
   if(po<=TRACK_SIZE){
     memcpy_l(cpbuf,dat,po);
   }else{
-    msg(_("Copy buffer will be exhausted. Not extract."));
+    msg("Copy buffer will be exhausted. Not extract.");
     memcpy_l(cpbuf,&trk[track][ad],ln);
     return(ln);
   }
