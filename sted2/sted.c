@@ -645,14 +645,7 @@ int	main(int argc,char *argv[])
     sted_fail(1);
   }
 
-  if( rcd == NULL ) {
-    B_PRINT("RCD is not running.\n");sted_fail(1);
-  }else{
-    if( strcmp(rcd_version,"3.01")<0 || strcmp(rcd_version,"3.09")>0 ){
-      B_PRINT("Invalid RCD version.\n");
-      sted_fail(1);
-    }
-  }
+  /* rcd_check() already built the in-process player. No external RCD. */
 
   if( card_no[0]<0 || card_no[0]>16 || TRACK_SIZE<32 || TRACK_SIZE>256 ||
       buff_max<64*1024 || buff_max>256*36*1024 ){
@@ -666,29 +659,12 @@ int	main(int argc,char *argv[])
 
   cpbuf=(uint8_t *)MALLOC(TRACK_SIZE);
   rcpbuf=(uint8_t *)MALLOC(TRACK_SIZE);
-
   dat=(uint8_t *)MALLOC(work_size);
   dat2=(uint8_t *)MALLOC(work_size);
-  /* May.06.2001 NAGANO Daisuke <breeze.nagano@nifty.ne.jp> */
-  /* これは x68000 ドメインのメモリチェックである
-     (Human68k: 確保失敗は NULL ではなく 0x81000000 以上の符号化値) */
-#if 0
-  if((int)dat>=0x81000000){
-    B_PRINT("Cannot allocate track buffers.\n");exit(1);}
-#endif
-
-realc:
   trk[0]=(uint8_t *)MALLOC(buff_size);
-  /* これは x68000 ドメインのメモリチェックである
-     (失敗時の下位ビットから縮小サイズを拾って realc 再試行) */
-#if 0
-  if((int)trk[0]>=0x81000000) {
-    if(!used_u){
-      buff_size=((int)trk[0])&0xfffffc;if(buff_size>=64*1024){goto realc;}
-    }
-    B_PRINT("Cannot allocate track buffers.\n");exit(1);
+  if(cpbuf==NULL || rcpbuf==NULL || dat==NULL || dat2==NULL || trk[0]==NULL){
+    B_PRINT("Cannot allocate track buffers.\n");sted_fail(1);
   }
-#endif
 
   buff_max=buff_size;
 
@@ -758,7 +734,7 @@ realc:
     B_PRINT(tmp0);B_PRINT(": File not found.\n");sted_fail(1);}
 
   strmfe(tmp0, sizeof tmp0, argv[0], "cf2");defload(tmp0,2);
-  /*		1997-07-20	STed2.cf2Фɤ߹褦ˤ*/
+  /*		1997-07-20    STed2.cf2があればそれも読み込むようにした*/
 
   if ( strlen(getenv("HOME")) < sizeof(tmp0)-9 ) {
     strcpy(tmp0, getenv("HOME"));
@@ -881,7 +857,6 @@ realc:
     cmdflag|=0x8;
   }
 
-  set_errvect();
   rcd_open_device();
 
   C_CUROFF();LEDMOD(4,1);C_FNKMOD(3);sinit();/*MS_CUROF();*/
@@ -926,32 +901,10 @@ void	end_proc()
   FNCKEYST(0,fnckey0);fonset(fonbuf);
   close_midi_port(); /* Sep.02.1998 Daisuke Nagano */
 
-  rst_errvect();exit(0);
+  exit(0);
 }
 
 /***************************/
-void	set_errvect()
-{
-
-  return;
-#ifdef X680x0
-  if (NULL == (ErrorTrap_Old=(void *)B_INTVCS(Trap14,(int)*ErrorTrap)) ) {
-    B_PRINT("TRAP14ǤޤǤߤޤ\r\n");
-    exit(1);
-  }
-#endif /* X680x0 */
-}
-
-void	rst_errvect()
-{
-
-  return;
-#ifdef X680x0
-  if (ErrorTrap_Old != NULL) {
-    B_INTVCS(Trap14,(int)ErrorTrap_Old);
-  }
-#endif /* X680x0 */
-}
 
 /* Finder open while MAIN is idle. File panel and Shift+L stay in load_sub. */
 static void sted_finder_apply(const char *full)
@@ -2269,7 +2222,6 @@ int	exe(char *cl)
   int	ec,er,use;
   char	tmp0[PATHLEN * 3 + 16];
 
-  rst_errvect();
   size_ref();
 
   if(used_u==0){
@@ -2296,7 +2248,6 @@ int	exe(char *cl)
     ec=child(cl);
   }
   /*	trksize(-2);*/
-  set_errvect();
   return(ec);
 }
 

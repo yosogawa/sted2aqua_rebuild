@@ -109,7 +109,6 @@ extern "C" {
 void rcd_check( void );
 void rcd_open_device( void );
 extern struct RCD_HEAD	*rcd;
-extern char rcd_version[];
 
 /* etc */
 /* May.26.2003 Toshi Nagata: add _extern to avoid multiple definition of variables */

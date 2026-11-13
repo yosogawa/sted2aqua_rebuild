@@ -37,7 +37,6 @@ static int bar_total_st[TRK_NUM]; /* track length in steps; past this → inacti
 
 void rcd_check( void );
 struct RCD_HEAD *rcd;
-char rcd_version[5];
 
 char player_name[STED_NAMEBUF];          /* midi player name */
 char midi_port_name[STED_NAMEBUF];       /* midi_port device name */
@@ -152,11 +151,6 @@ void rcd_check( void ) {
 
 
   install_sighandler();
-
-  rcd_version[0] = '3';
-  rcd_version[1] = '.';
-  rcd_version[2] = '0';
-  rcd_version[3] = '1';
 
   rcd->title[0] = 'R';
   rcd->title[1] = 'C';
