@@ -259,8 +259,9 @@ void	sttrc(int *po,int *cy,int flg)
 	int meas=meas_no(ad);
 	int do_gra=0;
 	int do_meas_digit=0;
+	int bar_changed=(jj!=jjj);
 
-	if(jj!=jjj){
+	if(bar_changed){
 	  jjj=jj;
 	  trk_free(ad);
 	  do_gra=1;
@@ -281,6 +282,9 @@ void	sttrc(int *po,int *cy,int flg)
 	  int xx=69+1;
 	  if(edit_scr==0){xx=13+1;}
 	  vdis2(xx,572,meas,4,15,0);
+	}
+	if(bar_changed || do_meas_digit || (!do_gra && meas!=last_meas)){
+	  pinfo_refresh(ad);
 	}
 	last_meas=meas;
       }

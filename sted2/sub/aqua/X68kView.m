@@ -2974,8 +2974,11 @@ s_XSTed_tputs(const char *message, int *xbase, int *ybase, int col, int isText)
 	int i, x, y, xmin, ymin, xmax, ymax, dx, em;
 
 	/* Kanji ROM is indexed by raw X68k/SJIS bytes, including STed gaiji
-	   (0xEBxx) and g_print2's 0xF0 prefix. Do not run sted_ensure_sjis
-	   here: a Unicode round-trip remaps those codes to ordinary kanji. */
+	   (0xEBxx). Do not run sted_ensure_sjis here: a Unicode round-trip
+	   remaps those codes to ordinary kanji.
+	   0xF0 is not a kanji lead. g_print2 prefixes it to mean the X68000
+	   quarter-size glyph: the next byte is a halfwidth character drawn
+	   8 dots high. */
 
 	xmin = xmax = *xbase;
 	ymin = ymax = *ybase;
@@ -2990,6 +2993,39 @@ s_XSTed_tputs(const char *message, int *xbase, int *ybase, int col, int isText)
 		col = col % 4;
 	}
 	for (i = 0; (ch = message[i]) != 0; i++) {
+		if (ch == 0xf0) {
+			int width;
+
+			i++;
+			ch = message[i];
+			if (ch == 0)
+				break;
+			if (ch >= 0x20 && ch < 0x7f)
+				ch -= 0x20;
+			else if (ch >= 0xa0 && ch <= 0xdf)
+				ch -= (0xa0 - 96);
+			else
+				ch = 0;
+			p = sFontData + ch * 16;
+			width = isText ? sTextWidth : sGraphWidth;
+			for (y = 0; y < 8; y++) {
+				int ofs = (*ybase + y) * width + *xbase;
+				b = p[y * 2] | p[y * 2 + 1];
+				for (x = 0; x < 8; x++) {
+					if (isText) {
+						uint8_t bb = col * ((b & 1) ^ rev);
+						sTextVram[ofs + x] = bb;
+					} else if (b & 1) {
+						sGraphVram[ofs + x] = col;
+					}
+					b >>= 1;
+				}
+			}
+			*xbase += 8;
+			if (*xbase > xmax)
+				xmax = *xbase;
+			continue;
+		}
 		ch2 = 0xff;
 		if (ch >= 0x20 && ch < 0x7f)
 			ch -= 0x20;

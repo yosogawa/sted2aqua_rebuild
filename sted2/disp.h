@@ -92,6 +92,7 @@ int  gra_add(int ad, int md);
 int  st_cv(int st);
 void put_sharp(int skey, int x, int y);
 void dat_info(int po, int sh);
+void pinfo_refresh(int ad);
 
 #ifdef __cplusplus
 }

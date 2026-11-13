@@ -3,7 +3,7 @@
  */
 
 #include	"sted.h"
-#define NORMAL 1
+#define NORMAL 0
 
 /*
 

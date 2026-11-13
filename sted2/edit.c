@@ -24,6 +24,9 @@ static int    retkey(int);
 static int    retkey2(int);
 static void ed_fnc_guide(int sh, int ad, int cx);
 
+/* Set by I. Shift+left/right refreshes P.INFO only while this is set. */
+static int	pinfo_on;
+
 /*
   True when meas_no(old_ad) and meas_no(new_ad) differ.
   Walks only the events between the two addresses, same marks as meas_no
@@ -50,6 +53,12 @@ meas_span_differs(int old_ad, int new_ad)
       return 1;
   }
   return 0;
+}
+
+/***************************/
+void	pinfo_refresh(int ad)
+{
+  if(pinfo_on){dat_info(ad,0);}
 }
 
 /***************************/
@@ -241,7 +250,7 @@ track_edit_top:
 	if(sh&1){ex=option(kc-'A',2);}else{ex=option2(kc-'A',2,ad,i);}
       }
 
-      edit_scr=i;if(ex){edfield(0);}else{tg_copy2(1-i);}
+      edit_scr=i;if(ex){edfield(0);pinfo_on=0;}else{tg_copy2(1-i);}
       trk_no();trk_dis(6,po,24);rc=tm_lag-1;kc=0;
     }
 
@@ -263,7 +272,7 @@ track_edit_top:
       kc=0;ke=0;
     }
 
-    if( ke==0x3f ){noed_cls();grpmode=0;}
+    if( ke==0x3f ){noed_cls();grpmode=0;pinfo_on=0;}
 
     if( kc=='X' ){
       uint8_t	da=trk[track][ad];
@@ -559,7 +568,7 @@ track_edit_top:
 	B_CLR_AL();cons_md(0);edit_scr=0;
 	if(trk[track][ad]>=0x90 && trk[track][ad]<=0x97){
 	  user_exc_as(trk[track][ad]-0x90);}else{user_exc_as(0);}
-	edit_scr=i;edfield(0);
+	edit_scr=i;edfield(0);pinfo_on=0;
 	trk_no();trk_dis(6,po,24);rc=tm_lag-1;
       }
       if( ke==0x34 ){
@@ -724,6 +733,7 @@ track_edit_top:
       size_max(track);
       trk_no();trk_cluc();cplen=0;cy=padjust(&po,cy);ke=0;
       snsclr();rc=tm_lag-1;
+      if(pinfo_on){dat_info(real_ad(po,cy),0);}
     }
 
 
@@ -982,7 +992,7 @@ track_edit_top:
       if( trrhy[track]&0x80 ){
 	trk_pos_set(po,cx,cy);
 	B_CLR_AL();cons_md(0);rtrk_ed(ke-0x52,sh);
-	edfield(0);po=tr_pos[track][edit_scr][0];cx=0;cy=0;trk_no();
+	edfield(0);pinfo_on=0;po=tr_pos[track][edit_scr][0];cx=0;cy=0;trk_no();
 	trk_cluc();trk_dis(6,po,24);rc=tm_lag-1;
       }else{
 	msg("Rhythm track only.");
@@ -996,16 +1006,17 @@ track_edit_top:
 
     if( ke==0x54 ){
       fnc_dis(-1);cons_md(0);B_CLR_AL();help(1);
-      edfield(0);B_CLR_AL();fnc_dis(0);trk_dis(6,po,24);rc=tm_lag-1;
+      edfield(0);pinfo_on=0;B_CLR_AL();fnc_dis(0);trk_dis(6,po,24);rc=tm_lag-1;
     }
     if( kc=='I' ){
       if(grpmode!=0){noed_cls();grpmode=0;}
       dat_info(ad,sh);
+      pinfo_on=1;
     }
     if( edit_scr==0){
       if(kc==7){
 	grpmode++;if(grpmode>4){grpmode=0;}
-	noed_cls();if(grpmode!=0){rc=tm_lag;gra(ad,0);}
+	noed_cls();pinfo_on=0;if(grpmode!=0){rc=tm_lag;gra(ad,0);}
 	ed_fnc_guide(sh,ad,cx);
       }
     }
@@ -1029,6 +1040,7 @@ track_edit_top:
     if( kc=='O' ){partf(2,ad);trk_dis(6,po,24);}
 
     if( kc=='V' ){
+      pinfo_on=0;
       if(cplen<0){
 	cplen=abs(cpadd-ad);if(cpadd>ad ){cpadd=ad;}
 	po=vis_edit(cpadd,cplen,sh);
@@ -1106,7 +1118,7 @@ void trk_ed_end(int po,int cx,int cy)
   trk_pos_set(po,cx,cy);
   trksize(track);if(edit_scr==0){track1=track;}else{track2=track;}
   B_CLR_AL();fnc_dis(-1);msg_clr();edit_scr=0;cons_md(0);
-  edfield(-1);sdis2(30+8,512,"",18,0,0);home2(0);
+  edfield(-1);pinfo_on=0;sdis2(30+8,512,"",18,0,0);home2(0);
 }
 
 void trk_pos_set(int po,int cx,int cy)
