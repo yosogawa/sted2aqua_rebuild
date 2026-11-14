@@ -39,6 +39,7 @@
 		A1AMY2012F0A4B0100E00023 /* amy_platform.c in Sources */ = {isa = PBXBuildFile; fileRef = A1AMY1012F0A4B0100E00023 /* amy_platform.c */; };
 		A1AMY3032F0A4B0100E0E033 /* AmySynth.m in Sources */ = {isa = PBXBuildFile; fileRef = A1AMY3012F0A4B0100E0E031 /* AmySynth.m */; };
 		A1CK00032F0A4B0100E0E003 /* RcpClock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1CK00012F0A4B0100E0E001 /* RcpClock.cpp */; };
+		A1COL0D12F0A4B0100COL0D1 /* colorpanel.c in Sources */ = {isa = PBXBuildFile; fileRef = A1COL0B12F0A4B0100COL0B1 /* colorpanel.c */; };
 		A1DEF0012F0A4B0100E0E101 /* amy.def in Resources */ = {isa = PBXBuildFile; fileRef = A1DEF0022F0A4B0100E0E102 /* amy.def */; };
 		A1DEF0032F0A4B0100E0E103 /* gm.def in Resources */ = {isa = PBXBuildFile; fileRef = A1DEF0042F0A4B0100E0E104 /* gm.def */; };
 		A1DEF0052F0A4B0100E0E105 /* gm2.def in Resources */ = {isa = PBXBuildFile; fileRef = A1DEF0062F0A4B0100E0E106 /* gm2.def */; };
@@ -176,6 +177,8 @@
 		A1AMY3022F0A4B0100E0E032 /* AmySynth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AmySynth.h; sourceTree = "<group>"; };
 		A1CK00012F0A4B0100E0E001 /* RcpClock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RcpClock.cpp; sourceTree = "<group>"; };
 		A1CK00022F0A4B0100E0E002 /* RcpClock.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = RcpClock.hpp; sourceTree = "<group>"; };
+		A1COL0B12F0A4B0100COL0B1 /* colorpanel.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 4; path = colorpanel.c; sourceTree = "<group>"; };
+		A1COL0C12F0A4B0100COL0C1 /* colorpanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = colorpanel.h; sourceTree = "<group>"; };
 		A1DEF0022F0A4B0100E0E102 /* amy.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = amy.def; sourceTree = "<group>"; };
 		A1DEF0042F0A4B0100E0E104 /* gm.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = gm.def; sourceTree = "<group>"; };
 		A1DEF0062F0A4B0100E0E106 /* gm2.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = gm2.def; sourceTree = "<group>"; };
@@ -526,6 +529,8 @@
 				A1AMY3012F0A4B0100E0E031 /* AmySynth.m */,
 				A1DLS0C12F0A4B0100DLS0C1 /* DLSSynthPanel.h */,
 				A1DLS0B12F0A4B0100DLS0B1 /* DLSSynthPanel.m */,
+				A1COL0C12F0A4B0100COL0C1 /* colorpanel.h */,
+				A1COL0B12F0A4B0100COL0B1 /* colorpanel.c */,
 			);
 			path = macos;
 			sourceTree = "<group>";
@@ -978,6 +983,7 @@
 				E44E7DFD1AC4C94E00F71120 /* MyDialogController.m in Sources */,
 				A1AB0D011B01000100ABOUT1 /* AboutPanelController.m in Sources */,
 				A1DLS0D12F0A4B0100DLS0D1 /* DLSSynthPanel.m in Sources */,
+				A1COL0D12F0A4B0100COL0D1 /* colorpanel.c in Sources */,
 				A1SF2D022F0A4B0100SF2D02 /* sf2_def_gen.c in Sources */,
 				A1SF2D012F0A4B0100SF2D01 /* Sf2DefGenerator.m in Sources */,
 				E4F8616F1AC7D306007DF49E /* main.m in Sources */,
