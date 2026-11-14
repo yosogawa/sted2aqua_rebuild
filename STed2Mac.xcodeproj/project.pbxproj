@@ -116,7 +116,7 @@
 		E40E964D1ABA44F60072AA0B /* CoreAudioKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E40E964C1ABA44F60072AA0B /* CoreAudioKit.framework */; };
 		E40E96551ABA451B0072AA0B /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E40E96541ABA451B0072AA0B /* AudioToolbox.framework */; };
 		E40E965D1ABA455D0072AA0B /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E40E965C1ABA455D0072AA0B /* CoreAudio.framework */; };
-		E44B2A4E1AC6B44C00910C7B /* STed2_help in Resources */ = {isa = PBXBuildFile; fileRef = E44B2A421AC6B44C00910C7B /* STed2_help */; };
+		E44B2A4E1AC6B44C00910C7B /* STed2.help in Resources */ = {isa = PBXBuildFile; fileRef = E44B2A421AC6B44C00910C7B /* STed2.help */; };
 		E44E7DDA1AC4C83B00F71120 /* MIDISettings.xib in Resources */ = {isa = PBXBuildFile; fileRef = E44E7DD81AC4C83B00F71120 /* MIDISettings.xib */; };
 		E44E7DFD1AC4C94E00F71120 /* MyDialogController.m in Sources */ = {isa = PBXBuildFile; fileRef = E44E7DFC1AC4C94E00F71120 /* MyDialogController.m */; };
 		E47C191F1AC55B8700A70D36 /* conf in Resources */ = {isa = PBXBuildFile; fileRef = E47C19141AC55B8700A70D36 /* conf */; };
@@ -329,7 +329,7 @@
 		E40E964C1ABA44F60072AA0B /* CoreAudioKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudioKit.framework; path = /System/Library/Frameworks/CoreAudioKit.framework; sourceTree = "<absolute>"; };
 		E40E96541ABA451B0072AA0B /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = /System/Library/Frameworks/AudioToolbox.framework; sourceTree = "<absolute>"; };
 		E40E965C1ABA455D0072AA0B /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = /System/Library/Frameworks/CoreAudio.framework; sourceTree = "<absolute>"; };
-		E44B2A421AC6B44C00910C7B /* STed2_help */ = {isa = PBXFileReference; lastKnownFileType = folder; name = STed2_help; path = sted2/doc/STed2_help; sourceTree = "<group>"; };
+		E44B2A421AC6B44C00910C7B /* STed2.help */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; name = STed2.help; path = sted2/doc/STed2.help; sourceTree = "<group>"; };
 		E44E7DD91AC4C83B00F71120 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MIDISettings.xib; sourceTree = "<group>"; };
 		E44E7DFB1AC4C94E00F71120 /* MyDialogController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyDialogController.h; sourceTree = "<group>"; };
 		E44E7DFC1AC4C94E00F71120 /* MyDialogController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyDialogController.m; sourceTree = "<group>"; };
@@ -425,7 +425,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				E44B2A421AC6B44C00910C7B /* STed2_help */,
+				E44B2A421AC6B44C00910C7B /* STed2.help */,
 				E47C19141AC55B8700A70D36 /* conf */,
 				A1F0E0131AC55B8700A70D03 /* KH-Dot-Kodenmachou-16.ttf */,
 				A1F0E0141AC55B8700A70D04 /* OFL.txt */,
@@ -893,7 +893,7 @@
 				A1F0E0111AC55B8700A70D01 /* KH-Dot-Kodenmachou-16.ttf in Resources */,
 				A1F0E0121AC55B8700A70D02 /* OFL.txt in Resources */,
 				A1TUI0011B01000100TUIT01 /* tuitou.doc in Resources */,
-				E44B2A4E1AC6B44C00910C7B /* STed2_help in Resources */,
+				E44B2A4E1AC6B44C00910C7B /* STed2.help in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -911,7 +911,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/sh;
-			shellScript = "#cd $PROJECT_DIR\n#sh make_release_package.sh\n\n##\n## remove STed2_help cache\n##\nset -e\n\t \nCACHE_DIR=\"$HOME/Library/Group Containers/group.com.apple.helpviewer.content/Library/Caches\"\n\nif [ -d \"$CACHE_DIR\" ]; then\n    find \"$CACHE_DIR\" -name 'com.github.STed2.STed2_help\\*1.0.help' -delete\nfi\n";
+			shellScript = "#cd $PROJECT_DIR\n#sh make_release_package.sh\n\n##\n## remove STed2_help cache\n##\nset -e\n\t \nCACHE_DIR=\"$HOME/Library/Group Containers/group.com.apple.helpviewer.content/Library/Caches\"\n\nif [ -d \"$CACHE_DIR\" ]; then\n    find \"$CACHE_DIR\" -name 'com.github.STed2.com.github.STed2.help*' -delete\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -1158,6 +1158,7 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = "";
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				MARKETING_VERSION = "";
 				OTHER_CODE_SIGN_FLAGS = "--timestamp";
 				OTHER_LDFLAGS = (
 					"-liconv",
@@ -1203,6 +1204,7 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = "";
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				MARKETING_VERSION = "plus 0.1.0";
 				OTHER_CODE_SIGN_FLAGS = "--timestamp";
 				OTHER_LDFLAGS = (
 					"-liconv",

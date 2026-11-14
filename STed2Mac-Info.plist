@@ -70,7 +70,7 @@
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleHelpBookFolder</key>
-	<string>STed2_help</string>
+	<string>STed2.help</string>
 	<key>CFBundleHelpBookName</key>
 	<string>STed2_help</string>
 	<key>CFBundleIconFile</key>
