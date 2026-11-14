@@ -40,3 +40,9 @@
 "out of memory" = "out of memory";
 "Could not read the SF2 file" = "Could not read the SF2 file";
 "No presets found in the SoundFont" = "No presets found in the SoundFont";
+
+/* Internal synth: output device configuration change */
+"The internal synthesizer was reset." = "The internal synthesizer was reset.";
+"The internal synthesizer was reset. Playback has also been stopped. Play the song from the beginning." = "The internal synthesizer was reset. Playback has also been stopped. Play the song from the beginning.";
+"The internal synthesizer could not be started." = "The internal synthesizer could not be started.";
+"The internal synthesizer could not be started. Playback has also been stopped." = "The internal synthesizer could not be started. Playback has also been stopped.";

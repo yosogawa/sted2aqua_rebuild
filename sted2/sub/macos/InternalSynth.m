@@ -22,6 +22,11 @@
 #import <AVFAudio/AVAudioUnitEQ.h>
 #import <AVFAudio/AVAudioUnitReverb.h>
 #import <AVFAudio/AVAudioUnitEffect.h>
+#import <AppKit/AppKit.h>
+#import <dispatch/dispatch.h>
+
+#include "rcp_transport.h"
+#include "midi_in.h"
 
 #define kMaxNumberOfPorts 2
 
@@ -48,6 +53,19 @@ static DLSEffectSettings sEffects = {
 };
 static int sUseInternalReverb = 1;
 static int sReverbRoomType = 3;
+/* 1 while a MIDI port still targets an internal synth. */
+static int sEngineWanted = 0;
+static id sConfigObserver = nil;
+static int sEngineGeneration = 0;
+static int sRecoveryBusy = 0;
+static int sRecoveryNeeded = 0;
+static int sRecoveryRetryLeft = 0;
+static int sRecoveryStoppedTransport = 0;
+static int sRecoveryStartOK = 0;
+static int sRecoveryQuietScheduled = 0;
+
+static void RecoveryRun(void);
+static void InternalSynthNoteConfigurationChange(int generation);
 
 /*  Render thread publishes, player thread reads. seqlock: odd means a write is in progress. */
 typedef struct {
@@ -236,7 +254,10 @@ InternalSynthSchedule(MIDIEndpointRef dest, const uint8_t *bytes, int length,
 	if (dest == sAmyDest) {
 		if (status != NULL)
 			*status = noErr;
+		/* Same lock as amy_stop / amy_start in the configuration rebuild. */
+		pthread_mutex_lock(&sSynthLock);
 		AmySynthSendMIDI(bytes, length, atTime);
+		pthread_mutex_unlock(&sSynthLock);
 		return 1;
 	}
 	synth = -1;
@@ -430,6 +451,40 @@ ConnectNode(AVAudioEngine *engine, AVAudioNode *src, AVAudioNode *dst, AVAudioNo
 	return YES;
 }
 
+/*  Drops in-flight configuration notifications for the engine being released.
+    The block only hops to the main queue; it must not run on the audio queue. */
+static void
+UnwatchEngineConfiguration(void)
+{
+	sEngineGeneration++;
+	if (sConfigObserver == nil)
+		return;
+	[[NSNotificationCenter defaultCenter] removeObserver:sConfigObserver];
+	[sConfigObserver release];
+	sConfigObserver = nil;
+}
+
+static void
+WatchEngineConfiguration(AVAudioEngine *engine)
+{
+	int generation;
+
+	UnwatchEngineConfiguration();
+	if (engine == nil)
+		return;
+	generation = ++sEngineGeneration;
+	sConfigObserver = [[[NSNotificationCenter defaultCenter]
+		addObserverForName:AVAudioEngineConfigurationChangeNotification
+		object:engine
+		queue:nil
+		usingBlock:^(NSNotification *note) {
+			(void)note;
+			dispatch_async(dispatch_get_main_queue(), ^{
+				InternalSynthNoteConfigurationChange(generation);
+			});
+		}] retain];
+}
+
 /*  Caller holds sSynthLock. Render callbacks do not take that lock. */
 static void
 StopInternalSynthEngine(void)
@@ -441,6 +496,7 @@ StopInternalSynthEngine(void)
 		AmySynthStop();
 		return;
 	}
+	UnwatchEngineConfiguration();
 	engine = sEngine;
 	u0 = sDLSUnit[0];
 	u1 = sDLSUnit[1];
@@ -526,7 +582,10 @@ StartInternalSynthEngine(void)
 	BOOL connected = NO;
 	AVAudioNodeBus outBus;
 
-	/*  Both DLS units share one chain: sum → EQ → reverb → limiter → main mixer. */
+	/*  Both DLS units share one chain: sum → EQ → reverb → limiter → main mixer.
+	    The configuration observer is installed only after start succeeds.
+	    Watching earlier treats the first hardware format as a device change,
+	    stops this engine, and then drops that notification. */
 	sEngine = [[AVAudioEngine alloc] init];
 	sum = [[AVAudioMixerNode alloc] init];
 	eq = [[AVAudioUnitEQ alloc] initWithNumberOfBands:2];
@@ -670,6 +729,7 @@ StartInternalSynthEngine(void)
 	sDLS[0] = u0.audioUnit;
 	sDLS[1] = u1.audioUnit;
 	ApplyInternalReverbLocked();
+	WatchEngineConfiguration(sEngine);
 }
 
 int
@@ -748,8 +808,23 @@ static void
 EnsureInternalSynthRunningMain(void)
 {
 	pthread_mutex_lock(&sSynthLock);
+	sEngineWanted = 1;
 	if (sEngine == nil)
 		StartInternalSynthEngine();
+	/* A stopped engine is left in place when the configuration notification
+	   never arrives. Port changes call this and would otherwise no-op.
+	   The observer is off for this start so it is not seen as a device change. */
+	if (sEngine != nil && ![sEngine isRunning]) {
+		NSError *err = nil;
+		UnwatchEngineConfiguration();
+		if ([sEngine startAndReturnError:&err] && [sEngine isRunning])
+			WatchEngineConfiguration(sEngine);
+		else {
+			NSLog(@"internal synth restart failed: %@", err);
+			StopInternalSynthEngine();
+			StartInternalSynthEngine();
+		}
+	}
 	pthread_mutex_unlock(&sSynthLock);
 }
 
@@ -757,6 +832,7 @@ static void
 EnsureInternalSynthStoppedMain(void)
 {
 	pthread_mutex_lock(&sSynthLock);
+	sEngineWanted = 0;
 	StopInternalSynthEngine();
 	pthread_mutex_unlock(&sSynthLock);
 }
@@ -777,6 +853,181 @@ InternalSynthEnsureStopped(void)
 		EnsureInternalSynthStoppedMain();
 	else
 		dispatch_sync(dispatch_get_main_queue(), ^{ EnsureInternalSynthStoppedMain(); });
+}
+
+/*  Keys live in ja.lproj and en.lproj Localizable.strings. The bundle language
+    picks the table; a later pass can edit the strings without touching this. */
+static void
+ShowRecoveryAlert(int started, int stoppedTransport)
+{
+	NSString *text;
+
+	if (started && stoppedTransport) {
+		text = NSLocalizedString(
+			@"The internal synthesizer was reset. Playback has also been stopped. Play the song from the beginning.",
+			@"Internal synth reset and transport stopped");
+	} else if (started) {
+		text = NSLocalizedString(
+			@"The internal synthesizer was reset.",
+			@"Internal synth reset");
+	} else if (stoppedTransport) {
+		text = NSLocalizedString(
+			@"The internal synthesizer could not be started. Playback has also been stopped.",
+			@"Internal synth start failed and transport stopped");
+	} else {
+		text = NSLocalizedString(
+			@"The internal synthesizer could not be started.",
+			@"Internal synth start failed");
+	}
+	NSAlert *alert = [[NSAlert alloc] init];
+	[alert setMessageText:text];
+	[alert addButtonWithTitle:NSLocalizedString(@"OK", @"Alert button")];
+	[alert setAlertStyle:NSAlertStyleInformational];
+	[alert runModal];
+	[alert release];
+}
+
+static void
+RecoveryClear(void)
+{
+	sRecoveryBusy = 0;
+	sRecoveryNeeded = 0;
+	sRecoveryStoppedTransport = 0;
+	sRecoveryQuietScheduled = 0;
+}
+
+static void RecoveryScheduleQuiet(void);
+
+static void
+RecoveryFinish(void)
+{
+	int started = sRecoveryStartOK;
+	int stoppedTransport = sRecoveryStoppedTransport;
+
+	sRecoveryStoppedTransport = 0;
+	if (!sEngineWanted) {
+		RecoveryClear();
+		return;
+	}
+	/* Stay busy across the modal so a nested device notification only sets the flag. */
+	ShowRecoveryAlert(started, stoppedTransport);
+	sRecoveryBusy = 0;
+	if (sRecoveryNeeded && sEngineWanted)
+		InternalSynthNoteConfigurationChange(sEngineGeneration);
+}
+
+static void
+RecoveryScheduleQuiet(void)
+{
+	if (sRecoveryQuietScheduled)
+		return;
+	sRecoveryQuietScheduled = 1;
+	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 300 * NSEC_PER_MSEC),
+		dispatch_get_main_queue(), ^{
+			sRecoveryQuietScheduled = 0;
+			if (!sEngineWanted) {
+				RecoveryClear();
+				return;
+			}
+			if (sRecoveryNeeded) {
+				RecoveryRun();
+				return;
+			}
+			RecoveryFinish();
+		});
+}
+
+static void
+RecoveryRetryFired(void)
+{
+	if (!sEngineWanted) {
+		RecoveryClear();
+		return;
+	}
+	if (sRecoveryNeeded) {
+		RecoveryRun();
+		return;
+	}
+	pthread_mutex_lock(&sSynthLock);
+	if (sEngine == nil && sEngineWanted)
+		StartInternalSynthEngine();
+	sRecoveryStartOK = (sEngine != nil);
+	pthread_mutex_unlock(&sSynthLock);
+	if (!sEngineWanted) {
+		RecoveryClear();
+		return;
+	}
+	if (sRecoveryNeeded) {
+		RecoveryRun();
+		return;
+	}
+	RecoveryScheduleQuiet();
+}
+
+/*  Main queue. Does not hold sSynthLock across the transport wait: the player
+    thread takes that lock to deliver its last note-offs. */
+static void
+RecoveryRun(void)
+{
+	if (!sEngineWanted) {
+		RecoveryClear();
+		return;
+	}
+	while (sRecoveryNeeded && sEngineWanted) {
+		sRecoveryNeeded = 0;
+		if (rcp_transport_is_active()) {
+			stop_coremidi_rcpplayer();
+			sRecoveryStoppedTransport = 1;
+		}
+		if (!sEngineWanted)
+			break;
+		pthread_mutex_lock(&sSynthLock);
+		if (sEngine != nil)
+			StopInternalSynthEngine();
+		if (sEngineWanted)
+			StartInternalSynthEngine();
+		sRecoveryStartOK = (sEngine != nil);
+		pthread_mutex_unlock(&sSynthLock);
+	}
+	if (!sEngineWanted) {
+		RecoveryClear();
+		return;
+	}
+	if (!sRecoveryStartOK && sRecoveryRetryLeft > 0) {
+		sRecoveryRetryLeft = 0;
+		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 300 * NSEC_PER_MSEC),
+			dispatch_get_main_queue(), ^{
+				RecoveryRetryFired();
+			});
+		return;
+	}
+	RecoveryScheduleQuiet();
+}
+
+static void
+InternalSynthNoteConfigurationChange(int generation)
+{
+	/* The engine stops itself, then posts. If it is still running, look
+	   once more: the stop can land without a second notification. */
+	if (generation != sEngineGeneration || !sEngineWanted || sEngine == nil)
+		return;
+	if ([sEngine isRunning]) {
+		dispatch_async(dispatch_get_main_queue(), ^{
+			if (generation != sEngineGeneration || !sEngineWanted || sEngine == nil)
+				return;
+			if ([sEngine isRunning])
+				return;
+			InternalSynthNoteConfigurationChange(generation);
+		});
+		return;
+	}
+	sRecoveryNeeded = 1;
+	if (sRecoveryBusy)
+		return;
+	sRecoveryBusy = 1;
+	sRecoveryRetryLeft = 1;
+	sRecoveryStoppedTransport = 0;
+	RecoveryRun();
 }
 
 void
