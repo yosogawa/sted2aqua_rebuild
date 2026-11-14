@@ -7,7 +7,7 @@
 "Could not save sted2.cnf" = "sted2.cnf を保存できませんでした";
 "Could not write the font setting." = "フォント設定を書き込めませんでした。";
 
-"About STed2" = "STed2 について";
+"About STed2" = "STed2について";
 "Authors" = "作成者";
 "License" = "ライセンス";
 "Thanks" = "謝辞";
@@ -451,6 +451,13 @@ FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
 OTHER DEALINGS IN THE FONT SOFTWARE.\n\nCopyright (c) Keitarou Hiraki, Font Silo. 1990-2015\n";
 
 "about.thanks" = "（下書き）\n原作: TURBO（戸田貴之）\nUNIX 移植: 長野大介\nMac 移植: 永田 央\nplus版: 小川嘉徳\n\n各人の作業内容は、README_unix.jp と README.md をもとに後でまとめます。\n";
+
+/* MIDI & Audio メニュー */
+"MIDI Port Settings..." = "MIDI Port 設定";
+"SoundFont, FX, Mixer Setting" = "SoundFont, FX, Mixer設定";
+
+/* MIDI & Audio メニュー */
+"Generate DEF file from SF2" = "SF2 から音源定義ファイル生成";
 
 /* MIDI → SF2 から DEF を作成 */
 "Generate DEF from SF2..." = "SF2 から DEF を作成...";

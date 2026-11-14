@@ -110,6 +110,22 @@ static char sAppliedMacFont[256];
 static char sCnfMacFontName[256]; /* last loaded/saved #mac_font= (may differ until restart) */
 static int sAppliedCellHeight;
 
+/* stringWithFormat: "%s" drops the bytes. Read them by length instead. */
+static NSString *
+UTF8CString(const char *s)
+{
+	size_t n;
+	NSString *out;
+
+	if (s == NULL || s[0] == 0)
+		return @"";
+	n = strlen(s);
+	out = [[NSString alloc] initWithBytes:s length:n encoding:NSUTF8StringEncoding];
+	if (out == NULL)
+		return @"";
+	return [out autorelease];
+}
+
 #if 1
 #define _NSLog NSLog
 #else
@@ -1255,7 +1271,7 @@ static void s_apply_mac_font_main(const char *name, int cellHeight)
 	if (nsfont == nil) {
 		NSAlert *alert = [[NSAlert alloc] init];
 		[alert setMessageText:@"フォントが見つかりません"];
-		[alert setInformativeText:[NSString stringWithFormat:@"「%s」は使えません。", name]];
+		[alert setInformativeText:[NSString stringWithFormat:@"「%@」は使えません。", UTF8CString(name)]];
 		[alert setAlertStyle:NSAlertStyleWarning];
 		[alert runModal];
 		[alert release];
@@ -1320,7 +1336,7 @@ static void s_apply_mac_font_main(const char *name, int cellHeight)
 		}
 		CFRelease(fullFont);
 	}
-	NSLog(@"mac_font \"%s\": halfwidth %d, kanji %d", name, nHalf, nKanji);
+	NSLog(@"mac_font \"%@\": halfwidth %d, kanji %d", UTF8CString(name), nHalf, nKanji);
 }
 
 static char sPendingMacFont[256];
@@ -1346,16 +1362,16 @@ static void s_use_mac_font_main(const char *requested)
 	if (requested != NULL && requested[0] != 0 && strcmp(requested, kBundledFontPSName) != 0) {
 		if (haveBundled) {
 			s_alert_font(@"フォントが見つかりません",
-				[NSString stringWithFormat:@"「%s」は使えません。同梱の %s で表示します。",
-					requested, kBundledFontPSName]);
+				[NSString stringWithFormat:@"「%@」は使えません。同梱の %@ で表示します。",
+					UTF8CString(requested), UTF8CString(kBundledFontPSName)]);
 		} else {
 			s_alert_font(@"フォントが見つかりません",
-				[NSString stringWithFormat:@"「%s」は使えません。同梱の %s.ttf もありません。",
-					requested, kBundledFontPSName]);
+				[NSString stringWithFormat:@"「%@」は使えません。同梱の %@.ttf もありません。",
+					UTF8CString(requested), UTF8CString(kBundledFontPSName)]);
 		}
 	} else if (!haveBundled) {
 		s_alert_font(@"フォントが見つかりません",
-			[NSString stringWithFormat:@"同梱の %s.ttf がありません。", kBundledFontPSName]);
+			[NSString stringWithFormat:@"同梱の %@.ttf がありません。", UTF8CString(kBundledFontPSName)]);
 	}
 	if (haveBundled)
 		s_apply_mac_font_main(kBundledFontPSName, kFontCellHeight);
@@ -1681,10 +1697,10 @@ DotFloat(double v, int decimals)
 	whole = (int)(a / (double)scale);
 	frac = (int)a - whole * scale;
 	if (decimals <= 1)
-		return [NSString stringWithFormat:@"%s%d.%d", neg ? "-" : "", whole, frac];
+		return [NSString stringWithFormat:@"%@%d.%d", neg ? @"-" : @"", whole, frac];
 	if (decimals >= 3)
-		return [NSString stringWithFormat:@"%s%d.%03d", neg ? "-" : "", whole, frac];
-	return [NSString stringWithFormat:@"%s%d.%02d", neg ? "-" : "", whole, frac];
+		return [NSString stringWithFormat:@"%@%d.%03d", neg ? @"-" : @"", whole, frac];
+	return [NSString stringWithFormat:@"%@%d.%02d", neg ? @"-" : @"", whole, frac];
 }
 
 void
@@ -2068,7 +2084,7 @@ XSTed_save_thrumode(int on)
 		[lines replaceObjectAtIndex:i withObject:replaced];
 	}
 	if (!any) {
-		NSString *added = [NSString stringWithFormat:@"#thrumode=%s", on ? "on" : "off"];
+		NSString *added = [NSString stringWithFormat:@"#thrumode=%@", on ? @"on" : @"off"];
 		if (n > 0 && [[lines lastObject] length] == 0)
 			[lines insertObject:added atIndex:n - 1];
 		else
@@ -2186,8 +2202,9 @@ XSTed_save_midi_port_settings(const char *inName, const char *out1, const char *
 		nl = @"\r";
 	else
 		nl = @"\n";
-	values[0] = [NSString stringWithFormat:@"#midi_device_input=%s", inName];
-	values[1] = [NSString stringWithFormat:@"#midi_device_output=%s, %s", out1, out2];
+	values[0] = [@"#midi_device_input=" stringByAppendingString:UTF8CString(inName)];
+	values[1] = [[@"#midi_device_output=" stringByAppendingString:UTF8CString(out1)]
+			stringByAppendingFormat:@", %@", UTF8CString(out2)];
 	values[2] = [NSString stringWithFormat:@"#midi_device_output_clock=%d,%d", clock1, clock2];
 	text = [text stringByReplacingOccurrencesOfString:@"\r\n" withString:@"\n"];
 	text = [text stringByReplacingOccurrencesOfString:@"\r" withString:@"\n"];
@@ -2290,8 +2307,8 @@ XSTed_save_dls_settings(void)
 		font = "";
 	if (font2 == NULL)
 		font2 = "";
-	values[0] = [NSString stringWithFormat:@"#dls_synth_font=%s", font];
-	values[1] = [NSString stringWithFormat:@"#dls_synth_font2=%s", font2];
+	values[0] = [@"#dls_synth_font=" stringByAppendingString:UTF8CString(font)];
+	values[1] = [@"#dls_synth_font2=" stringByAppendingString:UTF8CString(font2)];
 	values[2] = [NSString stringWithFormat:@"#dls_synth_use_reverb=%d", bus.useReverb ? 1 : 0];
 	values[3] = [NSString stringWithFormat:@"#dls_synth_reverbtype=%d", bus.roomType];
 	values[4] = [NSString stringWithFormat:@"#dls_mixer_dls=%@", DotFloat(fx.dlsVolume, 3)];
@@ -3670,11 +3687,11 @@ s_MacSelectFile(void **args)
 			}
 		}
 		if ([extHint length] > 0)
-			title = [NSString stringWithFormat:@"%s %s FILE... (%@)",
-				(is_save ? "SAVE" : "LOAD"), mes, extHint];
+			title = [NSString stringWithFormat:@"%@ %@ FILE... (%@)",
+				(is_save ? @"SAVE" : @"LOAD"), UTF8CString(mes), extHint];
 		else
-			title = [NSString stringWithFormat:@"%s %s FILE...",
-				(is_save ? "SAVE" : "LOAD"), mes];
+			title = [NSString stringWithFormat:@"%@ %@ FILE...",
+				(is_save ? @"SAVE" : @"LOAD"), UTF8CString(mes)];
 		[panel setTitle:title];
 		[panel setMessage:title];
 	}

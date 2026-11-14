@@ -234,7 +234,8 @@ resolve_boot_cnf(char *path, size_t pathSize)
 }
 
 /* Put #def_file_a= and #def_file_b= on the lines after the #def_file=
- * / *#def_file= group. The other port's active line moves with them.
+ * / *#def_file= group. A or B replaces that port and keeps the other.
+ * A&B writes the same name on both lines. #def_file= is left as-is.
  */
 static int
 cnf_remember_port_def(int scope, const char *filename)
@@ -254,7 +255,7 @@ cnf_remember_port_def(int scope, const char *filename)
 
   if (filename == NULL || filename[0] == 0)
     return -1;
-  if (scope != DEF_SCOPE_A && scope != DEF_SCOPE_B)
+  if (scope != DEF_SCOPE_A && scope != DEF_SCOPE_B && scope != DEF_SCOPE_AB)
     return 0;
   base = strrchr(filename, '/');
   base = (base != NULL) ? base + 1 : filename;
@@ -304,18 +305,18 @@ cnf_remember_port_def(int scope, const char *filename)
       n = sizeof line - 1;
     memcpy(line, buf + start, n);
     line[n] = 0;
-    if (cnf_is_port_key(line, "#def_file_a") && scope != DEF_SCOPE_A)
+    if (cnf_is_port_key(line, "#def_file_a") && scope == DEF_SCOPE_B)
       cnf_port_value(line, keep_a, sizeof keep_a);
-    if (cnf_is_port_key(line, "#def_file_b") && scope != DEF_SCOPE_B)
+    if (cnf_is_port_key(line, "#def_file_b") && scope == DEF_SCOPE_A)
       cnf_port_value(line, keep_b, sizeof keep_b);
     if (buf[i] == '\r')
       i++;
     if (i < len && buf[i] == '\n')
       i++;
   }
-  if (scope == DEF_SCOPE_A)
+  if (scope == DEF_SCOPE_A || scope == DEF_SCOPE_AB)
     strlcpy(keep_a, base, sizeof keep_a);
-  else
+  if (scope == DEF_SCOPE_B || scope == DEF_SCOPE_AB)
     strlcpy(keep_b, base, sizeof keep_b);
 
   i = 0;
@@ -392,9 +393,9 @@ cnf_remember_port_def(int scope, const char *filename)
     remove(tmp_path);
     goto fail;
   }
-  if (scope == DEF_SCOPE_A)
+  if (scope == DEF_SCOPE_A || scope == DEF_SCOPE_AB)
     strlcpy(def_file_a, keep_a, sizeof def_file_a);
-  else
+  if (scope == DEF_SCOPE_B || scope == DEF_SCOPE_AB)
     strlcpy(def_file_b, keep_b, sizeof def_file_b);
   free(buf);
   free(out);
@@ -1106,11 +1107,10 @@ void	com_sel()
 	      if(gsd_file[0]==0){gsinit();}
 	      asin_init_scope(scope);
 	      if(rcp_file[0]==0){user_exc_init();}
-	      /* A&B is left out of sted2.cnf. It may be a one-off load. */
+	      /* A and B write that port. A&B writes the same name on both. */
 	      {
 		int cnf_err = 0;
-		if(scope == DEF_SCOPE_A || scope == DEF_SCOPE_B)
-		  cnf_err = cnf_remember_port_def(scope, def_file) != 0;
+		cnf_err = cnf_remember_port_def(scope, def_file) != 0;
 		msg_clr();
 		if(cnf_err)
 		  msg("Could not update sted2.cnf.");

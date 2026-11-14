@@ -39,7 +39,59 @@ ApplyMidiSyncMode(int ext)
 	ecount_sw = ext ? 1 : 0;
 }
 
+static void
+ApplySyncModeMenuTitle(NSMenuItem *item)
+{
+	NSMenu *menu = [item menu];
+	NSFont *font = [NSFont menuFontOfSize:0];
+	NSDictionary *measure = @{ NSFontAttributeName: font };
+	NSString *label = @"Sync Mode";
+	NSString *mode = rcp_clock_get_source() ? @"EXT" : @"INT";
+	CGFloat tabX = [label sizeWithAttributes:measure].width + 28.0
+		+ [mode sizeWithAttributes:measure].width;
+	NSInteger i, n = (menu == nil) ? 0 : [menu numberOfItems];
+	NSTextTab *tab;
+	NSMutableParagraphStyle *style;
+	NSAttributedString *title;
+
+	for (i = 0; i < n; i++) {
+		NSMenuItem *other = [menu itemAtIndex:i];
+		NSString *text;
+		CGFloat w;
+
+		if (other == item || [other isSeparatorItem])
+			continue;
+		text = [other title];
+		if ([text length] == 0)
+			continue;
+		w = [text sizeWithAttributes:measure].width;
+		if (w > tabX)
+			tabX = w;
+	}
+
+	/* Right tab: "Sync Mode" stays put, INT/EXT sits on the title column's edge. */
+	tab = [[NSTextTab alloc] initWithTextAlignment:NSTextAlignmentRight
+					      location:tabX
+					       options:@{}];
+	style = [[NSMutableParagraphStyle alloc] init];
+	[style setTabStops:[NSArray arrayWithObject:tab]];
+	[style setLineBreakMode:NSLineBreakByClipping];
+	[tab release];
+	title = [[NSAttributedString alloc] initWithString:
+		[NSString stringWithFormat:@"%@\t%@", label, mode]
+		attributes:@{
+			NSFontAttributeName: font,
+			NSParagraphStyleAttributeName: style
+		}];
+	[style release];
+	[item setTitle:[NSString stringWithFormat:@"%@ %@", label, mode]];
+	[item setAttributedTitle:title];
+	[title release];
+}
+
 @interface AppController (PrivateMenus)
+- (void)localizeMenuItemWithAction:(SEL)action title:(NSString *)title;
+- (void)localizeAboutMenuItem;
 - (void)installViewMenu;
 - (void)installDLSSynthMenu;
 - (void)installGmSystemOnMenu;
@@ -141,12 +193,13 @@ sted_argv_with_launch_file(int *argcIO, char **argv)
 	[X68kView initializeX68k];
 	[xview setNeedsDisplay:YES];
 	XSTed_init_window();
+	[self localizeAboutMenuItem];
 	[self installViewMenu];
-	[self installDLSSynthMenu];
 	[self installGmSystemOnMenu];
-	[self installSf2DefMenu];
 	[self installThruModeMenu];
 	[self installSyncModeMenu];
+	[self installDLSSynthMenu];
+	[self installSf2DefMenu];
 	{
 		NSUserDefaults *def = [NSUserDefaults standardUserDefaults];
 		NSInteger percent = [def integerForKey:@"DisplayScalePercent"];
@@ -223,7 +276,7 @@ sted_argv_with_launch_file(int *argcIO, char **argv)
 	n = [mainMenu numberOfItems];
 	for (i = 0; i < n; i++) {
 		NSMenuItem *top = [mainMenu itemAtIndex:i];
-		if ([[top title] isEqualToString:@"MIDI"]) {
+		if ([[top title] isEqualToString:@"MIDI & Audio"]) {
 			midiMenu = [top submenu];
 			break;
 		}
@@ -257,21 +310,20 @@ sted_argv_with_launch_file(int *argcIO, char **argv)
 	n = [mainMenu numberOfItems];
 	for (i = 0; i < n; i++) {
 		NSMenuItem *top = [mainMenu itemAtIndex:i];
-		if ([[top title] isEqualToString:@"MIDI"]) {
+		if ([[top title] isEqualToString:@"MIDI & Audio"]) {
 			midiMenu = [top submenu];
 			break;
 		}
 	}
 	if (midiMenu == nil)
 		return;
-	item = [[NSMenuItem alloc] initWithTitle:@"DLS Synth..."
+	item = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(
+					@"SoundFont, FX, Mixer Setting", @"MIDI menu")
 					  action:@selector(dlsSynthDialog:)
 				   keyEquivalent:@""];
 	[item setTarget:self];
-	if ([midiMenu numberOfItems] > 0)
-		[midiMenu insertItem:item atIndex:1];
-	else
-		[midiMenu addItem:item];
+	[midiMenu addItem:[NSMenuItem separatorItem]];
+	[midiMenu addItem:item];
 	[item release];
 }
 
@@ -280,14 +332,14 @@ sted_argv_with_launch_file(int *argcIO, char **argv)
 	NSMenu *mainMenu = [NSApp mainMenu];
 	NSMenu *midiMenu = nil;
 	NSMenuItem *item;
-	NSInteger i, n, at;
+	NSInteger i, n;
 
 	if (mainMenu == nil)
 		return;
 	n = [mainMenu numberOfItems];
 	for (i = 0; i < n; i++) {
 		NSMenuItem *top = [mainMenu itemAtIndex:i];
-		if ([[top title] isEqualToString:@"MIDI"]) {
+		if ([[top title] isEqualToString:@"MIDI & Audio"]) {
 			midiMenu = [top submenu];
 			break;
 		}
@@ -295,15 +347,11 @@ sted_argv_with_launch_file(int *argcIO, char **argv)
 	if (midiMenu == nil)
 		return;
 	item = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(
-					@"Generate DEF from SF2...", @"MIDI menu")
+					@"Generate DEF file from SF2", @"MIDI menu")
 					  action:@selector(generateDefFromSf2:)
 				   keyEquivalent:@""];
 	[item setTarget:self];
-	at = [midiMenu indexOfItemWithTitle:@"DLS Synth..."];
-	if (at != NSNotFound)
-		[midiMenu insertItem:item atIndex:at + 1];
-	else
-		[midiMenu addItem:item];
+	[midiMenu addItem:item];
 	[item release];
 }
 
@@ -312,14 +360,14 @@ sted_argv_with_launch_file(int *argcIO, char **argv)
 	NSMenu *mainMenu = [NSApp mainMenu];
 	NSMenu *midiMenu = nil;
 	NSMenuItem *item;
-	NSInteger i, n, at;
+	NSInteger i, n;
 
 	if (mainMenu == nil)
 		return;
 	n = [mainMenu numberOfItems];
 	for (i = 0; i < n; i++) {
 		NSMenuItem *top = [mainMenu itemAtIndex:i];
-		if ([[top title] isEqualToString:@"MIDI"]) {
+		if ([[top title] isEqualToString:@"MIDI & Audio"]) {
 			midiMenu = [top submenu];
 			break;
 		}
@@ -330,12 +378,8 @@ sted_argv_with_launch_file(int *argcIO, char **argv)
 					  action:@selector(toggleThruMode:)
 				   keyEquivalent:@""];
 	[item setTarget:self];
-	at = [midiMenu indexOfItemWithTitle:NSLocalizedString(
-			@"Generate DEF from SF2...", @"MIDI menu")];
-	if (at == NSNotFound)
-		at = [midiMenu indexOfItemWithTitle:@"DLS Synth..."];
-	if (at != NSNotFound)
-		[midiMenu insertItem:item atIndex:at + 1];
+	if ([midiMenu numberOfItems] > 0)
+		[midiMenu insertItem:item atIndex:1];
 	else
 		[midiMenu addItem:item];
 	[item release];
@@ -352,8 +396,7 @@ sted_argv_with_launch_file(int *argcIO, char **argv)
 {
 	NSMenu *mainMenu = [NSApp mainMenu];
 	NSMenu *midiMenu = nil;
-	NSMenu *syncMenu;
-	NSMenuItem *syncTop, *item;
+	NSMenuItem *item;
 	NSInteger i, n, at;
 
 	if (mainMenu == nil)
@@ -361,7 +404,7 @@ sted_argv_with_launch_file(int *argcIO, char **argv)
 	n = [mainMenu numberOfItems];
 	for (i = 0; i < n; i++) {
 		NSMenuItem *top = [mainMenu itemAtIndex:i];
-		if ([[top title] isEqualToString:@"MIDI"]) {
+		if ([[top title] isEqualToString:@"MIDI & Audio"]) {
 			midiMenu = [top submenu];
 			break;
 		}
@@ -369,43 +412,71 @@ sted_argv_with_launch_file(int *argcIO, char **argv)
 	if (midiMenu == nil)
 		return;
 
-	syncMenu = [[NSMenu alloc] initWithTitle:@"Sync Mode"];
-	item = [[NSMenuItem alloc] initWithTitle:@"INT"
+	item = [[NSMenuItem alloc] initWithTitle:@"Sync Mode"
 					  action:@selector(setSyncMode:)
 				   keyEquivalent:@""];
-	[item setTag:0];
 	[item setTarget:self];
-	[syncMenu addItem:item];
-	[item release];
-	item = [[NSMenuItem alloc] initWithTitle:@"EXT"
-					  action:@selector(setSyncMode:)
-				   keyEquivalent:@""];
-	[item setTag:1];
-	[item setTarget:self];
-	[syncMenu addItem:item];
-	[item release];
-
-	syncTop = [[NSMenuItem alloc] initWithTitle:@"Sync Mode"
-					     action:nil
-				      keyEquivalent:@""];
-	[syncTop setSubmenu:syncMenu];
 	at = [midiMenu indexOfItemWithTitle:@"THRU MODE"];
 	if (at != NSNotFound)
-		[midiMenu insertItem:syncTop atIndex:at + 1];
+		[midiMenu insertItem:item atIndex:at + 1];
 	else
-		[midiMenu addItem:syncTop];
-	[syncMenu release];
-	[syncTop release];
+		[midiMenu addItem:item];
+	ApplySyncModeMenuTitle(item);
+	[item release];
 }
 
 - (IBAction)setSyncMode:(id)sender
 {
-	int ext = ((NSMenuItem *)sender).tag ? 1 : 0;
+	int ext = rcp_clock_get_source() ? 0 : 1;
 	NSUserDefaults *def = [NSUserDefaults standardUserDefaults];
 
 	[def setBool:(ext != 0) forKey:kMidiSyncExtKey];
 	ApplyMidiSyncMode(ext);
 	sted_redraw_sync_mode();
+	if ([sender isKindOfClass:[NSMenuItem class]])
+		ApplySyncModeMenuTitle((NSMenuItem *)sender);
+}
+
+- (void)menuNeedsUpdate:(NSMenu *)menu
+{
+	NSInteger i, n = [menu numberOfItems];
+
+	for (i = 0; i < n; i++) {
+		NSMenuItem *item = [menu itemAtIndex:i];
+		if ([item action] == @selector(setSyncMode:))
+			ApplySyncModeMenuTitle(item);
+	}
+}
+
+- (void)localizeMenuItemWithAction:(SEL)action title:(NSString *)title
+{
+	NSMenu *mainMenu = [NSApp mainMenu];
+	NSInteger i, n, j, m;
+
+	if (mainMenu == nil)
+		return;
+	n = [mainMenu numberOfItems];
+	for (i = 0; i < n; i++) {
+		NSMenu *sub = [[mainMenu itemAtIndex:i] submenu];
+		if (sub == nil)
+			continue;
+		m = [sub numberOfItems];
+		for (j = 0; j < m; j++) {
+			NSMenuItem *item = [sub itemAtIndex:j];
+			if ([item action] == action) {
+				[item setTitle:title];
+				return;
+			}
+		}
+	}
+}
+
+- (void)localizeAboutMenuItem
+{
+	[self localizeMenuItemWithAction:@selector(showAboutPanel:)
+		title:NSLocalizedString(@"About STed2", @"Application menu")];
+	[self localizeMenuItemWithAction:@selector(midiSettingsDialog:)
+		title:NSLocalizedString(@"MIDI Port Settings...", @"MIDI menu")];
 }
 
 - (void)installViewMenu
@@ -430,7 +501,7 @@ sted_argv_with_launch_file(int *argcIO, char **argv)
 	insertAt = n;
 	for (i = 0; i < n; i++) {
 		NSString *title = [[mainMenu itemAtIndex:i] title];
-		if ([title isEqualToString:@"MIDI"] || [title isEqualToString:@"Help"]) {
+		if ([title isEqualToString:@"MIDI & Audio"] || [title isEqualToString:@"Help"]) {
 			insertAt = i;
 			break;
 		}
@@ -790,9 +861,7 @@ objectValueForTableColumn:(NSTableColumn *)tableColumn
 		return YES;
 	}
 	if ([menuItem action] == @selector(setSyncMode:)) {
-		int ext = rcp_clock_get_source();
-		[menuItem setState:(([menuItem tag] != 0) == (ext != 0))
-				    ? NSOnState : NSOffState];
+		ApplySyncModeMenuTitle(menuItem);
 		return YES;
 	}
 	if ([menuItem action] == @selector(sendResetSysEx:))

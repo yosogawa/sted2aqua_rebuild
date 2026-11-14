@@ -628,7 +628,8 @@ enum {
 					     backing:NSBackingStoreBuffered
 					       defer:NO];
 	window = panel;
-	[panel setTitle:@"DLS Synth"];
+	[panel setTitle:NSLocalizedString(@"SoundFont, FX, Mixer Setting",
+		@"DLS synth panel title")];
 	[panel setFloatingPanel:YES];
 	[panel setBecomesKeyOnlyIfNeeded:YES];
 	[panel setHidesOnDeactivate:NO];

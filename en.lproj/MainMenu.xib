@@ -95,9 +95,9 @@
                         </items>
                     </menu>
                 </menuItem>
-                <menuItem title="MIDI" id="375">
+                <menuItem title="MIDI &amp; Audio" id="375">
                     <modifierMask key="keyEquivalentModifierMask"/>
-                    <menu key="submenu" title="MIDI" id="376">
+                    <menu key="submenu" title="MIDI &amp; Audio" id="376">
                         <items>
                             <menuItem title="MIDI Port Settings..." keyEquivalent="m" id="535">
                                 <connections>

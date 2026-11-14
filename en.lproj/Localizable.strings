@@ -21,6 +21,13 @@
 
 "about.thanks" = "(draft)\nOriginal: TURBO (Takayuki Toda)\nUNIX port: Daisuke Nagano\nMac(Aqua) port: Toshi Nagata\nPlus version: Yoshinori Ogawa\n\nThe description of each person's work will be summarized later from README_unix.jp and README.md.\n";
 
+/* MIDI & Audio menu */
+"MIDI Port Settings..." = "MIDI Port Settings...";
+"SoundFont, FX, Mixer Setting" = "SoundFont, FX, Mixer Setting";
+
+/* MIDI & Audio menu */
+"Generate DEF file from SF2" = "Generate DEF file from SF2";
+
 /* MIDI → Generate DEF from SF2 */
 "Generate DEF from SF2..." = "Generate DEF from SF2...";
 "Generate DEF from SF2" = "Generate DEF from SF2";
