@@ -484,3 +484,26 @@ OTHER DEALINGS IN THE FONT SOFTWARE.\n\nCopyright (c) Keitarou Hiraki, Font Silo
 "The internal synthesizer was reset. Playback has also been stopped. Play the song from the beginning." = "内部音源を初期化しました。再生も止めています。曲は最初から再生してください。";
 "The internal synthesizer could not be started." = "内部音源を起動できませんでした。";
 "The internal synthesizer could not be started. Playback has also been stopped." = "内部音源を起動できませんでした。再生も止めています。";
+
+/* View → Colors… */
+"Colors…" = "カラー…";
+"Palette" = "パレット";
+"Palette Default" = "デフォルト";
+"Palette Store" = "記憶";
+"Could not write the palette." = "パレットを書き込めませんでした。";
+"Back color" = "バックカラー";
+"Cursor / special controller" = "カーソル/スペシャルコントローラ";
+"Cursor / chord" = "カーソル/コード";
+"Cursor / message" = "カーソル/メッセージ";
+"Frame 2" = "枠2";
+"(unused)" = "（未使用）";
+"RECORD MODE" = "RECORD MODE";
+"Input guide" = "入力ガイド";
+"Text background" = "文字表示のバックカラー";
+"Expression" = "エクスプレッション";
+"Modulation" = "モジュレーション";
+"Repeat mark" = "リピート記号";
+"Volume" = "ヴォリューム";
+"Pitch bend" = "ピッチベンド";
+"Frame 1" = "枠1";
+"Velocity" = "ベロシティ";

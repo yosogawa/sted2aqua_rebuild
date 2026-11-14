@@ -3,6 +3,9 @@
 	ヘルプを Apple Help のバンドル形式にした。文書は Contents/Resources の ja.lproj と en.lproj に分け、言語に依らない画像用に shrd を用意した。
 	英語の本文はまだ翻訳していないので、日本語の文書をそのまま置いてある。
 	演奏中に macOS のサウンドデバイスや Audio MIDI 設定を変えると、AVAudioEngine は仕様どおり止まる。その通知を受けて内蔵音源のエンジンを起動し直す。内蔵音源を使っているときはシーケンサーも止め、アラートで知らせる。A/B とも外部音源だけのときは、この停止はしない。
+	選んだ外部 MIDI 出力のポート名が sted2.cnf に残らず、次の起動で戻らないことがあった。選んだ MIDI OUT を起動時に戻す。
+	UNIT SEL で A&B を選んだとき、読み込んだ定義名を #def_file_a と #def_file_b の両方に書く。#def_file は互換のため、そのまま残す。
+	MIDI メニューを MIDI & Audio に改めた。SYNC MODE は INT / EXT を項目の右に出す一つにし、SoundFont と SF2 からの定義生成の項目名は表示言語に合わせる。
 
 2026-11-13
 

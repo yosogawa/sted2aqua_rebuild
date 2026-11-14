@@ -53,3 +53,26 @@
 "The internal synthesizer was reset. Playback has also been stopped. Play the song from the beginning." = "The internal synthesizer was reset. Playback has also been stopped. Play the song from the beginning.";
 "The internal synthesizer could not be started." = "The internal synthesizer could not be started.";
 "The internal synthesizer could not be started. Playback has also been stopped." = "The internal synthesizer could not be started. Playback has also been stopped.";
+
+/* View → Colors… */
+"Colors…" = "Colors…";
+"Palette" = "Palette";
+"Palette Default" = "Default";
+"Palette Store" = "Store";
+"Could not write the palette." = "Could not write the palette.";
+"Back color" = "Back color";
+"Cursor / special controller" = "Cursor / special controller";
+"Cursor / chord" = "Cursor / chord";
+"Cursor / message" = "Cursor / message";
+"Frame 2" = "Frame 2";
+"(unused)" = "(unused)";
+"RECORD MODE" = "RECORD MODE";
+"Input guide" = "Input guide";
+"Text background" = "Text background";
+"Expression" = "Expression";
+"Modulation" = "Modulation";
+"Repeat mark" = "Repeat mark";
+"Volume" = "Volume";
+"Pitch bend" = "Pitch bend";
+"Frame 1" = "Frame 1";
+"Velocity" = "Velocity";

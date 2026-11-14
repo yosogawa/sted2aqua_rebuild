@@ -10,6 +10,7 @@
 #import "MIDISettingsController.h"
 #import "AboutPanelController.h"
 #import "DLSSynthPanel.h"
+#import "colorpanel.h"
 #import "Sf2DefGenerator.h"
 
 #include <stdlib.h>
@@ -523,11 +524,23 @@ sted_argv_with_launch_file(int *argcIO, char **argv)
 	[item setTarget:self];
 	[viewMenu addItem:item];
 	[item release];
+	item = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"Colors…", @"View menu")
+					  action:@selector(showColorPanel:)
+				   keyEquivalent:@""];
+	[item setTarget:self];
+	[viewMenu addItem:item];
+	[item release];
 	viewTop = [[NSMenuItem alloc] initWithTitle:@"View" action:nil keyEquivalent:@""];
 	[viewTop setSubmenu:viewMenu];
 	[mainMenu insertItem:viewTop atIndex:insertAt];
 	[viewMenu release];
 	[viewTop release];
+}
+
+- (IBAction)showColorPanel:(id)sender
+{
+	(void)sender;
+	ColorPanelShow();
 }
 
 - (IBAction)setDisplayScale:(id)sender
