@@ -2506,6 +2506,27 @@ XSTed_txbox(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t p)
 	XSTed_txyline(p, x0 + lw, y0, lh, 1);
 }
 
+/* 0: a white cursor band (background 3) always draws its glyphs as palette 0.
+ * 1: previous reverse (0↔3 and 1↔2). */
+#define STED_TREV_LEGACY 0
+
+#if !STED_TREV_LEGACY
+/* 4 and 8 draw as palette 0. The same reverse puts the original ink back. */
+static uint8_t
+trev_white_band(uint8_t v)
+{
+	switch (v) {
+	case 0: return 3;
+	case 3: return 0;
+	case 1: return 8;
+	case 8: return 1;
+	case 2: return 4;
+	case 4: return 2;
+	default: return v;
+	}
+}
+#endif
+
 void
 XSTed_trev(int xch, int ych, int lch, int col)
 {
@@ -2523,7 +2544,13 @@ XSTed_trev(int xch, int ych, int lch, int col)
 	[sLock lock];
 	for (i = x0; i < x1; i++) {
 		for (j = 0; j < 16; j++) {
-			sTextVram[(j + y0) * sTextWidth + i] ^= 3;
+			uint8_t *cell = &sTextVram[(j + y0) * sTextWidth + i];
+			(void)col;
+#if STED_TREV_LEGACY
+			*cell ^= 3;
+#else
+			*cell = trev_white_band(*cell);
+#endif
 		}
 	}
 	InvalTextInRect(x0, y0, x1 + 1, y0 + 16);
