@@ -2508,7 +2508,7 @@ XSTed_txbox(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t p)
 
 /* 0: a white cursor band (background 3) always draws its glyphs as palette 0.
  * 1: previous reverse (0↔3 and 1↔2). */
-#define STED_TREV_LEGACY 0
+#define STED_TREV_LEGACY 1
 
 #if !STED_TREV_LEGACY
 /* 4 and 8 draw as palette 0. The same reverse puts the original ink back. */

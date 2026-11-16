@@ -3,6 +3,13 @@
 
 #include <stdint.h>
 
+/* INT delivers a host timestamp at most this far ahead.
+   The earlier prefetch was one second; this is the shortened buffer. */
+#define RCP_PREFETCH_MICROSECONDS 100000
+/* DLS accepts twice that lead. The extra covers the 300 µs/byte send
+   queue. A timestamp farther out is not from this clock. */
+#define RCP_TIMESTAMP_LEAD_MICROSECONDS (RCP_PREFETCH_MICROSECONDS * 2)
+
 void rcpplayer_engine(void);
 void rcpplayer_request_stop(void);
 void rcpplayer_clear_stop(void);

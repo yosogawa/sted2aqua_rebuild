@@ -26,6 +26,7 @@
 #import <dispatch/dispatch.h>
 
 #include "rcp_transport.h"
+#include "rcp_player_engine.h"
 #include "midi_in.h"
 
 #define kMaxNumberOfPorts 2
@@ -72,28 +73,31 @@ typedef struct {
 	_Atomic uint32_t seq;
 	int64_t sampleTime;
 	uint64_t hostTime;
+	uint32_t frames;
 } SynthAnchor;
 
 static SynthAnchor sAnchor[2];
 
 static void
-StoreAnchor(int idx, int64_t sampleTime, uint64_t hostTime)
+StoreAnchor(int idx, int64_t sampleTime, uint64_t hostTime, uint32_t frames)
 {
 	SynthAnchor *a = &sAnchor[idx];
 	uint32_t s = atomic_load_explicit(&a->seq, memory_order_relaxed);
 	atomic_store_explicit(&a->seq, s + 1, memory_order_relaxed);
 	a->sampleTime = sampleTime;
 	a->hostTime = hostTime;
+	a->frames = frames;
 	atomic_store_explicit(&a->seq, s + 2, memory_order_release);
 }
 
 static int
-LoadAnchor(int idx, int64_t *sampleTime, uint64_t *hostTime)
+LoadAnchor(int idx, int64_t *sampleTime, uint64_t *hostTime, uint32_t *frames)
 {
 	SynthAnchor *a = &sAnchor[idx];
 	uint32_t s1, s2;
 	int64_t sample;
 	uint64_t host;
+	uint32_t nframes;
 	int spins = 0;
 
 	do {
@@ -105,12 +109,15 @@ LoadAnchor(int idx, int64_t *sampleTime, uint64_t *hostTime)
 		}
 		sample = a->sampleTime;
 		host = a->hostTime;
+		nframes = a->frames;
 		s2 = atomic_load_explicit(&a->seq, memory_order_acquire);
 	} while (s1 != s2);
 	if (s1 == 0 || host == 0)
 		return 0;
 	*sampleTime = sample;
 	*hostTime = host;
+	if (frames != NULL)
+		*frames = nframes;
 	return 1;
 }
 
@@ -134,7 +141,8 @@ InternalSynthRenderNotify(void *inRefCon,
 		return noErr;
 	if ((inTimeStamp->mFlags & kAudioTimeStampHostTimeValid) == 0)
 		return noErr;
-	StoreAnchor(idx, (int64_t)inTimeStamp->mSampleTime, (uint64_t)inTimeStamp->mHostTime);
+	StoreAnchor(idx, (int64_t)inTimeStamp->mSampleTime, (uint64_t)inTimeStamp->mHostTime,
+		inNumberFrames);
 	return noErr;
 }
 
@@ -242,7 +250,13 @@ InjectDlsChannelDefaults(AUScheduleMIDIEventBlock schedule, AUEventSampleTime wh
 	}
 }
 
-/*  Playback prefetches at most one second. Timestamps farther out are not from that clock. */
+/* DLS drops note-offs that land inside the buffer being rendered.
+   Stamps earlier than the end of that buffer are placed 20 ms after the end.
+   Internal to this synth. */
+static const double kDlsReservePastBufferEndSeconds = 0.020;
+
+/*  INT prefetches RCP_PREFETCH_MICROSECONDS. Accept twice that
+    (RCP_TIMESTAMP_LEAD_MICROSECONDS). Farther timestamps are not from that clock. */
 int
 InternalSynthSchedule(MIDIEndpointRef dest, const uint8_t *bytes, int length,
 	MIDITimeStamp atTime, OSStatus *status)
@@ -282,6 +296,8 @@ ScheduleToInternalSynth(int synth, const uint8_t *bytes, int length, MIDITimeSta
 	uint64_t hostTime;
 	int64_t deltaTicks;
 	double deltaSeconds;
+	double leadSeconds;
+	uint32_t frames;
 
 	if (synth < 0 || synth > 1 || bytes == NULL || length <= 0)
 		return -1;
@@ -296,11 +312,21 @@ ScheduleToInternalSynth(int synth, const uint8_t *bytes, int length, MIDITimeSta
 		return -1;
 	}
 	when = AUEventSampleTimeImmediate;
+	sampleTime = 0;
+	deltaSeconds = 0.0;
+	frames = 0;
+	leadSeconds = (double)RCP_TIMESTAMP_LEAD_MICROSECONDS / 1000000.0;
 	if (atTime != 0 && sSampleRate[synth] > 0 && sHostTicksPerSecond > 0
-		&& LoadAnchor(synth, &sampleTime, &hostTime)) {
+		&& LoadAnchor(synth, &sampleTime, &hostTime, &frames)) {
 		deltaTicks = (int64_t)(atTime - hostTime);
 		deltaSeconds = (double)deltaTicks / sHostTicksPerSecond;
-		if (deltaSeconds >= 0.0 && deltaSeconds <= 2.0)
+		if (frames > 0) {
+			double floorSec = ((double)frames / sSampleRate[synth])
+				+ kDlsReservePastBufferEndSeconds;
+			if (deltaSeconds < floorSec)
+				deltaSeconds = floorSec;
+		}
+		if (deltaSeconds >= 0.0 && deltaSeconds <= leadSeconds)
 			when = sampleTime + (AUEventSampleTime)llround(deltaSeconds * sSampleRate[synth]);
 	}
 	if (bytes[0] == 0xf0 && IsDlsResetSysex(bytes, length)) {
@@ -344,7 +370,7 @@ AddInternalDestination(MIDIEndpointRef *dest, CFStringRef name)
 {
 	OSStatus sts;
 	/*  The name stays visible as a destination. Playback does not arrive here:
-	    CoreMIDISend writes the chosen synth directly so host time is not
+	    OutputPortSend writes the chosen synth directly so host time is not
 	    mistaken for a sample offset. */
 	sts = MIDIDestinationCreateWithProtocol(sSynthMIDIClient, name, kMIDIProtocol_1_0,
 		dest, ^(const MIDIEventList *evtlist, void *srcConnRefCon) {
@@ -366,6 +392,7 @@ ClearAnchors(void)
 	for (i = 0; i < 2; i++) {
 		sAnchor[i].sampleTime = 0;
 		sAnchor[i].hostTime = 0;
+		sAnchor[i].frames = 0;
 		sSampleRate[i] = 0;
 		atomic_store_explicit(&sAnchor[i].seq, 0, memory_order_release);
 	}

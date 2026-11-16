@@ -48,6 +48,7 @@
 		A1DLS0D12F0A4B0100DLS0D1 /* DLSSynthPanel.m in Sources */ = {isa = PBXBuildFile; fileRef = A1DLS0B12F0A4B0100DLS0B1 /* DLSSynthPanel.m */; };
 		A1E0E0032F0A4B0100E0E003 /* rcp_player_engine.c in Sources */ = {isa = PBXBuildFile; fileRef = A1E0E0012F0A4B0100E0E001 /* rcp_player_engine.c */; };
 		A1E0E0132F0A4B0100E0E013 /* InternalSynth.m in Sources */ = {isa = PBXBuildFile; fileRef = A1E0E0112F0A4B0100E0E011 /* InternalSynth.m */; };
+		A1OUT0B12F0A4B0100OUT0B1 /* OutputPort.m in Sources */ = {isa = PBXBuildFile; fileRef = A1OUT0M12F0A4B0100OUT0M1 /* OutputPort.m */; };
 		A1F0E0111AC55B8700A70D01 /* KH-Dot-Kodenmachou-16.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A1F0E0131AC55B8700A70D03 /* KH-Dot-Kodenmachou-16.ttf */; };
 		A1F0E0121AC55B8700A70D02 /* OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = A1F0E0141AC55B8700A70D04 /* OFL.txt */; };
 		A1F0E0311AC55B8700A70D21 /* AVFAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1F0E0321AC55B8700A70D22 /* AVFAudio.framework */; };
@@ -190,6 +191,8 @@
 		A1E0E0022F0A4B0100E0E002 /* rcp_player_engine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rcp_player_engine.h; sourceTree = "<group>"; };
 		A1E0E0112F0A4B0100E0E011 /* InternalSynth.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InternalSynth.m; sourceTree = "<group>"; };
 		A1E0E0122F0A4B0100E0E012 /* InternalSynth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InternalSynth.h; sourceTree = "<group>"; };
+		A1OUT0H12F0A4B0100OUT0H1 /* OutputPort.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OutputPort.h; sourceTree = "<group>"; };
+		A1OUT0M12F0A4B0100OUT0M1 /* OutputPort.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OutputPort.m; sourceTree = "<group>"; };
 		A1F0E0131AC55B8700A70D03 /* KH-Dot-Kodenmachou-16.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "KH-Dot-Kodenmachou-16.ttf"; path = "sted2/fonts/KH-Dot-Kodenmachou-16.ttf"; sourceTree = "<group>"; };
 		A1F0E0141AC55B8700A70D04 /* OFL.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = OFL.txt; path = sted2/fonts/OFL.txt; sourceTree = "<group>"; };
 		A1F0E0321AC55B8700A70D22 /* AVFAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFAudio.framework; path = /System/Library/Frameworks/AVFAudio.framework; sourceTree = "<absolute>"; };
@@ -525,6 +528,8 @@
 				E40E95861ABA41ED0072AA0B /* CoreMIDIRCPPlayer.m */,
 				A1E0E0122F0A4B0100E0E012 /* InternalSynth.h */,
 				A1E0E0112F0A4B0100E0E011 /* InternalSynth.m */,
+				A1OUT0H12F0A4B0100OUT0H1 /* OutputPort.h */,
+				A1OUT0M12F0A4B0100OUT0M1 /* OutputPort.m */,
 				A1AMY3022F0A4B0100E0E032 /* AmySynth.h */,
 				A1AMY3012F0A4B0100E0E031 /* AmySynth.m */,
 				A1DLS0C12F0A4B0100DLS0C1 /* DLSSynthPanel.h */,
@@ -956,6 +961,7 @@
 				A1TR00072F0A4B0100E0E007 /* rcp_transport_cmd.c in Sources */,
 				A1CK00032F0A4B0100E0E003 /* RcpClock.cpp in Sources */,
 				A1E0E0132F0A4B0100E0E013 /* InternalSynth.m in Sources */,
+				A1OUT0B12F0A4B0100OUT0B1 /* OutputPort.m in Sources */,
 				A1AMY3032F0A4B0100E0E033 /* AmySynth.m in Sources */,
 				E40E96141ABA41ED0072AA0B /* basic.c in Sources */,
 				E40E96151ABA41ED0072AA0B /* curses.c in Sources */,

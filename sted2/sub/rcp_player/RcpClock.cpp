@@ -19,6 +19,18 @@ RcpClock::RcpClock()
 	, timebase_(48)
 	, f8_rx_(0)
 	, f8_applied_(0)
+	, f8_q_head_(0)
+	, f8_q_tail_(0)
+	, f8_q_count_(0)
+	, ext_acc_(0)
+	, ext_owed_(0)
+	, ext_slot_index_(0)
+	, ext_ticks_(0)
+	, ext_origin_us_(0.0)
+	, ext_slot_host_(0)
+	, ext_f8_host_(0)
+	, ext_last_f8_host_(0)
+	, ext_have_last_f8_(false)
 {
 }
 
@@ -41,6 +53,50 @@ RcpClock::hostDeltaUsLocked() const
 }
 
 void
+RcpClock::clearExtScheduleLocked(bool resetAcc)
+{
+	f8_q_head_ = 0;
+	f8_q_tail_ = 0;
+	f8_q_count_ = 0;
+	ext_owed_ = 0;
+	ext_slot_index_ = 0;
+	ext_slot_host_ = 0;
+	ext_f8_host_ = 0;
+	ext_last_f8_host_ = 0;
+	ext_have_last_f8_ = false;
+	if (resetAcc)
+		ext_acc_ = 0;
+}
+
+int
+RcpClock::f8TickCountLocked()
+{
+	ext_acc_ += timebase_;
+	int n = ext_acc_ / 24;
+	ext_acc_ %= 24;
+	return n;
+}
+
+uint64_t
+RcpClock::tempoF8HostLocked() const
+{
+	double periodUs = static_cast<double>(qn_us_) / 24.0;
+	if (periodUs < 1.0)
+		periodUs = 1.0;
+	return AudioConvertNanosToHostTime(static_cast<uint64_t>(periodUs * 1000.0));
+}
+
+void
+RcpClock::advanceOneTickLocked()
+{
+	/* Same product as rcpplayer_step_to_microseconds, so a tick lands on
+	   the step instead of a fraction short of it. */
+	ext_ticks_++;
+	musical_us_ = ext_origin_us_ + static_cast<double>(ext_ticks_)
+		/ static_cast<double>(timebase_) * static_cast<double>(qn_us_);
+}
+
+void
 RcpClock::setSource(Source source)
 {
 	std::lock_guard<std::mutex> lock(mu_);
@@ -50,6 +106,7 @@ RcpClock::setSource(Source source)
 	source_ = source;
 	/* Switching source never auto-starts. Transport/engine must arm again. */
 	armed_ = false;
+	clearExtScheduleLocked(true);
 }
 
 RcpClock::Source
@@ -67,6 +124,9 @@ RcpClock::resetStopped()
 	armed_ = false;
 	musical_us_ = 0.0;
 	segmentStart_ = 0;
+	ext_ticks_ = 0;
+	ext_origin_us_ = 0.0;
+	clearExtScheduleLocked(true);
 }
 
 void
@@ -77,6 +137,9 @@ RcpClock::resetAndRun()
 		musical_us_ = 0.0;
 		f8_rx_ = 0;
 		f8_applied_ = 0;
+		ext_ticks_ = 0;
+		ext_origin_us_ = 0.0;
+		clearExtScheduleLocked(true);
 		armed_ = true;
 		if (source_ == Source::Ext) {
 			/* Arm only: Continue/Start wait for the first F8 before advancing. */
@@ -97,6 +160,8 @@ RcpClock::stop()
 	std::lock_guard<std::mutex> lock(mu_);
 	freezeHostLocked();
 	armed_ = false;
+	/* Drop the unfinished clock. A pause gap must not become the next period. */
+	clearExtScheduleLocked(false);
 }
 
 void
@@ -105,7 +170,7 @@ RcpClock::resume()
 	std::lock_guard<std::mutex> lock(mu_);
 	armed_ = true;
 	if (source_ == Source::Ext) {
-		/* Keep musical_us_; do not advance until onTimingClock. */
+		/* Keep musical_us_. The next taken tick is tick 1 of a new F8. */
 		running_ = false;
 		return;
 	}
@@ -133,6 +198,8 @@ RcpClock::setElapsedUs(double us)
 	if (us < 0.0)
 		us = 0.0;
 	musical_us_ = us;
+	ext_origin_us_ = us;
+	ext_ticks_ = 0;
 	/* INT keeps a fresh segment base if still armed so the next host
 	   delta starts from this position. EXT stays frozen until F8. */
 	if (armed_ && source_ == Source::Int) {
@@ -149,11 +216,82 @@ RcpClock::onTimingClock()
 	f8_rx_++;
 	if (source_ != Source::Ext || !armed_)
 		return;
-	if (qn_us_ <= 0)
+	if (qn_us_ <= 0 || timebase_ <= 0)
 		return;
-	/* 24 MIDI clocks per quarter note. */
-	musical_us_ += static_cast<double>(qn_us_) / 24.0;
+	if (f8_q_count_ >= kExtF8Queue)
+		return;
+	f8_host_[f8_q_head_] = AudioGetCurrentHostTime();
+	f8_q_head_ = (f8_q_head_ + 1) % kExtF8Queue;
+	f8_q_count_++;
+}
+
+bool
+RcpClock::takeExtTick()
+{
+	std::lock_guard<std::mutex> lock(mu_);
+	if (source_ != Source::Ext || !armed_ || qn_us_ <= 0 || timebase_ <= 0)
+		return false;
+	uint64_t now = AudioGetCurrentHostTime();
+	if (ext_owed_ > 0) {
+		if (f8_q_count_ == 0) {
+			uint64_t due = ext_f8_host_ + ext_slot_host_ * static_cast<uint64_t>(ext_slot_index_);
+			if (now < due)
+				return false;
+		}
+		advanceOneTickLocked();
+		ext_owed_--;
+		ext_slot_index_++;
+		return true;
+	}
+	if (f8_q_count_ == 0)
+		return false;
+	uint64_t host = f8_host_[f8_q_tail_];
+	f8_q_tail_ = (f8_q_tail_ + 1) % kExtF8Queue;
+	f8_q_count_--;
+	int n = f8TickCountLocked();
+	uint64_t period;
+	if (!ext_have_last_f8_ || host <= ext_last_f8_host_)
+		period = tempoF8HostLocked();
+	else
+		period = host - ext_last_f8_host_;
+	ext_have_last_f8_ = true;
+	ext_last_f8_host_ = host;
+	ext_f8_host_ = host;
 	f8_applied_++;
+	if (n < 1)
+		return false;
+	ext_slot_host_ = period / static_cast<uint64_t>(n);
+	if (ext_slot_host_ == 0)
+		ext_slot_host_ = 1;
+	ext_owed_ = n - 1;
+	ext_slot_index_ = 1;
+	advanceOneTickLocked();
+	return true;
+}
+
+int
+RcpClock::extWaitUs() const
+{
+	std::lock_guard<std::mutex> lock(mu_);
+	if (source_ != Source::Ext || !armed_ || qn_us_ <= 0 || timebase_ <= 0)
+		return 5000;
+	if (ext_owed_ > 0) {
+		if (f8_q_count_ > 0)
+			return 0;
+		uint64_t due = ext_f8_host_ + ext_slot_host_ * static_cast<uint64_t>(ext_slot_index_);
+		uint64_t now = AudioGetCurrentHostTime();
+		if (now >= due)
+			return 0;
+		double us = static_cast<double>(AudioConvertHostTimeToNanos(due - now)) / 1000.0;
+		if (us < 1.0)
+			return 0;
+		if (us > 1000.0)
+			return 1000;
+		return static_cast<int>(us);
+	}
+	if (f8_q_count_ > 0)
+		return 0;
+	return 5000;
 }
 
 uint64_t
@@ -217,6 +355,8 @@ RcpClock::setTempo(double bpm, int timebase)
 		qn_us_ = static_cast<int32_t>(60000000.0 / bpm + 0.5);
 	if (timebase > 0)
 		timebase_ = timebase;
+	ext_origin_us_ = musical_us_;
+	ext_ticks_ = 0;
 }
 
 void
@@ -227,6 +367,8 @@ RcpClock::setTempoUs(int32_t quarter_us, int timebase)
 		qn_us_ = quarter_us;
 	if (timebase > 0)
 		timebase_ = timebase;
+	ext_origin_us_ = musical_us_;
+	ext_ticks_ = 0;
 }
 
 extern "C" {
@@ -271,6 +413,18 @@ void
 rcp_clock_on_timing_clock(void)
 {
 	gRcpClock.onTimingClock();
+}
+
+int
+rcp_clock_take_ext_tick(void)
+{
+	return gRcpClock.takeExtTick() ? 1 : 0;
+}
+
+int
+rcp_clock_ext_wait_us(void)
+{
+	return gRcpClock.extWaitUs();
 }
 
 void

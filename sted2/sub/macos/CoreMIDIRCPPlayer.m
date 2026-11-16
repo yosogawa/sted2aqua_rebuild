@@ -10,6 +10,7 @@
 #import "rcp_player_engine.h"
 #import "CoreMIDIRCPPlayer.h"
 #import "InternalSynth.h"
+#import "OutputPort.h"
 #import "MIDISettingsController.h"
 
 #include <CoreMIDI/CoreMIDI.h>
@@ -67,7 +68,13 @@ CoreMIDIHandleInputByte(uint8_t b)
 	if (b >= 0xf8) {
 		if (b == 0xF8)
 			rcp_clock_on_timing_clock();
-		else if (b == 0xFA || b == 0xFB || b == 0xFC)
+		else if (b == 0xFC) {
+			/* Disarm before a later F8 in this stream is counted.
+			   The queued FC still moves the transport to Held. */
+			if (rcp_clock_get_source() != 0)
+				rcp_sequence_clock_stop();
+			rcp_transport_cmd_push(b);
+		} else if (b == 0xFA || b == 0xFB)
 			rcp_transport_cmd_push(b);
 		push_midi_in_ring_buffer(b);
 		return;
@@ -387,6 +394,15 @@ CoreMIDISelectInputDeviceByName(const char *name)
 	}
 }
 
+MIDIEndpointRef
+CoreMIDIDestinationForPort(int port)
+{
+	if (port < 0)
+		port = 0;
+	return sDest[port % kMaxNumberOfPorts];
+}
+
+/* External MIDI only. Internal synths are OutputPortSend's branch. */
 OSStatus
 CoreMIDISend(uint8_t *ptr, int length, int port, MIDITimeStamp atTime)
 {
@@ -394,12 +410,8 @@ CoreMIDISend(uint8_t *ptr, int length, int port, MIDITimeStamp atTime)
 	MIDIPacket *	packetPtr;
 	OSStatus sts;
 	port = port % kMaxNumberOfPorts;
-	if (length <= 0 || sDest[port] == 0)
+	if (length <= 0 || ptr == NULL || sDest[port] == 0)
 		return 0;
-	if (InternalSynthSchedule(sDest[port], ptr, length, atTime, &sts)) {
-		rcpplayer_record_note(port, ptr, length);
-		return sts;
-	}
 	if (ptr[0] == 0xf0) {
 		/*  Sysex  */
 		MIDISysexSendRequest *rp = &sSysexRequest[port];
@@ -420,12 +432,13 @@ CoreMIDISend(uint8_t *ptr, int length, int port, MIDITimeStamp atTime)
 		packetPtr = MIDIPacketListInit(&packetList);
 		packetPtr = MIDIPacketListAdd(&packetList, sizeof(packetList), packetPtr, atTime, length, ptr);
 		sts = MIDISend(sMIDIOutputPortRef, sDest[port], &packetList);
-		rcpplayer_record_note(port, ptr, length);
 	}
+	if (sts == noErr)
+		rcpplayer_record_note(port, ptr, length);
 	return sts;
 }
 
-/* mix_out / sound-test destination. Sequencer playback uses CoreMIDISend's port arg. */
+/* mix_out / sound-test destination. Sequencer playback uses OutputPortSend. */
 static int sImmediateOutPort;
 
 void
@@ -441,7 +454,7 @@ send_midi_message(uint8_t *data, int length)
 {
 	if (data == NULL || length <= 0)
 		return 0;
-	return (int)CoreMIDISend(data, length, sImmediateOutPort, 0);
+	return (int)OutputPortSend(data, length, sImmediateOutPort, 0);
 }
 
 /*
@@ -491,7 +504,7 @@ SendAssembledMidi(void)
 	sMidiByteNeed = 0;
 	if (n <= 0)
 		return 0;
-	return (int)CoreMIDISend(sMidiByteBuf, n, 0, 0);
+	return (int)OutputPortSend(sMidiByteBuf, n, 0, 0);
 }
 
 int
@@ -501,7 +514,7 @@ send_midi_byte(uint8_t byte)
 
 	/* Realtime may arrive inside another message. Send it and keep assembling. */
 	if (byte >= 0xf8)
-		return (int)CoreMIDISend(&byte, 1, 0, 0);
+		return (int)OutputPortSend(&byte, 1, 0, 0);
 
 	if (byte >= 0x80) {
 		if (sMidiByteNeed < 0 && byte == 0xf7) {
@@ -573,7 +586,7 @@ CoreMIDISendGmSystemOnToDls(void)
 	for (port = 0; port < kMaxNumberOfPorts; port++) {
 		if (!InternalSynthIsDlsDestination(sDest[port]))
 			continue;
-		CoreMIDISend(msg, 6, port, 0);
+		OutputPortSend(msg, 6, port, 0);
 	}
 }
 
@@ -592,7 +605,7 @@ CoreMIDIAllSoundOff(void)
 			buf[0] = 0xb0 + ch;
 			buf[1] = 0x78;
 			buf[2] = 0;
-			CoreMIDISend(buf, 3, port, 0);
+			OutputPortSend(buf, 3, port, 0);
 		}
 	}
 }

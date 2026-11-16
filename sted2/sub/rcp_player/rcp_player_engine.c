@@ -1,6 +1,7 @@
 #include "rcp_player_engine.h"
 #include "rcp_player.h"
 #include "rcp_transport.h"
+#include "OutputPort.h"
 
 #include "sted.h"
 
@@ -11,15 +12,12 @@
 #include <unistd.h>
 
 #define kMaxNumberOfPorts 2
-#define kMaxPrefetchMicroseconds 100000
 #define kMaxMIDIMessageSize 256
 
 /* Keep in sync with rcp_player.c RCP_MIDI_PORT_DUMP. */
 #ifndef RCP_MIDI_PORT_DUMP
 #define RCP_MIDI_PORT_DUMP 0
 #endif
-
-extern OSStatus CoreMIDISend(uint8_t *ptr, int length, int port, MIDITimeStamp atTime);
 
 #if RCP_MIDI_PORT_DUMP
 static void
@@ -137,7 +135,7 @@ rcpplayer_release_held_notes(void)
 				buf[1] = (uint8_t)note;
 				buf[2] = 0;
 				for (j = 0; j < count; j++)
-					CoreMIDISend(buf, 3, port, 0);
+					OutputPortSend(buf, 3, port, 0);
 				sNoteOnTable[port][ch][note] = 0;
 			}
 		}
@@ -167,7 +165,7 @@ rcpplayer_restore_held_notes(void)
 				buf[1] = (uint8_t)note;
 				buf[2] = vel;
 				for (j = 0; j < count; j++)
-					CoreMIDISend(buf, 3, port, 0);
+					OutputPortSend(buf, 3, port, 0);
 			}
 		}
 	}
@@ -254,7 +252,7 @@ rcpplayer_engine(void)
 		sNextEarliestTimeForPort[port] = startHost;
 	}
 	
-	prefetchTime = ConvertMicrosToHostTime(kMaxPrefetchMicroseconds);
+	prefetchTime = ConvertMicrosToHostTime(RCP_PREFETCH_MICROSECONDS);
 	offsetTime = ConvertMicrosToHostTime(sOffsetMIDITime);
 
 	while (!sStopPlaying) {
@@ -307,12 +305,14 @@ rcpplayer_engine(void)
 			MIDITimeStamp now = AudioGetCurrentHostTime();
 
 			if (rcp_clock_get_source() != 0) {
-				/* EXT: gate on musical elapsed (F8) only. Do not convert the
-				   remaining gap into a host-time wait — that would fire notes
-				   while the playhead stays at 0, and each later event would
-				   wait its absolute musical time again (extremely slow). */
+				/* EXT: one timebase tick when that tick is due. Do not turn
+				   the remaining musical gap into a host-time wait. */
 				if (deltaUs > 0.0) {
-					usleep(5000);
+					if (!rcp_clock_take_ext_tick()) {
+						int waitUs = rcp_clock_ext_wait_us();
+						if (waitUs > 0)
+							usleep((useconds_t)waitUs);
+					}
 					continue;
 				}
 				nextEventTime = now;
@@ -340,7 +340,7 @@ rcpplayer_engine(void)
 			sParkPort = 0;
 		sLastTimeStamp = (nextTime != 0) ? nextTime : currentTime;
 		rcp_engine_dump_send((int)sParkStep, sParkPort, sParkMsg, sParkLen);
-		sts = CoreMIDISend(sParkMsg, sParkLen, sParkPort, nextTime);
+		sts = OutputPortSend(sParkMsg, sParkLen, sParkPort, nextTime);
 		sNextEarliestTimeForPort[sParkPort] = sLastTimeStamp + waitPerMIDIByte[sParkPort] * sParkLen;
 		sParked = 0;
 		(void)sts;
@@ -422,7 +422,7 @@ rcpplayer_send_pending_note_offs(void)
 					buf[0] = 0x80 + ch;
 					buf[1] = i;
 					buf[2] = 0;
-					CoreMIDISend(buf, 3, port, AudioConvertNanosToHostTime(nextTime));
+					OutputPortSend(buf, 3, port, AudioConvertNanosToHostTime(nextTime));
 					nextTime += 1000000;  /*  Wait 1 millisecond (= 1000000 nanoseconds) */
 				}
 				sNoteOnTable[port][ch][i] = 0;

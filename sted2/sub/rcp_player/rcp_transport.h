@@ -45,8 +45,9 @@ int rcp_transport_take_start_elapsed_us(double *us);
    still runs after a skipped prep. PAUSE and full stop freeze it.
    CONTINUE resumes it. Search resumes it so a search that follows
    PAUSE keeps playing.
-   INT: host-time while armed. EXT: MIDI Timing Clock (0xF8) while armed;
-   arm/resume does not advance until the first F8 (Continue semantics).
+   INT: host-time while armed. EXT: F8 is queued; the sequencer takes one
+   timebase tick at a time (F8 is tick 1). arm/resume does not advance
+   until that tick is taken (Continue semantics).
 
    Play launch lives in rcp_transport_cmd.h:
    request_start (FA / cold) and launch_player (UI after pack).
@@ -60,6 +61,10 @@ void rcp_sequence_clock_set_elapsed_us(double us);
 void rcp_clock_set_source(int ext);
 int rcp_clock_get_source(void);
 void rcp_clock_on_timing_clock(void);
+/* 1 when EXT musical time advanced by one timebase tick. */
+int rcp_clock_take_ext_tick(void);
+/* Sleep this long when rcp_clock_take_ext_tick returned 0. 0 means due now. */
+int rcp_clock_ext_wait_us(void);
 void rcp_clock_set_tempo(double bpm, int timebase);
 void rcp_clock_set_tempo_us(int32_t quarter_us, int timebase);
 
