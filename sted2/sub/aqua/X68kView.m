@@ -248,8 +248,8 @@ x68k_key_name(int code, char *buf, size_t n)
 		return;
 	}
 	switch (code) {
-	case x68k_kigou: s = "KIGOU"; break;
-	case x68k_touroku: s = "TOUROKU"; break;
+	case x68k_kigou: s = [NSLocalizedString(@"KIGOU", @"X68000 key") UTF8String]; break;
+	case x68k_touroku: s = [NSLocalizedString(@"TOUROKU", @"X68000 key") UTF8String]; break;
 	case x68k_kana: s = "KANA"; break;
 	case x68k_del: s = "DEL"; break;
 	case x68k_home: s = "HOME"; break;

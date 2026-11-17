@@ -606,8 +606,8 @@ piece_text(NSString *piece)
 	if ([piece isEqualToString:@"clr"]) return @"clr";
 	if ([piece isEqualToString:@"help"]) return @"help";
 	if ([piece isEqualToString:@"kana"]) return @"かな";
-	if ([piece isEqualToString:@"kigou"]) return @"記号";
-	if ([piece isEqualToString:@"touroku"]) return @"登録";
+	if ([piece isEqualToString:@"kigou"]) return NSLocalizedString(@"KIGOU", @"X68000 key");
+	if ([piece isEqualToString:@"touroku"]) return NSLocalizedString(@"TOUROKU", @"X68000 key");
 	if ([piece isEqualToString:@"rup"]) return @"RUP";
 	if ([piece isEqualToString:@"rdown"]) return @"RDOWN";
 	if ([piece isEqualToString:@"plus"]) return @"+";
@@ -964,6 +964,20 @@ apply_ui(int ident, int layer)
 	[(CommandRefList *)sList reloadScrollTop:screenChanged];
 }
 
+/* Read-only palette. A click must not take the key window away from STed2,
+   or the emulator stays in its key wait. */
+@interface CommandRefPanel : NSPanel
+@end
+
+@implementation CommandRefPanel
+
+- (BOOL)canBecomeKeyWindow
+{
+	return NO;
+}
+
+@end
+
 static void
 ensure_panel(void)
 {
@@ -975,7 +989,7 @@ ensure_panel(void)
 	if (sPanel != nil)
 		return;
 	frame = NSMakeRect(0, 0, 760, 520);
-	sPanel = [[NSPanel alloc] initWithContentRect:frame
+	sPanel = [[CommandRefPanel alloc] initWithContentRect:frame
 					    styleMask:(NSWindowStyleMaskTitled |
 						       NSWindowStyleMaskClosable |
 						       NSWindowStyleMaskResizable |

@@ -84,6 +84,8 @@
 "Control" = "Control";
 "Option+Control" = "Option+Control";
 "Hold Control, Option, or both. The view changes only while STed2 is in front." = "Hold Control, Option, or both. The view changes only while STed2 is in front.";
+"KIGOU" = "KIGOU";
+"TOUROKU" = "TOUROKU";
 "Command Reference" = "Command Reference";
 "No command list for this screen yet." = "No command list for this screen yet.";
 "Active: Normal" = "Active: Normal";

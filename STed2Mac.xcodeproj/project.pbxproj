@@ -39,6 +39,7 @@
 		A1AMY2012F0A4B0100E00023 /* amy_platform.c in Sources */ = {isa = PBXBuildFile; fileRef = A1AMY1012F0A4B0100E00023 /* amy_platform.c */; };
 		A1AMY3032F0A4B0100E0E033 /* AmySynth.m in Sources */ = {isa = PBXBuildFile; fileRef = A1AMY3012F0A4B0100E0E031 /* AmySynth.m */; };
 		A1CK00032F0A4B0100E0E003 /* RcpClock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1CK00012F0A4B0100E0E001 /* RcpClock.cpp */; };
+		A1CMD012F0A4B0100CMD001 /* CommandReference.m in Sources */ = {isa = PBXBuildFile; fileRef = A1CMD022F0A4B0100CMD002 /* CommandReference.m */; };
 		A1COL0D12F0A4B0100COL0D1 /* colorpanel.c in Sources */ = {isa = PBXBuildFile; fileRef = A1COL0B12F0A4B0100COL0B1 /* colorpanel.c */; };
 		A1DEF0012F0A4B0100E0E101 /* amy.def in Resources */ = {isa = PBXBuildFile; fileRef = A1DEF0022F0A4B0100E0E102 /* amy.def */; };
 		A1DEF0032F0A4B0100E0E103 /* gm.def in Resources */ = {isa = PBXBuildFile; fileRef = A1DEF0042F0A4B0100E0E104 /* gm.def */; };
@@ -52,7 +53,6 @@
 		A1F0E0121AC55B8700A70D02 /* OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = A1F0E0141AC55B8700A70D04 /* OFL.txt */; };
 		A1F0E0311AC55B8700A70D21 /* AVFAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1F0E0321AC55B8700A70D22 /* AVFAudio.framework */; };
 		A1KBD012F0A4B0100KBD001 /* KeyboardViewer.m in Sources */ = {isa = PBXBuildFile; fileRef = A1KBD022F0A4B0100KBD002 /* KeyboardViewer.m */; };
-		A1CMD012F0A4B0100CMD001 /* CommandReference.m in Sources */ = {isa = PBXBuildFile; fileRef = A1CMD022F0A4B0100CMD002 /* CommandReference.m */; };
 		A1L10C011B01000100L10C01 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = A1L10C041B01000100L10C01 /* Localizable.strings */; };
 		A1OUT0B12F0A4B0100OUT0B1 /* OutputPort.m in Sources */ = {isa = PBXBuildFile; fileRef = A1OUT0M12F0A4B0100OUT0M1 /* OutputPort.m */; };
 		A1RAS0012F0A4B0100E0E201 /* gm.ras in Resources */ = {isa = PBXBuildFile; fileRef = A1RAS0022F0A4B0100E0E202 /* gm.ras */; };
@@ -180,6 +180,8 @@
 		A1AMY3022F0A4B0100E0E032 /* AmySynth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AmySynth.h; sourceTree = "<group>"; };
 		A1CK00012F0A4B0100E0E001 /* RcpClock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RcpClock.cpp; sourceTree = "<group>"; };
 		A1CK00022F0A4B0100E0E002 /* RcpClock.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = RcpClock.hpp; sourceTree = "<group>"; };
+		A1CMD022F0A4B0100CMD002 /* CommandReference.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CommandReference.m; sourceTree = "<group>"; };
+		A1CMD032F0A4B0100CMD003 /* CommandReference.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CommandReference.h; sourceTree = "<group>"; };
 		A1COL0B12F0A4B0100COL0B1 /* colorpanel.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 4; path = colorpanel.c; sourceTree = "<group>"; };
 		A1COL0C12F0A4B0100COL0C1 /* colorpanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = colorpanel.h; sourceTree = "<group>"; };
 		A1DEF0022F0A4B0100E0E102 /* amy.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = amy.def; sourceTree = "<group>"; };
@@ -203,8 +205,6 @@
 		A1F0E0511AC55B8700A70D51 /* X68kWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = X68kWindow.h; sourceTree = "<group>"; };
 		A1KBD022F0A4B0100KBD002 /* KeyboardViewer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeyboardViewer.m; sourceTree = "<group>"; };
 		A1KBD032F0A4B0100KBD003 /* KeyboardViewer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeyboardViewer.h; sourceTree = "<group>"; };
-		A1CMD022F0A4B0100CMD002 /* CommandReference.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CommandReference.m; sourceTree = "<group>"; };
-		A1CMD032F0A4B0100CMD003 /* CommandReference.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CommandReference.h; sourceTree = "<group>"; };
 		A1L10C021B01000100L10C01 /* en */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		A1L10C031B01000100L10C01 /* ja */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
 		A1OUT0H12F0A4B0100OUT0H1 /* OutputPort.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OutputPort.h; sourceTree = "<group>"; };
