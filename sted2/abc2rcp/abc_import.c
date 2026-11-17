@@ -22,7 +22,9 @@ enum {
 	EK_LE,
 	EK_VOLTA,
 	EK_SYM,
-	EK_CH
+	EK_CH,
+	EK_CC,
+	EK_TEMPO
 };
 
 typedef struct Ev {
@@ -78,6 +80,8 @@ enum {
 	RK_LE = 0,
 	RK_BAR,
 	RK_CH,
+	RK_CC,
+	RK_TEMPO,
 	RK_PROG,
 	RK_TEXT,
 	RK_LS,
@@ -339,32 +343,201 @@ static int parse_meter(const char *field, int *b1, int *b2)
 	return 0;
 }
 
-static int parse_tempo(const char *field)
-{
-	const char *p = field;
-	const char *eq = strchr(field, '=');
-	int v = 0, any = 0, last = 0;
+static void parse_note_len(const char **pp, int *n, int *d);
 
-	if (eq != NULL)
+static void skip_tempo_quote(const char **pp, const char *end)
+{
+	const char *p = *pp;
+
+	if (p >= end || *p != '"')
+		return;
+	p++;
+	while (p < end && *p != '"')
+		p++;
+	if (p < end && *p == '"')
+		p++;
+	*pp = p;
+}
+
+static int add_tempo_frac(long *num, long *den, int n, int d)
+{
+	long nn, nd;
+
+	if (n <= 0 || d <= 0 || d > 10000 || *den > 1000000)
+		return 0;
+	nd = *den * d;
+	nn = *num * d + (long)n * *den;
+	if (nn < 0 || nd <= 0)
+		return 0;
+	*num = nn;
+	*den = nd;
+	return 1;
+}
+
+/*
+ * Numeric Q: .
+ * Returns 1 when *bpm is already quarter-notes per minute
+ * (Q:1/4=120, Q:1/8=240, Q:1/4 3/8=40, or a bare Q:120).
+ * Returns 2 when C or L stands for the unit note length:
+ * *bpm is beats of that multiple per minute, and mul_n, mul_d
+ * scale the unit (Q:C=120, Q:C2=80, Q:L3=120).
+ * A tempo word alone is not a tempo. Returns 0 then.
+ */
+static int read_tempo_q(const char *field, int *bpm, int *mul_n, int *mul_d)
+{
+	const char *eq = strchr(field, '=');
+	const char *p;
+	const char *end;
+	long num = 0, den = 1;
+	int saw_frac = 0, saw_unit = 0, saw_other = 0;
+	int v = 0, any = 0;
+	int mn = 1, md = 1;
+	long q;
+
+	if (field == NULL)
+		return 0;
+	if (eq != NULL) {
+		p = field;
+		end = eq;
+		while (p < end) {
+			int n = 0, d = 0;
+			int ch;
+			if (*p == '"') {
+				skip_tempo_quote(&p, end);
+				continue;
+			}
+			ch = toupper((unsigned char)*p);
+			if (isalpha((unsigned char)*p) &&
+			    (ch == 'C' || ch == 'L') &&
+			    (p + 1 >= end || !isalpha((unsigned char)p[1]))) {
+				if (saw_unit)
+					return 0;
+				p++;
+				parse_note_len(&p, &mn, &md);
+				if (p > end)
+					p = end;
+				saw_unit = 1;
+				continue;
+			}
+			if (isalpha((unsigned char)*p)) {
+				saw_other = 1;
+				p++;
+				continue;
+			}
+			if (!isdigit((unsigned char)*p)) {
+				p++;
+				continue;
+			}
+			while (p < end && isdigit((unsigned char)*p))
+				n = n * 10 + (*p++ - '0');
+			if (p < end && *p == '/') {
+				p++;
+				while (p < end && isdigit((unsigned char)*p))
+					d = d * 10 + (*p++ - '0');
+				if (add_tempo_frac(&num, &den, n, d))
+					saw_frac = 1;
+			}
+		}
 		p = eq + 1;
+		while (*p) {
+			if (*p == '"') {
+				skip_tempo_quote(&p, p + strlen(p));
+				continue;
+			}
+			if (isdigit((unsigned char)*p)) {
+				v = 0;
+				any = 1;
+				while (isdigit((unsigned char)*p))
+					v = v * 10 + (*p++ - '0');
+			} else {
+				p++;
+			}
+		}
+		if (!any || v <= 0)
+			return 0;
+		if (saw_unit) {
+			if (saw_frac || saw_other || mn < 1 || md < 1)
+				return 0;
+			*bpm = v;
+			*mul_n = mn;
+			*mul_d = md;
+			return 2;
+		}
+		if (!saw_frac) {
+			if (saw_other)
+				return 0;
+			*bpm = v;
+			return 1;
+		}
+		q = (long)v * 4 * num / den;
+		if (q < 1)
+			return 0;
+		if (q > 1000000)
+			q = 1000000;
+		*bpm = (int)q;
+		return 1;
+	}
+	p = field;
 	while (*p) {
+		if (*p == '"') {
+			skip_tempo_quote(&p, p + strlen(p));
+			continue;
+		}
 		if (isdigit((unsigned char)*p)) {
 			v = 0;
 			any = 1;
 			while (isdigit((unsigned char)*p))
 				v = v * 10 + (*p++ - '0');
-			last = v;
 		} else {
 			p++;
 		}
 	}
-	if (!any)
-		return 120;
-	if (last < 8)
-		last = 8;
-	if (last > 255)
-		last = 255;
-	return last;
+	if (!any || v <= 0)
+		return 0;
+	*bpm = v;
+	return 1;
+}
+
+/* Quarter-notes per minute for a C/L tempo. The beat is unit * mul. */
+static int quarter_of_unit(int bpm, int unit_n, int unit_d, int mul_n, int mul_d)
+{
+	long den, q;
+
+	if (bpm < 1 || unit_n < 1 || unit_d < 1 || mul_n < 1 || mul_d < 1)
+		return 0;
+	den = (long)unit_d * mul_d;
+	if (den <= 0)
+		return 0;
+	q = (long)bpm * 4 * unit_n * mul_n / den;
+	if (q < 1)
+		return 0;
+	if (q > 1000000)
+		q = 1000000;
+	return (int)q;
+}
+
+/* GT in 1..255. 64 plays the header tempo. Player uses base * GT / 64. */
+static int tempo_gate(int base, int bpm)
+{
+	int g, best = 64, best_err = 0x7fffffff;
+
+	if (base < 1)
+		base = 120;
+	if (bpm < 1)
+		bpm = 1;
+	for (g = 1; g <= 255; g++) {
+		int played = base * g / 64;
+		int err = played - bpm;
+		if (err < 0)
+			err = -err;
+		if (err < best_err) {
+			best_err = err;
+			best = g;
+			if (err == 0)
+				break;
+		}
+	}
+	return best;
 }
 
 static int parse_len_field(const char *field, int *n, int *d)
@@ -735,6 +908,9 @@ typedef struct Parse {
 	int bkey;
 	int beat1, beat2;
 	int tempo;
+	int tempo_rel;
+	int tempo_raw;
+	int tempo_mul_n, tempo_mul_d;
 	int unit_n, unit_d;
 	char title[65];
 	int err;
@@ -857,11 +1033,31 @@ static int switch_voice(Parse *ps, const char *field)
 	return 0;
 }
 
+/* Header Q:C= waits until the header unit length is known. */
+static void flush_header_tempo(Parse *ps)
+{
+	int q;
+
+	if (!ps->tempo_rel)
+		return;
+	ps->tempo_rel = 0;
+	q = quarter_of_unit(ps->tempo_raw, ps->unit_n, ps->unit_d,
+			    ps->tempo_mul_n, ps->tempo_mul_d);
+	if (q < 1)
+		return;
+	if (q < 8)
+		q = 8;
+	if (q > 255)
+		q = 255;
+	ps->tempo = q;
+}
+
 static void apply_key_field(Parse *ps, const char *field)
 {
 	int sig[7], bkey = 0;
 	int i;
 
+	flush_header_tempo(ps);
 	parse_key(field, sig, &bkey, NULL);
 	for (i = 0; i < 7; i++)
 		ps->sig[i] = sig[i];
@@ -876,6 +1072,25 @@ static void apply_key_field(Parse *ps, const char *field)
 	ps->body = 1;
 }
 
+/* Body Q: becomes a TEMPO event. GT is relative to the header tempo. */
+static int push_tempo(Parse *ps, int quarter_bpm)
+{
+	Ev e;
+	Voice *v;
+	int base;
+
+	if (quarter_bpm < 1)
+		return 0;
+	v = curv(ps);
+	if (commit_hold(v) != 0)
+		return -1;
+	base = ps->tempo > 0 ? ps->tempo : 120;
+	memset(&e, 0, sizeof e);
+	e.kind = EK_TEMPO;
+	e.count = tempo_gate(base, quarter_bpm);
+	return push_ev(v, e);
+}
+
 static void handle_field(Parse *ps, char letter, const char *val)
 {
 	letter = (char)toupper((unsigned char)letter);
@@ -885,11 +1100,39 @@ static void handle_field(Parse *ps, char letter, const char *val)
 	}
 	if (letter == 'T' && ps->title[0] == 0)
 		copy_title(ps->title, val);
+	if (letter == 'Q') {
+		int q = 0, mul_n = 1, mul_d = 1;
+		int kind = read_tempo_q(val, &q, &mul_n, &mul_d);
+		if (kind == 2 && !ps->body) {
+			ps->tempo_rel = 1;
+			ps->tempo_raw = q;
+			ps->tempo_mul_n = mul_n;
+			ps->tempo_mul_d = mul_d;
+		} else if (kind == 1 || kind == 2) {
+			if (kind == 2) {
+				int un = ps->unit_n;
+				int ud = ps->unit_d;
+				if (ps->nv > 0 && ps->v[ps->cur].unit_d > 0) {
+					un = ps->v[ps->cur].unit_n;
+					ud = ps->v[ps->cur].unit_d;
+				}
+				q = quarter_of_unit(q, un, ud, mul_n, mul_d);
+			}
+			ps->tempo_rel = 0;
+			if (q >= 1 && !ps->body) {
+				if (q < 8)
+					q = 8;
+				if (q > 255)
+					q = 255;
+				ps->tempo = q;
+			} else if (q >= 1 && push_tempo(ps, q) != 0) {
+				ps->err = 1;
+			}
+		}
+	}
 	if (!ps->body) {
 		if (letter == 'M')
 			parse_meter(val, &ps->beat1, &ps->beat2);
-		if (letter == 'Q')
-			ps->tempo = parse_tempo(val);
 		if (letter == 'L')
 			parse_len_field(val, &ps->unit_n, &ps->unit_d);
 	}
@@ -1006,6 +1249,72 @@ static int midi_channel_line(const char *line, int *ch)
 	return 1;
 }
 
+/* The next word is w, and it is not a prefix of a longer word. */
+static int midi_word(const char *p, const char *w)
+{
+	int n = (int)strlen(w);
+
+	if (strncmp(p, w, (size_t)n) != 0)
+		return 0;
+	return !isalpha((unsigned char)p[n]);
+}
+
+static int read_midi_int(const char **pp, int *out)
+{
+	const char *p = *pp;
+	int v = 0;
+
+	while (*p == ' ' || *p == '\t')
+		p++;
+	if (!isdigit((unsigned char)*p))
+		return 0;
+	while (isdigit((unsigned char)*p)) {
+		if (v > 1000000)
+			v = 1000001;
+		else
+			v = v * 10 + (*p - '0');
+		p++;
+	}
+	*out = v;
+	*pp = p;
+	return 1;
+}
+
+/*
+ * %%MIDI control [bass|chord] n v
+ * n is the controller (0..127) and v is the value (0..127).
+ * bass and chord belong to abc2midi's generated accompaniment, which
+ * is not a voice here, so those lines are left unused.
+ * Returns 1 when a voice control was stored.
+ */
+static int midi_control_line(const char *line, int *num, int *val)
+{
+	const char *p = line;
+	int n = 0, v = 0;
+
+	while (*p == ' ' || *p == '\t')
+		p++;
+	if (strncmp(p, "%%MIDI", 6) != 0)
+		return 0;
+	p += 6;
+	while (*p == ' ' || *p == '\t')
+		p++;
+	if (!midi_word(p, "control"))
+		return 0;
+	p += 7;
+	while (*p == ' ' || *p == '\t')
+		p++;
+	if (midi_word(p, "bass") || midi_word(p, "chord"))
+		return 0;
+	if (!read_midi_int(&p, &n) || !read_midi_int(&p, &v))
+		return 0;
+	if (n < 0 || n > 127 || v < 0 || v > 127)
+		return 0;
+	*num = n;
+	*val = v;
+	return 1;
+}
+
 static int take_chord(Voice *v, const char **pp)
 {
 	const char *p = *pp;
@@ -1094,7 +1403,7 @@ static int parse_body_char(Parse *ps, const char **pp, int *at_line)
 	}
 	if (ch == '%') {
 		if (*at_line && p[1] == '%') {
-			int prog = 0, chn = -1;
+			int prog = 0, chn = -1, cc = 0, cv = 0;
 			if (midi_channel_line(p, &chn)) {
 				if (chn >= 1 && chn <= 16) {
 					Ev e;
@@ -1116,6 +1425,21 @@ static int parse_body_char(Parse *ps, const char **pp, int *at_line)
 				if (gm >= 0) {
 					v = curv(ps);
 					v->prog = gm;
+				}
+			} else if (midi_control_line(p, &cc, &cv)) {
+				Ev e;
+				v = curv(ps);
+				if (commit_hold(v) != 0) {
+					ps->err = 1;
+					return 0;
+				}
+				memset(&e, 0, sizeof e);
+				e.kind = EK_CC;
+				e.count = cc;
+				e.mid = cv;
+				if (push_ev(v, e) != 0) {
+					ps->err = 1;
+					return 0;
 				}
 			}
 		}
@@ -1151,6 +1475,7 @@ static int parse_body_char(Parse *ps, const char **pp, int *at_line)
 		return 1;
 	}
 	*at_line = 0;
+	flush_header_tempo(ps);
 	ps->body = 1;
 	v = curv(ps);
 	v->unit_n = ps->unit_n;
@@ -1779,6 +2104,11 @@ static int cmp_atom(const void *xa, const void *xb)
 		return a->tick - b->tick;
 	if (a->rank != b->rank)
 		return a->rank - b->rank;
+	/* Several controls or tempos can share a tick. gate keeps source order. */
+	if (a->kind == b->kind &&
+	    (a->kind == RK_CC || a->kind == RK_TEMPO) &&
+	    a->gate != b->gate)
+		return a->gate - b->gate;
 	return 0;
 }
 
@@ -1850,6 +2180,24 @@ static int voice_atoms(Voice *v, Atom **out, int *nout, int *end_tick,
 			e.kind = RK_CH;
 			e.rank = RK_CH;
 			e.count = v->ev[i].count;
+			if (atom_push(&a, &n, &cap, e) != 0)
+				goto fail;
+		} else if (v->ev[i].kind == EK_CC &&
+			   v->ev[i].count >= 0 && v->ev[i].count <= 127 &&
+			   v->ev[i].mid >= 0 && v->ev[i].mid <= 127) {
+			e.kind = RK_CC;
+			e.rank = RK_CC;
+			e.count = v->ev[i].count;
+			e.vel = v->ev[i].mid;
+			e.gate = i;
+			if (atom_push(&a, &n, &cap, e) != 0)
+				goto fail;
+		} else if (v->ev[i].kind == EK_TEMPO &&
+			   v->ev[i].count >= 1 && v->ev[i].count <= 255) {
+			e.kind = RK_TEMPO;
+			e.rank = RK_TEMPO;
+			e.count = v->ev[i].count;
+			e.gate = i;
 			if (atom_push(&a, &n, &cap, e) != 0)
 				goto fail;
 		} else if (comments && v->ev[i].kind == EK_SYM &&
@@ -1940,6 +2288,7 @@ static int emit_atoms(Atom *a, int na, int end_tick, Buf *b)
 					evs[ne++] = k;
 			} else if (a[k].kind == RK_LE || a[k].kind == RK_LS ||
 				   a[k].kind == RK_PROG || a[k].kind == RK_CH ||
+				   a[k].kind == RK_CC || a[k].kind == RK_TEMPO ||
 				   a[k].kind == RK_TEXT) {
 				if (ne < 24)
 					evs[ne++] = k;
@@ -2042,6 +2391,27 @@ static int emit_atoms(Atom *a, int na, int end_tick, Buf *b)
 				} else if (e->kind == RK_PROG) {
 					if (buf_byte(b, 0xEC, 0, e->count, 0) != 0)
 						goto fail;
+				} else if (e->kind == RK_CC) {
+					int ncc = e->count;
+					int vcc = e->vel;
+					if (ncc < 0)
+						ncc = 0;
+					if (ncc > 127)
+						ncc = 127;
+					if (vcc < 0)
+						vcc = 0;
+					if (vcc > 127)
+						vcc = 127;
+					if (buf_byte(b, 0xEB, 0, ncc, vcc) != 0)
+						goto fail;
+				} else if (e->kind == RK_TEMPO) {
+					int g = e->count;
+					if (g < 1)
+						g = 1;
+					if (g > 255)
+						g = 255;
+					if (buf_byte(b, 0xE7, 0, g, 0) != 0)
+						goto fail;
 				} else if (e->kind == RK_TEXT) {
 					if (buf_text(b, e->text) != 0)
 						goto fail;
@@ -2109,6 +2479,27 @@ static int emit_atoms(Atom *a, int na, int end_tick, Buf *b)
 			if (c > 16)
 				c = 16;
 			if (buf_byte(b, 0xE6, 0, c, 0) != 0)
+				goto fail;
+		} else if (a[i].kind == RK_CC) {
+			int ncc = a[i].count;
+			int vcc = a[i].vel;
+			if (ncc < 0)
+				ncc = 0;
+			if (ncc > 127)
+				ncc = 127;
+			if (vcc < 0)
+				vcc = 0;
+			if (vcc > 127)
+				vcc = 127;
+			if (buf_byte(b, 0xEB, 0, ncc, vcc) != 0)
+				goto fail;
+		} else if (a[i].kind == RK_TEMPO) {
+			int g = a[i].count;
+			if (g < 1)
+				g = 1;
+			if (g > 255)
+				g = 255;
+			if (buf_byte(b, 0xE7, 0, g, 0) != 0)
 				goto fail;
 		} else if (a[i].kind == RK_LE) {
 			int c = a[i].count;
@@ -2539,7 +2930,9 @@ int abc_import_text(const char *text, int text_len, AbcSong *song)
 			for (k = 0; k < ps.v[i].n; k++) {
 				if (ps.v[i].ev[k].kind == EK_NOTE ||
 				    ps.v[i].ev[k].kind == EK_REST ||
-				    ps.v[i].ev[k].kind == EK_BAR)
+				    ps.v[i].ev[k].kind == EK_BAR ||
+				    ps.v[i].ev[k].kind == EK_CC ||
+				    ps.v[i].ev[k].kind == EK_TEMPO)
 					has = 1;
 			}
 			if (has || ps.v[i].prog >= 0)
@@ -2550,6 +2943,7 @@ int abc_import_text(const char *text, int text_len, AbcSong *song)
 
 	if (!ps.err) {
 		snprintf(song->title, sizeof song->title, "%s", ps.title);
+		flush_header_tempo(&ps);
 		song->tempo = ps.tempo;
 		song->beat1 = ps.beat1;
 		song->beat2 = ps.beat2;
@@ -2564,7 +2958,9 @@ int abc_import_text(const char *text, int text_len, AbcSong *song)
 			for (k = 0; k < ps.v[i].n; k++) {
 				if (ps.v[i].ev[k].kind == EK_NOTE ||
 				    ps.v[i].ev[k].kind == EK_REST ||
-				    ps.v[i].ev[k].kind == EK_BAR)
+				    ps.v[i].ev[k].kind == EK_BAR ||
+				    ps.v[i].ev[k].kind == EK_CC ||
+				    ps.v[i].ev[k].kind == EK_TEMPO)
 					has = 1;
 			}
 			if (!has && ps.v[i].prog < 0)

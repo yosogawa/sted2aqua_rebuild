@@ -3,6 +3,8 @@
  * L:1/8, durations are exact fractions of an eighth.
  * Velocity is not written. A program change is a %%MIDI program
  * line, with the GM name after % so other readers treat it as a comment.
+ * A control change is a %%MIDI control line, with the same kind of comment.
+ * A TEMPO event is Q:1/4=<played>, where played is header tempo * GT / 64.
  */
 #include "abc2rcp.h"
 
@@ -400,7 +402,7 @@ static int track_used(const uint8_t *p, int n)
 	for (i = 0; i + 4 <= n; i += 4) {
 		if (p[i] == 0xFE)
 			break;
-		if (p[i] == 0xF6 || p[i] == 0xF8 || p[i] == 0xF9)
+		if (p[i] == 0xF6 || p[i] == 0xF8 || p[i] == 0xF9 || p[i] == 0xE7)
 			return 1;
 		if (p[i] < 0xF0 && p[i + 1] > 0)
 			return 1;
@@ -520,8 +522,98 @@ static int emit_program(Out *o, int prog)
 	return out_raw(o, line);
 }
 
+/* Names STed2 shows for the controllers it labels. Others stay bare. */
+static const char *cc_name(int n)
+{
+	switch (n) {
+	case 0: return "Bank MSB";
+	case 1: return "Modulation";
+	case 2: return "Breath";
+	case 4: return "Foot";
+	case 5: return "Portamento Time";
+	case 6: return "Data MSB";
+	case 7: return "Volume";
+	case 8: return "Balance";
+	case 10: return "Pan";
+	case 11: return "Expression";
+	case 32: return "Bank LSB";
+	case 38: return "Data LSB";
+	case 64: return "Hold";
+	case 65: return "Portamento";
+	case 66: return "Sostenuto";
+	case 67: return "Soft";
+	case 69: return "Hold 2";
+	case 71: return "Resonance";
+	case 72: return "Release Time";
+	case 73: return "Attack Time";
+	case 74: return "Cutoff";
+	case 84: return "Portamento Control";
+	case 91: return "Reverb";
+	case 93: return "Chorus";
+	case 94: return "Delay";
+	case 96: return "Data Increment";
+	case 97: return "Data Decrement";
+	case 98: return "NRPN LSB";
+	case 99: return "NRPN MSB";
+	case 100: return "RPN LSB";
+	case 101: return "RPN MSB";
+	case 120: return "All Sound Off";
+	case 121: return "Reset All Controllers";
+	case 122: return "Local Control";
+	case 123: return "All Notes Off";
+	case 124: return "Omni Off";
+	case 125: return "Omni On";
+	case 126: return "Mono";
+	case 127: return "Poly";
+	default: return NULL;
+	}
+}
+
+static int emit_control(Out *o, int num, int val)
+{
+	char line[96];
+	const char *name;
+
+	if (num < 0)
+		num = 0;
+	if (num > 127)
+		num = 127;
+	if (val < 0)
+		val = 0;
+	if (val > 127)
+		val = 127;
+	if (o->col > 0 && out_raw(o, "\n") != 0)
+		return -1;
+	name = cc_name(num);
+	if (name != NULL)
+		snprintf(line, sizeof line, "%%%%MIDI control %d %d %% %s\n",
+			 num, val, name);
+	else
+		snprintf(line, sizeof line, "%%%%MIDI control %d %d\n", num, val);
+	return out_raw(o, line);
+}
+
+/* Played quarter-note tempo. 64 is the header tempo. */
+static int emit_tempo(Out *o, int base, int gate)
+{
+	char line[64];
+	int bpm;
+
+	if (base < 1)
+		base = 120;
+	if (gate < 1 || gate > 255)
+		return 0;
+	bpm = base * gate / 64;
+	if (bpm < 1)
+		return 0;
+	if (o->col > 0 && out_raw(o, "\n") != 0)
+		return -1;
+	snprintf(line, sizeof line, "Q:1/4=%d\n", bpm);
+	return out_raw(o, line);
+}
+
 static int emit_track(Out *o, const uint8_t *p, int n, const int sig[7],
-		      int eighth, Sym *sy, int ns)
+		      int eighth, int base, Sym *sy, int ns)
 {
 	int i, tick = 0, si = 0;
 
@@ -551,6 +643,36 @@ static int emit_track(Out *o, const uint8_t *p, int n, const int sig[7],
 		if (op == 0xEC) {
 			int step = p[i + 1];
 			if (emit_program(o, p[i + 2]) != 0)
+				return -1;
+			i += 4;
+			if (step > 0) {
+				Grp rest;
+				memset(&rest, 0, sizeof rest);
+				rest.step = step;
+				if (emit_grp(o, &rest, sig, eighth) != 0)
+					return -1;
+				tick += step;
+			}
+			continue;
+		}
+		if (op == 0xEB) {
+			int step = p[i + 1];
+			if (emit_control(o, p[i + 2], p[i + 3]) != 0)
+				return -1;
+			i += 4;
+			if (step > 0) {
+				Grp rest;
+				memset(&rest, 0, sizeof rest);
+				rest.step = step;
+				if (emit_grp(o, &rest, sig, eighth) != 0)
+					return -1;
+				tick += step;
+			}
+			continue;
+		}
+		if (op == 0xE7) {
+			int step = p[i + 1];
+			if (emit_tempo(o, base, p[i + 2]) != 0)
 				return -1;
 			i += 4;
 			if (step > 0) {
@@ -663,6 +785,7 @@ int abc_export_text(const AbcSong *song, char **out)
 			goto fail;
 		p = song->trk[i];
 		if (emit_track(&o, p, song->len[i], sig, eighth,
+			       song->tempo > 0 ? song->tempo : 120,
 			       voice == 1 ? sy : NULL, voice == 1 ? ns : 0) != 0)
 			goto fail;
 		if (o.col > 0 && out_raw(&o, "\n") != 0)

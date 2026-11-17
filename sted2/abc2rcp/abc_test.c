@@ -46,6 +46,22 @@ static int find_prog(const AbcSong *s, int tr, int prog)
 	return 0;
 }
 
+static int find_cc(const AbcSong *s, int tr, int num, int val)
+{
+	const uint8_t *p;
+	int i, n;
+
+	if (tr >= s->ntracks)
+		return 0;
+	p = s->trk[tr];
+	n = s->len[tr];
+	for (i = 0; i + 4 <= n; i += 4) {
+		if (p[i] == 0xEB && p[i + 2] == num && p[i + 3] == val)
+			return 1;
+	}
+	return 0;
+}
+
 static int count_op(const AbcSong *s, int tr, int op)
 {
 	const uint8_t *p;
@@ -350,6 +366,249 @@ int main(void)
 			expect(count_op(&s, 0, 0xE6) == 0, "channel 0 ignored");
 			abc_song_free(&s);
 		}
+	}
+
+	{
+		const char *cc =
+			"X:1\nK:C\n"
+			"%%MIDI control 7 80 % Volume\n"
+			"%%MIDI control 10 64\n"
+			"%%MIDI control 0 0\n"
+			"C\n"
+			"%%MIDI control 64 127\n"
+			"D\n"
+			"%%MIDI control bass 7 1\n"
+			"%%MIDI control chord 10 0\n"
+			"E\n"
+			"%%MIDI control 7 200\n"
+			"%%MIDI controlcombo 1 2\n"
+			"F\n";
+		const uint8_t *p;
+		int i, n, vol_at = -1, note_c = -1, hold_at = -1, note_d = -1;
+		expect(abc_import_text(cc, (int)strlen(cc), &s) == 0, "control");
+		expect(find_cc(&s, 0, 7, 80), "volume");
+		expect(find_cc(&s, 0, 10, 64), "pan");
+		expect(find_cc(&s, 0, 0, 0), "bank msb zero");
+		expect(find_cc(&s, 0, 64, 127), "hold");
+		expect(!find_cc(&s, 0, 7, 1), "bass control skipped");
+		expect(count_op(&s, 0, 0xEB) == 4, "four voice controls");
+		p = s.trk[0];
+		n = s.len[0];
+		for (i = 0; i + 4 <= n; i += 4) {
+			if (vol_at < 0 && p[i] == 0xEB && p[i + 2] == 7)
+				vol_at = i;
+			if (note_c < 0 && p[i] == 60)
+				note_c = i;
+			if (p[i] == 0xEB && p[i + 2] == 64)
+				hold_at = i;
+			if (p[i] == 62)
+				note_d = i;
+		}
+		expect(vol_at >= 0 && note_c > vol_at, "volume before C");
+		expect(hold_at >= 0 && note_d > hold_at, "hold before D");
+		expect(find_note(&s, 0, 60, 48, 100), "C after control");
+		expect(find_note(&s, 0, 65, 48, 100), "F after ignored lines");
+		abc_song_free(&s);
+	}
+
+	{
+		uint8_t raw[] = {
+			0xEB, 0, 7, 50,
+			0xEB, 0, 10, 0,
+			0xEB, 0, 64, 127,
+			60, 96, 76, 100,
+			0xEB, 48, 11, 90,
+			62, 48, 38, 100,
+			0xFE, 0, 0, 0
+		};
+		AbcSong song;
+		char *text = NULL;
+		memset(&song, 0, sizeof song);
+		song.tempo = 120;
+		song.beat1 = 4;
+		song.beat2 = 4;
+		song.timebase = 96;
+		song.ntracks = 1;
+		song.trk[0] = raw;
+		song.len[0] = (int)sizeof raw;
+		expect(abc_export_text(&song, &text) == 0, "control export");
+		expect(text != NULL &&
+		       strstr(text, "%%MIDI control 7 50 % Volume") != NULL,
+		       "volume line");
+		expect(text != NULL &&
+		       strstr(text, "%%MIDI control 10 0 % Pan") != NULL,
+		       "pan line");
+		expect(text != NULL &&
+		       strstr(text, "%%MIDI control 64 127 % Hold") != NULL,
+		       "hold line");
+		expect(text != NULL &&
+		       strstr(text, "%%MIDI control 11 90 % Expression") != NULL,
+		       "expression line");
+		song.trk[0] = NULL;
+		if (text) {
+			expect(abc_import_text(text, (int)strlen(text), &s) == 0,
+			       "control reimport");
+			expect(find_cc(&s, 0, 7, 50), "volume back");
+			expect(find_cc(&s, 0, 10, 0), "pan back");
+			expect(find_cc(&s, 0, 64, 127), "hold back");
+			expect(find_cc(&s, 0, 11, 90), "expression back");
+			expect(find_note(&s, 0, 60, 96, 100), "C after controls");
+			expect(find_note(&s, 0, 62, 48, 100), "D after expression");
+			free(text);
+		}
+		abc_song_free(&s);
+	}
+
+	{
+		const char *tq =
+			"X:1\n"
+			"Q:1/8=180\n"
+			"K:C\n"
+			"Q:\"Allegro\"\n"
+			"C\n"
+			"Q:1/4=180\n"
+			"D\n"
+			"Q:1/4=60 \"slowly\"\n"
+			"[Q:3/8=40] E\n"
+			"Q:C=90\n"
+			"F\n";
+		const uint8_t *p;
+		int i, n, t180 = -1, note_d = -1, t60 = -1, t45 = -1, note_f = -1;
+		expect(abc_import_text(tq, (int)strlen(tq), &s) == 0, "tempo q");
+		expect(s.tempo == 90, "eighth header is quarter 90");
+		expect(count_op(&s, 0, 0xE7) == 4, "four numeric tempos");
+		p = s.trk[0];
+		n = s.len[0];
+		for (i = 0; i + 4 <= n; i += 4) {
+			if (t180 < 0 && p[i] == 0xE7 && p[i + 2] == 128 &&
+			    p[i + 3] == 0)
+				t180 = i;
+			if (p[i] == 62)
+				note_d = i;
+			if (t60 < 0 && p[i] == 0xE7 && p[i + 2] == 43 &&
+			    p[i + 3] == 0)
+				t60 = i;
+			if (p[i] == 0xE7 && p[i + 2] == 32 && p[i + 3] == 0)
+				t45 = i;
+			if (p[i] == 65)
+				note_f = i;
+		}
+		/* header 90. 180 -> GT 128 (90*128/64=180). 60 -> 43 (90*43/64=60). */
+		/* Q:C=90 with L:1/8 is quarter 45 -> GT 32 (90*32/64=45). */
+		expect(t180 >= 0 && note_d > t180, "180 before D");
+		expect(t60 >= 0 && t60 > note_d, "60 after D");
+		expect(t45 >= 0 && note_f > t45, "C= before F");
+		expect(find_note(&s, 0, 60, 48, 100), "C before tempo change");
+		expect(find_note(&s, 0, 64, 48, 100), "E after dotted tempo");
+		expect(find_note(&s, 0, 65, 48, 100), "F after C=");
+		abc_song_free(&s);
+	}
+
+	{
+		const char *early =
+			"X:1\n"
+			"Q:C=120\n"
+			"L:1/4\n"
+			"K:C\n"
+			"C\n";
+		const char *late =
+			"X:1\n"
+			"L:1/8\n"
+			"Q:C=120\n"
+			"K:C\n"
+			"C\n";
+		const char *doubled =
+			"X:1\n"
+			"L:1/8\n"
+			"Q:1/4=120\n"
+			"K:C\n"
+			"Q:C2=80\n"
+			"D\n";
+		const char *word =
+			"X:1\n"
+			"Q:Crotchet=120\n"
+			"K:C\n"
+			"C\n";
+		const uint8_t *p;
+		int i, n, gate = -1;
+		expect(abc_import_text(early, (int)strlen(early), &s) == 0,
+		       "C before L");
+		expect(s.tempo == 120, "C= uses later quarter unit");
+		abc_song_free(&s);
+		expect(abc_import_text(late, (int)strlen(late), &s) == 0,
+		       "C after eighth");
+		expect(s.tempo == 60, "C=120 of eighths is quarter 60");
+		abc_song_free(&s);
+		expect(abc_import_text(doubled, (int)strlen(doubled), &s) == 0,
+		       "C2 import");
+		expect(s.tempo == 120, "header stays 120");
+		expect(count_op(&s, 0, 0xE7) == 1, "one C2 tempo");
+		p = s.trk[0];
+		n = s.len[0];
+		for (i = 0; i + 4 <= n; i += 4) {
+			if (p[i] == 0xE7 && p[i + 3] == 0)
+				gate = p[i + 2];
+		}
+		/* quarter 80. 120*43/64=80. */
+		expect(gate == 43, "C2 plays 80");
+		abc_song_free(&s);
+		expect(abc_import_text(word, (int)strlen(word), &s) == 0,
+		       "crotchet word");
+		expect(s.tempo == 120, "Crotchet is not C=");
+		expect(count_op(&s, 0, 0xE7) == 0, "word adds no tempo");
+		abc_song_free(&s);
+	}
+
+	{
+		uint8_t raw[] = {
+			0xE7, 0, 96, 0,
+			60, 96, 76, 100,
+			0xE7, 0, 32, 5,
+			62, 48, 38, 100,
+			0xFE, 0, 0, 0
+		};
+		AbcSong song;
+		char *text = NULL;
+		memset(&song, 0, sizeof song);
+		song.tempo = 120;
+		song.beat1 = 4;
+		song.beat2 = 4;
+		song.timebase = 96;
+		song.ntracks = 1;
+		song.trk[0] = raw;
+		song.len[0] = (int)sizeof raw;
+		expect(abc_export_text(&song, &text) == 0, "tempo export");
+		expect(text != NULL && strstr(text, "Q:1/4=120\n") != NULL,
+		       "header tempo");
+		expect(text != NULL && strstr(text, "Q:1/4=180\n") != NULL,
+		       "played 180");
+		expect(text != NULL && strstr(text, "Q:1/4=60\n") != NULL,
+		       "played 60");
+		song.trk[0] = NULL;
+		if (text) {
+			const uint8_t *p;
+			int i, n, first = -1, second = -1, note_c = -1, note_d = -1;
+			expect(abc_import_text(text, (int)strlen(text), &s) == 0,
+			       "tempo reimport");
+			expect(s.tempo == 120, "header stays 120");
+			p = s.trk[0];
+			n = s.len[0];
+			for (i = 0; i + 4 <= n; i += 4) {
+				if (p[i] == 0xE7 && p[i + 2] == 96 && first < 0)
+					first = i;
+				if (p[i] == 60)
+					note_c = i;
+				if (p[i] == 0xE7 && p[i + 2] == 32)
+					second = i;
+				if (p[i] == 62)
+					note_d = i;
+			}
+			expect(first >= 0 && note_c > first, "180 before C");
+			expect(second > note_c && note_d > second, "60 before D");
+			expect(p[second + 3] == 0, "vel is unused");
+			free(text);
+		}
+		abc_song_free(&s);
 	}
 
 	if (fails) {
