@@ -1030,7 +1030,7 @@ CommandReferenceShow(void)
 	int ident, layer;
 
 	ensure_panel();
-	[sPanel setTitle:NSLocalizedString(@"Command Reference", @"Help menu")];
+	[sPanel setTitle:NSLocalizedString(@"Command Cheat Sheet", @"Help menu")];
 	pthread_mutex_lock(&sLock);
 	if (sDepth > 0) {
 		ident = sId[sDepth - 1];

@@ -517,7 +517,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.\n\nCopyright (c) Keitarou Hiraki, Font Silo
 "Hold Control, Option, or both. The view changes only while STed2 is in front." = "Control、Option、または両方を押しながら見てください。STed2 が前面のときだけ切り替わります";
 "KIGOU" = "記号";
 "TOUROKU" = "登録";
-"Command Reference" = "コマンドリファレンス";
+"Command Cheat Sheet" = "コマンド・チートシート";
 "No command list for this screen yet." = "この画面の一覧はまだありません";
 "Active: Normal" = "いま有効: 通常";
 "Active: Shift" = "いま有効: Shift";

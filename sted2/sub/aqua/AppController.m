@@ -571,7 +571,7 @@ sted_argv_with_launch_file(int *argcIO, char **argv)
 
 	if (help == nil)
 		return;
-	item = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"Command Reference", @"Help menu")
+	item = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"Command Cheat Sheet", @"Help menu")
 					   action:@selector(showCommandReference:)
 				    keyEquivalent:@""];
 	[item setTarget:self];
