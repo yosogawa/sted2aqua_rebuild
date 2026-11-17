@@ -76,3 +76,19 @@
 "Pitch bend" = "Pitch bend";
 "Frame 1" = "Frame 1";
 "Velocity" = "Velocity";
+
+/* Help → Keyboard Viewer */
+"Keyboard Viewer" = "Keyboard Viewer";
+"No modifier" = "No modifier";
+"Option" = "Option";
+"Control" = "Control";
+"Option+Control" = "Option+Control";
+"Hold Control, Option, or both. The view changes only while STed2 is in front." = "Hold Control, Option, or both. The view changes only while STed2 is in front.";
+"Command Reference" = "Command Reference";
+"No command list for this screen yet." = "No command list for this screen yet.";
+"Active: Normal" = "Active: Normal";
+"Active: Shift" = "Active: Shift";
+"Active: Shift+Option (ST)" = "Active: Shift+Option (ST)";
+"Active: Shift+Option (GT)" = "Active: Shift+Option (GT)";
+"Active: Shift+Option (VEL)" = "Active: Shift+Option (VEL)";
+"Not on this keyboard: %@" = "Not on this keyboard: %@";

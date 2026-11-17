@@ -12,6 +12,8 @@
 #import "DLSSynthPanel.h"
 #import "colorpanel.h"
 #import "Sf2DefGenerator.h"
+#import "KeyboardViewer.h"
+#import "CommandReference.h"
 
 #include <stdlib.h>
 #include "rcp_transport.h"
@@ -94,6 +96,8 @@ ApplySyncModeMenuTitle(NSMenuItem *item)
 - (void)localizeMenuItemWithAction:(SEL)action title:(NSString *)title;
 - (void)localizeAboutMenuItem;
 - (void)installViewMenu;
+- (void)installKeyboardViewerMenu;
+- (void)installCommandReferenceMenu;
 - (void)installDLSSynthMenu;
 - (void)installGmSystemOnMenu;
 - (void)installSf2DefMenu;
@@ -196,6 +200,8 @@ sted_argv_with_launch_file(int *argcIO, char **argv)
 	XSTed_init_window();
 	[self localizeAboutMenuItem];
 	[self installViewMenu];
+	[self installKeyboardViewerMenu];
+	[self installCommandReferenceMenu];
 	[self installGmSystemOnMenu];
 	[self installThruModeMenu];
 	[self installSyncModeMenu];
@@ -535,6 +541,48 @@ sted_argv_with_launch_file(int *argcIO, char **argv)
 	[mainMenu insertItem:viewTop atIndex:insertAt];
 	[viewMenu release];
 	[viewTop release];
+}
+
+- (void)installKeyboardViewerMenu
+{
+	NSMenu *help = [NSApp helpMenu];
+	NSMenuItem *item;
+
+	if (help == nil)
+		return;
+	item = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"Keyboard Viewer", @"Help menu")
+					   action:@selector(showKeyboardViewer:)
+				    keyEquivalent:@""];
+	[item setTarget:self];
+	[help addItem:item];
+	[item release];
+}
+
+- (IBAction)showKeyboardViewer:(id)sender
+{
+	(void)sender;
+	KeyboardViewerShow();
+}
+
+- (void)installCommandReferenceMenu
+{
+	NSMenu *help = [NSApp helpMenu];
+	NSMenuItem *item;
+
+	if (help == nil)
+		return;
+	item = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"Command Reference", @"Help menu")
+					   action:@selector(showCommandReference:)
+				    keyEquivalent:@""];
+	[item setTarget:self];
+	[help addItem:item];
+	[item release];
+}
+
+- (IBAction)showCommandReference:(id)sender
+{
+	(void)sender;
+	CommandReferenceShow();
 }
 
 - (IBAction)showColorPanel:(id)sender

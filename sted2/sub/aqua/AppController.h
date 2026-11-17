@@ -28,5 +28,7 @@
 - (IBAction)setSyncMode:(id)sender;
 - (IBAction)setDisplayScale:(id)sender;
 - (IBAction)showFontPanel:(id)sender;
+- (IBAction)showKeyboardViewer:(id)sender;
+- (IBAction)showCommandReference:(id)sender;
 - (IBAction)applyFontPanelSelection:(id)sender;
 @end

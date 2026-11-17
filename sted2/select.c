@@ -4,6 +4,7 @@
 
 #include	"sted.h"
 #include	"rcp_transport.h"
+#include	"sub/aqua/CommandReference.h"
 
 
 static char	*fsel_ext[]={
@@ -75,6 +76,7 @@ extern int	tkey,tvel;	/* May.26.2003 Toshi Nagata: add 'extern' */
 /***************************/
 int	timsel(int bmode,int bank,int gx,int prog)
 {
+  STED_SCREEN(STED_SCR_TONESEL);
   int	a,nm=0,i,i0,p=0,y=0,dx,scr,sut=0,sh;
   int	ch,ch2,bank2,bank_l,bank_l2,as,as2,md=0,wd=0;
   char	tmp0[256],tmp1[256];
@@ -438,6 +440,7 @@ skip:
 /***************************/
 int	timsel2(int ch,int bank,int gx,int prog)
 {
+  STED_SCREEN(STED_SCR_TONESEL);
   int	a,nm,i,j,i0,p=0,y=0,dx,as,as2,sut=0,sh;
   int	bank_l,bank_l2;
   char	tmp0[256];
@@ -737,6 +740,7 @@ void	s_test(int ch,int bank,int prg,int note,int velo)
 /***************************/
 int	spc_select()
 {
+  STED_SCREEN(STED_SCR_CMDSEL);
   int	ke,i,y=0,cx,gx;
   char	tmp0[128];
 
@@ -780,6 +784,7 @@ int	spc_select()
 /***************************/
 int	repl_select(int md)
 {
+  STED_SCREEN(STED_SCR_REPLSEL);
   int	ke,sh,i,y=0,cx,gx,pg=0;
   char	tmp0[128];
 
@@ -951,6 +956,7 @@ redraw:
 /***************************/
 void	fsel(char *fna,char *pth,int w)
 {
+  STED_SCREEN(STED_SCR_FILESEL);
   int	a=0,nm=0,p,y,cc,gy,xx,cx,gx;
   char	tmp0[PATHLEN],exts[PATHLEN];
   X68_DIR	dir[512];

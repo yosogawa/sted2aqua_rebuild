@@ -4,6 +4,7 @@
 
 #include	"sted.h"
 #include	"key_sub.h"
+#include	"sub/aqua/CommandReference.h"
 
 /* ************** chord list */
 static	char	chord_name[20][9]={
@@ -86,6 +87,7 @@ static void	chord_dis();
 /***************************/
 void	inpmon()
 {
+  STED_SCREEN(STED_SCR_INPMON);
   int	a,b,c,f=0;
 
   all_note_off(1);outch=0;prog=0;
@@ -427,6 +429,7 @@ int	ret_chord(int ad)
 /***************************/
 int	chord_sel(int key,int ad)
 {
+  STED_SCREEN(STED_SCR_CHORD);
   int	po,i,ke,kc,sh=0,exc=0,no=0,d,okey;
   char	temp[16];
 
@@ -749,6 +752,7 @@ int	scale_no(int j)
 /***************************/
 int	scale_sel(int x,int y,int skey)
 {
+  STED_SCREEN(STED_SCR_SCALE);
   int	mf,sf,kc,ke;
 
   skey=skey&31;mf=skey&16;sf=skey&15;

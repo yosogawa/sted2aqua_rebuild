@@ -17,6 +17,14 @@ extern int sTextHeight;  /* text visible height in pixels; session-fixed, defaul
 }
 + (void)initializeX68k;
 + (unsigned int)getKey: (BOOL)senseOnly;
+
+/* What STed2 would do with this Mac key. modMask: control=2, option=4.
+   Returns 1 and writes XF1, KIGOU, TOUROKU, and the other X68000 names. */
+int XSTed_viewer_label(unsigned vk, unsigned macChar, int modMask, int commandDown,
+		       char *name, size_t nameLen);
+/* One loaded binding. Returns 0 past the last entry. */
+int XSTed_binding_at(int index, unsigned *macChar, unsigned *needMask,
+		     char *name, size_t nameLen);
 + (int)displayScalePercent;
 + (void)applyDisplayScalePercent:(int)percent toView:(NSView *)view;
 @end

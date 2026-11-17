@@ -4,6 +4,7 @@
 
 #include	"sted.h"
 #include	"rcp_transport.h"
+#include	"sub/aqua/CommandReference.h"
 
 static char	*inmd[6]={
   "EDIT","EDIT SOUND","EDIT MIDI IN(Mono)","EDIT MIDI IN(Poly)",
@@ -64,6 +65,7 @@ void	pinfo_refresh(int ad)
 /***************************/
 void	trk_ed()
 {
+  STED_SCREEN(STED_SCR_TRACK_EDIT);
   int	po,ad,cx,cy,i,j,ke,kc,sh,rc,cs,xx,mdc,mdiv=0,tcp=0,tcs=0;
   int	r_ad,r_ln;
   char	tmp0[256];
@@ -1273,10 +1275,13 @@ static void	ed_fnc_guide(int sh,int ad,int cx)
 {
   if((sh&1)!=0 && (sh&4)!=0 && trk[track][ad]<128){
     /* 2=ST  9=GT(stgt_tbl+10)  8=VEL */
+    STedScreenLayer(cx==3 ? STED_LAYER_VEL : cx==2 ? STED_LAYER_GT : STED_LAYER_ST);
     fnc_dis(cx==3 ? 8 : cx==2 ? 9 : 2);
   }else if((sh&1)!=0){
+    STedScreenLayer(STED_LAYER_SHIFT);
     fnc_dis(1);
   }else{
+    STedScreenLayer(STED_LAYER_NORMAL);
     fnc_dis(0);
   }
 }

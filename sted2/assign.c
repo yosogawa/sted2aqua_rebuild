@@ -3,6 +3,7 @@
  */
 
 #include	"sted.h"
+#include	"sub/aqua/CommandReference.h"
 
 static char	*filter_name[14]={
   "PROGRAM CHANGE",
@@ -51,6 +52,7 @@ uint8_t	stgt_name[10][4]={
 /***************************/
 void	rhy_as(void)
 {
+  STED_SCREEN(STED_SCR_RHYTHM_AS);
   int	a,i,j,xx,x=0,y=0,f,gy,sh;
   char	tmp1[256];
   int	rno[32];
@@ -462,6 +464,7 @@ void	rhy_as_para(void)
 /***************************/
 int	tagj(int *po,int fl)
 {
+  STED_SCREEN(STED_SCR_TAG);
   int	a,i,y=0;
   char	tmp0[128];
 
@@ -540,6 +543,7 @@ int	tagj(int *po,int fl)
 /***************************/
 void	part_as(void)
 {
+  STED_SCREEN(STED_SCR_PART);
   int	ke,sh,i,j,x=0,y=0,scr,gy;
   char	tmp[128];
 
@@ -664,6 +668,7 @@ int	part_sel(int yy)
 /***************************/
 void	rec_filter(int md)
 {
+  STED_SCREEN(STED_SCR_FILTER);
   int	i,y=0,x=0,gy;
   char	tmp[128];
 
@@ -836,6 +841,7 @@ void	filt_init(void)
 /***************************/
 void	stgt_as(void)
 {
+  STED_SCREEN(STED_SCR_STGT);
   int	a,n,i,xx,yy,x=0,y=0,scr,sh;
 
   scr=edit_scr;edit_scr=0;

@@ -4,6 +4,7 @@
 
 #include	"sted.h"
 #include	"trkset.h"
+#include	"sub/aqua/CommandReference.h"
 
 
 
@@ -19,6 +20,7 @@ static void exetrk_dsp(int);
 /***************************/
 int	trk_sel(int cx)
 {
+  STED_SCREEN(STED_SCR_TRACK_SEL);
   int	ke,sh;
 
   while( 1){
@@ -96,6 +98,7 @@ void	trk_no_dis()
 /***************************/
 void	trk_set(int md)
 {
+  STED_SCREEN(STED_SCR_TRACK_SET);
   int	ke,sh,cx,i,y;
 
   edfield(-1);edit_scr=0;logo(-1);i=track;

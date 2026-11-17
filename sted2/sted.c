@@ -11,6 +11,7 @@
 #include	"sted.h"
 #include	"rcp_transport.h"
 #include	"rcp_transport_cmd.h"
+#include	"sub/aqua/CommandReference.h"
 
 static char	menu1[18][9]={
   "LOAD    ","SAVE    ","EDIT&SET","PLAY    ","RECORD  ","FILTER  ",
@@ -988,6 +989,7 @@ static void sted_finder_offer(void)
 /***************************/
 void	com_sel()
 {
+  STED_SCREEN(STED_SCR_COMMAND);
   int	ke,sh,cy=0,i;
   char	tmp0[PATHLEN * 2 + PATH_DRIVE_EXTRA],tmp1[PATHLEN * 2 + PATH_DRIVE_EXTRA],path2[PATHLEN * 2 + PATH_DRIVE_EXTRA];
 
@@ -1214,6 +1216,7 @@ void	save_sub(int sh)
 /***************************/
 void	memo_ed(int sh)
 {
+  STED_SCREEN(STED_SCR_MEMO);
   int	ke,i,y=0;
   char	tmp[128];
 
@@ -1337,6 +1340,7 @@ int	option(int md,int sm)
 /***************************/
 int	option22(int md,int sm,int ad,int ew)
 {
+  STED_SCREEN(STED_SCR_OPTION);
   int	ke,i,y=0,ex=0,gy=scyp,cx,gx;
   int	cmd=0;
   char	path2[PATHLEN + PATH_DRIVE_EXTRA],tmp0[PATHLEN + PATH_DRIVE_EXTRA],tmp1[PATHLEN],tmp2[PATHLEN];
@@ -1910,6 +1914,7 @@ sted_redraw_thru_mode(void)
 /***************************/
 void	beat_set()
 {
+  STED_SCREEN(STED_SCR_TIMEKEY);
   int	ke,sh,ex,cx=0,i=0,mm=0;
 
   while(1){

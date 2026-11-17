@@ -4,6 +4,7 @@
 /* Copyright 2003 Toshi Nagata. All rights reserved. */
 
 #import "X68kView.h"
+#import "KeyboardViewer.h"
 #import "CoreMIDIRCPPlayer.h"
 #import "InternalSynth.h"
 #import "MIDISettingsController.h"
@@ -12,6 +13,8 @@
 
 #include "sted.h"
 #include "rcp_transport.h"
+
+#include <stdio.h>
 
 NSString *STed2ScreenRedrawNotification = @"STed2 screen redraw";
 
@@ -227,6 +230,115 @@ static uint32_t s_x68k_special_key[128] = {
 	(x68k_rolldown << 24) + NSPageDownFunctionKey,
 	(x68k_clr << 24) + NSClearLineFunctionKey
 };
+
+static void
+x68k_key_name(int code, char *buf, size_t n)
+{
+	const char *s = NULL;
+
+	if (buf == NULL || n == 0)
+		return;
+	buf[0] = 0;
+	if (code >= x68k_f1 && code <= x68k_f10) {
+		snprintf(buf, n, "F%d", code - x68k_f1 + 1);
+		return;
+	}
+	if (code >= x68k_xf1 && code <= x68k_xf5) {
+		snprintf(buf, n, "XF%d", code - x68k_xf1 + 1);
+		return;
+	}
+	switch (code) {
+	case x68k_kigou: s = "KIGOU"; break;
+	case x68k_touroku: s = "TOUROKU"; break;
+	case x68k_kana: s = "KANA"; break;
+	case x68k_del: s = "DEL"; break;
+	case x68k_home: s = "HOME"; break;
+	case x68k_rollup: s = "RUP"; break;
+	case x68k_rolldown: s = "RDOWN"; break;
+	case x68k_clr: s = "CLR"; break;
+	case x68k_ins: s = "INS"; break;
+	case x68k_undo: s = "UNDO"; break;
+	case x68k_opt1: s = "OPT1"; break;
+	case x68k_opt2: s = "OPT2"; break;
+	case x68k_up: s = "UP"; break;
+	case x68k_down: s = "DOWN"; break;
+	case x68k_left: s = "LEFT"; break;
+	case x68k_right: s = "RIGHT"; break;
+	default: break;
+	}
+	if (s != NULL)
+		snprintf(buf, n, "%s", s);
+}
+
+int
+XSTed_binding_at(int index, unsigned *macChar, unsigned *needMask,
+		 char *name, size_t nameLen)
+{
+	uint32_t e;
+
+	if (index < 0 || index >= 127)
+		return 0;
+	e = s_x68k_special_key[index];
+	if (e == 0)
+		return 0;
+	if (macChar != NULL)
+		*macChar = e & 0xffff;
+	if (needMask != NULL)
+		*needMask = (e >> 16) & 6;
+	if (name != NULL && nameLen > 0)
+		x68k_key_name((int)(e >> 24), name, nameLen);
+	return 1;
+}
+
+int
+XSTed_viewer_label(unsigned vk, unsigned macChar, int modMask, int commandDown,
+		   char *name, size_t nameLen)
+{
+	int i, bestRank = -1, tie = 0;
+	uint32_t bestCode = 0;
+	int keyMask = modMask & 6;
+
+	if (name == NULL || nameLen == 0)
+		return 0;
+	name[0] = 0;
+	/* Same shortcut as keyDown: F11 and F12 win unless Command is down. */
+	if (!commandDown) {
+		if (vk == 0x67) {
+			x68k_key_name(x68k_kigou, name, nameLen);
+			return name[0] != 0;
+		}
+		if (vk == 0x6F) {
+			x68k_key_name(x68k_touroku, name, nameLen);
+			return name[0] != 0;
+		}
+	}
+	if (macChar == 0)
+		return 0;
+	for (i = 0; i < 127; i++) {
+		uint32_t e = s_x68k_special_key[i];
+		uint32_t need;
+		int rank;
+		if (e == 0)
+			break;
+		need = (e >> 16) & 6;
+		if ((e & 0xffff) != (macChar & 0xffff))
+			continue;
+		if ((keyMask & (int)need) != (int)need)
+			continue;
+		rank = (need == 6) ? 2 : (need != 0);
+		if (rank > bestRank) {
+			bestRank = rank;
+			bestCode = e;
+			tie = 0;
+		} else if (rank == bestRank) {
+			tie = 1;
+		}
+	}
+	if (bestRank < 0 || tie)
+		return 0;
+	x68k_key_name((int)(bestCode >> 24), name, nameLen);
+	return name[0] != 0;
+}
 
 /* Map NSView coords (origin bottom-left) to X68k screen (origin top-left). */
 static void
@@ -789,6 +901,7 @@ s_RegisterKeyDown(uint32_t ch)
 	}
 	sModifierFlags = flags;
 	[sLock unlock];
+	KeyboardViewerNoteFlags(flags);
 }
 
 - (void)flagsChanged:(NSEvent *)theEvent

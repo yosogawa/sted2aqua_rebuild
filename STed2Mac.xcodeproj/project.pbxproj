@@ -48,11 +48,13 @@
 		A1DLS0D12F0A4B0100DLS0D1 /* DLSSynthPanel.m in Sources */ = {isa = PBXBuildFile; fileRef = A1DLS0B12F0A4B0100DLS0B1 /* DLSSynthPanel.m */; };
 		A1E0E0032F0A4B0100E0E003 /* rcp_player_engine.c in Sources */ = {isa = PBXBuildFile; fileRef = A1E0E0012F0A4B0100E0E001 /* rcp_player_engine.c */; };
 		A1E0E0132F0A4B0100E0E013 /* InternalSynth.m in Sources */ = {isa = PBXBuildFile; fileRef = A1E0E0112F0A4B0100E0E011 /* InternalSynth.m */; };
-		A1OUT0B12F0A4B0100OUT0B1 /* OutputPort.m in Sources */ = {isa = PBXBuildFile; fileRef = A1OUT0M12F0A4B0100OUT0M1 /* OutputPort.m */; };
 		A1F0E0111AC55B8700A70D01 /* KH-Dot-Kodenmachou-16.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A1F0E0131AC55B8700A70D03 /* KH-Dot-Kodenmachou-16.ttf */; };
 		A1F0E0121AC55B8700A70D02 /* OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = A1F0E0141AC55B8700A70D04 /* OFL.txt */; };
 		A1F0E0311AC55B8700A70D21 /* AVFAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1F0E0321AC55B8700A70D22 /* AVFAudio.framework */; };
+		A1KBD012F0A4B0100KBD001 /* KeyboardViewer.m in Sources */ = {isa = PBXBuildFile; fileRef = A1KBD022F0A4B0100KBD002 /* KeyboardViewer.m */; };
+		A1CMD012F0A4B0100CMD001 /* CommandReference.m in Sources */ = {isa = PBXBuildFile; fileRef = A1CMD022F0A4B0100CMD002 /* CommandReference.m */; };
 		A1L10C011B01000100L10C01 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = A1L10C041B01000100L10C01 /* Localizable.strings */; };
+		A1OUT0B12F0A4B0100OUT0B1 /* OutputPort.m in Sources */ = {isa = PBXBuildFile; fileRef = A1OUT0M12F0A4B0100OUT0M1 /* OutputPort.m */; };
 		A1RAS0012F0A4B0100E0E201 /* gm.ras in Resources */ = {isa = PBXBuildFile; fileRef = A1RAS0022F0A4B0100E0E202 /* gm.ras */; };
 		A1RAS0032F0A4B0100E0E203 /* mt32.ras in Resources */ = {isa = PBXBuildFile; fileRef = A1RAS0042F0A4B0100E0E204 /* mt32.ras */; };
 		A1SF2D012F0A4B0100SF2D01 /* Sf2DefGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = A1SF2B012F0A4B0100SF2B01 /* Sf2DefGenerator.m */; };
@@ -191,8 +193,6 @@
 		A1E0E0022F0A4B0100E0E002 /* rcp_player_engine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rcp_player_engine.h; sourceTree = "<group>"; };
 		A1E0E0112F0A4B0100E0E011 /* InternalSynth.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InternalSynth.m; sourceTree = "<group>"; };
 		A1E0E0122F0A4B0100E0E012 /* InternalSynth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InternalSynth.h; sourceTree = "<group>"; };
-		A1OUT0H12F0A4B0100OUT0H1 /* OutputPort.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OutputPort.h; sourceTree = "<group>"; };
-		A1OUT0M12F0A4B0100OUT0M1 /* OutputPort.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OutputPort.m; sourceTree = "<group>"; };
 		A1F0E0131AC55B8700A70D03 /* KH-Dot-Kodenmachou-16.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "KH-Dot-Kodenmachou-16.ttf"; path = "sted2/fonts/KH-Dot-Kodenmachou-16.ttf"; sourceTree = "<group>"; };
 		A1F0E0141AC55B8700A70D04 /* OFL.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = OFL.txt; path = sted2/fonts/OFL.txt; sourceTree = "<group>"; };
 		A1F0E0321AC55B8700A70D22 /* AVFAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFAudio.framework; path = /System/Library/Frameworks/AVFAudio.framework; sourceTree = "<absolute>"; };
@@ -201,8 +201,14 @@
 		A1F0E0431AC55B8700A70D33 /* key_sub.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = key_sub.h; sourceTree = "<group>"; };
 		A1F0E0441AC55B8700A70D34 /* redit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = redit.h; sourceTree = "<group>"; };
 		A1F0E0511AC55B8700A70D51 /* X68kWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = X68kWindow.h; sourceTree = "<group>"; };
+		A1KBD022F0A4B0100KBD002 /* KeyboardViewer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeyboardViewer.m; sourceTree = "<group>"; };
+		A1KBD032F0A4B0100KBD003 /* KeyboardViewer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeyboardViewer.h; sourceTree = "<group>"; };
+		A1CMD022F0A4B0100CMD002 /* CommandReference.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CommandReference.m; sourceTree = "<group>"; };
+		A1CMD032F0A4B0100CMD003 /* CommandReference.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CommandReference.h; sourceTree = "<group>"; };
 		A1L10C021B01000100L10C01 /* en */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		A1L10C031B01000100L10C01 /* ja */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
+		A1OUT0H12F0A4B0100OUT0H1 /* OutputPort.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OutputPort.h; sourceTree = "<group>"; };
+		A1OUT0M12F0A4B0100OUT0M1 /* OutputPort.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OutputPort.m; sourceTree = "<group>"; };
 		A1RAS0022F0A4B0100E0E202 /* gm.ras */ = {isa = PBXFileReference; explicitFileType = text; path = gm.ras; sourceTree = "<group>"; };
 		A1RAS0042F0A4B0100E0E204 /* mt32.ras */ = {isa = PBXFileReference; explicitFileType = text; path = mt32.ras; sourceTree = "<group>"; };
 		A1SF2B002F0A4B0100SF2B00 /* Sf2DefGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Sf2DefGenerator.h; sourceTree = "<group>"; };
@@ -805,6 +811,10 @@
 				E44E7DFC1AC4C94E00F71120 /* MyDialogController.m */,
 				A1AB0D031B01000100ABOUT1 /* AboutPanelController.h */,
 				A1AB0D041B01000100ABOUT1 /* AboutPanelController.m */,
+				A1KBD032F0A4B0100KBD003 /* KeyboardViewer.h */,
+				A1KBD022F0A4B0100KBD002 /* KeyboardViewer.m */,
+				A1CMD032F0A4B0100CMD003 /* CommandReference.h */,
+				A1CMD022F0A4B0100CMD002 /* CommandReference.m */,
 				AF9D4CF53094456D00846A7F /* MIDISettingsController.h */,
 				AF9D4CF63094457700846A7F /* MIDISettingsController.m */,
 			);
@@ -988,6 +998,8 @@
 				E4DBA7B81ABB1F1E0070024F /* X68kView.m in Sources */,
 				E44E7DFD1AC4C94E00F71120 /* MyDialogController.m in Sources */,
 				A1AB0D011B01000100ABOUT1 /* AboutPanelController.m in Sources */,
+				A1KBD012F0A4B0100KBD001 /* KeyboardViewer.m in Sources */,
+				A1CMD012F0A4B0100CMD001 /* CommandReference.m in Sources */,
 				A1DLS0D12F0A4B0100DLS0D1 /* DLSSynthPanel.m in Sources */,
 				A1COL0D12F0A4B0100COL0D1 /* colorpanel.c in Sources */,
 				A1SF2D022F0A4B0100SF2D02 /* sf2_def_gen.c in Sources */,
@@ -1176,6 +1188,10 @@
 					"-liconv",
 					"-framework",
 					CoreFoundation,
+					"-framework",
+					Carbon,
+					"-framework",
+					IOKit,
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.STed2;
 				PRODUCT_NAME = STed2;
@@ -1222,6 +1238,10 @@
 					"-liconv",
 					"-framework",
 					CoreFoundation,
+					"-framework",
+					Carbon,
+					"-framework",
+					IOKit,
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.STed2;
 				PRODUCT_NAME = STed2;

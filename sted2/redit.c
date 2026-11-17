@@ -5,6 +5,7 @@
 #include	"sted.h"
 #include	"redit.h"
 #include	"rcp_transport.h"
+#include	"sub/aqua/CommandReference.h"
 
 static char	rym[10][3]={"- ","1 ","2 ","3 ","4 ","5 ","6 ","7 ","8 ","9 "};
 static char	rym_s[10][4]={"OFF"," 1 "," 2 "," 3 "," 4 "," 5 "," 6 "," 7 "," 8 "," 9 "};
@@ -30,6 +31,7 @@ static void disp_vels( void );
 /* rhythm track edit */
 void rtrk_ed(int md,int sh)
 {
+  STED_SCREEN(STED_SCR_RHYTHM_EDIT);
   int	no,pg=0,ke,kc,cx,cy,i,j,py,yy,rc=5999;
   int	msf=-1;
 

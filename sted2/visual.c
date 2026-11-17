@@ -4,6 +4,7 @@
 
 #include	"sted.h"
 #include	"visual.h"
+#include	"sub/aqua/CommandReference.h"
 
 static char curv_tbl[192]={
 	  0,  4,  7, 10, 13, 17, 20, 24, 27, 30, 33, 36, 39, 42, 44, 46,
@@ -31,6 +32,7 @@ int	XB,DM;
 /***************************/
 int	vis_edit(int po,int ln,int ssh)
 {
+	STED_SCREEN(STED_SCR_VISUAL);
 	int	i,j,st,cx,ccx,ke=0,kc,sh,lpara=0,co,vmo=-1,xss=6,ys=1,yss=10;
 	int	ma,mx,my,msf=-1,extmd=0,barlen,retad=0,eds=edit_scr,ost;
 

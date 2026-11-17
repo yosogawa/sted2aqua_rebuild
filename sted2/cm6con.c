@@ -4,6 +4,7 @@
 
 #include	"sted.h"
 #include	"rcp_transport.h"
+#include	"sub/aqua/CommandReference.h"
 
 static uint8_t	cm6_info[64]={
   0x43,0x4F,0x4D,0x45,0x20,0x4F,0x4E,0x20,0x4D,0x55,0x53,0x49,0x43,0x00,0x00,0x00,
@@ -252,6 +253,7 @@ uint8_t	trf[64];
 /***************************/
 void	cm64_con()
 {
+  STED_SCREEN(STED_SCR_CM64);
   int	ke,sh,ex,smo=0,i;
   char	tmp0[PATHLEN * 2 + PATH_DRIVE_EXTRA],path2[PATHLEN + PATH_DRIVE_EXTRA];
   char	name[PATHLEN];
@@ -1126,6 +1128,7 @@ void	twait(int ti)
 /***************************/
 void	gsd_con()
 {
+  STED_SCREEN(STED_SCR_GS);
   int	ex;
 
   all_note_off(0);

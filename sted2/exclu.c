@@ -3,6 +3,7 @@
  */
 
 #include	"sted.h"
+#include	"sub/aqua/CommandReference.h"
 
 static	char	uxcc[5][3]={"gt","ve","ch","cs","ss"};
 static	char	dotp[4][3]={"","","",""};
@@ -25,6 +26,7 @@ static void exc_dis2(int, int);
 /***************************/
 void	user_exc_as(int no)
 {
+  STED_SCREEN(STED_SCR_USER_EXC);
   int	gy,ke,kc,sh,i,x=0,y=no*2,yy,nn,mm,a,cc;
 
   gy=scyp;
@@ -270,6 +272,7 @@ void	user_exc_dis(int no)
 /***************************/
 void	exc_edit(int ad,int cy,int sw)
 {
+  STED_SCREEN(STED_SCR_TRK_EXC);
   int	ke,sh,kc,i,x=0,y=0,cx,gx,a,cc,co,po,nn;
   int	e=edit_scr;
   uint8_t	*buf;buf=dat+(16*1024);
@@ -844,6 +847,7 @@ void prn_gspanel( int cx )
 /*970112 bar display edit*/
 int	dot_ed(int dx,int co)
 {
+  STED_SCREEN(STED_SCR_DOT);
   int	ke,kc,sh,cx,cy,i,j,gx,pmode=1;
   int	msf=-1;
 
