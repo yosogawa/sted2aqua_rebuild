@@ -3747,6 +3747,8 @@ s_MacSelectFile(void **args)
 	int i;
 	char *p, *pp;
 	NSMutableArray *filetypes;
+	NSMutableArray *contentTypes;
+	NSMutableDictionary *typeByExt;
 	NSString *title;
 	
 	fna = (char *)args[0];
@@ -3772,12 +3774,15 @@ s_MacSelectFile(void **args)
 		}
 		free(pp);
 	} else filetypes = nil;
+	contentTypes = nil;
+	typeByExt = nil;
 	if (filetypes == nil) {
 		[panel setAllowedContentTypes:@[]];
 	} else {
-		NSMutableArray *contentTypes = [NSMutableArray arrayWithCapacity:[filetypes count]];
 		NSString *extString;
 		UTType *type;
+		contentTypes = [NSMutableArray arrayWithCapacity:[filetypes count]];
+		typeByExt = [NSMutableDictionary dictionaryWithCapacity:[filetypes count]];
 		for (extString in filetypes) {
 			/* public.midi-audio lists "midi" ahead of "mid", and the save
 			 * panel writes that preferred extension. On save, pass the
@@ -3797,8 +3802,10 @@ s_MacSelectFile(void **args)
 				type = [UTType typeWithTag:extString
 						  tagClass:UTTagClassFilenameExtension
 					   conformingToType:UTTypeData];
-			if (type != nil)
+			if (type != nil) {
 				[contentTypes addObject:type];
+				[typeByExt setObject:type forKey:extString];
+			}
 		}
 		[panel setAllowedContentTypes:contentTypes];
 	}
@@ -3844,8 +3851,19 @@ s_MacSelectFile(void **args)
 	}
 	if (is_save && fna != NULL && fna[0] != 0) {
 		NSString *name = [NSString stringWithUTF8String:fna];
+		NSString *nameExt;
+		UTType *match;
 		if (name != nil)
 			[(NSSavePanel *)panel setNameFieldStringValue:name];
+		/* The format menu otherwise stays on the first allowed type, so a
+		 * proposed Aja.mid still shows .rcp until the user picks again.
+		 * currentContentType is the menu selection, and it is macOS 15+. */
+		nameExt = (name != nil) ? [[name pathExtension] lowercaseString] : nil;
+		match = (nameExt != nil) ? [typeByExt objectForKey:nameExt] : nil;
+		if (@available(macOS 15.0, *)) {
+			if (match != nil)
+				[(NSSavePanel *)panel setCurrentContentType:match];
+		}
 	}
 	/* UNIT SEL: A / B / A&B target on the open panel accessory. */
 	if (!is_save && def_scope_out != NULL) {
