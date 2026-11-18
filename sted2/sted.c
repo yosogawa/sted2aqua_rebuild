@@ -894,12 +894,19 @@ int	main(int argc,char *argv[])
 }
 
 /***************************/
+void	sted_release_notes(void)
+{
+  /* full_stop() inside the player stop is a no-op once valid_ is cleared. */
+  all_note_off(1);
+  rcp_transport_clear_valid();
+}
+
 void	end_proc()
 {
-  rcp_transport_clear_valid();
+  /* bufset() only copied the song into the RCD buffer, which exit discards. */
+  sted_release_notes();
   /*  msg_clr();tpl(0);G_CLR_ON();CRTMOD(16);C_FNKMOD(0);C_CURON();LEDMOD(4,0);*/ /* Aug.09.1998 Daisuke Nagano */
   msg_clr();tpl(0);G_CLR_ON();CRTMOD(17);C_FNKMOD(0);C_CURON();LEDMOD(4,0);
-  if(!(cmdflag&0x10)){bufset();}
   FNCKEYST(0,fnckey0);fonset(fonbuf);
   close_midi_port(); /* Sep.02.1998 Daisuke Nagano */
 

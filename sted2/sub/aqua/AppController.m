@@ -128,6 +128,13 @@ ApplySyncModeMenuTitle(NSMenuItem *item)
     return YES;
 }
 
+- (void)applicationWillTerminate:(NSNotification *)notification
+{
+	(void)notification;
+	/* EXIT calls this and then exit(), so it never reaches this method. */
+	sted_release_notes();
+}
+
 static char sFinderArg[PATHLEN];
 static char *sFinderArgv[48];
 

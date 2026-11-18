@@ -350,6 +350,7 @@ void sted_redraw_thru_mode(void);
 void save_sub(int sh);
 int  option_read(char *env_option);
 void form(void);
+void sted_release_notes(void);
 void end_proc(void);
 
 void dpl(int a);
