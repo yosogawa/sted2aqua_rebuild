@@ -1120,7 +1120,7 @@ void trk_ed_end(int po,int cx,int cy)
   trk_pos_set(po,cx,cy);
   trksize(track);if(edit_scr==0){track1=track;}else{track2=track;}
   B_CLR_AL();fnc_dis(-1);msg_clr();edit_scr=0;cons_md(0);
-  edfield(-1);pinfo_on=0;sdis2(30+8,512,"",18,0,0);home2(0);
+  edfield(-1);pinfo_on=0;sdis2(30+8,512,"",19,0,0);home2(0);
 }
 
 void trk_pos_set(int po,int cx,int cy)
@@ -1360,7 +1360,10 @@ int	retkey2(int ecode)
 /***************************/
 void	inmd_disp()
 {
-  sdis2(30+8,512,inmd[inpmode],18,15,8);
+  /* One cell of pad, same as FREE / USED / TR. The longest name is 18,
+     so the chip is 19 and the empty chip beside it gives up that cell. */
+  sdis2(30+8,512,"",19,15,8);
+  g_print((30+9)*8,512,inmd[inpmode],15);
   module_chip_b_clear(512);
 }
 

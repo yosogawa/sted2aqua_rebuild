@@ -1664,11 +1664,13 @@ module_chips_draw(int y)
 	module_chip_label('B', module_id_b), MODULE_CHIP_COLS, 15, 8);
 }
 
-/* EDIT replaces the A chip. Hide B for the same span until logo() redraws it. */
+/* EDIT replaces the A chip. The B span stays an empty palette-8 chip.
+   The mode label is indented one cell, so this chip starts one cell later
+   and is one cell shorter. logo() redraws the real B chip. */
 void
 module_chip_b_clear(int y)
 {
-  sdis2(30 + 8 + MODULE_CHIP_COLS + 1, y, "", MODULE_CHIP_COLS, 0, 0);
+  sdis2(30 + 8 + MODULE_CHIP_COLS + 2, y, "", MODULE_CHIP_COLS - 1, 15, 8);
 }
 
 /***************************/
