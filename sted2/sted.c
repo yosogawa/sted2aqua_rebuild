@@ -835,6 +835,13 @@ int	main(int argc,char *argv[])
   for(i=0;i<12;i++){fnckey1[0x280+i*6]=fnckey[i];}
   FNCKEYGT(0,fnckey0);FNCKEYST(0,fnckey1);
 
+  /* RCP_DIR, -D, and a song named on the command line already filled this.
+     An empty path used to become the process cwd, which Finder sets to /. */
+#if defined(__APPLE__)
+  if(rcp_path[0]==0)
+    sted_default_documents_path(rcp_path, sizeof rcp_path);
+#endif
+
   path_set(rcp_path);path_set(def_path);
 
   if(trk_path[0]==0){

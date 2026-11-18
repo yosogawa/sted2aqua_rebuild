@@ -356,6 +356,10 @@ void end_proc(void);
 void dpl(int a);
 int exe(char *cmd);
 void tpl(int a);
+#if defined(__APPLE__)
+/* NSDocumentDirectory, including a Documents folder moved to iCloud. 0 on success. */
+int sted_default_documents_path(char *buf, size_t n);
+#endif
 
 
 #ifdef __cplusplus

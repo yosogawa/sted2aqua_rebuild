@@ -1164,6 +1164,33 @@ XSTed_setup_default_path(void)
 		s_sted_default_path[0] = 0;
 }
 
+/* NSDocumentDirectory follows a Documents folder the user moved, including
+   iCloud Drive. path_set appends a slash, so one byte stays free. */
+int
+sted_default_documents_path(char *buf, size_t n)
+{
+	NSArray *urls;
+	NSURL *url;
+	NSString *path;
+
+	if (buf == NULL || n < 3)
+		return -1;
+	buf[0] = 0;
+	urls = [[NSFileManager defaultManager]
+		URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask];
+	if ([urls count] == 0)
+		return -1;
+	url = [urls objectAtIndex:0];
+	path = [url path];
+	if (path == nil || [path length] == 0)
+		return -1;
+	if (![path getFileSystemRepresentation:buf maxLength:n - 1]) {
+		buf[0] = 0;
+		return -1;
+	}
+	return 0;
+}
+
 /* Glyph tables stay 16 rows until the text buffer itself is rebuilt.
    cellHeight is accepted so a later display size can call this again. */
 #define kFontCellHeight 16
