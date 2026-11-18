@@ -1563,6 +1563,7 @@ int	comment_inp(int ad,int cy,int sh)
 /***************************/
 void	spcon(int ad,int cy)
 {
+  STED_SCREEN(STED_SCR_CMDSEL);
   int	i,ct,ctl;
   char	tmp0[256];
 

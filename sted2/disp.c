@@ -500,7 +500,10 @@ void	noed_cls(void)
 
 void	noed_cls_t(void)
 {
-  if(edit_scr!=0){txerase(0,32,454,489);}else{txerase(313,32,767,489);}
+  /* TXFILL x1/y1 are width/height. The old numbers were the far corner,
+     so height 489 from y=32 ran through y=520 and erased row 31.
+     Stop at y=489. The function-key row starts at 496. */
+  if(edit_scr!=0){txerase(0,32,455,458);}else{txerase(313,32,455,458);}
 }
 
 /***************************/
