@@ -1,15 +1,6 @@
 *------------------------------------------------------------------------
-* STed2.cnf : STed v2.07 環境設定ファイル		1996-11-17
+* STed2.cnf : STed v2.07 環境設定ファイル		2026-11-17
 *-------------------------------------------------------------------------
-
-*	 [ロゴの下に表示するメッセージ(UNIX版は29文字まで)  ]
-#comment=   ------- for Mac OS X --------
-*#comment=   ------ for Linux / OSS ------
-*#comment=   ----- for FreeBSD / OSS -----
-*#comment=   -------- for  NetBSD --------
-*#comment=   --------- for SunOS ---------
-*#comment=   -------- for Solaris --------
-*#comment=   --------- for HP-UX ---------
 
 * 機能の設定(ON=する/OFF=しない)
 #enter   =off		* ノート入力時の[RETURN]/[SPACE]の機能を入れ替える
@@ -198,26 +189,15 @@
 
 
 *#player=1,timidity -idq -f -s22.05
-
 *#player=3,timidity -iSt -s22.05
-
 *#player=0,playmidi -e
-
 *#player=3,rcpplay -r2
-
 *#player=1,srgplay -r0
-
 *#player=0,drvmidi -id 
 
 *=============================================================================
 * MIDI 入力に使用するデバイス名の設定
 * シリアルポートも使用できるが、STed の起動前に転送速度を適当に設定する事
-
-*#midi_port=/dev/midi
-
-*#midi_port=/dev/midi00
-*#midi_port=/dev/midi01
-*#midi_port=/dev/ttyS0
 
 *=============================================================================
 * MIDI 入出力に使用するデバイス名の設定 (macOS)
@@ -240,6 +220,12 @@
 *#dls_synth_font=SGM-V2.01.sf2
 *#dls_synth_font=Yamaha XG Sound Set.sf2
 
+* dls_synth_font は DLS 1、dls_synth_font2 は DLS 2。書くのはファイル名だけ
+* 空欄は内蔵の GM1 相当。dls_synth_font だけがある古い設定は、両方に同じフォントを読む
+
+#dls_synth_font=
+#dls_synth_font2=
+
 * DLS 本体の QuickTime 互換リバーブバス (CC#91)。後段エフェクトの dls_reverb_type とは別
 * dls_synth_use_reverb は 0 または 1。既定は 1
 * dls_synth_reverbtype は 0 .. 12。既定は 3 (Medium Hall)。番号の意味は下の Reverb type と同じ
@@ -249,7 +235,9 @@
 
 *=============================================================================
 * Apple DLS Synth のトータルエフェクト (macOS only)
-* 信号の順: DLS (1 と 2 を合算) → EQ → Reverb → Peak Limiter → 音量
+* 信号の順: DLS 1 / DLS 2 / AMY のミキサー → 合算 → EQ → Reverb → Peak Limiter → 音量
+* ミキサーは各音源が合算に入る前の音量。スライダーは下の Volume と同じ 15A カーブ
+* 保存値は線形ゲイン 0.0 .. 1.0。既定は 1.0（0 dB）。左端は無音
 * dls_total_effect は 0 または 1。1 で EQ、Reverb、Limiter を通す。0 でその3つをバイパスする。既定は 1
 * 音量はどちらのときも有効。QuickTime 互換リバーブバスはこのスイッチの外
 *
@@ -266,6 +254,9 @@
 * Limiter boost は Peak Limiter の preGain、0.0 .. 6.0 (dB)
 * Volume のスライダーは 15A カーブ y=exp(a*(p-1))（中央 15%）。左端は無音。保存値は outputVolume の線形ゲイン 0.0 .. 1.0
 
+#dls_mixer_dls=1.0
+#dls_mixer_dls2=1.0
+#dls_mixer_amy=1.0
 #dls_total_effect=1
 #dls_eq_global_gain=0.0
 #dls_bass_gain=0.0
@@ -277,13 +268,6 @@
 
 *=============================================================================
 * X Window 上で動作する場合の font set 名
-
-*#font_name=-\*-fixed-\*-r-normal--12-\*-\*-\*
-*#font_name=-\*-fixed-\*-r-normal--14-\*-\*-\*
-*#font_name=-\*-fixed-\*-r-normal--16-\*-\*-\*
-*#font_name=-\*-fixed-\*-r-normal--18-\*-\*-\*
-*#font_name=-\*-fixed-\*-r-normal--20-\*-\*-\*
-*#font_name=-\*-fixed-\*-r-normal--24-\*-\*-\*
 
 *=============================================================================
 * macOS で画面に使用するフォント (NSFont の PostScript 名)

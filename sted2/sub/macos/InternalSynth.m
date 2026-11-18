@@ -755,6 +755,10 @@ StartInternalSynthEngine(void)
 	sDLSUnit[1] = u1;
 	sDLS[0] = u0.audioUnit;
 	sDLS[1] = u1.audioUnit;
+	/* The apply before start skipped DLS gains: sDLSUnit was still nil.
+	   start can also put the effect units back to their defaults. */
+	sAppliedReverbPreset = -1;
+	ApplyEffectsLocked();
 	ApplyInternalReverbLocked();
 	WatchEngineConfiguration(sEngine);
 }
