@@ -235,7 +235,7 @@
 
 *=============================================================================
 * Apple DLS Synth のトータルエフェクト (macOS only)
-* 信号の順: DLS 1 / DLS 2 / AMY のミキサー → 合算 → EQ → Reverb → Peak Limiter → 音量
+* 信号の順: DLS 1 / DLS 2 / AMY のミキサー → 合算 → EQ → Reverb → Peak Limiter → 音量 → サウンド出力
 * ミキサーは各音源が合算に入る前の音量。スライダーは下の Volume と同じ 15A カーブ
 * 保存値は線形ゲイン 0.0 .. 1.0。既定は 1.0（0 dB）。左端は無音
 * dls_total_effect は 0 または 1。1 で EQ、Reverb、Limiter を通す。0 でその3つをバイパスする。既定は 1
@@ -253,6 +253,8 @@
 * Reverb mix は 0.0 .. 100.0 (%)
 * Limiter boost は Peak Limiter の preGain、0.0 .. 6.0 (dB)
 * Volume のスライダーは 15A カーブ y=exp(a*(p-1))（中央 15%）。左端は無音。保存値は outputVolume の線形ゲイン 0.0 .. 1.0
+* dls_output_device はサウンド出力先。未指定、空欄、default はシステムのデフォルト出力
+* 個別の機器を固定するときは Core Audio のデバイス UID
 
 #dls_mixer_dls=1.0
 #dls_mixer_dls2=1.0
@@ -265,6 +267,7 @@
 #dls_reverb_mix=0.0
 #dls_limiter_boost=0.0
 #dls_volume=1.0
+#dls_output_device=default
 
 *=============================================================================
 * X Window 上で動作する場合の font set 名

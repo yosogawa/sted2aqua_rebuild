@@ -4,11 +4,12 @@
 
 #include "sted.h"
 
+#include <CoreAudio/CoreAudio.h>
 #include <math.h>
 
 enum {
 	kPanelW = 468,
-	kPanelH = 646,
+	kPanelH = 698,
 	kMargin = 20,
 	kLabelW = 112,
 	kValueW = 78,
@@ -147,6 +148,27 @@ ReverbMixLabel(double v)
 }
 @end
 
+@interface DLSSynthPanel ()
+- (void)reloadOutputDevices;
+@end
+
+static DLSSynthPanel *sPanel;
+
+static OSStatus
+DLSOutputDevicesChanged(AudioObjectID objectID, UInt32 numberAddresses,
+	const AudioObjectPropertyAddress *addresses, void *clientData)
+{
+	(void)objectID;
+	(void)numberAddresses;
+	(void)addresses;
+	(void)clientData;
+	dispatch_async(dispatch_get_main_queue(), ^{
+		if (sPanel != nil)
+			[sPanel reloadOutputDevices];
+	});
+	return noErr;
+}
+
 @implementation DLSSynthPanel
 {
 	NSWindow *window;
@@ -183,9 +205,9 @@ ReverbMixLabel(double v)
 	NSTextField *dlsMix2Value;
 	NSTextField *amyMixValue;
 	NSTextField *volumeValue;
+	NSPopUpButton *outputPopup;
+	int observingOutputs;
 }
-
-static DLSSynthPanel *sPanel;
 
 static const char *kReverbNames[13] = {
 	"Small Room",
@@ -226,6 +248,76 @@ static const char *kReverbNames[13] = {
 						      object:nil];
 }
 
+- (void)stopObservingOutputDevices
+{
+	AudioObjectPropertyAddress addr;
+
+	if (!observingOutputs)
+		return;
+	observingOutputs = 0;
+	addr.mSelector = kAudioHardwarePropertyDevices;
+	addr.mScope = kAudioObjectPropertyScopeGlobal;
+	addr.mElement = kAudioObjectPropertyElementMain;
+	AudioObjectRemovePropertyListener(kAudioObjectSystemObject, &addr,
+		DLSOutputDevicesChanged, NULL);
+}
+
+- (void)startObservingOutputDevices
+{
+	AudioObjectPropertyAddress addr;
+
+	if (observingOutputs)
+		return;
+	addr.mSelector = kAudioHardwarePropertyDevices;
+	addr.mScope = kAudioObjectPropertyScopeGlobal;
+	addr.mElement = kAudioObjectPropertyElementMain;
+	if (AudioObjectAddPropertyListener(kAudioObjectSystemObject, &addr,
+			DLSOutputDevicesChanged, NULL) == noErr)
+		observingOutputs = 1;
+}
+
+- (void)reloadOutputDevices
+{
+	DLSOutputDeviceInfo list[64];
+	int n, i;
+	char uid[DLS_OUTPUT_UID_MAX];
+	NSString *current;
+	BOOL found = NO;
+
+	if (outputPopup == nil)
+		return;
+	n = CoreMIDIListOutputDevices(list, 64);
+	CoreMIDIGetDLSOutputDevice(uid, sizeof uid);
+	current = [NSString stringWithUTF8String:uid];
+	if (current == nil)
+		current = @"";
+	[outputPopup removeAllItems];
+	[outputPopup addItemWithTitle:@"Default Sound Output"];
+	[[outputPopup lastItem] setRepresentedObject:@""];
+	for (i = 0; i < n; i++) {
+		NSString *name = [NSString stringWithUTF8String:list[i].name];
+		NSString *devUID = [NSString stringWithUTF8String:list[i].uid];
+		if (devUID == nil || [devUID length] == 0)
+			continue;
+		if (name == nil || [name length] == 0)
+			name = devUID;
+		[outputPopup addItemWithTitle:name];
+		[[outputPopup lastItem] setRepresentedObject:devUID];
+	}
+	for (i = 0; i < (int)[outputPopup numberOfItems]; i++) {
+		NSString *rep = [[outputPopup itemAtIndex:i] representedObject];
+		if (rep == nil)
+			rep = @"";
+		if ([rep isEqualToString:current]) {
+			[outputPopup selectItemAtIndex:i];
+			found = YES;
+			break;
+		}
+	}
+	if (!found)
+		[outputPopup selectItemAtIndex:0];
+}
+
 - (void)startObservingPorts
 {
 	if (observingPorts)
@@ -254,6 +346,7 @@ static const char *kReverbNames[13] = {
 - (void)dealloc
 {
 	[self stopObservingPorts];
+	[self stopObservingOutputDevices];
 	[window setDelegate:nil];
 	[bankPopup1 release];
 	[bankPopup2 release];
@@ -270,6 +363,7 @@ static const char *kReverbNames[13] = {
 	[dlsMix2Slider release];
 	[amyMixSlider release];
 	[volumeSlider release];
+	[outputPopup release];
 	[trimValue release];
 	[bassValue release];
 	[trebleValue release];
@@ -745,6 +839,14 @@ enum {
 	       slider:(volumeSlider = [self addSliderAtY:y min:0.0 max:1.0 value:ACurvePosition(fx.volume)])
 		value:(volumeValue = [self addValueAtY:y])
 	       phrase:@"set 0 dB"];
+	y -= kRowStep + kSepSpace;
+	[self addSeparatorBeforeRowAtY:y];
+	[self addLabel:@"Sound Output" y:y];
+	outputPopup = [self addPopupAtY:y];
+	[outputPopup setTarget:self];
+	[outputPopup setAction:@selector(outputChanged:)];
+	[self reloadOutputDevices];
+	[self startObservingOutputDevices];
 	[self refreshValueLabels];
 	[self setEffectControlsEnabled:fx.totalEffect != 0];
 }
@@ -835,12 +937,27 @@ enum {
 	[self saveSettings];
 }
 
+- (void)outputChanged:(id)sender
+{
+	NSString *uid = [[outputPopup selectedItem] representedObject];
+	const char *utf;
+
+	(void)sender;
+	if (uid == nil)
+		uid = @"";
+	utf = [uid UTF8String];
+	CoreMIDISetDLSOutputDevice(utf != NULL ? utf : "");
+	[self saveSettings];
+}
+
 - (void)show
 {
 	if (window == nil)
 		[self buildWindow];
-	else
+	else {
 		[self syncBankEnabled];
+		[self reloadOutputDevices];
+	}
 	[window orderFront:nil];
 }
 
@@ -848,6 +965,7 @@ enum {
 {
 	(void)notification;
 	[self stopObservingPorts];
+	[self stopObservingOutputDevices];
 	[self saveSettings];
 	if (sPanel == self) {
 		sPanel = nil;

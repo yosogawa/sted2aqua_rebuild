@@ -1873,6 +1873,12 @@ XSTed_configure_mac_settings(const char *line)
 			bus.roomType = atoi(line + 22);
 		CoreMIDISetDLSInternalReverb(&bus);
 	}
+	if (strncasecmp(line, "#dls_output_device=", 19) == 0) {
+		const char *p = line + 19;
+		while (*p == ' ' || *p == '\t')
+			p++;
+		CoreMIDISetDLSOutputDevice(p);
+	}
 	if (strncasecmp(line, "#dls_total_effect=", 18) == 0
 	 || strncasecmp(line, "#dls_eq_global_gain=", 20) == 0
 	 || strncasecmp(line, "#dls_bass_gain=", 15) == 0
@@ -2399,8 +2405,9 @@ XSTed_save_dls_settings(void)
 	DLSInternalReverb bus;
 	const char *font;
 	const char *font2;
-	NSString *values[15];
-	static const char *keys[15] = {
+	NSString *values[16];
+	char outputUID[DLS_OUTPUT_UID_MAX];
+	static const char *keys[16] = {
 		"#dls_synth_font=",
 		"#dls_synth_font2=",
 		"#dls_synth_use_reverb=",
@@ -2416,6 +2423,7 @@ XSTed_save_dls_settings(void)
 		"#dls_reverb_mix=",
 		"#dls_limiter_boost=",
 		"#dls_volume=",
+		"#dls_output_device=",
 	};
 	NSInteger commentAnchor = -1;
 	NSInteger activeAnchor = -1;
@@ -2462,15 +2470,20 @@ XSTed_save_dls_settings(void)
 	values[12] = [NSString stringWithFormat:@"#dls_reverb_mix=%@", DotFloat(fx.reverbMix, 1)];
 	values[13] = [NSString stringWithFormat:@"#dls_limiter_boost=%@", DotFloat(fx.limiterBoost, 1)];
 	values[14] = [NSString stringWithFormat:@"#dls_volume=%@", DotFloat(fx.volume, 3)];
+	CoreMIDIGetDLSOutputDevice(outputUID, sizeof outputUID);
+	if (outputUID[0] == 0)
+		values[15] = @"#dls_output_device=default";
+	else
+		values[15] = [@"#dls_output_device=" stringByAppendingString:UTF8CString(outputUID)];
 	text = [text stringByReplacingOccurrencesOfString:@"\r\n" withString:@"\n"];
 	text = [text stringByReplacingOccurrencesOfString:@"\r" withString:@"\n"];
 	lines = [NSMutableArray arrayWithArray:[text componentsSeparatedByString:@"\n"]];
 	n = [lines count];
 	for (i = 0; i < n; i++) {
 		const char *s = [[lines objectAtIndex:i] UTF8String];
-		if (cnf_line_key(s, keys, 15, 1) != 0)
+		if (cnf_line_key(s, keys, 16, 1) != 0)
 			continue;
-		if (cnf_line_key(s, keys, 15, 0) == 0)
+		if (cnf_line_key(s, keys, 16, 0) == 0)
 			activeAnchor = (NSInteger)i;
 		else
 			commentAnchor = (NSInteger)i;
@@ -2483,7 +2496,7 @@ XSTed_save_dls_settings(void)
 	for (i = 0; i < n; i++) {
 		NSString *line = [lines objectAtIndex:i];
 		const char *s = [line UTF8String];
-		int active = cnf_line_key(s, keys, 15, 0);
+		int active = cnf_line_key(s, keys, 16, 0);
 		if (anchor >= 0 && i == (NSUInteger)anchor) {
 			anchorOut = [kept count];
 			[kept addObject:line];
@@ -2507,7 +2520,7 @@ XSTed_save_dls_settings(void)
 	}
 	if (anchorIsComment || anchorOut == NSNotFound)
 		[kept insertObject:values[0] atIndex:insertAt++];
-	for (k = 1; k < 15; k++)
+	for (k = 1; k < 16; k++)
 		[kept insertObject:values[k] atIndex:insertAt++];
 	out = [kept componentsJoinedByString:@"\n"];
 	if (![out hasSuffix:@"\n"])

@@ -11,7 +11,10 @@ void InternalSynthCreateDestinations(MIDIClientRef client);
 int InternalSynthAnyDestination(const MIDIEndpointRef *dests);
 int InternalSynthIsAmyDestination(MIDIEndpointRef dest);
 int InternalSynthIsDlsDestination(MIDIEndpointRef dest);
-void InternalSynthApplyAmyPort(const MIDIEndpointRef *dests);
+/* Reconnects the AMY source when the chosen endpoints move it.
+   Returns 1 when a live engine was rebuilt. The caller updates the
+   port table, then may send #init_exc= to ports that stayed external. */
+int InternalSynthApplyAmyPort(const MIDIEndpointRef *dests);
 void InternalSynthEnsureRunning(void);
 void InternalSynthEnsureStopped(void);
 int InternalSynthSchedule(MIDIEndpointRef dest, const uint8_t *bytes, int length,
@@ -48,6 +51,19 @@ typedef struct {
 
 void CoreMIDIGetDLSInternalReverb(DLSInternalReverb *settings);
 void CoreMIDISetDLSInternalReverb(const DLSInternalReverb *settings);
+
+/* Empty uid follows the system default output. A Core Audio device UID pins it.
+   "default" is accepted and stored as empty. */
+#define DLS_OUTPUT_UID_MAX 256
+#define DLS_OUTPUT_NAME_MAX 256
+typedef struct {
+	char uid[DLS_OUTPUT_UID_MAX];
+	char name[DLS_OUTPUT_NAME_MAX];
+} DLSOutputDeviceInfo;
+
+void CoreMIDIGetDLSOutputDevice(char *uid, size_t uidLen);
+void CoreMIDISetDLSOutputDevice(const char *uid);
+int CoreMIDIListOutputDevices(DLSOutputDeviceInfo *devices, int maxCount);
 
 #ifdef __cplusplus
 }

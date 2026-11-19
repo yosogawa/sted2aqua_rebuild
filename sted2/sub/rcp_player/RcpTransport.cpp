@@ -215,6 +215,35 @@ RcpTransport::fullStop()
 }
 
 void
+RcpTransport::returnToStart()
+{
+	int i;
+
+	if (!inService() || rcd == nullptr)
+		return;
+	/* fullStop keeps the locate. A rebuilt synth has lost every program
+	   change already sent, so the next Start must begin at step 0. */
+	if (is_coremidi_playing())
+		stop_coremidi_rcpplayer();
+	else
+		fullStop();
+	clearSongPositionLocate();
+	gRcpClock.resetStopped();
+	rcd->stepcount = 0;
+	for (i = 0; i < TRK_NUM; i++) {
+		rcd->bar[i] = 0;
+		rcd->step[i] = 0;
+		rcd->active[i] = 1;
+	}
+	rcd->tar_trk = 0;
+	rcd->tar_bar = 0;
+	setActive(0);
+	setPhase(Phase::Stopped);
+	*(volatile int32_t *)&rcd->sts = 1;
+	rcpplayer_invalidate_park();
+}
+
+void
 RcpTransport::search(int track, int bar)
 {
 	if (!inService() || rcd == nullptr)
@@ -319,6 +348,12 @@ void
 rcp_transport_full_stop(void)
 {
 	gTransport.fullStop();
+}
+
+void
+rcp_transport_return_to_start(void)
+{
+	gTransport.returnToStart();
 }
 
 void

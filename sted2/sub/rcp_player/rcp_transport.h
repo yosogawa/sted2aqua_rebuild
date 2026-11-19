@@ -24,6 +24,9 @@ void rcp_transport_start(void);
 void rcp_transport_continue(void);
 void rcp_transport_stop(void);
 void rcp_transport_full_stop(void);
+/* Stop a live player, drop any Song Position locate, and set the locator
+   to the top. The next Start plays from the beginning. */
+void rcp_transport_return_to_start(void);
 void rcp_transport_search(int track, int bar);
 /* MIDI Song Position Pointer (0xF2), 14-bit. Stopped/Held: updates
    stepcount, RcpClock, and the player read position without Search.

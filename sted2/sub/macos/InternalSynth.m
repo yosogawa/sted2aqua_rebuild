@@ -5,6 +5,7 @@
 #include <AudioToolbox/AudioToolbox.h>
 #include <AudioUnit/MusicDevice.h>
 #include <string.h>
+#include <strings.h>
 #include <stdlib.h>
 #include <stdatomic.h>
 #include <math.h>
@@ -28,6 +29,7 @@
 #include "rcp_transport.h"
 #include "rcp_player_engine.h"
 #include "midi_in.h"
+#include "CoreMIDIRCPPlayer.h"
 
 #define kMaxNumberOfPorts 2
 
@@ -48,6 +50,19 @@ static AVAudioMixerNode *sSum = nil;
 static AVAudioUnitEQ *sEQ = nil;
 static AVAudioUnitReverb *sReverb = nil;
 static AVAudioUnitEffect *sLimiter = nil;
+/* Empty: follow the system default output. Otherwise a Core Audio device UID. */
+static char sOutputUID[DLS_OUTPUT_UID_MAX];
+/* One start retry must not pin a device that just failed to start. */
+static int sOutputPinSuspended;
+/* Set around an in-app output change so that start does not raise the
+   device-removed alert, including a change back to the system default. */
+static int sOutputSwitch;
+/* Private aggregate wrapping the chosen output. AVAudioEngine only leaves the
+   system default aggregate when its device is itself an aggregate. */
+static AudioObjectID sPrivateAggregate = kAudioObjectUnknown;
+static char sPrivateAggregateSource[DLS_OUTPUT_UID_MAX];
+/* Host time until which a configuration notification is our own device switch. */
+static uint64_t sConfigSuppressUntil;
 static int sAppliedReverbPreset = -1;
 static DLSEffectSettings sEffects = {
 	0.0f, 0.0f, 0.0f, 3, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1
@@ -478,12 +493,70 @@ ConnectNode(AVAudioEngine *engine, AVAudioNode *src, AVAudioNode *dst, AVAudioNo
 	return YES;
 }
 
+static void RepinDriftedOutputDevice(void);
+
+/*  Switching the system default between the built-in speaker and headphones
+    moves a running engine onto that device and posts no configuration
+    notification. The engine is still on the pinned device when the listener
+    runs, and follows about a fifth of a second later. Look again then.
+    The listener only hops to the main queue. */
+static int sWatchingDefaultOutput;
+
+static OSStatus
+DefaultOutputDeviceChanged(AudioObjectID objectID, UInt32 addressCount,
+	const AudioObjectPropertyAddress *addresses, void *client)
+{
+	(void)objectID;
+	(void)addressCount;
+	(void)addresses;
+	(void)client;
+	dispatch_async(dispatch_get_main_queue(), ^{
+		RepinDriftedOutputDevice();
+		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 300 * NSEC_PER_MSEC),
+			dispatch_get_main_queue(), ^{
+				RepinDriftedOutputDevice();
+			});
+	});
+	return noErr;
+}
+
+static void
+WatchDefaultOutputDevice(void)
+{
+	AudioObjectPropertyAddress addr;
+
+	if (sWatchingDefaultOutput)
+		return;
+	addr.mSelector = kAudioHardwarePropertyDefaultOutputDevice;
+	addr.mScope = kAudioObjectPropertyScopeGlobal;
+	addr.mElement = kAudioObjectPropertyElementMain;
+	if (AudioObjectAddPropertyListener(kAudioObjectSystemObject, &addr,
+			DefaultOutputDeviceChanged, NULL) == noErr)
+		sWatchingDefaultOutput = 1;
+}
+
+static void
+UnwatchDefaultOutputDevice(void)
+{
+	AudioObjectPropertyAddress addr;
+
+	if (!sWatchingDefaultOutput)
+		return;
+	addr.mSelector = kAudioHardwarePropertyDefaultOutputDevice;
+	addr.mScope = kAudioObjectPropertyScopeGlobal;
+	addr.mElement = kAudioObjectPropertyElementMain;
+	AudioObjectRemovePropertyListener(kAudioObjectSystemObject, &addr,
+		DefaultOutputDeviceChanged, NULL);
+	sWatchingDefaultOutput = 0;
+}
+
 /*  Drops in-flight configuration notifications for the engine being released.
     The block only hops to the main queue; it must not run on the audio queue. */
 static void
 UnwatchEngineConfiguration(void)
 {
 	sEngineGeneration++;
+	UnwatchDefaultOutputDevice();
 	if (sConfigObserver == nil)
 		return;
 	[[NSNotificationCenter defaultCenter] removeObserver:sConfigObserver];
@@ -510,9 +583,12 @@ WatchEngineConfiguration(AVAudioEngine *engine)
 				InternalSynthNoteConfigurationChange(generation);
 			});
 		}] retain];
+	WatchDefaultOutputDevice();
 }
 
 /*  Caller holds sSynthLock. Render callbacks do not take that lock. */
+static void DestroyPrivateAggregate(void);
+
 static void
 StopInternalSynthEngine(void)
 {
@@ -544,6 +620,7 @@ StopInternalSynthEngine(void)
 	[engine release];
 	[u0 release];
 	[u1 release];
+	DestroyPrivateAggregate();
 }
 
 static void LoadDLSSoundBank(AudioUnit au, int port);
@@ -577,6 +654,400 @@ ApplyInternalReverbLocked(void)
 {
 	ApplyDLSInternalReverbToUnit(sDLS[0]);
 	ApplyDLSInternalReverbToUnit(sDLS[1]);
+}
+
+/* macOS builds CADefaultDeviceAggregate-* for the default output. Audio MIDI Setup
+   hides it (transport type AutoAggregate, 'fgrp'). User multi-output devices stay. */
+static int
+OutputDeviceIsPrivate(AudioDeviceID dev)
+{
+	AudioObjectPropertyAddress prop;
+	UInt32 value = 0;
+	UInt32 size = sizeof value;
+
+	prop.mScope = kAudioObjectPropertyScopeGlobal;
+	prop.mElement = kAudioObjectPropertyElementMain;
+	prop.mSelector = kAudioDevicePropertyIsHidden;
+	if (AudioObjectGetPropertyData(dev, &prop, 0, NULL, &size, &value) == noErr && value != 0)
+		return 1;
+	value = 0;
+	size = sizeof value;
+	prop.mSelector = kAudioDevicePropertyTransportType;
+	if (AudioObjectGetPropertyData(dev, &prop, 0, NULL, &size, &value) == noErr && value == 'fgrp')
+		return 1;
+	return 0;
+}
+
+static int
+OutputChannelCount(AudioDeviceID dev)
+{
+	AudioObjectPropertyAddress addr;
+	UInt32 size = 0;
+	AudioBufferList *list;
+	UInt32 i;
+	int channels = 0;
+
+	addr.mSelector = kAudioDevicePropertyStreamConfiguration;
+	addr.mScope = kAudioDevicePropertyScopeOutput;
+	addr.mElement = kAudioObjectPropertyElementMain;
+	if (AudioObjectGetPropertyDataSize(dev, &addr, 0, NULL, &size) != noErr || size == 0)
+		return 0;
+	list = (AudioBufferList *)malloc(size);
+	if (list == NULL)
+		return 0;
+	if (AudioObjectGetPropertyData(dev, &addr, 0, NULL, &size, list) != noErr) {
+		free(list);
+		return 0;
+	}
+	for (i = 0; i < list->mNumberBuffers; i++)
+		channels += (int)list->mBuffers[i].mNumberChannels;
+	free(list);
+	return channels;
+}
+
+static void
+CopyCFString(char *dst, size_t dstLen, CFStringRef src)
+{
+	if (dst == NULL || dstLen == 0)
+		return;
+	dst[0] = 0;
+	if (src == NULL)
+		return;
+	CFStringGetCString(src, dst, (CFIndex)dstLen, kCFStringEncodingUTF8);
+}
+
+static AudioDeviceID
+OutputDeviceForUID(const char *uid)
+{
+	AudioObjectPropertyAddress addr;
+	CFStringRef cf;
+	AudioDeviceID dev = kAudioObjectUnknown;
+	AudioValueTranslation trans;
+	UInt32 size;
+
+	if (uid == NULL || uid[0] == 0)
+		return kAudioObjectUnknown;
+	cf = CFStringCreateWithCString(NULL, uid, kCFStringEncodingUTF8);
+	if (cf == NULL)
+		return kAudioObjectUnknown;
+	trans.mInputData = (void *)&cf;
+	trans.mInputDataSize = (UInt32)sizeof(cf);
+	trans.mOutputData = &dev;
+	trans.mOutputDataSize = (UInt32)sizeof(dev);
+	size = (UInt32)sizeof(trans);
+	addr.mSelector = kAudioHardwarePropertyDeviceForUID;
+	addr.mScope = kAudioObjectPropertyScopeGlobal;
+	addr.mElement = kAudioObjectPropertyElementMain;
+	if (AudioObjectGetPropertyData(kAudioObjectSystemObject, &addr, 0, NULL, &size, &trans) != noErr)
+		dev = kAudioObjectUnknown;
+	CFRelease(cf);
+	if (dev == kAudioObjectUnknown || OutputChannelCount(dev) <= 0)
+		return kAudioObjectUnknown;
+	return dev;
+}
+
+static int sConfigRestarting;
+
+static void
+SuppressConfigRecovery(void)
+{
+	double freq = AudioGetHostClockFrequency();
+
+	if (freq <= 0.0)
+		freq = 1.0e9;
+	sConfigSuppressUntil = AudioGetCurrentHostTime() + (uint64_t)(freq * 1.0);
+}
+
+static int
+ConfigRecoverySuppressed(void)
+{
+	return sConfigSuppressUntil != 0 && AudioGetCurrentHostTime() < sConfigSuppressUntil;
+}
+
+static void
+DestroyPrivateAggregate(void)
+{
+	AudioDeviceID stale;
+
+	if (sPrivateAggregate != kAudioObjectUnknown) {
+		AudioHardwareDestroyAggregateDevice(sPrivateAggregate);
+		sPrivateAggregate = kAudioObjectUnknown;
+	}
+	sPrivateAggregateSource[0] = 0;
+	stale = OutputDeviceForUID("com.github.STed2.private-output");
+	if (stale != kAudioObjectUnknown)
+		AudioHardwareDestroyAggregateDevice(stale);
+}
+
+/*  An output-only device is wrapped in a private aggregate. AVAudioEngine
+    stays on the system default aggregate unless its device is an aggregate. */
+static AudioDeviceID
+EngineOutputDeviceForUID(const char *uid)
+{
+	AudioDeviceID raw;
+	UInt32 transport = 0;
+	UInt32 size;
+	AudioObjectPropertyAddress prop;
+	NSString *uidStr;
+	NSDictionary *desc;
+	AudioObjectID agg = kAudioObjectUnknown;
+	OSStatus st;
+
+	if (uid == NULL || uid[0] == 0) {
+		DestroyPrivateAggregate();
+		return kAudioObjectUnknown;
+	}
+	if (sPrivateAggregate != kAudioObjectUnknown && strcmp(sPrivateAggregateSource, uid) == 0)
+		return (AudioDeviceID)sPrivateAggregate;
+	raw = OutputDeviceForUID(uid);
+	if (raw == kAudioObjectUnknown) {
+		NSLog(@"sound output \"%s\" is not available; using the default output", uid);
+		return kAudioObjectUnknown;
+	}
+	prop.mSelector = kAudioDevicePropertyTransportType;
+	prop.mScope = kAudioObjectPropertyScopeGlobal;
+	prop.mElement = kAudioObjectPropertyElementMain;
+	size = sizeof transport;
+	if (AudioObjectGetPropertyData(raw, &prop, 0, NULL, &size, &transport) == noErr
+	 && transport == kAudioDeviceTransportTypeAggregate) {
+		DestroyPrivateAggregate();
+		return raw;
+	}
+	DestroyPrivateAggregate();
+	uidStr = [NSString stringWithUTF8String:uid];
+	if (uidStr == nil)
+		return raw;
+	desc = @{
+		@"name": @"STed2 Output",
+		@"uid": @"com.github.STed2.private-output",
+		@"subdevices": @[ @{ @"uid": uidStr } ],
+		@"master": uidStr,
+		@"private": @1
+	};
+	st = AudioHardwareCreateAggregateDevice((__bridge CFDictionaryRef)desc, &agg);
+	if (st != noErr || agg == kAudioObjectUnknown) {
+		NSLog(@"private output aggregate failed (%d) for %s", (int)st, uid);
+		return raw;
+	}
+	sPrivateAggregate = agg;
+	strlcpy(sPrivateAggregateSource, uid, sizeof sPrivateAggregateSource);
+	return (AudioDeviceID)agg;
+}
+
+/*  Caller holds sSynthLock. The engine's output node starts on the system
+    aggregate (default input + default output). setDeviceID: before start
+    selects another aggregate, or a private one built around the chosen device. */
+static int
+ApplyOutputDeviceLocked(AVAudioEngine *engine)
+{
+	AudioDeviceID dev;
+	AUAudioUnit *au;
+	NSError *error = nil;
+
+	if (engine == nil || sOutputPinSuspended)
+		return 0;
+	if (sOutputUID[0] == 0) {
+		DestroyPrivateAggregate();
+		return 0;
+	}
+	dev = EngineOutputDeviceForUID(sOutputUID);
+	if (dev == kAudioObjectUnknown)
+		return 0;
+	[engine prepare];
+	au = engine.outputNode.AUAudioUnit;
+	if (au == nil)
+		return 0;
+	if (![au setDeviceID:(AUAudioObjectID)dev error:&error]) {
+		NSLog(@"sound output setDeviceID failed: %@ (%s)", error, sOutputUID);
+		return 0;
+	}
+	return 1;
+}
+
+/*  Caller holds sSynthLock. start can put the node back on the default aggregate. */
+static void
+ConfirmOutputDeviceLocked(AVAudioEngine *engine)
+{
+	AudioDeviceID dev;
+	AUAudioUnit *au;
+	NSError *error = nil;
+	NSError *startErr = nil;
+
+	if (engine == nil || sOutputUID[0] == 0 || sOutputPinSuspended)
+		return;
+	dev = EngineOutputDeviceForUID(sOutputUID);
+	if (dev == kAudioObjectUnknown)
+		return;
+	au = engine.outputNode.AUAudioUnit;
+	if (au == nil)
+		return;
+	if (au.deviceID == (AUAudioObjectID)dev)
+		return;
+	NSLog(@"sound output reverted to device %u; selecting %u (%s)",
+		(unsigned)au.deviceID, (unsigned)dev, sOutputUID);
+	if ([engine isRunning])
+		[engine stop];
+	if (![au setDeviceID:(AUAudioObjectID)dev error:&error]) {
+		NSLog(@"sound output setDeviceID failed: %@", error);
+		[engine startAndReturnError:&startErr];
+		return;
+	}
+	if (![engine startAndReturnError:&startErr])
+		NSLog(@"sound output restart failed: %@", startErr);
+	else if (au.deviceID != (AUAudioObjectID)dev)
+		NSLog(@"sound output is device %u, wanted %u", (unsigned)au.deviceID, (unsigned)dev);
+}
+
+static void
+NormalizeOutputUID(const char *src, char *dst, size_t dstLen)
+{
+	size_t n;
+
+	if (dst == NULL || dstLen == 0)
+		return;
+	dst[0] = 0;
+	if (src == NULL)
+		return;
+	while (*src == ' ' || *src == '\t')
+		src++;
+	n = strlen(src);
+	while (n > 0 && (src[n - 1] == ' ' || src[n - 1] == '\t' || src[n - 1] == '\n' || src[n - 1] == '\r'))
+		n--;
+	if (n == 0 || (n == 7 && strncasecmp(src, "default", 7) == 0))
+		return;
+	if (n >= dstLen)
+		n = dstLen - 1;
+	memcpy(dst, src, n);
+	dst[n] = 0;
+}
+
+static int
+OutputDeviceNameOrder(const void *a, const void *b)
+{
+	const DLSOutputDeviceInfo *da = (const DLSOutputDeviceInfo *)a;
+	const DLSOutputDeviceInfo *db = (const DLSOutputDeviceInfo *)b;
+	return strcasecmp(da->name, db->name);
+}
+
+int
+CoreMIDIListOutputDevices(DLSOutputDeviceInfo *devices, int maxCount)
+{
+	AudioObjectPropertyAddress addr;
+	UInt32 size = 0;
+	AudioDeviceID *ids;
+	UInt32 i, n;
+	int count = 0;
+
+	if (devices == NULL || maxCount <= 0)
+		return 0;
+	addr.mSelector = kAudioHardwarePropertyDevices;
+	addr.mScope = kAudioObjectPropertyScopeGlobal;
+	addr.mElement = kAudioObjectPropertyElementMain;
+	if (AudioObjectGetPropertyDataSize(kAudioObjectSystemObject, &addr, 0, NULL, &size) != noErr || size == 0)
+		return 0;
+	ids = (AudioDeviceID *)malloc(size);
+	if (ids == NULL)
+		return 0;
+	if (AudioObjectGetPropertyData(kAudioObjectSystemObject, &addr, 0, NULL, &size, ids) != noErr) {
+		free(ids);
+		return 0;
+	}
+	n = size / (UInt32)sizeof(AudioDeviceID);
+	for (i = 0; i < n && count < maxCount; i++) {
+		CFStringRef name = NULL;
+		CFStringRef uid = NULL;
+		UInt32 sz;
+		AudioObjectPropertyAddress prop;
+
+		if (OutputChannelCount(ids[i]) <= 0 || OutputDeviceIsPrivate(ids[i]))
+			continue;
+		prop.mScope = kAudioObjectPropertyScopeGlobal;
+		prop.mElement = kAudioObjectPropertyElementMain;
+		prop.mSelector = kAudioDevicePropertyDeviceUID;
+		sz = (UInt32)sizeof(uid);
+		if (AudioObjectGetPropertyData(ids[i], &prop, 0, NULL, &sz, &uid) != noErr || uid == NULL)
+			continue;
+		prop.mSelector = kAudioObjectPropertyName;
+		sz = (UInt32)sizeof(name);
+		if (AudioObjectGetPropertyData(ids[i], &prop, 0, NULL, &sz, &name) != noErr || name == NULL) {
+			CFRelease(uid);
+			continue;
+		}
+		CopyCFString(devices[count].uid, sizeof devices[count].uid, uid);
+		CopyCFString(devices[count].name, sizeof devices[count].name, name);
+		CFRelease(uid);
+		CFRelease(name);
+		if (devices[count].uid[0] == 0)
+			continue;
+		if (strncmp(devices[count].uid, "CADefaultDeviceAggregate", 24) == 0
+		 || strncmp(devices[count].name, "CADefaultDeviceAggregate", 24) == 0
+		 || strcmp(devices[count].uid, "com.github.STed2.private-output") == 0)
+			continue;
+		if (devices[count].name[0] == 0)
+			strlcpy(devices[count].name, devices[count].uid, sizeof devices[count].name);
+		count++;
+	}
+	free(ids);
+	if (count > 1)
+		qsort(devices, (size_t)count, sizeof devices[0], OutputDeviceNameOrder);
+	return count;
+}
+
+void
+CoreMIDIGetDLSOutputDevice(char *uid, size_t uidLen)
+{
+	if (uid == NULL || uidLen == 0)
+		return;
+	pthread_mutex_lock(&sSynthLock);
+	strlcpy(uid, sOutputUID, uidLen);
+	pthread_mutex_unlock(&sSynthLock);
+}
+
+static void StartInternalSynthEngine(void);
+
+static void
+ApplyOutputDeviceNow(const char *uid)
+{
+	char next[DLS_OUTPUT_UID_MAX];
+	int rebuild;
+
+	NormalizeOutputUID(uid, next, sizeof next);
+	pthread_mutex_lock(&sSynthLock);
+	if (strcmp(sOutputUID, next) == 0) {
+		pthread_mutex_unlock(&sSynthLock);
+		return;
+	}
+	rebuild = (sEngine != nil);
+	pthread_mutex_unlock(&sSynthLock);
+	/* Note-offs need the running engine, and the player takes sSynthLock.
+	   Rewind before the rebuild. Channel state is gone, so the song
+	   returns to the top. No alert: the locator shows the new position. */
+	if (rebuild) {
+		rcp_transport_return_to_start();
+		/* External gear is not inside the rebuilt engine. Its #init_exc=
+		   is the reset the user stored. A song-header reset may follow. */
+		CoreMIDISendInitExcToExternalPorts();
+	}
+	pthread_mutex_lock(&sSynthLock);
+	if (strcmp(sOutputUID, next) != 0) {
+		memcpy(sOutputUID, next, sizeof sOutputUID);
+		if (sEngine != nil) {
+			sOutputSwitch = 1;
+			StopInternalSynthEngine();
+			StartInternalSynthEngine();
+			sOutputSwitch = 0;
+		}
+	}
+	pthread_mutex_unlock(&sSynthLock);
+}
+
+void
+CoreMIDISetDLSOutputDevice(const char *uid)
+{
+	if ([NSThread isMainThread])
+		ApplyOutputDeviceNow(uid);
+	else
+		dispatch_sync(dispatch_get_main_queue(), ^{ ApplyOutputDeviceNow(uid); });
 }
 
 /*  Caller holds sSynthLock. */
@@ -730,19 +1201,31 @@ StartInternalSynthEngine(void)
 	sHostTicksPerSecond = AudioGetHostClockFrequency();
 	if (sAmyPort >= 0)
 		AmySynthStart();
-	if (![sEngine startAndReturnError:&err]) {
-		NSLog(@"internal synth start failed: %@", err);
-		AudioUnitRemoveRenderNotify(u0.audioUnit, InternalSynthRenderNotify, (void *)(intptr_t)0);
-		AudioUnitRemoveRenderNotify(u1.audioUnit, InternalSynthRenderNotify, (void *)(intptr_t)1);
-		ReleaseScheduleBlocks();
-		ReleaseEffectNodes();
-		AmySynthStop();
-		[sEngine release];
-		sEngine = nil;
-		[u0 release];
-		[u1 release];
-		return;
+	{
+		int pinned = ApplyOutputDeviceLocked(sEngine);
+		if (![sEngine startAndReturnError:&err]) {
+			NSLog(@"internal synth start failed: %@", err);
+			AudioUnitRemoveRenderNotify(u0.audioUnit, InternalSynthRenderNotify, (void *)(intptr_t)0);
+			AudioUnitRemoveRenderNotify(u1.audioUnit, InternalSynthRenderNotify, (void *)(intptr_t)1);
+			ReleaseScheduleBlocks();
+			ReleaseEffectNodes();
+			AmySynthStop();
+			[sEngine release];
+			sEngine = nil;
+			[u0 release];
+			[u1 release];
+			if (pinned) {
+				NSLog(@"internal synth retrying with the default sound output");
+				sOutputPinSuspended = 1;
+				StartInternalSynthEngine();
+				sOutputPinSuspended = 0;
+			}
+			return;
+		}
 	}
+	ConfirmOutputDeviceLocked(sEngine);
+	if (sOutputUID[0] != 0 || sOutputSwitch)
+		SuppressConfigRecovery();
 	sSampleRate[0] = SynthSampleRate(u0.audioUnit, sEngine);
 	sSampleRate[1] = SynthSampleRate(u1.audioUnit, sEngine);
 	if (sScheduleMIDI[0] == nil)
@@ -800,39 +1283,54 @@ InternalSynthAnyDestination(const MIDIEndpointRef *dests)
 	return 0;
 }
 
-static void
+static int
 ApplyAmyPortLocked(int port)
 {
 	if (sAmyPort == port)
-		return;
+		return 0;
 	sAmyPort = port;
-	if (sEngine != nil) {
-		StopInternalSynthEngine();
-		StartInternalSynthEngine();
-	}
+	return sEngine != nil;
 }
 
-static void
+static int
 ApplyAmyPortMain(const MIDIEndpointRef *dests)
 {
 	int port = -1;
 	int i;
+	int rebuild;
 	for (i = 0; i < kMaxNumberOfPorts; i++) {
 		if (dests[i] != 0 && dests[i] == sAmyDest)
 			port = i;
 	}
 	pthread_mutex_lock(&sSynthLock);
-	ApplyAmyPortLocked(port);
+	rebuild = ApplyAmyPortLocked(port);
 	pthread_mutex_unlock(&sSynthLock);
+	if (!rebuild)
+		return 0;
+	/* AMY moved, so the whole graph is rebuilt and channel state is gone.
+	   Stop the player before taking the lock again. */
+	rcp_transport_return_to_start();
+	pthread_mutex_lock(&sSynthLock);
+	if (sEngine != nil) {
+		sOutputSwitch = 1;
+		StopInternalSynthEngine();
+		StartInternalSynthEngine();
+		sOutputSwitch = 0;
+	}
+	pthread_mutex_unlock(&sSynthLock);
+	return 1;
 }
 
-void
+int
 InternalSynthApplyAmyPort(const MIDIEndpointRef *dests)
 {
 	if ([NSThread isMainThread])
-		ApplyAmyPortMain(dests);
-	else
-		dispatch_sync(dispatch_get_main_queue(), ^{ ApplyAmyPortMain(dests); });
+		return ApplyAmyPortMain(dests);
+	__block int rebuilt = 0;
+	dispatch_sync(dispatch_get_main_queue(), ^{
+		rebuilt = ApplyAmyPortMain(dests);
+	});
+	return rebuilt;
 }
 
 static void
@@ -848,8 +1346,12 @@ EnsureInternalSynthRunningMain(void)
 	if (sEngine != nil && ![sEngine isRunning]) {
 		NSError *err = nil;
 		UnwatchEngineConfiguration();
-		if ([sEngine startAndReturnError:&err] && [sEngine isRunning])
-			WatchEngineConfiguration(sEngine);
+		ApplyOutputDeviceLocked(sEngine);
+		if ([sEngine startAndReturnError:&err] && [sEngine isRunning]) {
+			ConfirmOutputDeviceLocked(sEngine);
+			if ([sEngine isRunning])
+				WatchEngineConfiguration(sEngine);
+		}
 		else {
 			NSLog(@"internal synth restart failed: %@", err);
 			StopInternalSynthEngine();
@@ -1006,10 +1508,12 @@ RecoveryRun(void)
 	}
 	while (sRecoveryNeeded && sEngineWanted) {
 		sRecoveryNeeded = 0;
-		if (rcp_transport_is_active()) {
-			stop_coremidi_rcpplayer();
+		/* The rebuilt synth has lost channel state. Same as a combo change:
+		   stop a live player before leaving Held, then put the locator at
+		   the top. A stopped song still moves back to bar 1. */
+		if (rcp_transport_is_active())
 			sRecoveryStoppedTransport = 1;
-		}
+		rcp_transport_return_to_start();
 		if (!sEngineWanted)
 			break;
 		pthread_mutex_lock(&sSynthLock);
@@ -1019,6 +1523,7 @@ RecoveryRun(void)
 			StartInternalSynthEngine();
 		sRecoveryStartOK = (sEngine != nil);
 		pthread_mutex_unlock(&sSynthLock);
+		CoreMIDISendInitExcToExternalPorts();
 	}
 	if (!sEngineWanted) {
 		RecoveryClear();
@@ -1035,19 +1540,76 @@ RecoveryRun(void)
 	RecoveryScheduleQuiet();
 }
 
+/*  A pinned device must not follow a later change of the system default.
+    The engine can keep running and move onto that default. Put the same
+    device back once. The suppress window keeps this stop and start from
+    rebuilding the graph. A device that is gone is left for the recovery
+    that runs when the engine has stopped. */
+static void
+RepinDriftedOutputDevice(void)
+{
+	AUAudioUnit *au;
+	AudioDeviceID want;
+
+	if (sConfigRestarting || ConfigRecoverySuppressed())
+		return;
+	if (sOutputUID[0] == 0 || sOutputPinSuspended || sEngine == nil)
+		return;
+	pthread_mutex_lock(&sSynthLock);
+	if (sEngine == nil || ![sEngine isRunning] || sOutputUID[0] == 0 || sOutputPinSuspended) {
+		pthread_mutex_unlock(&sSynthLock);
+		return;
+	}
+	if (OutputDeviceForUID(sOutputUID) == kAudioObjectUnknown) {
+		pthread_mutex_unlock(&sSynthLock);
+		return;
+	}
+	want = EngineOutputDeviceForUID(sOutputUID);
+	au = sEngine.outputNode.AUAudioUnit;
+	if (want == kAudioObjectUnknown || au == nil || au.deviceID == (AUAudioObjectID)want) {
+		pthread_mutex_unlock(&sSynthLock);
+		return;
+	}
+	SuppressConfigRecovery();
+	ConfirmOutputDeviceLocked(sEngine);
+	pthread_mutex_unlock(&sSynthLock);
+}
+
 static void
 InternalSynthNoteConfigurationChange(int generation)
 {
+	NSError *err = nil;
+
 	/* The engine stops itself, then posts. If it is still running, look
 	   once more: the stop can land without a second notification. */
 	if (generation != sEngineGeneration || !sEngineWanted || sEngine == nil)
 		return;
+	/* A device we just selected posts this too. Restarting in place keeps
+	   the graph and does not stop the sequencer. */
+	if (ConfigRecoverySuppressed()) {
+		if (sConfigRestarting || [sEngine isRunning])
+			return;
+		sConfigRestarting = 1;
+		pthread_mutex_lock(&sSynthLock);
+		if (sEngine != nil && sEngineWanted && ![sEngine isRunning]) {
+			ApplyOutputDeviceLocked(sEngine);
+			if (![sEngine startAndReturnError:&err] || ![sEngine isRunning])
+				NSLog(@"sound output restart after device change failed: %@", err);
+			else
+				ConfirmOutputDeviceLocked(sEngine);
+		}
+		pthread_mutex_unlock(&sSynthLock);
+		sConfigRestarting = 0;
+		return;
+	}
 	if ([sEngine isRunning]) {
 		dispatch_async(dispatch_get_main_queue(), ^{
 			if (generation != sEngineGeneration || !sEngineWanted || sEngine == nil)
 				return;
-			if ([sEngine isRunning])
+			if ([sEngine isRunning]) {
+				RepinDriftedOutputDevice();
 				return;
+			}
 			InternalSynthNoteConfigurationChange(generation);
 		});
 		return;
@@ -1123,8 +1685,10 @@ LoadDLSSoundBank(AudioUnit au, int port)
 		NSLog(@"DLS sound bank load failed (port %d): %d", port, (int)sts);
 }
 
-/*  Caller holds sSynthLock. Restart once if any path actually changed. */
-static void
+/*  Caller holds sSynthLock. Stores the paths. Returns 1 when a live engine
+    must be rebuilt outside the lock: the player takes sSynthLock for its
+    last note-offs. */
+static int
 ApplyDLSFontPathsLocked(const char *path0, const char *path1)
 {
 	int changed = 0;
@@ -1141,35 +1705,57 @@ ApplyDLSFontPathsLocked(const char *path0, const char *path1)
 		strlcpy(sDLSFontFile[1], path1, sizeof sDLSFontFile[1]);
 		changed = 1;
 	}
-	if (changed && sEngine != nil) {
+	return changed && sEngine != nil;
+}
+
+/*  The new bank drops channel state, same as an output change. Rewind first,
+    then reset an external port that shares the song. No alert. */
+static void
+RebuildEngineAfterFontChange(void)
+{
+	rcp_transport_return_to_start();
+	CoreMIDISendInitExcToExternalPorts();
+	pthread_mutex_lock(&sSynthLock);
+	if (sEngine != nil) {
+		sOutputSwitch = 1;
 		StopInternalSynthEngine();
 		StartInternalSynthEngine();
+		sOutputSwitch = 0;
 	}
+	pthread_mutex_unlock(&sSynthLock);
 }
 
 static void
 ApplyDLSFontPathForPort(int port, const char *path)
 {
+	int rebuild;
+
 	if (port < 0 || port > 1)
 		return;
 	if (path == NULL)
 		path = "";
 	pthread_mutex_lock(&sSynthLock);
 	if (port == 0)
-		ApplyDLSFontPathsLocked(path, sDLSFontFile[1]);
+		rebuild = ApplyDLSFontPathsLocked(path, sDLSFontFile[1]);
 	else
-		ApplyDLSFontPathsLocked(sDLSFontFile[0], path);
+		rebuild = ApplyDLSFontPathsLocked(sDLSFontFile[0], path);
 	pthread_mutex_unlock(&sSynthLock);
+	if (rebuild)
+		RebuildEngineAfterFontChange();
 }
 
 static void
 ApplyDLSFontPathBoth(const char *path)
 {
+	int rebuild;
+
 	if (path == NULL)
 		path = "";
 	pthread_mutex_lock(&sSynthLock);
-	ApplyDLSFontPathsLocked(path, path);
+	rebuild = ApplyDLSFontPathsLocked(path, path);
 	pthread_mutex_unlock(&sSynthLock);
+	if (rebuild)
+		RebuildEngineAfterFontChange();
 }
 
 void

@@ -43,6 +43,8 @@ public:
 	void continuePlay();
 	void stop();
 	void fullStop();
+	/* After the player thread has exited: Stopped, step 0, no SPP locate. */
+	void returnToStart();
 	void search(int track, int bar);
 	/* MIDI SPP (14-bit). Stopped/Held: set stepcount, clock, and player
 	   read position. Does not enter Search. Running/Search/recording: store

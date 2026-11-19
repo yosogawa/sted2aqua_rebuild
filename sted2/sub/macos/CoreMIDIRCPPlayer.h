@@ -31,6 +31,9 @@ void CoreMIDISelectInputDeviceByName(const char *name);
 void CoreMIDIAllSoundOff(void);
 /* GM System On (F0 7E 7F 09 01 F7) to ports whose destination is a DLS synth. */
 void CoreMIDISendGmSystemOnToDls(void);
+/* #init_exc= through F7, or until 0xFF. External destinations only.
+   An empty slot and a DLS or AMY port are left alone. */
+void CoreMIDISendInitExcToExternalPorts(void);
 
 void push_midi_in_ring_buffer(uint8_t byte);
 int pop_midi_in_ring_buffer(uint8_t *byte);

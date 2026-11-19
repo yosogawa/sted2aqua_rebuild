@@ -265,6 +265,8 @@ CoreMIDISelectDeviceForPort(int index, int port)
 	MIDIEndpointRef next[kMaxNumberOfPorts];
 	int i;
 
+	int rebuilt;
+
 	CoreMIDIInitIfNeeded();
 	port = port % kMaxNumberOfPorts;
 	dest = MIDIGetDestination(index);
@@ -274,12 +276,14 @@ CoreMIDISelectDeviceForPort(int index, int port)
 	for (i = 0; i < kMaxNumberOfPorts; i++)
 		next[i] = sDest[i];
 	next[port] = dest;
-	InternalSynthApplyAmyPort(next);
+	rebuilt = InternalSynthApplyAmyPort(next);
 	if (InternalSynthAnyDestination(next))
 		InternalSynthEnsureRunning();
 	sDest[port] = dest;
 	if (!InternalSynthAnyDestination(sDest))
 		InternalSynthEnsureStopped();
+	else if (rebuilt)
+		CoreMIDISendInitExcToExternalPorts();
 }
 
 const char *
@@ -568,6 +572,33 @@ send_midi_byte(uint8_t byte)
 	return 0;
 }
 
+
+void
+CoreMIDISendInitExcToExternalPorts(void)
+{
+	int port;
+
+	for (port = 0; port < kMaxNumberOfPorts; port++) {
+		MIDIEndpointRef dest;
+		const uint8_t *src;
+		int n;
+
+		dest = sDest[port];
+		if (dest == 0)
+			continue;
+		if (InternalSynthIsDlsDestination(dest) || InternalSynthIsAmyDestination(dest))
+			continue;
+		src = init_exc_data[port];
+		if (src[0] == 0xff)
+			continue;
+		n = 0;
+		while (n < 256 && src[n] != 0xff)
+			n++;
+		if (n <= 0)
+			continue;
+		OutputPortSend((uint8_t *)src, n, port, 0);
+	}
+}
 
 void
 CoreMIDISendGmSystemOnToDls(void)
