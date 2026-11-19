@@ -1,7 +1,8 @@
 /* Palette panel.
- * The five memories live in Preferences. The 16 colors on screen are the
- * only thing written back, as the existing #palet0= ... #palet15= lines.
- * The factory colors are a fixed table in this file. */
+ * The five memories live in Preferences. An empty slot expands kSlotRom.
+ * The 16 colors on screen are the only thing written back, as the existing
+ * #palet0= ... #palet15= lines.
+ * The factory colors of the Default button are a fixed table in this file. */
 
 #import "colorpanel.h"
 
@@ -27,6 +28,40 @@ static const int kRom[kColors] = {
 	0x5296, 0x210a, 0x2708, 0x3018,
 	0x51a2, 0x8800, 0xf800, 0xf83e,
 	0x8c40, 0xff9c, 0x73a0, 0xfffe
+};
+
+/* Initial memories. Used when ColorPanelSlotN is absent. */
+static const int kSlotRom[kSlots][kColors] = {
+	{
+		0x0000, 0xbb2e, 0xdedc, 0xb5ac,
+		0x5296, 0x210a, 0x2708, 0x3018,
+		0x0818, 0x8800, 0xf800, 0xf83e,
+		0x8c40, 0xff9c, 0x736a, 0xfffe
+	},
+	{
+		0x0802, 0xcb32, 0xe71c, 0xad6a,
+		0x5296, 0x210a, 0x2708, 0x3018,
+		0xa14c, 0x8800, 0xf800, 0xf81a,
+		0x8c40, 0xff9c, 0x73dc, 0xfffe
+	},
+	{
+		0x1044, 0x6a16, 0x8b96, 0xa560,
+		0x5296, 0x210a, 0x2708, 0x3018,
+		0x5108, 0x8800, 0xf800, 0xc156,
+		0x8c40, 0xff9c, 0x398a, 0xfffe
+	},
+	{
+		0x0882, 0x24d2, 0x8c52, 0xa528,
+		0x5296, 0x210a, 0x2708, 0x3018,
+		0x1a48, 0x8800, 0xf800, 0x8fe2,
+		0x8c40, 0xff9c, 0x330e, 0xfffe
+	},
+	{
+		0x104e, 0x9806, 0xe712, 0x83e4,
+		0x318e, 0x210a, 0x2708, 0x3018,
+		0x59a4, 0x8800, 0xe802, 0xbc3a,
+		0x8c40, 0xffde, 0x73a0, 0xfffe
+	}
 };
 
 static NSString *const kRole[kColors] = {
@@ -130,11 +165,16 @@ SlotLoad(int slot, int out[kColors])
 	NSArray *a;
 	int i;
 
-	a = [[NSUserDefaults standardUserDefaults] arrayForKey:SlotKey(slot)];
-	if (a == nil || [a count] != kColors)
+	if (slot < 0 || slot >= kSlots)
 		return 0;
+	a = [[NSUserDefaults standardUserDefaults] arrayForKey:SlotKey(slot)];
+	if (a != nil && [a count] == kColors) {
+		for (i = 0; i < kColors; i++)
+			out[i] = [[a objectAtIndex:(NSUInteger)i] intValue] & 0xffff;
+		return 1;
+	}
 	for (i = 0; i < kColors; i++)
-		out[i] = [[a objectAtIndex:(NSUInteger)i] intValue] & 0xffff;
+		out[i] = kSlotRom[slot][i];
 	return 1;
 }
 
