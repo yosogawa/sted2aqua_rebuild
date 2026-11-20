@@ -49,10 +49,10 @@
 "No presets found in the SoundFont" = "No presets found in the SoundFont";
 
 /* Internal synth: output device configuration change */
-"The internal synthesizer was reset." = "The internal synthesizer was reset.";
-"The internal synthesizer was reset. Playback has also been stopped. Play the song from the beginning." = "The internal synthesizer was reset. Playback has also been stopped. Play the song from the beginning.";
-"The internal synthesizer could not be started." = "The internal synthesizer could not be started.";
-"The internal synthesizer could not be started. Playback has also been stopped." = "The internal synthesizer could not be started. Playback has also been stopped.";
+"The internal synthesizer was reset." = "The macOS sound settings changed.\nThe internal synthesizer was reset.";
+"The internal synthesizer was reset. Playback has also been stopped. Play the song from the beginning." = "The macOS sound settings changed.\nThe internal synthesizer was reset. Playback has also been stopped. Play the song from the beginning.";
+"The internal synthesizer could not be started." = "The macOS sound settings changed.\nThe internal synthesizer could not be started.";
+"The internal synthesizer could not be started. Playback has also been stopped." = "The macOS sound settings changed.\nThe internal synthesizer could not be started. Playback has also been stopped.";
 
 /* View → Colors… */
 "Colors…" = "Colors…";
