@@ -10,6 +10,7 @@
 #include <stdatomic.h>
 #include <math.h>
 #include <pthread.h>
+#include <unistd.h>
 #include <sys/stat.h>
 #include <limits.h>
 
@@ -41,7 +42,6 @@ static MIDIEndpointRef sAmyDest = 0;
 static int sAmyPort = -1;
 static AVAudioSourceNode *sAmyNode = nil;
 static MIDIClientRef sSynthMIDIClient = 0;
-static AUScheduleMIDIEventBlock sScheduleMIDI[2];
 static double sSampleRate[2];
 static double sHostTicksPerSecond;
 static pthread_mutex_t sSynthLock = PTHREAD_MUTEX_INITIALIZER;
@@ -136,6 +136,284 @@ LoadAnchor(int idx, int64_t *sampleTime, uint64_t *hostTime, uint32_t *frames)
 	return 1;
 }
 
+/*
+  DLS MIDI queue. The player only appends. The pre-render callback is the
+  only consumer and the only caller of MusicDeviceMIDIEvent during playback.
+  scheduleMIDIEventBlock is not used: on Monterey it accepts the pointer and
+  still renders silence.
+
+  The queue mutex is not sSynthLock. The player releases sSynthLock before
+  taking the queue mutex, and never calls the unit. The render callback
+  try-locks and, if the player holds the mutex, leaves the events for the
+  next buffer. It never takes sSynthLock, so stop (which holds sSynthLock
+  and then waits for this callback) cannot deadlock. A full queue waits,
+  unlocked, for the callback to drain. Only if it is still full does the
+  oldest event get dropped, and that logs once. Stop sends All Sound Off
+  on every channel before the unit is released.
+*/
+#define kDlsQueueCap 2048
+#define kDlsMsgMax 256
+#define kDlsDrainBatch 48
+
+/* Events aimed inside the buffer being rendered, or within 20 ms after it,
+   are held to that edge. Same floor the block path applied to every event. */
+static const double kDlsReservePastBufferEndSeconds = 0.020;
+
+typedef struct {
+	uint64_t hostTime; /* 0 = first sample of the next buffer */
+	uint16_t length;
+	uint8_t bytes[kDlsMsgMax];
+} DlsMsg;
+
+typedef struct {
+	pthread_mutex_t mu;
+	_Atomic int live;
+	int count;
+	int overflowLogged;
+	DlsMsg msg[kDlsQueueCap];
+} DlsQueue;
+
+static DlsQueue sDlsQueue[2] = {
+	{ .mu = PTHREAD_MUTEX_INITIALIZER },
+	{ .mu = PTHREAD_MUTEX_INITIALIZER },
+};
+
+static void
+DlsClearQueue(int idx)
+{
+	DlsQueue *q;
+
+	if (idx < 0 || idx > 1)
+		return;
+	q = &sDlsQueue[idx];
+	pthread_mutex_lock(&q->mu);
+	q->count = 0;
+	q->overflowLogged = 0;
+	pthread_mutex_unlock(&q->mu);
+}
+
+static void
+DlsMakeRoom(DlsQueue *q, int need)
+{
+	int drop;
+
+	if (need < 1)
+		return;
+	if (need > kDlsQueueCap)
+		need = kDlsQueueCap;
+	if (q->count + need <= kDlsQueueCap)
+		return;
+	drop = q->count + need - kDlsQueueCap;
+	memmove(q->msg, q->msg + drop, (size_t)(q->count - drop) * sizeof (DlsMsg));
+	q->count -= drop;
+	if (!q->overflowLogged) {
+		NSLog(@"internal synth DLS queue overflow, dropped %d", drop);
+		q->overflowLogged = 1;
+	}
+}
+
+/* Caller holds q->mu and has already made room. */
+static void
+DlsAppend(DlsQueue *q, uint64_t hostTime, const uint8_t *bytes, int length)
+{
+	DlsMsg *m;
+
+	if (bytes == NULL || length <= 0 || q->count >= kDlsQueueCap)
+		return;
+	if (length > kDlsMsgMax)
+		length = kDlsMsgMax;
+	m = &q->msg[q->count++];
+	m->hostTime = hostTime;
+	m->length = (uint16_t)length;
+	memcpy(m->bytes, bytes, (size_t)length);
+}
+
+/* Live render drains within a few milliseconds. Wait for that, unlocked,
+   before dropping anything. Eight tries is the fault path, not playback. */
+static void
+DlsWaitForRoom(DlsQueue *q, int need)
+{
+	int spins;
+
+	if (!atomic_load_explicit(&q->live, memory_order_acquire))
+		return;
+	for (spins = 0; spins < 8; spins++) {
+		int room;
+		pthread_mutex_lock(&q->mu);
+		room = (q->count + need <= kDlsQueueCap);
+		pthread_mutex_unlock(&q->mu);
+		if (room)
+			return;
+		usleep(2000);
+	}
+}
+
+static int
+DlsEnqueue(int idx, uint64_t hostTime, const uint8_t *bytes, int length)
+{
+	DlsQueue *q;
+
+	if (idx < 0 || idx > 1 || bytes == NULL || length <= 0 || length > kDlsMsgMax)
+		return -1;
+	q = &sDlsQueue[idx];
+	DlsWaitForRoom(q, 1);
+	pthread_mutex_lock(&q->mu);
+	DlsMakeRoom(q, 1);
+	DlsAppend(q, hostTime, bytes, length);
+	pthread_mutex_unlock(&q->mu);
+	return noErr;
+}
+
+static void
+DlsWriteChannelDefaults(DlsQueue *q, uint64_t hostTime)
+{
+	int ch;
+
+	for (ch = 0; ch < 16; ch++) {
+		uint8_t cc = (uint8_t)(0xb0 | ch);
+		uint8_t pc = (uint8_t)(0xc0 | ch);
+		uint8_t pb = (uint8_t)(0xe0 | ch);
+		uint8_t msg[3];
+
+		msg[0] = cc; msg[1] = 120; msg[2] = 0;
+		DlsAppend(q, hostTime, msg, 3); /* All Sound Off */
+		msg[0] = cc; msg[1] = 123; msg[2] = 0;
+		DlsAppend(q, hostTime, msg, 3); /* All Notes Off */
+		msg[0] = cc; msg[1] = 121; msg[2] = 0;
+		DlsAppend(q, hostTime, msg, 3); /* Reset All Controllers */
+		msg[0] = cc; msg[1] = 0; msg[2] = 0;
+		DlsAppend(q, hostTime, msg, 3); /* Bank MSB */
+		msg[0] = cc; msg[1] = 32; msg[2] = 0;
+		DlsAppend(q, hostTime, msg, 3); /* Bank LSB */
+		msg[0] = pc; msg[1] = 0;
+		DlsAppend(q, hostTime, msg, 2); /* Program */
+		msg[0] = cc; msg[1] = 7; msg[2] = 100;
+		DlsAppend(q, hostTime, msg, 3); /* Volume */
+		msg[0] = cc; msg[1] = 11; msg[2] = 127;
+		DlsAppend(q, hostTime, msg, 3); /* Expression */
+		msg[0] = cc; msg[1] = 10; msg[2] = 64;
+		DlsAppend(q, hostTime, msg, 3); /* Pan */
+		msg[0] = pb; msg[1] = 0; msg[2] = 64;
+		DlsAppend(q, hostTime, msg, 3); /* Pitch bend center */
+		msg[0] = cc; msg[1] = 91; msg[2] = 40;
+		DlsAppend(q, hostTime, msg, 3); /* Reverb send */
+		msg[0] = cc; msg[1] = 93; msg[2] = 0;
+		DlsAppend(q, hostTime, msg, 3); /* Chorus send */
+	}
+}
+
+/* 16 channels * 12 shorts. One lock, so a note cannot land between them. */
+static int
+DlsEnqueueChannelDefaults(int idx, uint64_t hostTime)
+{
+	DlsQueue *q;
+
+	if (idx < 0 || idx > 1)
+		return -1;
+	q = &sDlsQueue[idx];
+	DlsWaitForRoom(q, 16 * 12);
+	pthread_mutex_lock(&q->mu);
+	DlsMakeRoom(q, 16 * 12);
+	DlsWriteChannelDefaults(q, hostTime);
+	pthread_mutex_unlock(&q->mu);
+	return noErr;
+}
+
+static void
+DlsDeliver(AudioUnit au, const DlsMsg *m, UInt32 offset)
+{
+	if (au == NULL || m == NULL || m->length == 0)
+		return;
+	if (m->bytes[0] == 0xf0) {
+		MusicDeviceSysEx(au, m->bytes, m->length);
+		return;
+	}
+	if (m->length == 1)
+		MusicDeviceMIDIEvent(au, m->bytes[0], 0, 0, offset);
+	else if (m->length == 2)
+		MusicDeviceMIDIEvent(au, m->bytes[0], m->bytes[1], 0, offset);
+	else
+		MusicDeviceMIDIEvent(au, m->bytes[0], m->bytes[1], m->bytes[2], offset);
+}
+
+static UInt32
+DlsOffset(uint64_t hostTime, uint64_t bufferStart, UInt32 frames, double sr, double ticks)
+{
+	double sec;
+	long off;
+
+	if (hostTime == 0 || hostTime <= bufferStart || sr <= 0.0 || ticks <= 0.0 || frames == 0)
+		return 0;
+	sec = (double)(hostTime - bufferStart) / ticks;
+	off = lround(sec * sr);
+	if (off < 0)
+		return 0;
+	if (off >= (long)frames)
+		return frames - 1;
+	return (UInt32)off;
+}
+
+/* Due events leave the queue before the unit is touched. A full scan, not
+   just the head: an immediate event may sit behind one that is still early. */
+static void
+DlsDrainQueue(int idx, uint64_t bufferStart, UInt32 frames)
+{
+	DlsMsg due[kDlsDrainBatch];
+	AudioUnit au;
+	double sr, ticks;
+	int guard;
+
+	if (idx < 0 || idx > 1)
+		return;
+	if (!atomic_load_explicit(&sDlsQueue[idx].live, memory_order_acquire))
+		return;
+	au = sDLS[idx];
+	if (au == NULL)
+		return;
+	sr = sSampleRate[idx];
+	ticks = sHostTicksPerSecond;
+	for (guard = 0; guard < 8; guard++) {
+		DlsQueue *q = &sDlsQueue[idx];
+		uint64_t bufferEnd = 0;
+		int known, nDue, i, w;
+
+		if (pthread_mutex_trylock(&q->mu) != 0)
+			return;
+		known = (bufferStart != 0 && frames > 0 && sr > 0.0 && ticks > 0.0);
+		if (known)
+			bufferEnd = bufferStart + (uint64_t)llround(((double)frames / sr) * ticks);
+		nDue = 0;
+		w = 0;
+		for (i = 0; i < q->count; i++) {
+			DlsMsg *m = &q->msg[i];
+			int play = (m->hostTime == 0) || (known && m->hostTime < bufferEnd);
+			if (play && nDue < kDlsDrainBatch)
+				due[nDue++] = *m;
+			else
+				q->msg[w++] = *m;
+		}
+		q->count = w;
+		pthread_mutex_unlock(&q->mu);
+		for (i = 0; i < nDue; i++) {
+			UInt32 offset = DlsOffset(due[i].hostTime, bufferStart, frames, sr, ticks);
+			DlsDeliver(au, &due[i], offset);
+		}
+		if (nDue < kDlsDrainBatch)
+			return;
+	}
+}
+
+static void
+DlsAllSoundOff(AudioUnit au)
+{
+	int ch;
+
+	if (au == NULL)
+		return;
+	for (ch = 0; ch < 16; ch++)
+		MusicDeviceMIDIEvent(au, (UInt32)(0xB0 | ch), 120, 0, 0);
+}
+
 static OSStatus
 InternalSynthRenderNotify(void *inRefCon,
 	AudioUnitRenderActionFlags *ioActionFlags,
@@ -145,46 +423,21 @@ InternalSynthRenderNotify(void *inRefCon,
 	AudioBufferList *ioData)
 {
 	int idx = (int)(intptr_t)inRefCon;
+	uint64_t host = 0;
 	(void)inBusNumber;
-	(void)inNumberFrames;
 	(void)ioData;
-	if (idx < 0 || idx > 1 || ioActionFlags == NULL || inTimeStamp == NULL)
+	if (idx < 0 || idx > 1 || ioActionFlags == NULL)
 		return noErr;
 	if ((*ioActionFlags & kAudioUnitRenderAction_PreRender) == 0)
 		return noErr;
-	if ((inTimeStamp->mFlags & kAudioTimeStampSampleTimeValid) == 0)
-		return noErr;
-	if ((inTimeStamp->mFlags & kAudioTimeStampHostTimeValid) == 0)
-		return noErr;
-	StoreAnchor(idx, (int64_t)inTimeStamp->mSampleTime, (uint64_t)inTimeStamp->mHostTime,
-		inNumberFrames);
-	return noErr;
-}
-
-static void
-CacheScheduleBlock(int idx, AVAudioUnit *unit)
-{
-	AUScheduleMIDIEventBlock block;
-	if (unit == nil)
-		return;
-	block = unit.AUAudioUnit.scheduleMIDIEventBlock;
-	if (block == nil)
-		return;
-	if (sScheduleMIDI[idx] != nil)
-		[sScheduleMIDI[idx] release];
-	sScheduleMIDI[idx] = [block copy];
-}
-
-static void
-ReleaseScheduleBlocks(void)
-{
-	int i;
-	for (i = 0; i < 2; i++) {
-		if (sScheduleMIDI[i] != nil) {
-			[sScheduleMIDI[i] release];
-			sScheduleMIDI[i] = nil;
-		}
+	if (inTimeStamp != NULL
+		&& (inTimeStamp->mFlags & kAudioTimeStampSampleTimeValid) != 0
+		&& (inTimeStamp->mFlags & kAudioTimeStampHostTimeValid) != 0) {
+		host = (uint64_t)inTimeStamp->mHostTime;
+		StoreAnchor(idx, (int64_t)inTimeStamp->mSampleTime, host, inNumberFrames);
 	}
+	DlsDrainQueue(idx, host, inNumberFrames);
+	return noErr;
 }
 
 static double
@@ -226,50 +479,6 @@ IsDlsResetSysex(const uint8_t *b, int n)
 	return 0;
 }
 
-static void
-ScheduleShortMIDI(AUScheduleMIDIEventBlock schedule, AUEventSampleTime when,
-	uint8_t s0, uint8_t s1, uint8_t s2, int len)
-{
-	uint8_t msg[3];
-
-	msg[0] = s0;
-	msg[1] = s1;
-	msg[2] = s2;
-	schedule(when, 0, len, msg);
-}
-
-/*  DLS ignores reset SysEx; approximate GM-ish channel defaults instead.
-    Panel USE/Room for internal reverb is left alone — only CC#91 is set. */
-static void
-InjectDlsChannelDefaults(AUScheduleMIDIEventBlock schedule, AUEventSampleTime when)
-{
-	int ch;
-
-	for (ch = 0; ch < 16; ch++) {
-		uint8_t cc = (uint8_t)(0xb0 | ch);
-		uint8_t pc = (uint8_t)(0xc0 | ch);
-		uint8_t pb = (uint8_t)(0xe0 | ch);
-
-		ScheduleShortMIDI(schedule, when, cc, 120, 0, 3);   /* All Sound Off */
-		ScheduleShortMIDI(schedule, when, cc, 123, 0, 3);   /* All Notes Off */
-		ScheduleShortMIDI(schedule, when, cc, 121, 0, 3);   /* Reset All Controllers */
-		ScheduleShortMIDI(schedule, when, cc, 0, 0, 3);     /* Bank MSB */
-		ScheduleShortMIDI(schedule, when, cc, 32, 0, 3);    /* Bank LSB */
-		ScheduleShortMIDI(schedule, when, pc, 0, 0, 2);     /* Program */
-		ScheduleShortMIDI(schedule, when, cc, 7, 100, 3);   /* Volume */
-		ScheduleShortMIDI(schedule, when, cc, 11, 127, 3);  /* Expression */
-		ScheduleShortMIDI(schedule, when, cc, 10, 64, 3);   /* Pan */
-		ScheduleShortMIDI(schedule, when, pb, 0, 64, 3);    /* Pitch Bend center */
-		ScheduleShortMIDI(schedule, when, cc, 91, 40, 3);   /* Reverb Send */
-		ScheduleShortMIDI(schedule, when, cc, 93, 0, 3);    /* Chorus Send */
-	}
-}
-
-/* DLS drops note-offs that land inside the buffer being rendered.
-   Stamps earlier than the end of that buffer are placed 20 ms after the end.
-   Internal to this synth. */
-static const double kDlsReservePastBufferEndSeconds = 0.020;
-
 /*  INT prefetches RCP_PREFETCH_MICROSECONDS. Accept twice that
     (RCP_TIMESTAMP_LEAD_MICROSECONDS). Farther timestamps are not from that clock. */
 int
@@ -301,57 +510,53 @@ InternalSynthSchedule(MIDIEndpointRef dest, const uint8_t *bytes, int length,
 	return 1;
 }
 
+/* 0 means the next buffer, offset 0. Out-of-window stamps take that path
+   too: the event is late by one buffer, not discarded. */
+static uint64_t
+DlsHostTimeForEvent(int synth, MIDITimeStamp atTime)
+{
+	int64_t sampleTime;
+	uint64_t hostTime;
+	uint32_t frames;
+	double deltaSeconds, leadSeconds;
+
+	if (atTime == 0 || sSampleRate[synth] <= 0.0 || sHostTicksPerSecond <= 0.0)
+		return 0;
+	if (!LoadAnchor(synth, &sampleTime, &hostTime, &frames))
+		return 0;
+	(void)sampleTime;
+	deltaSeconds = (double)(int64_t)(atTime - hostTime) / sHostTicksPerSecond;
+	if (frames > 0) {
+		double floorSec = ((double)frames / sSampleRate[synth])
+			+ kDlsReservePastBufferEndSeconds;
+		if (deltaSeconds < floorSec)
+			deltaSeconds = floorSec;
+	}
+	leadSeconds = (double)RCP_TIMESTAMP_LEAD_MICROSECONDS / 1000000.0;
+	if (deltaSeconds < 0.0 || deltaSeconds > leadSeconds)
+		return 0;
+	return hostTime + (uint64_t)llround(deltaSeconds * sHostTicksPerSecond);
+}
+
 static OSStatus
 ScheduleToInternalSynth(int synth, const uint8_t *bytes, int length, MIDITimeStamp atTime)
 {
-	static int sMissingLogged;
-	AUScheduleMIDIEventBlock schedule;
-	AUEventSampleTime when;
-	int64_t sampleTime;
-	uint64_t hostTime;
-	int64_t deltaTicks;
-	double deltaSeconds;
-	double leadSeconds;
-	uint32_t frames;
+	uint64_t when;
 
-	if (synth < 0 || synth > 1 || bytes == NULL || length <= 0)
+	if (synth < 0 || synth > 1 || bytes == NULL || length <= 0 || length > kDlsMsgMax)
 		return -1;
 	pthread_mutex_lock(&sSynthLock);
-	schedule = sScheduleMIDI[synth];
-	if (schedule == NULL) {
+	if (sEngine == nil) {
 		pthread_mutex_unlock(&sSynthLock);
-		if (!sMissingLogged) {
-			NSLog(@"internal synth scheduleMIDIEventBlock is nil");
-			sMissingLogged = 1;
-		}
 		return -1;
 	}
-	when = AUEventSampleTimeImmediate;
-	sampleTime = 0;
-	deltaSeconds = 0.0;
-	frames = 0;
-	leadSeconds = (double)RCP_TIMESTAMP_LEAD_MICROSECONDS / 1000000.0;
-	if (atTime != 0 && sSampleRate[synth] > 0 && sHostTicksPerSecond > 0
-		&& LoadAnchor(synth, &sampleTime, &hostTime, &frames)) {
-		deltaTicks = (int64_t)(atTime - hostTime);
-		deltaSeconds = (double)deltaTicks / sHostTicksPerSecond;
-		if (frames > 0) {
-			double floorSec = ((double)frames / sSampleRate[synth])
-				+ kDlsReservePastBufferEndSeconds;
-			if (deltaSeconds < floorSec)
-				deltaSeconds = floorSec;
-		}
-		if (deltaSeconds >= 0.0 && deltaSeconds <= leadSeconds)
-			when = sampleTime + (AUEventSampleTime)llround(deltaSeconds * sSampleRate[synth]);
-	}
-	if (bytes[0] == 0xf0 && IsDlsResetSysex(bytes, length)) {
-		InjectDlsChannelDefaults(schedule, when);
-		pthread_mutex_unlock(&sSynthLock);
-		return noErr;
-	}
-	schedule(when, 0, length, bytes);
+	when = DlsHostTimeForEvent(synth, atTime);
 	pthread_mutex_unlock(&sSynthLock);
-	return noErr;
+	/* DLS ignores reset SysEx. The queued CCs are the same GM-ish defaults
+	   as before (All Sound Off through CC#93). Panel reverb is untouched. */
+	if (bytes[0] == 0xf0 && IsDlsResetSysex(bytes, length))
+		return DlsEnqueueChannelDefaults(synth, when);
+	return DlsEnqueue(synth, when, bytes, length);
 }
 
 static AVAudioUnit *
@@ -595,7 +800,11 @@ StopInternalSynthEngine(void)
 	AVAudioEngine *engine;
 	AVAudioUnit *u0, *u1;
 
+	atomic_store_explicit(&sDlsQueue[0].live, 0, memory_order_release);
+	atomic_store_explicit(&sDlsQueue[1].live, 0, memory_order_release);
 	if (sEngine == nil) {
+		DlsClearQueue(0);
+		DlsClearQueue(1);
 		AmySynthStop();
 		return;
 	}
@@ -603,12 +812,22 @@ StopInternalSynthEngine(void)
 	engine = sEngine;
 	u0 = sDLSUnit[0];
 	u1 = sDLSUnit[1];
-	[engine stop];
+	/* Drop the render callback before silencing. It is the only other
+	   caller of MusicDeviceMIDIEvent, and RemoveRenderNotify waits until
+	   that callback has returned. */
 	if (u0 != nil)
 		AudioUnitRemoveRenderNotify(u0.audioUnit, InternalSynthRenderNotify, (void *)(intptr_t)0);
 	if (u1 != nil)
 		AudioUnitRemoveRenderNotify(u1.audioUnit, InternalSynthRenderNotify, (void *)(intptr_t)1);
-	ReleaseScheduleBlocks();
+	if (u0 != nil)
+		DlsAllSoundOff(u0.audioUnit);
+	if (u1 != nil)
+		DlsAllSoundOff(u1.audioUnit);
+	if (u0 != nil || u1 != nil)
+		usleep(20000);
+	DlsClearQueue(0);
+	DlsClearQueue(1);
+	[engine stop];
 	ClearAnchors();
 	sDLS[0] = NULL;
 	sDLS[1] = NULL;
@@ -1050,6 +1269,7 @@ CoreMIDISetDLSOutputDevice(const char *uid)
 		dispatch_sync(dispatch_get_main_queue(), ^{ ApplyOutputDeviceNow(uid); });
 }
 
+
 /*  Caller holds sSynthLock. */
 static void
 StartInternalSynthEngine(void)
@@ -1060,6 +1280,10 @@ StartInternalSynthEngine(void)
 
 	if (sEngine != nil)
 		return;
+	atomic_store_explicit(&sDlsQueue[0].live, 0, memory_order_release);
+	atomic_store_explicit(&sDlsQueue[1].live, 0, memory_order_release);
+	DlsClearQueue(0);
+	DlsClearQueue(1);
 	ClearAnchors();
 	u0 = InstantiateDLS();
 	u1 = InstantiateDLS();
@@ -1194,8 +1418,6 @@ StartInternalSynthEngine(void)
 	sReverb = reverb;
 	sLimiter = limiter;
 	ApplyEffectsLocked();
-	CacheScheduleBlock(0, u0);
-	CacheScheduleBlock(1, u1);
 	AudioUnitAddRenderNotify(u0.audioUnit, InternalSynthRenderNotify, (void *)(intptr_t)0);
 	AudioUnitAddRenderNotify(u1.audioUnit, InternalSynthRenderNotify, (void *)(intptr_t)1);
 	sHostTicksPerSecond = AudioGetHostClockFrequency();
@@ -1205,9 +1427,12 @@ StartInternalSynthEngine(void)
 		int pinned = ApplyOutputDeviceLocked(sEngine);
 		if (![sEngine startAndReturnError:&err]) {
 			NSLog(@"internal synth start failed: %@", err);
+			atomic_store_explicit(&sDlsQueue[0].live, 0, memory_order_release);
+			atomic_store_explicit(&sDlsQueue[1].live, 0, memory_order_release);
 			AudioUnitRemoveRenderNotify(u0.audioUnit, InternalSynthRenderNotify, (void *)(intptr_t)0);
 			AudioUnitRemoveRenderNotify(u1.audioUnit, InternalSynthRenderNotify, (void *)(intptr_t)1);
-			ReleaseScheduleBlocks();
+			DlsClearQueue(0);
+			DlsClearQueue(1);
 			ReleaseEffectNodes();
 			AmySynthStop();
 			[sEngine release];
@@ -1228,16 +1453,14 @@ StartInternalSynthEngine(void)
 		SuppressConfigRecovery();
 	sSampleRate[0] = SynthSampleRate(u0.audioUnit, sEngine);
 	sSampleRate[1] = SynthSampleRate(u1.audioUnit, sEngine);
-	if (sScheduleMIDI[0] == nil)
-		CacheScheduleBlock(0, u0);
-	if (sScheduleMIDI[1] == nil)
-		CacheScheduleBlock(1, u1);
-	if (sScheduleMIDI[0] == nil || sScheduleMIDI[1] == nil)
-		NSLog(@"internal synth MIDI schedule block missing");
 	sDLSUnit[0] = u0;
 	sDLSUnit[1] = u1;
 	sDLS[0] = u0.audioUnit;
 	sDLS[1] = u1.audioUnit;
+	/* Release-store after the units and rates are published. The render
+	   callback acquires this flag before it reads either. */
+	atomic_store_explicit(&sDlsQueue[0].live, 1, memory_order_release);
+	atomic_store_explicit(&sDlsQueue[1].live, 1, memory_order_release);
 	/* The apply before start skipped DLS gains: sDLSUnit was still nil.
 	   start can also put the effect units back to their defaults. */
 	sAppliedReverbPreset = -1;
