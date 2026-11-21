@@ -16,6 +16,7 @@
 #import "CommandReference.h"
 
 #include <stdlib.h>
+#include <CoreServices/CoreServices.h>
 #include "rcp_transport.h"
 #include "sted.h"
 
@@ -34,6 +35,61 @@ extern const char *XSTed_mac_font_name(void);
 extern int ecount_sw; /* record.c: mirrors RcpClock source for SYNC display */
 
 static NSString * const kMidiSyncExtKey = @"MidiSyncExt";
+
+/* Non-zero when another STed2 is already running. open -n still creates this
+   process; Launch Services does not. The file, if any, is forwarded before
+   this process exits. */
+static pid_t sYieldToPid;
+
+static pid_t
+sted_other_instance_pid(void)
+{
+	NSString *ident;
+	pid_t selfPid;
+	NSRunningApplication *app;
+
+	ident = [[NSBundle mainBundle] bundleIdentifier];
+	if (ident == nil)
+		return 0;
+	selfPid = [[NSRunningApplication currentApplication] processIdentifier];
+	for (app in [NSRunningApplication runningApplicationsWithBundleIdentifier:ident]) {
+		if ([app processIdentifier] != selfPid && ![app isTerminated])
+			return [app processIdentifier];
+	}
+	return 0;
+}
+
+static void
+sted_note_existing_instance(void)
+{
+	if (sYieldToPid == 0)
+		sYieldToPid = sted_other_instance_pid();
+}
+
+static void
+sted_forward_open_url(pid_t pid, NSURL *url)
+{
+	NSAppleEventDescriptor *target, *event, *list, *file;
+	NSError *error = nil;
+
+	if (pid == 0 || url == nil || ![url isFileURL])
+		return;
+	target = [NSAppleEventDescriptor descriptorWithProcessIdentifier:pid];
+	event = [NSAppleEventDescriptor appleEventWithEventClass:kCoreEventClass
+							 eventID:kAEOpenDocuments
+						targetDescriptor:target
+							returnID:kAutoGenerateReturnID
+						   transactionID:kAnyTransactionID];
+	list = [NSAppleEventDescriptor listDescriptor];
+	file = [NSAppleEventDescriptor descriptorWithFileURL:url];
+	if (target == nil || event == nil || list == nil || file == nil)
+		return;
+	[list insertDescriptor:file atIndex:1];
+	[event setParamDescriptor:list forKeyword:keyDirectObject];
+	[event sendEventWithOptions:NSAppleEventSendNoReply
+			    timeout:kAEDefaultTimeout
+			      error:&error];
+}
 
 static void
 ApplyMidiSyncMode(int ext)
@@ -116,6 +172,7 @@ ApplySyncModeMenuTitle(NSMenuItem *item)
 		[myWindow setAlphaValue:0];
 		[myWindow orderOut:nil];
 	}
+	sted_note_existing_instance();
 }
 
 - (BOOL)applicationSupportsSecureRestorableState:(NSApplication *)app
@@ -173,11 +230,16 @@ sted_argv_with_launch_file(int *argcIO, char **argv)
 	const char *fs;
 
 	(void)application;
+	sted_note_existing_instance();
 	if ([urls count] != 1)
 		return;
 	u = [urls objectAtIndex:0];
 	if (u == nil || ![u isFileURL])
 		return;
+	if (sYieldToPid != 0) {
+		sted_forward_open_url(sYieldToPid, u);
+		return;
+	}
 	fs = [u fileSystemRepresentation];
 	sted_finder_receive(fs);
 }
@@ -189,6 +251,17 @@ sted_argv_with_launch_file(int *argcIO, char **argv)
 	int argc = sted_saved_argc;
 	char **argv = sted_saved_argv;
 	X68kView *xview;
+
+	if (sYieldToPid != 0) {
+		NSRunningApplication *peer;
+
+		peer = [NSRunningApplication runningApplicationWithProcessIdentifier:sYieldToPid];
+		[peer activateWithOptions:NSApplicationActivateIgnoringOtherApps];
+		dispatch_async(dispatch_get_main_queue(), ^{
+			[NSApp terminate:nil];
+		});
+		return;
+	}
 
 	if (displayMode == DISPLAY_CONSOLE) {
 		[myWindow orderOut:nil];
