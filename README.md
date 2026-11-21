@@ -25,7 +25,9 @@ Unlike the original Human68K version, which required the companion program RCD.x
 - An integrated mixer and a set of "total effects" have been included. In addition to a reverb bus routed from the DLS synth, there is a mixer to balance the two synths, followed by three total effect modules and a final master volume control. These were chosen with mastering in mind—specifically to help tame SoundFonts that might otherwise sound harsh to the ears. The components—High/Low EQ, reverb, and a limiter—all utilize modules built into macOS. Please note that these settings, including the volume, cannot be controlled via MIDI. They can also be disabled, so feel free to use them as you prefer.
 
 #### Requirement macOS version
-- Supported OS version: macOS 12.0 Monterey or later. Compatible with both Intel and Apple Silicon.
+- Compatible with both Intel and Apple Silicon.
+- Minimum System Requirements:　　　macOS 12 Monterey, memory 4GB, display 1366x768, Core i5, Tested and working on MacBook Air A1465　(11-inch, Early 2015)
+- Recommended System Requirements:　macOS 12 Monterey or newer / Apple silicon (M1 or later)
 
 ## Short-term goal:
 The primary objective is to restore the full functionality of STed2 on modern macOS. The goal is for the restored software to operate as a fully functional sequencer—supporting playback, input, and recording—just as the original Human68k version of STed2 did.
