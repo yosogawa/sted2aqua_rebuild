@@ -994,6 +994,8 @@ static void sted_finder_offer(void)
     snprintf(line, sizeof line, "%s %s", "Load this file", shown);
   else
     snprintf(line, sizeof line, "%s", "Load this file");
+  /* Palette 3 is the message color. msg() prints in whatever color is current. */
+  B_COLOR(3);
   msg(line);
   if (yn_sel() > 0 && sted_finder_still_safe())
     sted_finder_apply(full);
