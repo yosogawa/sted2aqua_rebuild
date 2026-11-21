@@ -250,7 +250,7 @@ x68k_key_name(int code, char *buf, size_t n)
 	switch (code) {
 	case x68k_kigou: s = [NSLocalizedString(@"KIGOU", @"X68000 key") UTF8String]; break;
 	case x68k_touroku: s = [NSLocalizedString(@"TOUROKU", @"X68000 key") UTF8String]; break;
-	case x68k_kana: s = "KANA"; break;
+	case x68k_kana: s = [NSLocalizedString(@"KANA", @"X68000 key") UTF8String]; break;
 	case x68k_del: s = "DEL"; break;
 	case x68k_home: s = "HOME"; break;
 	case x68k_rollup: s = "RUP"; break;
@@ -755,6 +755,8 @@ eventToX68kKeyInfo(NSEvent *theEvent)
 		case 0x1C: theChar = '8'; break;
 		case 0x19: theChar = '9'; break;
 		case 0x1D: theChar = '0'; break;
+		case 0x66: theChar = kMacEisuToken; break; /* JIS 英数 */
+		case 0x68: theChar = kMacKanaToken; break; /* JIS かな */
 		default:
 			theChar = 0;
 			chars = [theEvent charactersIgnoringModifiers];
@@ -793,7 +795,8 @@ eventToX68kKeyInfo(NSEvent *theEvent)
 			}
 		}
 	}
-	if (keyCode == 0) {
+	/* Unbound 英数/かな stay inert. A cnf binding is the only way they produce a key. */
+	if (keyCode == 0 && vk != 0x66 && vk != 0x68) {
 		/* Unmatched letter. Binding search already ran, so option-1 and
 		   control-1 are untouched. Shift stays in theChar. */
 		unichar base = theChar;
@@ -1728,6 +1731,10 @@ XSTed_register_key(const char *str)
 			n = NSPageDownFunctionKey;
 		else if (strcasecmp(q, "clear") == 0)
 			n = NSClearLineFunctionKey;
+		else if (strcasecmp(q, "eisu") == 0)
+			n = kMacEisuToken;
+		else if (strcasecmp(q, "kana") == 0)
+			n = kMacKanaToken;
 		else if (strlen(q) == 1)
 			n = tolower(*q) & 127;
 		else n = 0;

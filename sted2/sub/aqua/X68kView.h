@@ -18,6 +18,13 @@ extern int sTextHeight;  /* text visible height in pixels; session-fixed, defaul
 + (void)initializeX68k;
 + (unsigned int)getKey: (BOOL)senseOnly;
 
+/* Match tokens for JIS 英数 (key code 0x66) and かな (0x68).
+   Not the key codes: 0x66 and 0x68 are the letters f and h. */
+enum {
+	kMacEisuToken = 0xE066,
+	kMacKanaToken = 0xE068
+};
+
 /* What STed2 would do with this Mac key. modMask: control=2, option=4.
    Returns 1 and writes XF1, KIGOU, TOUROKU, and the other X68000 names. */
 int XSTed_viewer_label(unsigned vk, unsigned macChar, int modMask, int commandDown,

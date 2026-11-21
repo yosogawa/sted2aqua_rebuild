@@ -472,6 +472,8 @@ mac_char_for_vk(int vk)
 	case 0x79: return NSPageDownFunctionKey;
 	case 0x75: return NSDeleteFunctionKey;
 	case 0x47: return NSClearLineFunctionKey;
+	case 0x66: return kMacEisuToken;
+	case 0x68: return kMacKanaToken;
 	default: break;
 	}
 
