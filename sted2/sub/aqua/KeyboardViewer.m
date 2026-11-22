@@ -1,6 +1,6 @@
 /* Keyboard viewer.
- * A non-activating panel. Option and Control follow the app's modifier
- * state, so the sequencer keeps the key focus.
+ * A non-activating panel that cannot become the key window. Option and
+ * Control follow the app's modifier state, and the sequencer keeps the keys.
  * The drawn shape is ANSI, ISO, or JIS from KBGetLayoutType, with a
  * navigation cluster and numeric pad when the connected keyboard is not
  * a laptop or a known compact board.
@@ -879,6 +879,20 @@ missing_line(const Cap *c, int n, int modMask, int commandDown)
 
 @end
 
+/* A click on the title bar must not take the key window from STed2,
+   or the emulator stays in its key wait. */
+@interface KeyboardViewerPanel : NSPanel
+@end
+
+@implementation KeyboardViewerPanel
+
+- (BOOL)canBecomeKeyWindow
+{
+	return NO;
+}
+
+@end
+
 static void
 ensure_panel(void)
 {
@@ -888,7 +902,7 @@ ensure_panel(void)
 	if (sPanel != nil)
 		return;
 	frame = NSMakeRect(0, 0, 980, 340);
-	sPanel = [[NSPanel alloc] initWithContentRect:frame
+	sPanel = [[KeyboardViewerPanel alloc] initWithContentRect:frame
 					    styleMask:(NSWindowStyleMaskTitled |
 						       NSWindowStyleMaskClosable |
 						       NSWindowStyleMaskResizable |
