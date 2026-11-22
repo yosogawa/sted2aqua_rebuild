@@ -10,6 +10,7 @@
 #include "sted.h"
 #include "rcp_transport.h"
 #include "rcp_transport_cmd.h"
+#include "macos/spawncmd.h"
 
 #include <locale.h>
 #include <langinfo.h>
@@ -185,7 +186,8 @@ int child( char *cl ) {
     }
   }
 
-  ret=system( tmp );
+  /* posix_spawn. A missing program or a shell operator returns -1. */
+  ret=sted_spawn_command( tmp );
   return ret;
 }
 

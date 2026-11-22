@@ -964,12 +964,14 @@ void	fsel(char *fna,char *pth,int w)
 
 	/*  2015.3.27. Toshi Nagata  */
 	{
+#if 0
 		cc = (w >> 8) & 0xff;
 		w = (w & 0xff);
 		if (w >= 64) {
 			MacErrorBox("Conversion by external package is not yet implemented.", 2);
 			return;
 		}
+#endif
 		{
 			int scope = def_sel_scope;
 			int *pscope = NULL;

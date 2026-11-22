@@ -3809,7 +3809,7 @@ s_MacSelectFile(void **args)
 		panel = [NSSavePanel savePanel];
 	else
 		panel = [NSOpenPanel openPanel];
-	if (ext != NULL) {
+	if (ext != NULL && ext != nil) {
 		pp = p = strdup(ext);
 		filetypes = [NSMutableArray array];
 		for (i = 0; p[i] != 0; i++)

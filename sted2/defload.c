@@ -14,6 +14,7 @@
 #include	"iocslib.h"
 #include	"doslib.h"
 #include	"sted.h"
+#include	"encoding.h"
 
 #if	STED
 int	gpal_no[16]={
@@ -1587,7 +1588,18 @@ void	cnf_prog(char *li,char *li2,int md)
       strcpy(tmp0,tmp1);tmp0[c-1]=0;spcut(tmp0);
       memmove(tmp1, &tmp1[c], strlen(&tmp1[c]) + 1);
       if((n&1)==0){
-	tmp0[38+10]=0;
+	int k;
+	/* sted2.cnf is UTF-8. The option list is drawn from the kanji ROM,
+	   which is addressed in Shift_JIS. */
+	sted_ensure_sjis(tmp0,(int)sizeof(tmp0));
+	k=(int)strlen(tmp0);
+	if(k>48){
+	  unsigned char b;
+	  k=48;
+	  b=(unsigned char)tmp0[k-1];
+	  if((b>=0x81 && b<=0x9f) || (b>=0xe0 && b<=0xfc)){k--;}
+	  tmp0[k]=0;
+	}
 	strcpy(chcom_s[i][n>>1],tmp0);
       }else{
 	tmp0[15]=0;

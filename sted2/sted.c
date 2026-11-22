@@ -1285,10 +1285,12 @@ int	option(int md,int sm)
   int	cmd=0;
   char	path2[PATHLEN + PATH_DRIVE_EXTRA],tmp0[PATHLEN + PATH_DRIVE_EXTRA],tmp1[PATHLEN],tmp2[PATHLEN];
 
+#if 1
   /*  2015.3.27. Toshi Nagata  */
 	MacErrorBox("No optional functions are available yet.", 0);
 	return 0;
   /*  End Toshi Nagata  */
+#endif
 
   B_CLR_AL();
   fill(0,544,767,1001,0);box(0,556,320,1001,14,65535);fill(1,556+17,8,1000,8);
