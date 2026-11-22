@@ -314,6 +314,8 @@ extern char s_sted_default_path[PATHLEN];	/* Jun.01.2003 Toshi Nagata */
 
 int itor( uint8_t *, size_t, uint8_t * );
 int STed_MeasureConversion( int track );
+/* 1 when bar slot 1 has no steps (a leading barline). */
+int STed_LeadingBarEmpty( int track );
 void Exit(int);
 #define exit Exit
 

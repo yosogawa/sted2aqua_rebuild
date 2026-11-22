@@ -49,6 +49,9 @@ void rcp_play_image_setup_devices(int with_file_tones);
 void dplay(int mo, int tr, int meas);
 void cdplay(int tr, int po, int ln, int md);
 void cntplay(int tr, int po);
+/* Song step at the start of measure on track tr. Measure 1 returns 0.
+   A measure past the end returns the step at that track's EOT. */
+int  play_origin_step(int tr, int meas);
 int  resolve_same_measures(int len, int meas, int lead_fd, int tr, int *me_ad);
 int  last_tempo(int meas);
 int  lsp_para_set(int tr, int po, int *me_ad, int wcc);

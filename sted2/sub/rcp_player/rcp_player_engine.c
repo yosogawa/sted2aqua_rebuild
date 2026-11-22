@@ -230,6 +230,9 @@ rcpplayer_engine(void)
 	int length, port;
 	OSStatus sts;
 	MIDITimeStamp waitPerMIDIByte[kMaxNumberOfPorts];
+	int natural_end = 0;
+	int have_last = 0;
+	int32_t last_step = 0;
 
 	startHost = AudioGetCurrentHostTime();
 	currentTime = startHost;
@@ -264,8 +267,10 @@ rcpplayer_engine(void)
 
 		if (!sParked) {
 			if (!rcpplayer_next_midi_event(&step, &ptr, &length, &port)) {
-				if (!sRecording)
+				if (!sRecording) {
+					natural_end = 1;
 					break;
+				}
 				/* Do not call rcpplayer_next_midi_event() again. The next
 				   call would add the million-step sentinel to the clock. */
 				while (sRecording && !sStopPlaying) {
@@ -278,6 +283,8 @@ rcpplayer_engine(void)
 				}
 				break;
 			}
+			last_step = step;
+			have_last = 1;
 			if (length == 0 || ptr == NULL || ptr[0] == 0xff) {
 #if RCP_MIDI_PORT_DUMP
 				if (ptr != NULL && length > 0 && ptr[0] == 0xff)
@@ -346,6 +353,12 @@ rcpplayer_engine(void)
 		(void)sts;
 	}
 	rcp_sequence_clock_stop();
+	/* Prefetch leaves the sample about 100ms before the final event.
+	   A natural end reports that event. Stop in the middle keeps the sample. */
+	if (natural_end && have_last && rcd != NULL) {
+		rcp_sequence_clock_set_elapsed_us(rcpplayer_step_to_microseconds(last_step));
+		rcd->stepcount = last_step;
+	}
 	rcp_clock_dump_f8_stats(" engine-exit");
 	rcp_transport_set_active(0);
 }

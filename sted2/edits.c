@@ -177,7 +177,9 @@ void	sttrc(int *po,int *cy,int flg)
 
     STed_MeasureConversion(track);   /* Dec.11.1998 Daisuke Nagano */
     j=rcd->bar[track];jj=j;i=rcd->step[track];ii=i;
-    if(skf!=0){if(j==0){i=-1;}else{j--;}}
+    /* Drop a bar only when a zero-length leading barline inflated
+       the index. Otherwise the cursor stays one measure behind. */
+    if(skf!=0){if(j==0){i=-1;}else if(STed_LeadingBarEmpty(track)){j--;}}
 
     while(j>0 || i>0){
       uint8_t	ca;

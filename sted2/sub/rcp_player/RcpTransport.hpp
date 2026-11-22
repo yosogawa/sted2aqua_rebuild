@@ -51,6 +51,11 @@ public:
 	   only. */
 	void songPosition(uint16_t spp);
 	uint16_t lastSongPosition() const;
+	/* Step at which this play image's step 0 sits in the song.
+	   0 when the image starts at the top. Callers do not read it back. */
+	void setPlayOrigin(int32_t step);
+	/* 14-bit SPP for origin + stepcount. Same quantum as an incoming F2. */
+	uint16_t locateSpp() const;
 	/* Engine entry: consume the elapsed µs prepared by SPP / start(). */
 	bool takeStartElapsedUs(double *us);
 	Phase phase() const;
@@ -68,6 +73,8 @@ private:
 	std::atomic<bool> spp_valid_;
 	std::atomic<bool> start_elapsed_valid_;
 	std::atomic<double> start_elapsed_us_;
+	/* Song step of the current image's time 0. UI thread writes it. */
+	std::atomic<int32_t> play_origin_;
 };
 
 #endif

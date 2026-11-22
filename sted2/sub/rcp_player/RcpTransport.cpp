@@ -33,6 +33,7 @@ RcpTransport::RcpTransport()
 	, spp_valid_(false)
 	, start_elapsed_valid_(false)
 	, start_elapsed_us_(0.0)
+	, play_origin_(0)
 {
 }
 
@@ -73,8 +74,12 @@ RcpTransport::applySongPositionLocate(uint16_t spp)
 	if (rcd == nullptr || tbase <= 0)
 		return;
 
-	/* Beat-unit SPP → song step. Same quantum as the locator chip. */
+	/* Beat-unit SPP is song-absolute. stepcount is an offset from the
+	   image start, so seek that many steps into the current image. */
 	step = (int32_t)(((int64_t)(spp & 0x3fff) * (int64_t)tbase) / 4);
+	step -= play_origin_.load(std::memory_order_acquire);
+	if (step < 0)
+		step = 0;
 	landed = step;
 
 	if (rcd->data_valid && rcd->data_adr != nullptr && rcd->totalcount > 0) {
@@ -112,6 +117,7 @@ RcpTransport::attach()
 	*(volatile int32_t *)&rcd->sts = 1;
 	rcd->tar_trk = 0;
 	rcd->tar_bar = 0;
+	play_origin_.store(0, std::memory_order_release);
 }
 
 void
@@ -229,6 +235,7 @@ RcpTransport::returnToStart()
 		fullStop();
 	clearSongPositionLocate();
 	gRcpClock.resetStopped();
+	play_origin_.store(0, std::memory_order_release);
 	rcd->stepcount = 0;
 	for (i = 0; i < TRK_NUM; i++) {
 		rcd->bar[i] = 0;
@@ -282,6 +289,31 @@ uint16_t
 RcpTransport::lastSongPosition() const
 {
 	return last_spp_.load(std::memory_order_acquire);
+}
+
+void
+RcpTransport::setPlayOrigin(int32_t step)
+{
+	if (step < 0)
+		step = 0;
+	play_origin_.store(step, std::memory_order_release);
+}
+
+uint16_t
+RcpTransport::locateSpp() const
+{
+	int32_t step;
+	int64_t song;
+
+	if (rcd == nullptr || tbase <= 0)
+		return 0;
+	step = rcd->stepcount;
+	if (step < 0)
+		step = 0;
+	song = (int64_t)play_origin_.load(std::memory_order_acquire) + (int64_t)step;
+	if (song < 0)
+		song = 0;
+	return (uint16_t)(((song * 4) / (int64_t)tbase) & 0x3fff);
 }
 
 bool
@@ -378,6 +410,18 @@ uint16_t
 rcp_transport_last_song_position(void)
 {
 	return gTransport.lastSongPosition();
+}
+
+void
+rcp_transport_set_play_origin(int32_t step)
+{
+	gTransport.setPlayOrigin(step);
+}
+
+uint16_t
+rcp_transport_locate_spp(void)
+{
+	return gTransport.locateSpp();
 }
 
 int

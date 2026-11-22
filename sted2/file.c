@@ -1240,6 +1240,7 @@ rcp_build_play_image(void)
   all_note_off(1);
   rcd->data_valid=0;
   msg_clr();poft=0;
+  rcp_transport_set_play_origin(0);
   hedset(36);bpo=rcp_buf_put(hed,0,RCP_FILE_HEADER_SIZE);
 
   for(i=0;i<36;i++){
@@ -1410,6 +1411,24 @@ resolve_same_measures(int len, int meas, int lead_fd, int tr, int *me_ad)
   return(len);
 }
 
+/* Song step of measure `meas` on track tr, counted by step_cluc2.
+   Measure 1 is 0. A measure past the end is the step at that track's EOT. */
+int	play_origin_step(int tr,int meas)
+{
+  int	saved,ad,step;
+
+  if(meas<=1 || tr<0 || tr>=36){return 0;}
+  saved=track;
+  track=tr;
+  ad=meas_add(meas);
+  track=saved;
+  if(ad<0){ad=tr_len[tr];}
+  if(ad<=0){return 0;}
+  step=step_cluc2(tr,0,ad);
+  if(step<0){step=0;}
+  return step;
+}
+
 /************************** meas play */
 void	cdplay(int tr,int po,int ln,int md)
 {
@@ -1420,6 +1439,7 @@ void	cdplay(int tr,int po,int ln,int md)
   if(ln==0){return;}
   rcp_transport_play_prepare_begin();
   all_note_off(1+1);rcd->data_valid=0;msg_clr();
+  rcp_transport_set_play_origin(0);
   hedset(36);bpo=rcp_buf_put(hed,0,RCP_FILE_HEADER_SIZE);
   meas=meas_no(po);if((cmdflag&0x4000)==0){pr=lsp_wait_chack(meas);}
   tempo=last_tempo(meas);
@@ -1490,6 +1510,12 @@ void	cdplay(int tr,int po,int ln,int md)
   rcd->fmt=2;rcd->totalcount=bpo;rcd->data_valid=1;rcd->word_valid=0;
   rcd->tone_valid=0;rcd->gsd_valid=0;
 
+  /* Image time 0 is the tempo event's 1-step wait, before the measure. */
+  {
+    int origin=play_origin_step(tr,meas);
+    if(po>0 && tempo>=0 && origin>0){origin-=1;}
+    rcp_transport_set_play_origin(origin);
+  }
   rcp_play_image_setup_devices(0);
   rcp_transport_launch_player();
   rcp_transport_play_prepare_end();
@@ -1506,6 +1532,7 @@ void	cntplay(int tr,int po)
   if((cmdflag&0x80)!=0){dplay(0,tr,meas_no(po));return;}
   rcp_transport_play_prepare_begin();
   all_note_off(1+1);rcd->data_valid=0;msg_clr();dumy=track;
+  rcp_transport_set_play_origin(0);
   hedset(36);bpo=rcp_buf_put(hed,0,RCP_FILE_HEADER_SIZE);
   meas=meas_no(po);pr=lsp_wait_chack(meas);tempo=last_tempo(meas);
   poft=meas-1;if(po>0){poft+=0x10000;}
@@ -1557,6 +1584,12 @@ void	cntplay(int tr,int po)
   rcd->fmt=2;rcd->totalcount=bpo;rcd->data_valid=1;rcd->word_valid=0;
   rcd->tone_valid=0;rcd->gsd_valid=0;
 
+  /* Image time 0 is the tempo event's 1-step wait, before the measure. */
+  {
+    int origin=play_origin_step(tr,meas);
+    if(po>0 && tempo>=0 && origin>0){origin-=1;}
+    rcp_transport_set_play_origin(origin);
+  }
   rcp_play_image_setup_devices(0);
   rcp_transport_launch_player();
   rcp_transport_play_prepare_end();
@@ -1968,6 +2001,7 @@ void	dinit()
 
   cminit();gsinit();rhinit();
   user_exc_init();asin_init();stgt_init();
+  rcp_transport_set_play_origin(0);
 }
 
 /***************************/

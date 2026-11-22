@@ -455,6 +455,16 @@ int STed_InitMeasureConversion() {
   return 0;
 }
 
+/* 1 when the first stored bar boundary has no steps before it.
+   The follow cursor then sees a bar index one higher than the
+   sounding measure, and subtracts one. A first measure with a
+   real length is already aligned, so that subtract must not run. */
+int STed_LeadingBarEmpty( int tr )
+{
+  if( tr<0 || tr>=TRK_NUM ){return 0;}
+  return bar_st[tr][1]==0;
+}
+
 /* converts from total step to measure & relative step */
 static int stp_ad( int tr, int meas, int step );
 static void fold_cross_bar_repeat( int t, int bar, int off, int abs_t, int *bar_io, int *step_io );

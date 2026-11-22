@@ -474,7 +474,7 @@ p2:
 /***************************/
 int	countstart(int md,int smeas)
 {
-  int	bpo,met=-1,pr=0;
+  int	bpo,met=-1,pr=0,origin_step=0;
   int	me_ad[2048];
 
   static	uint8_t	metp[4*14]={
@@ -505,6 +505,7 @@ int	countstart(int md,int smeas)
   if(smeas<2){
     int i;
     poft=0;
+    origin_step=0;
 
     for(i=0 ;i< 36;i++){
       if((trmod[i]&1)!=0 || tr_len[i]==4){	/*mute & rec*/
@@ -541,6 +542,9 @@ int	countstart(int md,int smeas)
 
     po=meas_add(meas);pr=lsp_wait_chack(meas);tempo=last_tempo(meas);
     poft=meas-1;if(po>0){poft+=0x10000;}
+    origin_step=play_origin_step(dumy,meas);
+    /* Same 1-step tempo wait as cntplay. Image time 0 is before the measure. */
+    if(po>0 && tempo>=0 && origin_step>0){origin_step-=1;}
 
     for(i=0 ;i< 36;i++){
       if((trmod[i]&1)!=0 || tr_len[i]==4){	/*mute & rec*/
@@ -601,6 +605,7 @@ int	countstart(int md,int smeas)
 
   if((rcd->bufcap)<bpo){msg("Too small RCD buffer.");return 0;}
 
+  rcp_transport_set_play_origin(origin_step);
   rcd->fmt=2;rcd->totalcount=bpo;
   rcd->data_valid=1;rcd->word_valid=0;rcd->tone_valid=0;rcd->gsd_valid=0;
   /*	strcpy(rcd->filename,"");strcpy(rcd->tonename,"");strcpy(rcd->gsdname,"");*/

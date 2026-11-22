@@ -1568,6 +1568,7 @@ int	paraexe(char *tmp0,int ad,int ew,int sm,int cmd)
   ex=0;if(point(0,0)!=8||(cmd&0x100)!=0){sinit();ex=1;}
   if((cmd&(2+4))!=0){
     poft=0;
+    rcp_transport_set_play_origin(0);
     if((cmd&0x2000)==0){bufload();form2();
     }else{bufload_trk(track);trk_lin(track,-1,0);}
     ex=1;
@@ -1708,15 +1709,14 @@ void	sinit()
 }
 
 /***************************/
-/* Locator chip: MEAS:BEAT:STEP. Position is derived from the same SPP
-   quantum (stepcount * 4 / tbase, one quantum = 6 MIDI clocks). Redraw
-   only when that quantum or the song meter changes. SPP hex is omitted. */
+/* Locator chip: MEAS:BEAT:STEP. Position is rcp_transport_locate_spp(),
+   the same 14-bit SPP a MIDI out would send (one quantum = 6 MIDI clocks).
+   Redraw only when that quantum or the song meter changes. SPP hex is omitted. */
 void
 locator_refresh(int force)
 {
   static int last_spp = -1;
   static int last_barlen = -1;
-  int32_t sc;
   int spp, barlen, meas, beat, step, q, rem, beat_len;
   char buf[16];
 
@@ -1727,10 +1727,7 @@ locator_refresh(int force)
   if (rcd == NULL || tbase <= 0 || beat1 <= 0 || beat2 <= 0)
     return;
 
-  sc = rcd->stepcount;
-  if (sc < 0)
-    sc = 0;
-  spp = (int)(((int64_t)sc * 4 / tbase) & 0x3fff);
+  spp = (int)rcp_transport_locate_spp();
   barlen = tbase * 4 * beat1 / beat2;
   if (!force && spp == last_spp && barlen == last_barlen)
     return;

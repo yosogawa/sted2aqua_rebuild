@@ -689,7 +689,8 @@ void	rsttrc(int *no,int *cx,int flg,int pg)
 
     STed_MeasureConversion(track); /* Dec.11.1998 Daisuke Nagano */
     j=rcd->bar[track];jj=j;i=rcd->step[track];ii=i;
-    if(skf!=0){if(j==0){i=0;}else{j--;}}
+    /* Same leading-barline adjustment as the edit follow. */
+    if(skf!=0){if(j==0){i=0;}else if(STed_LeadingBarEmpty(track)){j--;}}
 
     while(j>0 || i>0){
       uint8_t	ca;
