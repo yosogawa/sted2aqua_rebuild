@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
 	<meta http-equiv="content-type" content="text/html; charset=utf-8">
-	<title>STed2 音源定義ファイル仕様</title>
+	<title>STed2 Module Define File</title>
 	<meta name="generator" content="mi">
   <style> <!--
   pre {
@@ -15,181 +15,185 @@
 <body>
 
 <pre id="top">
-<a href="index.html">[目次へ]</a>
+<a href="index.html">[Contents]</a>
 
 *--------------------------------------------------------------------------------------
-* STed v2.07 音源定義ファイル・マニュアル                       1996-11-17 by TURBO
+* STed v2.07 Module define-file manual                          1996-11-17 by TURBO
 *--------------------------------------------------------------------------------------
-* 音源定義ファイルを書き換えることにより、他の音源に対応できます。
+* Editing the define file lets you support other modules.
 
 
-定義ファイルで使用出来るコマンド
+Commands you can use in a define file
 
-  #module=      使用する音源の機種名(表示用)(22文字まで)
+  #module=      Model name of the module in use (for display) (up to 22 characters)
 
-  #id=          使用する音源の機種ID(内部処理用)
+  #id=          Model ID of the module in use (for internal processing)
 
-                        =CM64   PART3(PCM)のパッチをCM-64の初期値に合わせる。
-                                コントロールデータ(.CM6)を音源に転送する。
-                                演奏前にCM-64のマスターボリュウム等を設定する。
-                                パネルでの音色名をCMモードにする。
-                                (MT-32/CM-32xの場合も、CM64に設定して下さい)
+                        =CM64   Match the PART3 (PCM) patch to the CM-64 defaults.
+                                Send the control data (.CM6) to the module.
+                                Before playback, set the CM-64 master volume and
+                                similar parameters.
+                                Set the panel tone names to CM mode.
+                                (For an MT-32 or CM-32x, set CM64 as well.)
 
-                        =SC55   パネルでの音色名をGSモードにする。
-                                (CM-300/SC-155/SC-33/SC-55mkIIの場合も、SC55
-                                に設定して下さい)
+                        =SC55   Set the panel tone names to GS mode.
+                                (For a CM-300, SC-155, SC-33, or SC-55mkII, set
+                                SC55 as well.)
 
-                        =SC88   パネルでの音色名をGSモードにする。
-                                BANK LSBによる88map/55mapの表示切り換えに対応
-                                する。(55map用に#gm_pbank/#gm_rbankを使用)
+                        =SC88   Set the panel tone names to GS mode.
+                                Supports switching the display between 88map and
+                                55map by BANK LSB. (Use #gm_pbank/#gm_rbank for
+                                the 55 map.)
 
-                        他の音源の場合は、適当な文字を設定しておいて下さい。
-                        (U220,05RW,TG300 等)
+                        For any other module, set some suitable text.
+                        (U220, 05RW, TG300, and so on.)
 
-                        省略した場合は、起動前のドライバの設定に従います。
+                        If omitted, the driver setting from before startup is used.
 
-  #mute=        ミュートする音源の設定
+  #mute=        Which module to mute
 
-                        =CM64   CM-64をミュートします。(SC-55のミュートは解除)
-                                (MT-32/CM-32xの場合も、CM64に設定して下さい)
+                        =CM64   Mute the CM-64. (The SC-55 mute is cleared.)
+                                (For an MT-32 or CM-32x, set CM64 as well.)
 
-                        =SC55   SC-55をミュートします。(CM-64のミュートは解除)
-                                (CM-300/SC-155/SC-33/SC-55mkII/SC-88の場合も、
-                                SC55に設定して下さい)
+                        =SC55   Mute the SC-55. (The CM-64 mute is cleared.)
+                                (For a CM-300, SC-155, SC-33, SC-55mkII, or SC-88,
+                                set SC55 as well.)
 
-                        =OFF    ミュートモードを解除する
+                        =OFF    Clear mute mode
 
-                        省略した場合は、起動前のドライバの設定に従います。
+                        If omitted, the driver setting from before startup is used.
 
 
-  #group=       チャンネル毎の音色リストの割り当てを設定します。
+  #group=       Assign a tone list to each channel.
 
-                        次の行から、パートナンバーを並べて指定します。
-                        32チャンネル分設定出来ます。
+                        From the next line, list the part numbers.
+                        You can set 32 channels.
 
-                            0=未使用の場合(NoUse)
-                        1〜15=part1〜part15
+                            0=unused (NoUse)
+                        1 to 15=part1 to part15
 
-                                part 1〜3(4)(CM-64 only)
-                                part 7(GS/GM format bank surport)
-                                part 8(GS/GM rhythm bank surport)
-                                part 9(GS/GM format bank surport)
-                                part10(GS/GM rhythm bank surport)
-                                part11(GS/GM format bank surport)
-                                part12(GS/GM rhythm bank surport)
-                                part13(GS/GM format bank surport)
-                                part14(GS/GM rhythm bank surport)
+                                part 1 to 3(4) (CM-64 only)
+                                part 7 (GS/GM format bank support)
+                                part 8 (GS/GM rhythm bank support)
+                                part 9 (GS/GM format bank support)
+                                part10 (GS/GM rhythm bank support)
+                                part11 (GS/GM format bank support)
+                                part12 (GS/GM rhythm bank support)
+                                part13 (GS/GM format bank support)
+                                part14 (GS/GM rhythm bank support)
 
                         #group_a= ch.A1-A16
                         #group_b= ch.B1-B16
 
-  #gs_mode=     part7/part8のバンクのモードを設定します。
-  #gm_mode=     part9/part10のバンクのモードを設定します。
-  #gx_mode=     part11/part12のバンクのモードを設定します。
-  #gy_mode=     part13/part14のバンクのモードを設定します。
+  #gs_mode=     Set the bank mode of part7/part8.
+  #gm_mode=     Set the bank mode of part9/part10.
+  #gx_mode=     Set the bank mode of part11/part12.
+  #gy_mode=     Set the bank mode of part13/part14.
 
-                bit 0 = 0 キャピタル落ちを無効にする
-                        1       〃      を有効にする
+                bit 0 = 0  Disable capital fallback.
+                        1  Enable capital fallback.
 
-                bit 1 = 0 RHYTHMのキャピタル落ちを無効にする
-                        1       〃              を有効にする
+                bit 1 = 0  Disable capital fallback for RHYTHM.
+                        1  Enable capital fallback for RHYTHM.
 
-                bit 2 = 0 バンク切り換えをBANK MSBで行う
-                        1 バンク切り換えをBANK LSBで行う
+                bit 2 = 0  Switch banks with BANK MSB.
+                        1  Switch banks with BANK LSB.
 
-  #gs_pbank     part7のバンクに対応する音色リストの割り当てを設定します。
-  #gm_pbank     part9のバンクに対応する音色リストの割り当てを設定します。
-  #gx_pbank     part11のバンクに対応する音色リストの割り当てを設定します。
-  #gy_pbank     part13のバンクに対応する音色リストの割り当てを設定します。
-                        (ctrl.change 0/32(BANK MSB/LSB) での切り替えに対応)
+  #gs_pbank     Assign the tone lists for part7's banks.
+  #gm_pbank     Assign the tone lists for part9's banks.
+  #gx_pbank     Assign the tone lists for part11's banks.
+  #gy_pbank     Assign the tone lists for part13's banks.
+                        (Supports switching by control change 0/32 (BANK MSB/LSB).)
 
-                        次の行から、パートナンバーを並べて指定します。
-                        128バンク分設定出来ます。
+                        From the next line, list the part numbers.
+                        You can set 128 banks.
 
-  #gs_rbank     part8のバンクに対応する音色リストの割り当てを設定します。
-  #gm_rbank     part10のバンクに対応する音色リストの割り当てを設定します。
-  #gx_rbank     part12のバンクに対応する音色リストの割り当てを設定します。
-  #gy_rbank     part14のバンクに対応する音色リストの割り当てを設定します。
-                        (program change での切り替えに対応)
+  #gs_rbank     Assign the tone lists for part8's banks.
+  #gm_rbank     Assign the tone lists for part10's banks.
+  #gx_rbank     Assign the tone lists for part12's banks.
+  #gy_rbank     Assign the tone lists for part14's banks.
+                        (Supports switching by program change.)
 
-                        次の行から、パートナンバーを並べて指定します。
-                        128バンク分設定出来ます。
+                        From the next line, list the part numbers.
+                        You can set 128 banks.
 
   #gs_pgroup
-                bank lsbとバンクパートとの対応を設定します。
-                        (bank msb/bank lsbの同時指定でのバンク切り替えに対応
-                        しています)
-                        (指定可能なのは、7,9,11,13)
+                Set which bank part corresponds to each bank LSB.
+                        (Supports a bank switch that specifies bank MSB and
+                        bank LSB together.)
+                        (You can specify 7, 9, 11, and 13.)
 
   #gs_rgroup
-                bank lsbとバンクパートとの対応を設定します。
-                        (program/bank lsbの同時指定でのバンク切り替えに対応
-                        しています)
-                        (指定可能なのは、8,10,12,14)
+                Set which bank part corresponds to each bank LSB.
+                        (Supports a bank switch that specifies program and
+                        bank LSB together.)
+                        (You can specify 8, 10, 12, and 14.)
 
-  #rhy_as=      リズムアサインの初期データを設定します。
+  #rhy_as=      Set the initial data for rhythm assign.
 
-                        サウンドテスト用のch.とprog.no.をコマンドの後に記載して、
-                        次の行から、リズムネーム、KEY No.、GATE TIMEのデータを一組にして
-                        32音分設定出来ます。
+                        After the command, write the sound-test ch. and prog.no.
+                        From the next line, set a rhythm name, KEY No., and GATE
+                        TIME as one set. You can set 32 sounds.
 
-                        (ch.(1〜32),prog.(0〜127,-1=off),bank l.(0〜127,-1=off),,vel)
-                        (リズムネームは14文字まで)
+                        (ch.(1 to 32), prog.(0 to 127, -1=off), bank l.(0 to 127, -1=off),, vel)
+                        (A rhythm name is up to 14 characters.)
 
-  #part=        パート毎の音色名を設定します。
+  #part=        Set the tone names for each part.
 
-                        パートナンバー、タイトル、ヘッダ、オフセット、をコマンドの後に
-                        記載して、次の行から、トーンネームを指定して下さい。
-                        一つのパートに、128音分設定出来ます。
-                        (トーンネームは12文字まで。GS/GMリズムパートのみ14文字可)
+                        After the command, write the part number, title, header,
+                        and offset. From the next line, specify the tone names.
+                        One part can hold 128 tones.
+                        (A tone name is up to 12 characters. Only a GS/GM rhythm
+                        part may use 14.)
 
-                                part 1〜3(4)(CM-64 only)
+                                part 1 to 3(4) (CM-64 only)
 
-                                part 7(GS/GM format bank surport)
-                                part 8(GS/GM rhythm bank surport)
+                                part 7 (GS/GM format bank support)
+                                part 8 (GS/GM rhythm bank support)
 
-                                part 9(GS/GM format bank surport)
-                                part10(GS/GM rhythm bank surport)
+                                part 9 (GS/GM format bank support)
+                                part10 (GS/GM rhythm bank support)
 
-                                part11(GS/GM format bank surport)
-                                part12(GS/GM rhythm bank surport)
+                                part11 (GS/GM format bank support)
+                                part12 (GS/GM rhythm bank support)
 
-                                part13(GS/GM format bank surport)
-                                part14(GS/GM rhythm bank surport)
+                                part13 (GS/GM format bank support)
+                                part14 (GS/GM rhythm bank support)
 
-                                part16〜400(bank only)
+                                part16 to 400 (bank only)
 
-                        (part no,リストのタイトル(16byte),ヘッダ(6byte),先頭位置からの
-                        オフセット)
+                        (part no, list title (16 bytes), header (6 bytes), offset
+                        from the start)
 
-  #card=        CM-64用のカード毎の音色名を設定します。
+  #card=        Set the tone names for each CM-64 card.
 
-                        カードナンバー、カードネーム、タイトルをコマンドの後に記載して、
-                        次の行から、トーンネームを指定して下さい。
-                        一つのカードに、128音分設定出来ます。(トーンネームは10文字まで)
-                        (音色名はpart16〜31に登録されます)
+                        After the command, write the card number, card name, and
+                        title. From the next line, specify the tone names.
+                        One card can hold 128 tones. (A tone name is up to 10
+                        characters.)
+                        (The tone names are registered in part16 to 31.)
 
-  #card_no=     CM-64の場合に使用するカードを指定します。
-                        (音色名は、part4に登録されます)
+  #card_no=     Specify the card the CM-64 uses.
+                        (The tone names are registered in part4.)
 
-  #lsp_wait=    ポイントプレイのラストパラメータ送信時のウエイトを増やします。
-                        (0〜16= wait×0〜16 / -1=ラストパラメータを送信しない)
+  #lsp_wait=    Increase the wait when point play sends the last parameters.
+                        (0 to 16 = wait x 0 to 16 / -1 = do not send the last parameters)
 
-                                = 1〜16 ウエイトを指定値倍する
-                                = 0     ウエイトを入れない
-                                =-1     ラストパラメータを送信しない
+                                = 1 to 16  Multiply the wait by this value
+                                = 0        Insert no wait
+                                =-1        Do not send the last parameters
 
-  #defoff       定義コマンドの終了
+  #defoff       End of the define commands
 
-  #end          定義ファイルの終了
+  #end          End of the define file
 
 
-* ファイルに入っていないカード/音源の音色リストを打ち込んだ方は送って頂けませんか？
-* ファイルに追加しますので、宜しくお願いします。
+* If you have entered a tone list for a card or module that is not in this file,
+* please send it. It will be added to the file. Thank you.
 *                                                                       TURBO
 
-<a href="#top">[ページの先頭へ]</a>
-<a href="index.html">[目次へ]</a>
+<a href="#top">[Top of this page]</a>
+<a href="index.html">[Contents]</a>
 </pre>
 
 </body>

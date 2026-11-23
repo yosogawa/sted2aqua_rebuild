@@ -564,6 +564,8 @@ sted_argv_with_launch_file(int *argcIO, char **argv)
 		title:NSLocalizedString(@"About STed2", @"Application menu")];
 	[self localizeMenuItemWithAction:@selector(midiSettingsDialog:)
 		title:NSLocalizedString(@"MIDI Port Settings...", @"MIDI menu")];
+	[self localizeMenuItemWithAction:@selector(showHelp:)
+		title:NSLocalizedString(@"STed2 Help", @"Help menu")];
 }
 
 - (void)installViewMenu
@@ -604,7 +606,7 @@ sted_argv_with_launch_file(int *argcIO, char **argv)
 		[item release];
 	}
 	[viewMenu addItem:[NSMenuItem separatorItem]];
-	item = [[NSMenuItem alloc] initWithTitle:@"Fonts…"
+	item = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"Fonts…", @"View menu")
 					  action:@selector(showFontPanel:)
 				   keyEquivalent:@"t"];
 	[item setTarget:self];

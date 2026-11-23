@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
 	<meta http-equiv="content-type" content="text/html; charset=utf-8">
-	<title>STed2 マニュアル</title>
+	<title>STed2 Manual</title>
 	<meta name="generator" content="mi">
   <style> <!--
   pre {
@@ -15,31 +15,31 @@
 <body>
 
 <pre id="top">
-<a href="index.html">[目次へ]</a>
+<a href="index.html">[Contents]</a>
 
 ======================================================================================
 
                 MIDI Music Composer STed v2.07 Copyright 1990-96 TURBO
                                 (for X680x0 / RC-System)
 
-                                     操作マニュアル
+                                   Operation Manual
 
                                                                         1996-11-17
 ======================================================================================
 
 
-《メイン画面の説明》
+《Main screen》
 
         ┌──────────────────┬──────────────┐
         │FREE   USED   TR.                   │ STed v2.07(c)1990-96 TURBO │
-        │メッセージの表示位置                └──────────────┤
+        │Message display                     └──────────────┤
         │┌────┐┌─────────────────────────┐│
         ││        ││TITLE                                             ││
         ││        ││FILE NAME                                         ││
         │└────┘└─────────────────────────┘│
         │┌────┐┌──────────────┐┌─────────┐│
-        │└コマンド┘│TEMPO   TIMEBASE  PLAYBIAS  ││                  ││
-        │┌メニュー┐│BEAT    KEY                 ││                  ││
+        │└Command ┘│TEMPO   TIMEBASE  PLAYBIAS  ││                  ││
+        │┌Menu    ┐│BEAT    KEY                 ││                  ││
         │└────┘└──────────────┘└─────────┘│
         │┌────┐┌─────────────────────────┐│
         │└────┘│TR MODE CH. ST+ K#+   TRACK MEMO    STEP  TOTAL ST││
@@ -47,7 +47,7 @@
         │└────┘│                                                  ││
         │┌────┐│                                                  ││
         │└────┘│                                                  ││
-        │┌────┐│                トラック毎の設定データ            ││
+        │┌────┐│                Per-track settings                ││
         │└────┘│                                                  ││
         │┌────┐│                                                  ││
         │└────┘│                                                  ││
@@ -56,32 +56,32 @@
         └─────────────────────────────────┘
 
 
-トラックセットデータの所に表示されるパラメータの説明
+Parameters shown in the track-set area
 
-        TR              トラックナンバー
+        TR              Track number
 
-        MODE            プレイモード
+        MODE            Play mode
 
-        CH.             MIDIチャンネル
+        CH.             MIDI channel
 
-        ST+             演奏のタイミング
+        ST+             Playback timing
 
-        K#+             音程のシフト値
+        K#+             Transpose
 
-        RHY             リズムトラックスイッチ
+        RHY             Rhythm-track switch
 
-        TRACK MEMO      コメント
+        TRACK MEMO      Comment
 
-        STEP            トラック毎の使用ステップ数
+        STEP            Steps used on the track
 
-        TOTAL ST        トラック毎のトータルST(255/256回ループは無視)
+        TOTAL ST        Total ST of the track (a 255/256-count loop is ignored)
 
 
-《エディット画面の説明》
+《Edit screen》
 
         ┌──────────────────┬──────────────┐
         │FREE   USED   TR.                   │ STed v2.07(c)1990-96 TURBO │
-        │メッセージの表示位置                └──────────────┤
+        │Message display                     └──────────────┤
         │ [MEMO                    ]            [MEMO                    ] │
         │ [TR.] [MEAS]  [CH.] [USED]            [TR.] [MEAS]  [CH.] [USED] │
         │┌────────────┐          ┌────────────┐│
@@ -92,8 +92,8 @@
         ││                        │          │                        ││
         ││                        │          │                        ││
         ││                        │          │                        ││
-        ││    トラックデータ      │セレクタ等│      トラックデータ    ││
-        ││                        │の表示位置│                        ││
+        ││    Track data          │Selectors │      Track data        ││
+        ││                        │position  │                        ││
         ││                        │          │                        ││
         ││                        │          │                        ││
         ││                        │          │                        ││
@@ -105,1023 +105,1004 @@
         └─────────────────────────────────┘
 
 
-トラックデータの所に表示されるパラメータの説明
-        (スペシャルコントローラは水色で表示、和音の場合は黄色で表示します)
+Parameters shown in the track data
+        (Special controllers are shown in cyan. Chords are shown in yellow.)
 
-        MEAS            小節番号(そのトラック内での、曲の先頭からの小節番号)
+        MEAS            Measure number (from the start of the song, on this track)
 
-        STEP            小節内のステップ(データの発音タイミング順の番号)
+        STEP            Step within the measure (in note-on order)
 
-    ノートデータ(NOTE(K#)、ST、GT、VEL：音符・休符を表すデータ)
+    Note data (NOTE (K#), ST, GT, VEL: a note or a rest)
 
-        NOTE            ノートネーム(NOTE NAME)
-                                音名({C,D,E,F,G,A,B}{+,-,=,#,b,n}{0,1,2,3,4,
-                                                                5,6,7,8,9})
+        NOTE            Note name (NOTE NAME)
+                                Pitch name ({C,D,E,F,G,A,B}{+,-,=,#,b,n}{0,1,2,3,4,
+                                                                        5,6,7,8,9})
 
-        K#              キーナンバー(KEY NO.)
-                                鍵盤の番号(中央のC鍵を60番として、0から127)
+        K#              Key number (KEY NO.)
+                                Key number, with middle C as 60 (0 to 127)
 
-                                (入力する時は、ノートネームとキーナンバーの
-                                どちらで入力しても構いません。)
+                                (You may enter either a note name or a key number.)
 
-        ST              ステップタイム(STEP TIME)
-                                次のデータに移るまでの時間(0〜255)
-                                (timebase=48の時は48で四分音符)
+        ST              Step time (STEP TIME)
+                                Time until the next event (0 to 255)
+                                (With timebase=48, 48 is a quarter note)
 
-                                (和音の場合は、最後の音以外のSTを0にします。
-                                その場合は、STを表示しません。)
+                                (In a chord, set ST to 0 on every note but the last.
+                                Those ST values are not displayed.)
 
-        GT              ゲートタイム(GATE TIME)
-                                鍵盤を押さえている時間(0〜255)
+        GT              Gate time (GATE TIME)
+                                How long the key is held (0 to 255)
 
-                                (タイを指定する時は、STよりGTを1以上大きくして
-                                下さい。その場合はGTの後に'*'が表示されます)
-                                (休符を指定する場合は、GTを0にして下さい。VEL
-                                を0にした場合も、休符扱いになります。)
+                                (For a tie, make GT at least 1 greater than ST.
+                                A '*' is then shown after GT.)
+                                (For a rest, set GT to 0. VEL 0 is also treated
+                                as a rest.)
 
-        VEL             ベロシティ(VELOCITY)
-                                鍵盤を叩く強さ(0〜127)
-
-
-    ノート以外のデータ
-
-        REPEAT [        リピートの開始
-               ]        リピートの終了
-        --------        小節線          (MEAS END)
-        ========        小節複写        (SAME MEAS)
-        MusicKey        小節内のキー
-        [      ]        コメント
-
-    スペシャルコントローラ
-
-        PROGRAM         プログラム・チェンジ
-        BankProg        バンク＆プログラム・チェンジ
-        MIDI CH.        MIDIチャンネル・チェンジ
-        TEMPO           テンポ・チェンジ
-        PITCH           ピッチ・ベンド
-        AFTER C.        チャンネル・アフタータッチ(チャンネル・プレッシャー)
-        AFTER K.        ポリフォニック・アフタータッチ(キー・プレッシャー)
-
-        CONTROL         コントロール・チェンジ
-        MODULAT         モジュレーション
-        VOLUME          ヴォリューム
-        PANPOT          パンポット
-        EXPRESS         エクスプレッション
-        HOLD1           ホールド1(ダンパーペダル)
-        BANK MSB,LSB    バンク・セレクト
-        REVERB          エフェクト1(リバーブ・センドレベル)
-        CHORUS          エフェクト3(コーラス・センドレベル)
-        DELAY           エフェクト4(ディレイ・センドレベル)
-        PORTA.TM        ポルタメント・タイム
-        PORTAMEN        ポルタメント・スイッチ
-        POR.CONT        ポルタメント・コントロール
-        SOSTENUT        ソステヌート
-        SOFT            ソフトペダル
-        NRPN LSB,MSB    ノン・レジスタード・パラメータ・ナンバー
-        RPN  LSB,MSB    レジスタード・パラメータ・ナンバー
-        DATA LSB,MSB    データ・エントリー
-        RES.ALL         リセット・オール・コントローラーズ
-        SOND OFF        オール・サウンド・オフ
-        NOTE OFF        オール・ノート・オフ
-
-        UserExc0〜7     ユーザー定義エクスクルーシブ
-        Tr.Exclu        トラックエクスクルーシブ
-        Rol.Dev#        ローランド・デバイスナンバー&amp;モデルID
-        Rol.Base        ローランド・ベースアドレス
-        Rol.Para        ローランド・アドレス&amp;パラメータ
+        VEL             Velocity (VELOCITY)
+                                How hard the key is struck (0 to 127)
 
 
-トラックデータ以外に表示されるデータ
+    Data other than notes
 
-    メッセージエリア
+        REPEAT [        Start of a repeat
+               ]        End of a repeat
+        --------        Bar line        (MEAS END)
+        ========        Same measure    (SAME MEAS)
+        MusicKey        Key of the measure
+        [      ]        Comment
 
-        FREE:           バッファの空き領域のステップ数
-        USED:           曲全体の使用ステップ数
-        TR.:            編集中のトラック番号
+    Special controllers
 
-    エディットエリア
+        PROGRAM         Program change
+        BankProg        Bank and program change
+        MIDI CH.        MIDI channel change
+        TEMPO           Tempo change
+        PITCH           Pitch bend
+        AFTER C.        Channel aftertouch (channel pressure)
+        AFTER K.        Polyphonic aftertouch (key pressure)
 
-        M:              編集中のトラックのコメント
-        TR.:            編集中のトラック番号
-        MEAS:           編集位置の小節番号
-        CH.:            編集位置のチャンネル番号
-        USED:           編集中のトラックの使用ステップ数
+        CONTROL         Control change
+        MODULAT         Modulation
+        VOLUME          Volume
+        PANPOT          Panpot
+        EXPRESS         Expression
+        HOLD1           Hold 1 (damper pedal)
+        BANK MSB,LSB    Bank select
+        REVERB          Effect 1 (reverb send level)
+        CHORUS          Effect 3 (chorus send level)
+        DELAY           Effect 4 (delay send level)
+        PORTA.TM        Portamento time
+        PORTAMEN        Portamento switch
+        POR.CONT        Portamento control
+        SOSTENUT        Sostenuto
+        SOFT            Soft pedal
+        NRPN LSB,MSB    Non-registered parameter number (NRPN)
+        RPN  LSB,MSB    Registered parameter number (RPN)
+        DATA LSB,MSB    Data entry
+        RES.ALL         Reset All Controllers
+        SOND OFF        All Sound Off
+        NOTE OFF        All Notes Off
+
+        UserExc0〜7     User-defined exclusive
+        Tr.Exclu        Track exclusive
+        Rol.Dev#        Roland device number &amp; model ID
+        Rol.Base        Roland base address
+        Rol.Para        Roland address &amp; parameter
+
+
+Data shown outside the track data
+
+    Message area
+
+        FREE:           Free steps remaining in the buffer
+        USED:           Steps used by the whole song
+        TR.:            Number of the track being edited
+
+    Edit area
+
+        M:              Comment of the track being edited
+        TR.:            Number of the track being edited
+        MEAS:           Measure number at the edit position
+        CH.:            Channel number at the edit position
+        USED:           Steps used on the track being edited
 
 
 
-《コマンドメニュー》
+《Command menu》
 
-コマンドメニューの説明
+About the command menu
 
-"LOAD    "/[L]  データロード
+"LOAD    "/[L]  Load
 (BTM.LOAD)
-                        データをロードします。(*.R36/*.RCP)
-                        ([SHIFT]+[RETURN]で選んだ場合は18トラック以降に読みこみます)
+                        Loads a song. (*.R36/*.RCP)
+                        ([SHIFT]+[RETURN] reads it in from track 18 onward.)
 
-                        ファイルネーム設定ウインドウが開くので、ファイルネームを入力
-                        ・選択して下さい。(拡張子は省略出来ます)
+                        A filename window opens. Enter or select a filename.
+                        (The extension may be omitted.)
 
-                        実行後に、データディレクトリはロードしたパスに移動します。
+                        Afterwards, the data directory moves to the path you loaded.
 
 
-"SAVE    "/[S]  データセーブ
+"SAVE    "/[S]  Save
 (R36.SAVE)
-                        データをセーブします。(*.R36/*.RCP)
+                        Saves the song. (*.R36/*.RCP)
 
-                        ファイルネーム設定ウインドウが開くので、ファイルネームを入力
-                        ・選択して下さい。(拡張子は省略出来ます)
+                        A filename window opens. Enter or select a filename.
+                        (The extension may be omitted.)
 
-                        実行後に、データディレクトリはセーブしたパスに移動します。
+                        Afterwards, the data directory moves to the path you saved.
 
-                        通常は.RCPファイルとしてセーブします。
-                        ([SHIFT]+[RETURN]で選んだ場合は、*.R36ファイルとしてセーブし
-                        ます。)
-                        .cnfファイルで#save_def=r36とすると、ノーマルモードとシフト
-                        モードが逆になります。
+                        Normally this saves an .RCP file.
+                        ([SHIFT]+[RETURN] saves an *.R36 file.)
+                        If the .cnf file sets #save_def=r36, normal mode and shift
+                        mode are swapped.
 
-                        .RCPでのセーブ時でも18トラック以上使われている時は、拡張子は
-                        そのままで36トラックまでセーブします。
+                        Even when saving as .RCP, if 18 or more tracks are in use
+                        the extension is left as it is and up to 36 tracks are saved.
 
-                        すでに、ロード等でファイル名が設定されている場合にはその拡張
-                        子の形式でセーブします。
-                        (その時に[SHIFT]+[RETURN]で選んだ場合は、RCP&lt;-&gt;R36を入れ換え
-                        てセーブします)
+                        If a filename is already set (for example by Load), the song
+                        is saved in that extension's format.
+                        ([SHIFT]+[RETURN] then swaps RCP&lt;-&gt;R36 and saves.)
 
 
-"EDIT&amp;SET"/[E]  トラックエディタ&amp;トラックセッティング
+"EDIT&amp;SET"/[E]  Track editor &amp; track settings
 
-                        トラック毎のエディット、及び、設定をします。
-                        設定したい場所へカーソルを移動して、[RETURN]を押して下さい。
-                        ("TR"の数値上で[RETURN]、あるいは任意の位置で[SHIFT]+[RETURN]
-                        でトラックエディタが起動します。)
+                        Edit and set up each track.
+                        Move the cursor to the field you want and press [RETURN].
+                        ([RETURN] on the "TR" number, or [SHIFT]+[RETURN] anywhere,
+                        starts the track editor.)
 
-                [RET]   トラックエディタの起動、及び、パラメータを設定する。
+                [RET]   Start the track editor, or set a parameter.
 
-                        "TR"    トラックデ−タのエディットモードに移行する。
+                        "TR"    Enter track-data edit mode.
 
-                        "MODE"  プレイコマンド時のモードを設定します。
-                                [RETURN]を押す毎に、Play/Mute/Mix/Recを切り変えます。
-                                また、"MODE"上では以下の操作で直接指定も可能です。
+                        "MODE"  Set the mode used by the Play command.
+                                Each [RETURN] cycles Play/Mute/Mix/Rec.
+                                On "MODE" you can also set it directly:
 
                                         [P] Key = PLAY
                                         [M] Key = MUTE
                                         [X] Key = MIX
                                         [R] Key = REC
-                                [SHIFT]+[P] Key = カーソル行以外をすべて PLAY にする
-                                [SHIFT]+[M] Key = カーソル行以外をすべて MUTE にする
-                                [SHIFT]+[X] Key = カーソル行以外をすべて MIX  にする
-                                [SHIFT]+[R] Key = カーソル行以外をすべて REC  にする
+                                [SHIFT]+[P] Key = set every row but the cursor to PLAY
+                                [SHIFT]+[M] Key = set every row but the cursor to MUTE
+                                [SHIFT]+[X] Key = set every row but the cursor to MIX
+                                [SHIFT]+[R] Key = set every row but the cursor to REC
 
 
-                                Play    レコーディング時に演奏する。
+                                Play    Play this track while recording.
 
-                                Mute    レコーディング時に演奏しない。
+                                Mute    Do not play this track while recording.
 
-                                Mix     レコーディング時には演奏して、レコーディング
-                                        後にレコーディングしたデータと元のデータをミ
-                                        ックスする。
+                                Mix     Play while recording, then mix the recorded
+                                        data with the original data.
 
-                                Rec     リアルタイムレコーディング時に、レコーディン
-                                        グしたデータを書き込みます。
+                                Rec     During real-time recording, write the
+                                        recorded data to this track.
 
-                        "CH."   MIDIチャンネルを設定します。
-                                        チャンネル(A1〜A16,B1〜B16,0=OFF)を指定して
-                                        下さい。
+                        "CH."   Set the MIDI channel.
+                                        Specify a channel (A1 to A16, B1 to B16,
+                                        0=OFF).
 
-                        "ST+"   演奏のタイミングを設定します。(-99〜+99)
+                        "ST+"   Set the playback timing. (-99 to +99)
 
-                        "K#+"   音程のシフト値を指定する。(-64〜+63、128=OFF)
+                        "K#+"   Set the transpose. (-64 to +63, 128=OFF)
 
-                        "RHY"   リズムトラックとして使うか使わないを設定する。
-                                        [RETURN]を押す度に切り変わります。
-                                        ('ON'にしたトラックのみ、パターンエディット
-                                        出来ます。音程入力・譜面表示ではMusicKeyを
-                                        無視します。)
+                        "RHY"   Use this track as a rhythm track, or not.
+                                        Each [RETURN] cycles the setting.
+                                        (Only a track set to 'ON' can be pattern-
+                                        edited. Note entry and score display ignore
+                                        MusicKey.)
 
-                                OFF     リズムトラックエディット不可
-                                ON      リズムトラックエディット可(アップモード)
-                                ON+     リズムトラックエディット可(ダウンモード)
+                                OFF     Rhythm-track editing off
+                                ON      Rhythm-track editing on (up mode)
+                                ON+     Rhythm-track editing on (down mode)
 
-                        "MEMO"  コメントを、36文字まで書く事が出来ます。
+                        "MEMO"  A comment of up to 36 characters.
 
-                [SPACE] カーソルのある位置の値をOFFにする。
+                [SPACE] Set the value at the cursor to OFF.
 
-                [ = ]   カーソルのある位置の値を反転。
-                                (MIDIチャンネルの場合は、'A'/'B'の切り替え)
-                                (MODEの場合は、'PLAY'/'MUTE'の切り替え)
-                                (RHYの場合は、'ON'/'OFF'の切り替え)
+                [ = ]   Invert the value at the cursor.
+                                (MIDI channel: toggle 'A'/'B')
+                                (MODE: toggle 'PLAY'/'MUTE')
+                                (RHY: toggle 'ON'/'OFF')
 
-          [ + ]/[ &gt; ]   カーソルのある位置の数値の+1する。
+          [ + ]/[ &gt; ]   Add 1 to the value at the cursor.
 
-          [ - ]/[ &lt; ]   カーソルのある位置の数値の-1する。
+          [ - ]/[ &lt; ]   Subtract 1 from the value at the cursor.
 
-                [ L ]   トラックファイルロード
+                [ L ]   Load a track file
 
-                                トラック単位でデータをロードします。(*.TRK)
+                                Load one track. (*.TRK)
 
-                                ファイルネーム設定ウインドウが開くので、ファイ
-                                ルネームを入力・選択して下さい。(拡張子は省略
-                                出来ます)
+                                A filename window opens. Enter or select a
+                                filename. (The extension may be omitted.)
 
-                                実行後に、データディレクトリは、ロードしたパス
-                                に移動します。
+                                Afterwards, the data directory moves to the
+                                path you loaded.
 
-                [ S ]   トラックファイルセーブ
+                [ S ]   Save a track file
 
-                                トラック単位でデータをセーブします。(*.TRK)
+                                Save one track. (*.TRK)
 
-                                ファイルネーム設定ウインドウが開くので、ファイ
-                                ルネームを入力・選択して下さい。(拡張子は省略
-                                出来ます)
+                                A filename window opens. Enter or select a
+                                filename. (The extension may be omitted.)
 
-                                実行後に、データディレクトリは、セーブしたパス
-                                に移動します。
+                                Afterwards, the data directory moves to the
+                                path you saved.
 
-                [ X ]   トラックデータを入れ替える
-                                入れ替える先のトラックをセレクタで選んで下さい。
+                [ X ]   Exchange track data
+                                Choose the other track in the selector.
 
-                [ C ]   トラックデータをコピーする
-                                コピーする先のトラックをセレクタで選んで下さい。
+                [ C ]   Copy track data
+                                Choose the destination track in the selector.
 
-                [ M ]   トラックデータをミックスする
-                                ミックスする相手のトラックと、ミックス後のデー
-                                タを出力するトラックをセレクタで選んで下さい。
+                [ M ]   Mix track data
+                                In the selector, choose the track to mix with
+                                and the track that receives the result.
 
-                                小節線はsource1のトラックのデータを基準に引き
-                                ます。
+                                Bar lines follow the data of the source1 track.
 
-                                (ミックス後のトラックは、SAME MEAS/REPEATが全
-                                て展開されます(255/256回ループは展開しません))
+                                (On the resulting track, SAME MEAS/REPEAT are
+                                fully expanded. A 255/256-count loop is not.)
 
-                                (コピーバッファをワークに使用しますので、使用
-                                後にコピーバッファがクリアされます。)
+                                (The copy buffer is used as work space, and is
+                                cleared afterwards.)
 
-                [ B ]   トラックデータの小節線を引き直す([SHIFT]+で全トラック)
-                                1小節のST値と、オフセット、小節数を指定して下
-                                さい。
+                [ B ]   Redraw bar lines ([SHIFT]+ does every track)
+                                Enter the ST of one measure, the offset, and
+                                the number of measures.
 
-                                オフセットは最初の小節を初期化などに使用してい
-                                て1小節のSTに達してない場合に指定して下さい。
+                                Set the offset when the first measure is used
+                                for initialization and is shorter than one
+                                measure of ST.
 
-                                小節数はトラック毎の小節数を同じにそろえたい
-                                場合に指定して下さい。(通常はトラックのTOTAL
-                                ST÷1小節のST値で計算します。)
+                                Set the measure count when you want every track
+                                to have the same number of measures. (Normally
+                                this is the track's TOTAL ST divided by the ST
+                                of one measure.)
 
-                                (処理後のトラックは、SAME MEAS/REPEATが全て展
-                                開されます(255/256回ループは展開しません))
+                                (Afterwards, SAME MEAS/REPEAT are fully expanded.
+                                A 255/256-count loop is not.)
 
-                                (コピーバッファをワークに使用しますので、使用
-                                後にコピーバッファがクリアされます。)
+                                (The copy buffer is used as work space, and is
+                                cleared afterwards.)
 
-                [ E ]   SameMeas&amp;Repeat展開コマンド([SHIFT]+で全トラック)
+                [ E ]   Expand SameMeas&amp;Repeat ([SHIFT]+ does every track)
 
-                                SAME MEAS/REPEATを展開します(255/256回ループ
-                                は展開しません)
+                                Expands SAME MEAS/REPEAT. (A 255/256-count loop
+                                is not expanded.)
 
-                                (コピーバッファをワークに使用しますので、使用
-                                後にコピーバッファがクリアされます。)
+                                (The copy buffer is used as work space, and is
+                                cleared afterwards.)
 
-                [ A ]   SameMeas&amp;Repeat圧縮コマンド([SHIFT]+で全トラック)
+                [ A ]   Compress SameMeas&amp;Repeat ([SHIFT]+ does every track)
 
-                                SAME MEAS/REPEATを使用して圧縮します。
-                                (リピートは小節内のみ)
+                                Compresses the track using SAME MEAS/REPEAT.
+                                (Repeats stay inside a measure.)
 
-                [ O ]   トラックデータを最適化する([SHIFT]+で全トラック)
-                                (休符/PITCH/VOLUME/EXPRESS/タイを最適化する)
-                                確認のメッセージが出るので、[Y]/[N]で答えて
-                                下さい。
+                [ O ]   Optimize the track ([SHIFT]+ does every track)
+                                (Optimizes rests/PITCH/VOLUME/EXPRESS/ties.)
+                                A confirmation appears. Answer [Y] or [N].
 
                 [CLR]/[ D ]
-                        トラックデータを削除・初期化する
-                                確認のメッセージが出るので、[Y]/[N]で答えて
-                                下さい。
+                        Delete and initialize the track data
+                                A confirmation appears. Answer [Y] or [N].
 
-[OPT.1]+[ A ]〜[ Z ]    オプション直接選択・実行
-                                "OPTION"に設定されているコマンドを直接選択・
-                                実行する。
+[OPT.1]+[ A ] to [ Z ]  Run an option command directly
+                                Choose and run a command set under "OPTION".
 
-                [TAB]   トラックナンバーを直接指定する(1〜36)
+                [TAB]   Go to a track number (1 to 36)
 
                 [R.UP]/[R.DW]
-                        表示するトラックの範囲を9トラック単位で移動する
+                        Move the displayed track range by 9 tracks
 
-                [XF1]   プレイ
+                [XF1]   Play
 
-        [SHIFT]+[XF1]   プレイ(位置指定)
+        [SHIFT]+[XF1]   Play (specify the position)
 
-                [XF2]   トラックプレイ
+                [XF2]   Track play
 
-        [SHIFT]+[XF2]   トラックプレイ(位置指定)
+        [SHIFT]+[XF2]   Track play (specify the position)
 
-                [XF3]   演奏再開
+                [XF3]   Continue
 
-                [XF4]   演奏一時停止
+                [XF4]   Pause
 
-                [XF5]   演奏停止
+                [XF5]   Stop
 
 
-"PLAY    "/[P]  プレイ
+"PLAY    "/[P]  Play
 (PANEL   )
-                        データを演奏します。('-P'指定時はパネル表示演奏)
+                        Plays the song. (With '-P', playback uses the panel display.)
 
-                        パネル演奏の場合は、'RCP.x'を子プロセスで呼び出します
-                        ので、PATHの通った所に入れておいて下さい。
+                        Panel playback runs 'RCP.x' as a child process, so place
+                        it somewhere on PATH.
 
-                        データディレクトリに.WRDファイルが有ればそれも表示しま
-                        す。('RCP.x'が対応しているフォーマットの場合)
+                        A .WRD file in the data directory is displayed as well,
+                        if 'RCP.x' supports that format.
 
-                        [SHIFT]+[RETURN]で選んだ場合は、オプション(-P)が指定時
-                        は、演奏のみ行い、無指定時は、パネル表示演奏を行います。
+                        [SHIFT]+[RETURN]: if option (-P) is set, play only; if it
+                        is not set, play with the panel display.
 
-                        演奏中にパネル演奏を指示した場合は、演奏を継続したまま
-                        パネル表示を呼び出します
+                        If you ask for panel playback during playback, the panel
+                        is called and playback continues.
 
-                        [SHIFT]/[CTRL]/[SHIFT]+[CTRL]+[RETURN]で実行するコマン
-                        ドは、環境設定ファイルで設定出来ます。
+                        The commands run by [SHIFT], [CTRL], and [SHIFT]+[CTRL]+
+                        [RETURN] can be set in the configuration file.
 
 
-"RECORD  "/[R]  レコード
+"RECORD  "/[R]  Record
 (MIDI MON)
-                        リアルタイムレコーディングをします。
+                        Real-time recording.
 
-                        最初にTRK.SETを呼び出しますので、レコーディングモード
-                        を設定して下さい。
+                        TRK.SET is opened first. Set the recording mode there.
 
-                        トラックナンバー上で[RETURN]、あるいは任意の位置で[SH
-                        IFT]+[RETURN]でレコード画面に入ります。
+                        [RETURN] on a track number, or [SHIFT]+[RETURN] anywhere,
+                        enters the record screen.
 
-                        １本のトラックのみを'Rec'モードにしてある場合は、シン
-                        グルトラックモード、複数のトラックを'Rec'モードにして
-                        ある場合は、マルチトラックモードになります。
-
-
-                        シングルトラックモードのデフォルトでは、CH.1のデータを
-                        レコーディンクします。
-
-                        マルチトラックモードでは、'Rec'モードになっているトラ
-                        ックにそれぞれ設定されているチャンネルのデータをレコー
-                        ディングします。
-
-                        (複数のトラックがRECモードになっている場合は、マルチト
-                        ラックレコーディングモードとなり複数のチャンネルを同時
-                        に録音します。)
+                        If only one track is set to 'Rec', this is single-track
+                        mode. If several tracks are set to 'Rec', this is
+                        multi-track mode.
 
 
-                        スタート前に各種のモードを切り換えることが出来ます。
+                        In single-track mode the default is to record CH.1.
 
-                                [ C ]   シングルトラックモード時にレコーディン
-                                        グするチャンネルを変更する。(1〜16)
+                        In multi-track mode, each track set to 'Rec' records the
+                        channel assigned to that track.
 
-                                [ O ]   出力モードを変更する。(THRU/OFF)
-
-                                [ M ]   レコーディング時のメトロノームをオン・
-                                        オフする。(ON/OFF)
-
-                                [ F ]   レコーディングフィルターを設定する。
-
-                                [ S ]   録音を開始・終了する小節を指定します。
-
-                                [ESC]   レコーディングをキャンセルします。
-
-                        MIDI INに入力があるか、[RET]/[SPACE]を押すとレコーディング
-                        をスタートします。([RET]/[SPACE]でスタートした場合は２小節
-                        待ってから録音を開始します)
-                        MIDIメッセージのスタート・ストップでも、開始・終了します。
-                        レコーディング中に[ESC]でレコーディングを終了します。
-
-                        レコ−ディング中には、メトロノームを鳴らします。
-                        (.defファイルで設定したチャンネルに送信します)
-
-                        レコーディンク中にも、いくつかのモードを切り換えることが
-                        出来ます。
-
-                                [ M ]   メトロノームをオン・オフする。(ON/OFF)
-
-                                [R.UP]  テンポを上げる
-
-                                [R.DW]  テンポを下げる
-
-                                [UNDO]  テンポを元に戻す
-
-                                [ESC]   レコーディングを終了します。
-
-                        レコーディンクしたデータは、REC/MIXモードになっている
-                        トラックに書き込みます。
-
-                        (マルチ・パケット・エクスクルーシブは、1パケットにま
-                        とめられます)
+                        (When more than one track is in REC mode, multi-track
+                        recording records several channels at once.)
 
 
-                MIDI INモニター
+                        Before the start you can switch several modes.
 
-                        [SHIFT]+[RETURN]で"RECORD  "を選んだ場合はMIDI入力テスト
-                        になります。
-                        MIDI INからの入力を表示しながらMIDI OUTに出力します。
-                        (Exclusiveは16進表示します)
+                                [ C ]   In single-track mode, change the channel
+                                        to record. (1 to 16)
 
-                        (演奏中に使用すると演奏を停止します。)
+                                [ O ]   Change the output mode. (THRU/OFF)
 
-                [ C ]   MIDIチャンネルを変換して、出力する
-                                MIDI INからの入力を、指定したチャンネルに出力
-                                します。
-                                チャンネル(A1〜16,B1〜16,0=THRU)を指定して下
-                                さい。0を指定すれば、チャンネル変換を解除しま
-                                す。(THRU)
+                                [ M ]   Turn the recording metronome on or off.
+                                        (ON/OFF)
 
-                [ G ]   プログラムチェンジを出力する
-                                (チャンネル変換の指定時のみ)
-                                トーンセレクタで選択して下さい。
+                                [ F ]   Set the recording filter.
 
-                [ESC]   メインコマンドに戻る
+                                [ S ]   Set the measures where recording starts
+                                        and ends.
+
+                                [ESC]   Cancel recording.
+
+                        Recording starts when MIDI IN receives data, or when you
+                        press [RET]/[SPACE]. (Started from [RET]/[SPACE], it waits
+                        two measures, then begins recording.)
+                        MIDI Start and Stop also start and stop it.
+                        Press [ESC] during recording to finish.
+
+                        A metronome sounds during recording.
+                        (It is sent on the channel set in the .def file.)
+
+                        A few modes can also be switched while recording.
+
+                                [ M ]   Turn the metronome on or off. (ON/OFF)
+
+                                [R.UP]  Raise the tempo
+
+                                [R.DW]  Lower the tempo
+
+                                [UNDO]  Restore the original tempo
+
+                                [ESC]   Finish recording.
+
+                        Recorded data is written to tracks in REC or MIX mode.
+
+                        (A multi-packet exclusive is packed into one packet.)
 
 
-"FILTER  "/[F]  レコーディングフィルター
+                MIDI IN monitor
 
-                        録音するコントローラのフィルターを設定します。
-                        'ON'になっているコントローラは録音しません。
+                        [SHIFT]+[RETURN] on "RECORD  " opens the MIDI input test.
+                        Input from MIDI IN is displayed and sent to MIDI OUT.
+                        (Exclusive is shown in hexadecimal.)
 
-                        任意のコントロールチェンジ同士を入れ換えること
-                        もできます。
+                        (Using this during playback stops playback.)
+
+                [ C ]   Remap the MIDI channel, then send
+                                Input from MIDI IN is sent on the channel you set.
+                                Specify a channel (A1 to 16, B1 to 16, 0=THRU).
+                                0 cancels the remap. (THRU)
+
+                [ G ]   Send a program change
+                                (Only while a channel remap is set.)
+                                Choose the tone in the tone selector.
+
+                [ESC]   Return to the main commands
 
 
-"TIME&amp;KEY"/[K]  タイム＆キーセッティング
+"FILTER  "/[F]  Recording filter
 
-                        テンポ等の設定をします。
-                        設定したい場所へカーソルを移動して、[RETURN]を押して下
-                        さい。
+                        Set the filter for controllers to record.
+                        A controller set to 'ON' is not recorded.
 
-                [RET]   パラメータを設定する。
+                        Any two control changes can also be swapped.
 
-                        "TEMPO   "      テンポ
 
-                                テンポを設定します。(10〜240)
+"TIME&amp;KEY"/[K]  Time &amp; key settings
 
-                        "TIMEBASE"      タイムベース
+                        Set the tempo and related values.
+                        Move the cursor to the field you want and press [RETURN].
 
-                                4分音符のタイムベースを設定します。
+                [RET]   Set a parameter.
+
+                        "TEMPO   "      Tempo
+
+                                Set the tempo. (10 to 240)
+
+                        "TIMEBASE"      Timebase
+
+                                Set the timebase of a quarter note.
                                         (48,60,80,96,120,160,192,240,384,480)
 
-                        "BEAT    "      ビート
+                        "BEAT    "      Beat
 
-                                レコーディグで使用する拍子を設定します。
-                                (分子/分母)
+                                Set the time signature used for recording.
+                                (numerator/denominator)
 
-                        "PLAYBIAS"      プレイバイアス
+                        "PLAYBIAS"      Play bias
 
-                                演奏時に全トラックの音程をシフトします。(-36〜+36)
-                                (K#+が'OFF'になっているトラックには、影響しません)
+                                Shift the pitch of every track during playback.
+                                (-36 to +36)
+                                (Tracks whose K#+ is 'OFF' are not affected.)
 
-                        "KEY     "      キー
+                        "KEY     "      Key
 
-                                キーを設定します。
-                                        (設定してあれば、ノートの入力時に♯/♭
-                                        が付く音階には♯/♭を自動的に付けます)
+                                Set the key.
+                                        (While a key is set, a scale degree that
+                                        takes a sharp or flat gets one automatically
+                                        when you enter a note.)
 
-                                        MAJOR メジャースケール
-                                        minor マイナースケール
+                                        MAJOR  major scale
+                                        minor  minor scale
 
-                         [ 0 ]〜[ 6 ]   シャープ/フラットの数を設定する
+                         [ 0 ] to [ 6 ] Set the number of sharps or flats
 
-                          [ # ]/[ + ]   シャープの数の設定に切り替える
+                          [ # ]/[ + ]   Switch to setting the number of sharps
 
-                          [ b ]/[ - ]   フラットの数の設定に切り替える
+                          [ b ]/[ - ]   Switch to setting the number of flats
 
-                        [R.UP]/[R.DW]   キーを順に切り替える
+                        [R.UP]/[R.DW]   Step through the keys
 
-                                [SPACE] メジャー/マイナーを切り替える
+                                [SPACE] Toggle major/minor
 
-          [ + ]/[ &gt; ]   カーソルのある位置の数値を+1する。
+          [ + ]/[ &gt; ]   Add 1 to the value at the cursor.
 
-          [ - ]/[ &lt; ]   カーソルのある位置の数値を-1する。
+          [ - ]/[ &lt; ]   Subtract 1 from the value at the cursor.
 
-                [SPACE] カーソルのある位置の数値を初期化する。
+                [SPACE] Reset the value at the cursor.
 
 
-"TITLE   "/[T]  タイトル
+"TITLE   "/[T]  Title
 
-                        64文字までの、タイトルを書き込む事が出来ます。
+                        A title of up to 64 characters.
 
 
-"MEMO    "/[M]  メモ
+"MEMO    "/[M]  Memo
 
-                        メモを書き込む事が出来ます。(28桁、12行)
-                        (画面が切り変わって、中央にウインドウが開きます)
+                        Edit the memo. (28 columns, 12 lines)
+                        (The screen changes, and a window opens in the center.)
 
-                [RET]   カーソルのある行を変更する
+                [RET]   Edit the line at the cursor
 
-                [DEL]   カーソルのある行を削除する
+                [DEL]   Delete the line at the cursor
 
-                [UNDO]  カーソルのある行に削除バッファ内の行を復活する
+                [UNDO]  Restore a line from the delete buffer onto the cursor line
 
 
-"PART ASS"/[G]  パートアサイン
+"PART ASS"/[G]  Part assign
 
-                        チャンネル毎の音色リストを割り当てます。
-                        (デフォルトは、定義ファイルで設定出来ます。)
-                        (この設定はデータ内に記憶されます。)
+                        Assign a tone list to each channel.
+                        (The default can be set in the define file.)
+                        (This setting is stored in the song.)
 
-                [RET]   カーソルのある位置のアサインを変更する
+                [RET]   Change the assignment at the cursor
 
-                                セレクタで指定して下さい。
-                                (RCM v2とはアサイン番号の割り当てが違う(^^;))
+                                Choose it in the selector.
+                                (The assignment numbers differ from RCM v2. (^^;))
 
-                [CLR]   アサインの初期化(.defファイルでの設定値)
+                [CLR]   Initialize the assignments (the .def file values)
 
-         [ 0 ]〜[ F ]   直接設定する
+         [ 0 ] to [ F ] Set one directly
 
 
-"RHY ASSI"/[A]  リズムアサイン
+"RHY ASSI"/[A]  Rhythm assign
 
-                        リズムトラックエディタで使用する32音のキーナンバーと
-                        音色名を設定します。(デフォルトは、定義ファイルで設定
-                        出来ます。)
+                        Set the 32 key numbers and tone names used by the
+                        rhythm track editor. (The default can be set in the
+                        define file.)
 
-                        このコマンド実行後に、"TRK.SET."で"RHY"が'ON'になって
-                        いるトラックのデータを、設定した内容に書き換えます。
+                        After this command, tracks whose "RHY" is 'ON' in
+                        "TRK.SET." are rewritten to match these settings.
 
-                [RET]   カーソルのある位置のパラメータを変更する
+                [RET]   Change the parameter at the cursor
 
-                                キ−は、ノートネームか、キーナンバー(24〜127)
-                                で指定して下さい。([↓]キーでキーセレクタを呼
-                                び出せます。)
-                                ナンバーが重複しないようにして下さい。
-                                (OFF(K#=0)は、例外)
+                                Enter a key as a note name or a key number
+                                (24 to 127). (The [down] key opens the key
+                                selector.)
+                                Do not duplicate a number.
+                                (OFF (K#=0) is an exception.)
 
-          [ + ]/[ &gt; ]   カーソルのある位置の数値を+1する。
+          [ + ]/[ &gt; ]   Add 1 to the value at the cursor.
 
-          [ - ]/[ &lt; ]   カーソルのある位置の数値を-1する。
+          [ - ]/[ &lt; ]   Subtract 1 from the value at the cursor.
 
-                [CLR]   アサインを一括して初期化する(.defファイルでの設定値)
+                [CLR]   Initialize every assignment (the .def file values)
 
-                [SPACE] アサインを箇別に初期化する(.defファイルでの設定値)
+                [SPACE] Initialize one assignment (the .def file values)
 
-                [ A ]   アサインネームを一括して更新する。
+                [ A ]   Refresh every assign name.
 
-                [ X ]   アサインを入れ換える。
+                [ X ]   Exchange two assignments.
 
-                [ C ]   サウンドテストのCH.を変更する(A1〜A16,B1〜B16,0=off)
+                [ C ]   Change the sound-test channel (A1 to A16, B1 to B16, 0=off)
 
-                [ B ]   サウンドテストのBank LSBを変更する(0〜127)
+                [ B ]   Change the sound-test Bank LSB (0 to 127)
 
-                                '-1'に設定するとBank LSBを出力しません。
+                                Set '-1' to send no Bank LSB.
 
-                [ G ]   サウンドテストのプログラムナンバーを変更する
+                [ G ]   Change the sound-test program number
 
-                                '-1'に設定するとプログラムチェンジを出力しま
-                                せん。
+                                Set '-1' to send no program change.
 
-                        [↓]    トーンセレクタを呼び出す。
+                        [down]  Open the tone selector.
 
-                [ V ]   サウンドテストのVelocityを変更する(0〜127)
+                [ V ]   Change the sound-test velocity (0 to 127)
 
-                [UNDO]  サウンドテスト(out ch.A10(default))
+                [UNDO]  Sound test (out ch.A10 (default))
 
-                [ R ]   サウンドテスト(out ch.A11 prog.64 CM-64+SN-U110-10 ROCK DRUMS)
+                [ R ]   Sound test (out ch.A11 prog.64 CM-64+SN-U110-10 ROCK DRUMS)
 
-                [ E ]   サウンドテスト(out ch.A11 prog.65 CM-64+SN-U110-10 ELEC DRUMS)
+                [ E ]   Sound test (out ch.A11 prog.65 CM-64+SN-U110-10 ELEC DRUMS)
 
-                [ESC]   アサインモードを抜ける
+                [ESC]   Leave assign mode
 
-                [ L ]   アサインファイル・ロード(*.RAS)
+                [ L ]   Load an assign file (*.RAS)
 
-                                Rhythm Assignファイルをロードします。
+                                Loads a rhythm-assign file.
 
-                                ファイルネーム設定ウインドウが開くので、ファイルネ
-                                ームを入力・選択して下さい。(拡張子は省略出来ます)
+                                A filename window opens. Enter or select a
+                                filename. (The extension may be omitted.)
 
-                [ S ]   アサインファイル・セーブ(*.RAS)
+                [ S ]   Save an assign file (*.RAS)
 
-                                Rhythm Assignファイルをセーブします。
+                                Saves a rhythm-assign file.
 
-                                ファイルネーム設定ウインドウが開くので、ファイルネ
-                                ームを入力・選択して下さい。(拡張子は省略出来ます)
+                                A filename window opens. Enter or select a
+                                filename. (The extension may be omitted.)
 
 
-"USER EXC"/[U]  ユーザー定義エクスクルーシブ設定
+"USER EXC"/[U]  User-defined exclusive
 
-                [RET]   コメント入力/データ追加(hex)
+                [RET]   Enter a comment / append data (hex)
 
-        [SHIFT]+[RET]   $00 を書き込む
+        [SHIFT]+[RET]   Write $00
 
-         [ 0 ]〜[ F ]   データの再入力(hex)
+         [ 0 ] to [ F ] Re-enter data (hex)
 
-          [ + ]/[ &gt; ]   カーソルのある位置の数値を+1する。
+          [ + ]/[ &gt; ]   Add 1 to the value at the cursor.
 
-          [ - ]/[ &lt; ]   カーソルのある位置の数値を-1する。
+          [ - ]/[ &lt; ]   Subtract 1 from the value at the cursor.
 
-        [SHIFT]+[ &gt; ]   カーソルのある位置の数値を+10する。
+        [SHIFT]+[ &gt; ]   Add 10 to the value at the cursor.
 
-        [SHIFT]+[ &lt; ]   カーソルのある位置の数値を-10する。
+        [SHIFT]+[ &lt; ]   Subtract 10 from the value at the cursor.
 
-                [TAB]   カーソルのある位置の値を二重化する。
+                [TAB]   Duplicate the value at the cursor.
 
-                [BS]    カーソルの左にあるデータを消す
+                [BS]    Delete the data to the left of the cursor
 
-                [DEL]   カーソル位置のデータを消す
+                [DEL]   Delete the data at the cursor
 
-                [INS]   インサートモードの切り替え
+                [INS]   Toggle insert mode
 
-                [ U ]   任意のUser Exc.の内容をCopyする。
+                [ U ]   Copy the contents of any User Exc.
 
-                [CLR]   データを一括して初期化する(.defファイルでの設定値)
+                [CLR]   Initialize all data (the .def file values)
 
-                [SPACE] データを箇別に初期化する(.defファイルでの設定値)
+                [SPACE] Initialize one item (the .def file values)
 
-                [F 8]   Roland系のチェックサムを計算して直接書き込む
+                [F 8]   Calculate a Roland checksum and write it directly
 
-                [F 9]   User Exclu.ファイル一括ロード(*.REX)
+                [F 9]   Load all User Exclu. files (*.REX)
 
-        [SHIFT]+[F 9]   User Exclu.ファイル箇別ロード(*.RES)
+        [SHIFT]+[F 9]   Load one User Exclu. file (*.RES)
 
-                                User Exclusiveファイルをロードします。
+                                Loads a user-exclusive file.
 
-                                ファイルネーム設定ウインドウが開くので、ファイ
-                                ルネームを入力・選択して下さい。
-                                (拡張子は省略出来ます)
+                                A filename window opens. Enter or select a
+                                filename.
+                                (The extension may be omitted.)
 
 
-                [F10]   User Exclu.ファイル一括セーブ(*.REX)
+                [F10]   Save all User Exclu. files (*.REX)
 
-        [SHIFT]+[F10]   User Exclu.ファイル箇別セーブ(*.RES)
+        [SHIFT]+[F10]   Save one User Exclu. file (*.RES)
 
-                                User Exclusiveファイルをセーブします。
+                                Saves a user-exclusive file.
 
-                                ファイルネーム設定ウインドウが開くので、ファイ
-                                ルネームを入力・選択して下さい。
-                                (拡張子は省略出来ます)
+                                A filename window opens. Enter or select a
+                                filename.
+                                (The extension may be omitted.)
 
 
-                        ユーザーエクスクルーシブ内に設定出来るコマンド
+                        Commands that can be set inside a user exclusive
 
                 [F 1]   gt : SEND GATE POSITION DATA
-                                演奏時にGTの位置のデータを送信します。
+                                During playback, send the data at the GT position.
 
                 [F 2]   ve : SEND VELO POSITION DATA
-                                演奏時にVELの位置のデータを送信します。
+                                During playback, send the data at the VEL position.
 
                 [F 3]   ch : SEND CHANNLE No.
-                                使用しているトラックのチャンネル番号を
-                                送信します。
+                                Send the channel number of the track in use.
 
                 [F 4]   cs : CLEAR CHECK SUM
-                                チェックサムをクリアします。
-                                (ssを使用する場合は必ず設定して下さい。)
+                                Clear the checksum.
+                                (You must set this if you use ss.)
 
                 [F 5]   ss : SEND CHECK SUM
-                                cs以降のデータのチェックサムを、ローラ
-                                ンド形式で計算して送信します。
+                                Checksum the data from cs onward in Roland
+                                format, and send it.
 
                 [F 6]   F7 : END OF EXCLUSIVE
-                                エクスクルーシブの終了
+                                End of exclusive
 
 
-"CM64 CON"/[C]  CM-64コントローラー(CM-64系専用)
+"CM64 CON"/[C]  CM-64 controller (CM-64 family only)
 
-                        コントロールファイルは、ファイル名が設定されている場合のみ
-                        演奏に使用されます。(具体的には、SAVE CM6/LOAD CM6実行後)
+                        A control file is used for playback only when a filename
+                        is set. (In practice, after SAVE CM6 or LOAD CM6.)
 
-                        ファイルに登録する場合は、[F 8]"SAVE CM6"で行って下さい。
+                        To store it in a file, use [F 8] "SAVE CM6".
 
-                [F 1]   システムモードに移行する
-                                特に機能はありません。
+                [F 1]   Enter system mode
+                                This mode has no particular function.
 
-                [F 2]   LAパッチライトモードに移行する
+                [F 2]   Enter LA patch-write mode
 
-                                ユーザー音色(1〜64)/リズム(SE)音色(1〜64)を、LAパート
-                                のプリセット音色番号(0〜127)に割り当てます。
+                                Assign user tones (1 to 64) / rhythm (SE) tones
+                                (1 to 64) to LA-part preset tone numbers (0 to 127).
 
-                                設定したい場所にカーソルを移動して[RET]を押せば、音色
-                                のセレクタが出るので、割り当てる音色を選んで下さい。
+                                Move the cursor to the slot and press [RET]. The
+                                tone selector opens; choose the tone to assign.
 
-                        [TAB]   パッチパラメータ設定モードに入る。
+                        [TAB]   Enter patch-parameter mode.
 
-                                        カーソルがある位置の音色のリバーブスイッチ等
-                                        を設定することが出来ます。
+                                        Set the reverb switch and other parameters
+                                        of the tone at the cursor.
 
-                        [SPACE] パッチをデフォルトに戻す。
+                        [SPACE] Restore the patch to the default.
 
-                                        カーソルがある位置の音色のパッチをデフォルト
-                                        に戻します。
+                                        Restores the patch of the tone at the cursor.
 
-                        [UNDO]  サウンドテスト
+                        [UNDO]  Sound test
 
-                        [ K ]   サウンドテストのキーナンバー設定(0〜127)
+                        [ K ]   Sound-test key number (0 to 127)
 
-                        [ V ]   サウンドテストのベロシティ設定(0〜127)
+                        [ V ]   Sound-test velocity (0 to 127)
 
-                [F 3]   PCMパッチライトモードに移行する
+                [F 3]   Enter PCM patch-write mode
 
-                                内蔵音色(1〜85)/カード音色(1〜128)を、PCMパートのプリ
-                                セット音色番号(0〜127)に割り当てます。
+                                Assign internal tones (1 to 85) / card tones
+                                (1 to 128) to PCM-part preset tone numbers (0 to 127).
 
-                                設定したい場所にカーソルを移動して[RET]を押せば、音色
-                                のセレクタが出るので、割り当てる音色を選んで下さい。
+                                Move the cursor to the slot and press [RET]. The
+                                tone selector opens; choose the tone to assign.
 
-                        [TAB]   パッチパラメータ設定モードに入る。
+                        [TAB]   Enter patch-parameter mode.
 
-                                        カーソルがある位置の音色のリバーブスイッチ等
-                                        を設定することが出来ます。
-                                        (PCM音色のLFO/ENV等の調整もここで出来ます)
+                                        Set the reverb switch and other parameters
+                                        of the tone at the cursor.
+                                        (PCM LFO/ENV and similar can be adjusted
+                                        here too.)
 
-                        [SPACE] パッチをデフォルトに戻す。
+                        [SPACE] Restore the patch to the default.
 
-                                        カーソルがある位置の音色のパッチをデフォルト
-                                        に戻します。
+                                        Restores the patch of the tone at the cursor.
 
-                        [UNDO]  サウンドテスト
+                        [UNDO]  Sound test
 
-                        [ K ]   サウンドテストのキーナンバー設定(0〜127)
+                        [ K ]   Sound-test key number (0 to 127)
 
-                        [ V ]   サウンドテストのベロシティ設定(0〜127)
+                        [ V ]   Sound-test velocity (0 to 127)
 
-                        [ C ]   PCMカードの音色リストを切り替える
+                        [ C ]   Switch the PCM-card tone list
 
-                [F 4]   RHYTHMパッチライトモードに移行する
+                [F 4]   Enter RHYTHM patch-write mode
 
-                                リズム(SE)音色(1〜64)/ユーザー音色(1〜64)を、リズム
-                                パート(KEY# 24〜109)に割り当てます。
+                                Assign rhythm (SE) tones (1 to 64) / user tones
+                                (1 to 64) to the rhythm part (KEY# 24 to 109).
 
-                                設定したい場所にカーソルを移動して[RET]を押せば、音色
-                                のセレクタが出るので、割り当てる音色を選んで下さい。
-                                (他のパラメータも同じように設定して下さい。)
+                                Move the cursor to the slot and press [RET]. The
+                                tone selector opens; choose the tone to assign.
+                                (Set the other parameters the same way.)
 
-                                "OUTPUT"        アウトプットレベルの設定(0〜100)
+                                "OUTPUT"        Output level (0 to 100)
 
-                                "PAN"           パンポットの設定(Right -7〜+7 Left)
+                                "PAN"           Panpot (Right -7 to +7 Left)
 
-                                "REV"           リバーブのオン/オフ設定
-                                                ([RETURN]を押す度に切り変わります)
+                                "REV"           Reverb on/off
+                                                (Each [RETURN] toggles it.)
 
-                        [SPACE] パッチをデフォルトに戻す。
+                        [SPACE] Restore the patch to the default.
 
-                                        カーソルがある位置の音色のパッチをデフォルト
-                                        に戻します。
+                                        Restores the patch of the tone at the cursor.
 
-                        [UNDO]  サウンドテスト
+                        [UNDO]  Sound test
 
-                        [ V ]   サウンドテストのベロシティ設定(0〜127)
+                        [ V ]   Sound-test velocity (0 to 127)
 
-                [F 5]   ティンバーエディタ(TE.x v0.54 by HARPOON/TURBO)
+                [F 5]   Timbre editor (TE.x v0.54 by HARPOON/TURBO)
 
-                                コントロールファイル内の音色等を編集します。
+                                Edit tones and other data in the control file.
 
-                                'TE.x'を、'-I'オプション付で起動しているので、演奏後等
-                                に起動する場合は、なるべく[ Z ]でコントロールデータを
-                                再転送しておいて下さい。
+                                'TE.x' is started with the '-I' option, so when
+                                you launch it after playback, re-send the control
+                                data with [ Z ] first if you can.
 
-                                'TE.x'を子プロセスで呼び出しますので、PATHの通った所に
-                                入れておいて下さい。
+                                'TE.x' is run as a child process, so place it
+                                somewhere on PATH.
 
-        [SHIFT]+[F 5]   ユーザートーンリスト
+        [SHIFT]+[F 5]   User tone list
 
-                        [SPACE] マーク
+                        [SPACE] Mark
 
-                        [ X ]   マークされている音色と現在カーソルがある位置の
-                                音色を入れ替える。
+                        [ X ]   Exchange the marked tone with the tone at the
+                                cursor.
 
-                        [RET]   音色名を変更する。
+                        [RET]   Rename the tone.
 
-                        [CLR]   音色データをクリアする。
+                        [CLR]   Clear the tone data.
 
-                [F 6]   コントロールファイルロード
+                [F 6]   Load a control file
 
-                        コントロールファィルを指定、及び、ロードします。(*.CM6)
+                        Choose and load a control file. (*.CM6)
 
-                                ファイルネーム設定ウインドウが開くので、ファイルネームを
-                                入力・選択して下さい。(拡張子は省略出来ます)
+                                A filename window opens. Enter or select a
+                                filename. (The extension may be omitted.)
 
-                                コントロールファイルの使用を止める場合は、[F 7]のロードで、
-                                ファイル名を[DEL]/[CLR]で消して、[RETURN]を押して下さい。
+                                To stop using a control file, clear the filename
+                                with [DEL]/[CLR] in the [F 7] load and press
+                                [RETURN].
 
-                [F 7]   コントロールファイルセーブ
+                [F 7]   Save a control file
 
-                        コントロールファイルをセーブします。(*.CM6)
+                        Saves the control file. (*.CM6)
 
-                                ファイルネーム設定ウインドウが開くので、ファイルネームを
-                                入力・選択して下さい。(拡張子は省略出来ます)
-                                (ファイルネームは8文字まで)
+                                A filename window opens. Enter or select a
+                                filename. (The extension may be omitted.)
+                                (The filename is up to 8 characters.)
 
-                [F 8]   プレイ
+                [F 8]   Play
 
-                                データを演奏します。
+                                Plays the song.
 
-                [F 9]   CM-64コントロールデータの初期化
+                [F 9]   Initialize the CM-64 control data
 
-                                ユーザー音色、パッチ、及び、システムエリアを初期化します。
-                                確認のメッセージが出るので、[Y]/[N]で答えて下さい。
+                                Initializes user tones, patches, and the system
+                                area.
+                                A confirmation appears. Answer [Y] or [N].
 
-                [F10]/[ESC]     終了(メインメニューに戻る)
+                [F10]/[ESC]     Quit (return to the main menu)
 
-                [XF3]   演奏再開
+                [XF3]   Continue
 
-                [XF4]   演奏一時停止
+                [XF4]   Pause
 
-                [XF5]   演奏停止
+                [XF5]   Stop
 
 
 "SC55 CON"/[SHIFT]+[C]
 
-                GS/GMコントローラー(GE.x v0.60 by TAKA-P)
+                GS/GM controller (GE.x v0.60 by TAKA-P)
 
-                        GSDエディタの'GE.x'を子プロセスで呼び出しますので、PATH
-                        の通った所に入れておいて下さい。
-
-
-"UNIT SEL"/[D]  DEFファイルロード
-
-                        音源定義ファイルをロードします。(*.DEF)
-
-                        ファイルネーム設定ウインドウが開くので、ファイルネームを
-                        入力・選択して下さい。(拡張子は省略出来ます)
-
-                        RCPファイル名が設定されていない時は、USER EXC.を定義ファ
-                        イルで設定されているUSER EXC.で更新します。
-
-                        CM6ファイル名が設定されていない時は、コントロールデータ
-                        を初期化します。
+                        Runs the GSD editor 'GE.x' as a child process, so place
+                        it somewhere on PATH.
 
 
-"OPTION  "/[O]  外部プログラムの起動
+"UNIT SEL"/[D]  Load a DEF file
 
-                        環境設定ファイルで設定したプログラムを実行する。
+                        Loads a sound-module define file. (*.DEF)
 
-                                画面が切り変わって、ウインドウが開くので
-                                カーソルで、実行するプログラムを指定して下さい。
+                        A filename window opens. Enter or select a filename.
+                        (The extension may be omitted.)
 
-                [ A ]〜[ Z ]    直接選択
-                                        プログラムを直接選択する。
+                        If no RCP filename is set, USER EXC. is replaced with
+                        the USER EXC. from the define file.
 
-          [RET]/[SPACE] 決定(水色の反転になります。)
-
-
-"INIT    "/[I]  イニシャライズ
-
-                        データを初期化します。
-                        確認のメッセージが出るので、[Y]/[N]で答えて下さい。
+                        If no CM6 filename is set, the control data is initialized.
 
 
-"EXIT    "/[X]  終了
-(強制終了)
-                        プログラムを終了します。
-                        確認のメッセージが出るので、[Y]/[N]で答えて下さい。
-                        ([SHIFT]+[RETURN]で選んだ場合は、確認しないで終了します。)
-                        (終了時に、RCDバッファへデータを書き出します。)
+"OPTION  "/[O]  Run an external program
+
+                        Run a program set in the configuration file.
+
+                                The screen changes and a window opens. Choose
+                                the program to run with the cursor.
+
+                [ A ] to [ Z ]  Choose directly
+                                        Choose a program directly.
+
+          [RET]/[SPACE] Confirm (highlighted in cyan.)
 
 
-《セレクタ》
+"INIT    "/[I]  Initialize
 
-  コマンドセレクタのキー操作
-
-        [↑]            カーソルを一つ上に動かす。
-                                上端にカーソルがある時は、下端に移動します。
-
-        [↓]            カーソルを一つ下に動かす。
-                                下端にカーソルがある時は、上端に移動します。
-
-        [RET]/[SPACE]   決定(水色の反転になります。)
-
-        [ A ]〜[ X ]    直接選択・実行
-                                コマンドを直接選択・実行する。
-
-[OPT.1]+[ A ]〜[ Z ]    オプション直接選択・実行
-                                "OPTION"に設定されているコマンドを直接選択・
-                                実行する。
-
-        [ Z ]           音源の初期化(CM-64/SC-55)
-                                コントロールデータのファイル名が設定してあれば、
-                                CM-64/SC-55に転送します。
-
-        [XF3]           演奏再開
-
-        [XF4]           演奏一時停止
-
-        [XF5]           演奏停止
+                        Initializes the song data.
+                        A confirmation appears. Answer [Y] or [N].
 
 
-  ファイルセレクタ(ファイルネーム設定ウインドウ)のキー操作
+"EXIT    "/[X]  Quit
+(Force quit)
+                        Quits the program.
+                        A confirmation appears. Answer [Y] or [N].
+                        ([SHIFT]+[RETURN] quits without confirmation.)
+                        (On quit, the data is written out to the RCD buffer.)
 
-    設定モード
 
-                画面の右にウインドウが開いて、ファイル名を聞いてきます。
+《Selectors》
 
-                [↓]を押せばセレクトモードに移行します。キャンセルする
-                時は、[ESC]を押して下さい。
+  Command selector keys
 
-                ドライブ名を指定すれば、そのドライブに移動してセレクト
-                モードになります。
+        [up]            Move the cursor up one item.
+                                At the top, it moves to the bottom.
 
-                フルパスでファイルを指定すれば、直接ロード/セーブ出来ます。
+        [down]          Move the cursor down one item.
+                                At the bottom, it moves to the top.
 
-    セレクトモード
+        [RET]/[SPACE]   Confirm (highlighted in cyan.)
 
-        [↑]            カーソルを一つ上に動かす。
-                                上端にカーソルがある時は、1行ロールダウンします。
+        [ A ] to [ X ]  Choose and run directly
+                                Choose a command and run it.
 
-        [↓]            カーソルを一つ下に動かす。
-                                下端にカーソルがある時は、1行ロールアップします。
+[OPT.1]+[ A ] to [ Z ]  Run an option command directly
+                                Choose and run a command set under "OPTION".
 
-        [→]/[←]       ドライブを切り換える。
+        [ Z ]           Initialize the sound module (CM-64/SC-55)
+                                If a control-data filename is set, send it to
+                                the CM-64/SC-55.
 
-        [R.UP]          1ページ進める。
+        [XF3]           Continue
 
-        [R.DW]          1ページ戻す。
+        [XF4]           Pause
 
-        [HOME]          カーソルを最初に戻す
+        [XF5]           Stop
 
-        [RET]           決定/ディレクトリ移動
 
-        [UNDO]/[BS]     1つ前のディレクトリに移動する。
+  File selector (filename window) keys
 
-        [ESC]/[DEL]     キャンセル(設定モードに戻る)
+    Setting mode
 
-        [SPACE]         カーソル位置のファイルのメモを表示する。
+                A window opens on the right and asks for a filename.
 
-        [T]/[M]/[U]/[A] カーソル位置のRCPファイルからメモ等だけをロードする。
+                [down] enters select mode. Press [ESC] to cancel.
+
+                If you enter a drive name, it moves to that drive and
+                enters select mode.
+
+                A full path loads or saves directly.
+
+    Select mode
+
+        [up]            Move the cursor up one item.
+                                At the top, scroll down one line.
+
+        [down]          Move the cursor down one item.
+                                At the bottom, scroll up one line.
+
+        [right]/[left]  Change the drive.
+
+        [R.UP]          Page forward.
+
+        [R.DW]          Page back.
+
+        [HOME]          Move the cursor to the first item
+
+        [RET]           Confirm / enter a directory
+
+        [UNDO]/[BS]     Move to the parent directory.
+
+        [ESC]/[DEL]     Cancel (return to setting mode)
+
+        [SPACE]         Show the memo of the file at the cursor.
+
+        [T]/[M]/[U]/[A] Load only the memo and similar items from the RCP
+                        file at the cursor.
 
                         [T] Title
                         [M] Memo
-                        [U] User Exclsive
-                        [A] Rhythm Assign
+                        [U] User exclusive
+                        [A] Rhythm assign
 
 
-  トラックセレクタのキー操作
+  Track selector keys
 
-        [↑]            カーソルを一つ上に動かす。
-                                上端にカーソルがある時は、下端に移動します。
+        [up]            Move the cursor up one item.
+                                At the top, it moves to the bottom.
 
-        [↓]            カーソルを一つ下に動かす。
-                                下端にカーソルがある時は、上端に移動します。
+        [down]          Move the cursor down one item.
+                                At the bottom, it moves to the top.
 
-        [HOME]          カーソルを一番上の行に動かす。
+        [HOME]          Move the cursor to the top row.
 
-        [TAB]           トラックナンバーを直接指定する(1〜36)
+        [TAB]           Go to a track number (1 to 36)
 
-        [R.UP]/[R.DW]   表示するトラックの範囲を9トラック単位で移動する
+        [R.UP]/[R.DW]   Move the displayed track range by 9 tracks
 
-        [RET]           決定(水色の反転になります。)
+        [RET]           Confirm (highlighted in cyan.)
 
-        [ESC]           コマンドメニューに戻る
-
-
-  タグジャンプセレクタのキー操作
-
-        [↑]            カーソルを一つ上に動かす。
-                                上端にカーソルがある時は、下端に移動します。
-
-        [↓]            カーソルを一つ下に動かす。
-                                下端にカーソルがある時は、上端に移動します。
-
-        [ A ]〜[ V ]    直接選択
-                                タグを直接選択する。
-
-        [HOME]          カーソルを最初に戻す
-
-        [RET]           移動/登録(登録時にトラックも設定します。)
-
-        [SPACE]         移動/登録(登録時にトラックは設定しません。)
-
-        [ESC]           コマンドメニューに戻る
+        [ESC]           Return to the command menu
 
 
-  トーンセレクタのキー操作
+  Tag-jump selector keys
 
-        [↑]            カーソルを一つ上に動かす。
-                                上端にカーソルがある時は、1行ロールダウンします。
+        [up]            Move the cursor up one item.
+                                At the top, it moves to the bottom.
 
-        [↓]            カーソルを一つ下に動かす。
-                                下端にカーソルがある時は、1行ロールアップします。
+        [down]          Move the cursor down one item.
+                                At the bottom, it moves to the top.
 
- [CTRL]+[←]/[→]       リストチェンジ
-                                セレクトする音色リストを切り替えます。
+        [ A ] to [ V ]  Choose directly
+                                Choose a tag directly.
 
-                                (EDITの場合は、他のパートに割り当てられている音色リス
-                                トに切り替えます。(設定出来るのは、最初に表示されてい
-                                るパートの音色のみ))
+        [HOME]          Move the cursor to the first item
 
-                                (LA/RHY. PATCH WRITEの場合は、USER&lt;-&gt;RHYTHMを切り替え)
-                                (PCM PATCH WRITEの場合は、INTERNAL&lt;-&gt;CARDを切り替え)
+        [RET]           Move / register (registering also sets the track.)
 
-        [←]/[→]       バンクチェンジ
-                                GS/GMパートの場合のみ、バリエーションを切り替えます。
+        [SPACE]         Move / register (registering does not set the track.)
 
-        [CLR]           リストリセット
-                                EDITの場合は、リストを呼び出された時の表示に戻します。
+        [ESC]           Return to the command menu
 
-        [ / ]           バンク対応セレクトモード
-                                GS/GMパートの場合のみ、すべてのバンクを一列に表示した
-                                リストからのセレクトモードに入ります。
 
-        [UNDO]          サウンドテスト
-                                EDIT/RHYTHM ASSIGNのトーンセレクタの場合に、カーソルが
-                                ある場所の音色を鳴らします。[UNDO]を離した時にノートオ
-                                フします。
+  Tone selector keys
 
-[SHIFT]+[UNDO]          キーボードエミュレーター
-                                EDITのトーンセレクタの場合に、カーソルがある場所の音色
-                                を68のキーボードを鍵盤に見立てて演奏出来ます。
-                                (仕様上は16音ポリフォニック)
+        [up]            Move the cursor up one item.
+                                At the top, scroll down one line.
 
-                                [ESC]でセレクタに戻ります。
+        [down]          Move the cursor down one item.
+                                At the bottom, scroll up one line.
+
+ [CTRL]+[left]/[right]  Change the list
+                                Switch the tone list being selected.
+
+                                (In EDIT, switch to a tone list assigned to
+                                another part. Only tones of the part shown
+                                first can be set.)
+
+                                (In LA/RHY. PATCH WRITE, toggle USER&lt;-&gt;RHYTHM)
+                                (In PCM PATCH WRITE, toggle INTERNAL&lt;-&gt;CARD)
+
+        [left]/[right]  Change the bank
+                                GS/GM parts only. Switch the variation.
+
+        [CLR]           Reset the list
+                                In EDIT, restore the list to the way it looked
+                                when it was opened.
+
+        [ / ]           Bank-aware select mode
+                                GS/GM parts only. Enter a mode that lists every
+                                bank in one column.
+
+        [UNDO]          Sound test
+                                In the EDIT or RHYTHM ASSIGN tone selector, play
+                                the tone at the cursor. Releasing [UNDO] sends
+                                note off.
+
+[SHIFT]+[UNDO]          Keyboard emulator
+                                In the EDIT tone selector, play the tone at the
+                                cursor by treating the 68-key keyboard as a
+                                piano keyboard.
+                                (16-note polyphonic, by design.)
+
+                                [ESC] returns to the selector.
 
                         ┌─┬─┬┬┬─┬─┬┬┬─┬─┬─┬┬┬─┬─┬┬─┐
                         │  │  │││  │  │││  │  │  │││  │  ││  │
@@ -1140,1208 +1121,1203 @@
                           └─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┘
                                     C3                          C4
 
-                        オクターブシフトキー
+                        Octave-shift keys
 
-                                [SHIFT]を押しながら鍵盤キーを押すと、1オクターブ
-                                高くなります。
-                                [CTRL] を押しながら鍵盤キーを押すと、1オクターブ
-                                低くなります。
-                                [CAPS] をロックして鍵盤キーを押すと、1オクターブ
-                                高くなります。
-                                [かな] をロックして鍵盤キーを押すと、1オクターブ
-                                低くなります。
+                                Hold [SHIFT] and press a key to play one octave
+                                higher.
+                                Hold [CTRL] and press a key to play one octave
+                                lower.
+                                With [CAPS] locked, a key plays one octave higher.
+                                With [かな] locked, a key plays one octave lower.
 
-        [ Z ]           音源の初期化(CM-64/SC-55)
-                                コントロールデータのファイル名が設定してあれば、
-                                CM-64/SC-55に転送します。
+        [ Z ]           Initialize the sound module (CM-64/SC-55)
+                                If a control-data filename is set, send it to
+                                the CM-64/SC-55.
 
-        [R.UP]          1ページ進める。
+        [R.UP]          Page forward.
 
-        [R.DW]          1ページ戻す。
+        [R.DW]          Page back.
 
-        [HOME]          カーソルを最初に戻す
+        [HOME]          Move the cursor to the first item
 
-        [TAB]           音色番号を指定して移動する。
+        [TAB]           Move to a tone number.
 
-        [RET]           決定
+        [RET]           Confirm
 
-        [ESC]           キャンセル
+        [ESC]           Cancel
 
 
 
-《エディタ》
+《Editor》
 
-  エディットモードの、キー操作
+  Edit-mode keys
 
-        [←]            カーソルを一つ左に動かす。
-                                左端にカーソルがある時は、1行上の右端に移動します。
+        [left]          Move the cursor left one column.
+                                At the left edge, it moves to the right edge of
+                                the line above.
 
-        [→]/[SPACE]    カーソルを一つ右に動かす。
-                                右端にカーソルがある時は、1行下の左端に移動します。
+        [right]/[SPACE] Move the cursor right one column.
+                                At the right edge, it moves to the left edge of
+                                the line below.
 
-        [↑]            カーソルを一つ上に動かす。
-                                上端にカーソルがある時は、1行ロールダウンします。
+        [up]            Move the cursor up one line.
+                                At the top, scroll down one line.
 
-        [↓]            カーソルを一つ下に動かす。
-                                下端にカーソルがある時は、1行ロールアップします。
+        [down]          Move the cursor down one line.
+                                At the bottom, scroll up one line.
 
-        [R.UP]          1ページ先に進める。
+        [R.UP]          Page forward.
  [CTRL]+[ C ]
 
-        [R.DW]          1ページ前に戻す。
+        [R.DW]          Page back.
  [CTRL]+[ R ]
 
-[SHIFT]+[R.UP]          高速スクロールアップ
-[OPT.1]+[↓]
+[SHIFT]+[R.UP]          Fast scroll up
+[OPT.1]+[down]
 
-[SHIFT]+[R.DW]          高速スクロールダウン
-[OPT.1]+[↑]
+[SHIFT]+[R.DW]          Fast scroll down
+[OPT.1]+[up]
 
- [CTRL]+[ Z ]           1行スクロールアップ
+ [CTRL]+[ Z ]           Scroll up one line
 
- [CTRL]+[ W ]           1行スクロールダウン
+ [CTRL]+[ W ]           Scroll down one line
 
- [CTRL]+[ N ]           1小節先に進める。
+ [CTRL]+[ N ]           Move forward one measure.
 [OPT.1]+[R.UP]
 
- [CTRL]+[ B ]           1小節前に戻す。
+ [CTRL]+[ B ]           Move back one measure.
 [OPT.1]+[R.DW]
 
-        [HOME]          カーソルをホームポジションに移動する。
+        [HOME]          Move the cursor to the home position.
 
-[SHIFT]+[HOME]          演奏位置ジャンプ
-                                カーソルを演奏中の小節に移動する。
+[SHIFT]+[HOME]          Jump to the play position
+                                Move the cursor to the measure being played.
 
-        [かな]          演奏位置トレース
-                                オンになっている間は、演奏位置を追い掛けて表示する。
-                                (グラフィック表示がオンになっている時は、それも追い
-                                掛けて表示します)
+        [かな]          Play-position trace
+                                While this is on, the display follows the play
+                                position.
+                                (If the graphic display is on, that follows too.)
 
-                                [かな]をオフにするか、[ESC]で解除
-                                [XF3]/[XF4]/[XF5]での演奏制御も使用出来ます。
+                                Turn [かな] off, or press [ESC], to cancel.
+                                Transport with [XF3]/[XF4]/[XF5] can be used too.
 
-                        [→]    次のトラックに移動する。
-                                        (移動先トラックの移動前と同じ番号の小節に移動)
+                        [right] Move to the next track.
+                                        (To the same measure number on that track.)
 
-                        [←]    前のトラックに移動する。
-                                        (移動先トラックの移動前と同じ番号の小節に移動)
+                        [left]  Move to the previous track.
+                                        (To the same measure number on that track.)
 
-        [F 1]           先頭行に戻す。
+        [F 1]           Go to the first line.
 
-        [F 2]           最終行に進める。
+        [F 2]           Go to the last line.
 
-        [F 3]           ノートデータ/スペシャルコントローラの置き換え
-                                [F 6]で範囲が設定されていれば、その範囲のデータに、
-                                置き換えを実行します。
-                                (設定されてない時はカーソルのある行から最後の行まで)
+        [F 3]           Replace note data / special controllers
+                                If [F 6] has set a range, the replace runs on
+                                that range.
+                                (Otherwise, from the cursor line to the last line.)
 
-                                [ESC]で中止
+                                [ESC] aborts
 
-                                [F 3]を押すと、置き換え方を聞いてくるので、
-                                次のようなフォーマットで指定してください。
+                                [F 3] asks how to replace. Specify it in this form.
 
-                                ([↓]でセレクタを呼び出して設定することもできます。)
+                                ([down] opens the selector, which can set it too.)
 
-                                search_data{:replace_data}{,･･･,･･･,･･･}
+                                search_data{:replace_data}{,...,...,...}
 
-                                サーチするデータがすべて該当するデータのみ置き換えます。
+                                A line is replaced only when every searched field matches.
 
-                                C#4 : +10 , ･･･
+                                C#4 : +10 , ...
                                 │    │
-                                │    └────置き換えるデータ、または計算式
-                                │              '^'から始まる場合には、式ではなく
-                                │              絶対値として認識します
+                                │    └──── replacement data, or an expression
+                                │              A leading '^' is an absolute value,
+                                │              not an expression
                                 │                              │
-                                サーチする数値またはノートネーム、あるいは、
-                                コントローラーシンボルを指定する。
-                                (無指定の場合は総てのノートに該当します)
-                                (ノートネームのオクターブはワイルドカード'*'が
-                                使用出来ます)
-                                (NOTEのST指定での置換では和音も処理します。)
-                                (コントローラーを指定する場合は、シンボルの前に
-                                '/'を付加して下さい。)
+                                Value, note name, or controller symbol to search for.
+                                (If omitted, every note matches.)
+                                (In a note name, '*' is a wildcard for the octave.)
+                                (Replacing by a note's ST also processes chords.)
+                                (To name a controller, put '/' before the symbol.)
 
-                                (!はノットになります。)
+                                (! means NOT.)
 
-                                (基本的に、コントローラそのものは置換出来ません
-                                が、コントロールチェンジ同士、およびCTRL&lt;-&gt;User
-                                Exclu.&lt;-&gt;AFTER C/Kは置換出来ます。)
+                                (You cannot replace the controller itself, but
+                                control changes can replace each other, and
+                                CTRL&lt;-&gt;User Exclu.&lt;-&gt;AFTER C/K can be replaced.)
 
-                                指定する文字列の先頭に'%'を付いている場合には、変換
-                                前のデータの隣に同じタイミングで変換後のデータを書
-                                き込みます。
+                                If the string starts with '%', the new data is
+                                written at the same timing, beside the original.
 
-                                指定例
+                                Examples
 
-                                C4をD#4にかえる                         C4:D#4
-                                オクターブを、1上げる                   :+12
-                                ベロシティだけ+10する                   ,,,:+10
-                                ベロシティ10のみ20にする                ,,,10:20
-                                ゲートを半分にする                      ,,:/2
-                                ステップとゲートを2倍にする             ,:*2,:*2
-                                ベロシティを64を中心に1.2倍する         ,,,:-64*1.2+64
-                                プログラムチェンジの10を16にする        /G,,10:16
-                                ピッチベンドを2倍にする                 /P,,:*2
-                                キー64以下のベロシティを+20する         64&gt;,,,:+20
-                                ベロシティが100以上のデータを+5する     ,,,100&lt;:+5
-                                すべてのオクターブのCを半音上げる       C*:+1
-                                全データのSTを2倍にする                 /ALL,:*2
-                                ベロシティを全て100にする               ,,,:100
-                                ヴォリュームをエクスプレッションにする  /V:/E
-                                ヴォリュームをエクスプレッションにする  /L7:/L11
-                                ヴォリュームをエクスプレッションにする  /7:/11
-                                note c4〜b4に1オクターブ上のnoteを重ねる %60_71:+12
+                                Change C4 to D#4                        C4:D#4
+                                Raise by one octave                     :+12
+                                Add 10 to velocity only                 ,,,:+10
+                                Change only velocity 10 to 20           ,,,10:20
+                                Halve the gate                          ,,:/2
+                                Double step and gate                    ,:*2,:*2
+                                Scale velocity by 1.2 around 64         ,,,:-64*1.2+64
+                                Change program change 10 to 16          /G,,10:16
+                                Double the pitch bend                   /P,,:*2
+                                Add 20 to velocity of key 64 and under  64&gt;,,,:+20
+                                Add 5 where velocity is 100 or over     ,,,100&lt;:+5
+                                Raise C in every octave by a semitone   C*:+1
+                                Double the ST of all data               /ALL,:*2
+                                Set every velocity to 100               ,,,:100
+                                Change volume to expression             /V:/E
+                                Change volume to expression             /L7:/L11
+                                Change volume to expression             /7:/11
+                                Stack a note one octave up on C4-B4     %60_71:+12
 
-                                c3〜b3のVELを100に                      48_59:,,,:100
-                                GT=8〜16をGT=12に                       ,,8_16:12
-                                b2以下のnoteを休符に                     _47:0,,,:0
-                                80〜100のexpressionを120に              /e,,,80_100:120
-                                c3以外、そのST値を残したまま削除        @!36:
-                                GT=6の場所以外、GT=8に                  ,,!6:8
+                                Set VEL of C3-B3 to 100                 48_59:,,,:100
+                                Set GT 8-16 to GT 12                    ,,8_16:12
+                                Make notes at B2 and below into rests   _47:0,,,:0
+                                Set expression 80-100 to 120            /e,,,80_100:120
+                                Delete all but C3, keeping its ST       @!36:
+                                Set GT to 8 except where GT is 6        ,,!6:8
 
 
-[SHIFT]+[F 3]           ノートデータ/スペシャルコントローラの指定削除
-                                [F 3]と同じように検索して、見付かった行を削除します。
-                                ('/S'を指定すれば、総てのスペシャルコントローラを削
-                                除します)
-                                ('/ALL'を指定すれば、総てのデータを削除します。(小節
-                                線/コメント/リピート以外))
-                                ('/CM'でコメントを削除します)
+[SHIFT]+[F 3]           Delete matching notes / special controllers
+                                Search as with [F 3], and delete each line found.
+                                ('/S' deletes every special controller.)
+                                ('/ALL' deletes every event, except bar lines,
+                                comments, and repeats.)
+                                ('/CM' deletes comments.)
 
-                                指定する文字列の先頭に'@'を付いている場合には、削除
-                                ではなく、同じST値の休符への変換になります。
+                                If the string starts with '@', the match is not
+                                deleted. It becomes a rest with the same ST.
 
-        [F 4]           検索内容設定
-                                [F 3]と同じ指定方法で、検索データを指定して下
-                                さい。
+        [F 4]           Set the search
+                                Specify the search the same way as [F 3].
 
-                                文字列で検索する場合には先頭に'$'を付けて後は
-                                トラックデータの表示と同じように、文字列を指定
-                                して下さい。
+                                To search for a string, start with '$' and then
+                                give the string as it appears in the track display.
 
-                                例外として、$ST!=nnn と指定した場合のみ、STEPの
-                                合計がnnn以外の小節線を検索するように設定します。
+                                The one exception: $ST!=nnn searches for bar lines
+                                whose step total is not nnn.
 
-                                例      $ST!=192
+                                Example      $ST!=192
 
-        [F 5]           前方検索
-                                スペシャルコントローラーを前方検索
-                                ([F 4]で設定してある場合はその内容)
-                                [ESC]で中止
+        [F 5]           Find forward
+                                Find the next special controller.
+                                (Or the text set with [F 4].)
+                                [ESC] aborts
 
-[SHIFT]+[F 5]           後方検索
-                                スペシャルコントローラーを後方検索
-                                ([F 4]で設定してある場合はその内容)
-                                [ESC]で中止
+[SHIFT]+[F 5]           Find backward
+                                Find the previous special controller.
+                                (Or the text set with [F 4].)
+                                [ESC] aborts
 
-        [F 6]           範囲(操作する範囲の開始行を設定)
-                                範囲は網掛けで表示します。
-                                もう一度押すと解除します。
+        [F 6]           Range (set the first line of the range to operate on)
+                                The range is shown shaded.
+                                Press again to clear it.
 
-        [F 7]           削除(コピーバッファに移動)
-                                コピーバッファには、SAME MEASを展開したデータを、
-                                転送します。
+        [F 7]           Cut (move into the copy buffer)
+                                SAME MEAS is expanded when the data is transferred
+                                to the copy buffer.
 
-        [F 8]           複写(コピーバッファに複写)
-                                コピーバッファには、SAME MEASを展開したデータを、
-                                転送します。
+        [F 8]           Copy (copy into the copy buffer)
+                                SAME MEAS is expanded when the data is transferred
+                                to the copy buffer.
 
-[SHIFT]+[F 8]           ミックス貼付(カーソルのある行からのデータにコピー
-                        バッファの内容をミックスする)
+[SHIFT]+[F 8]           Mix paste (mix the copy buffer into the data from the
+                        cursor line on)
 
-        [F 9]           貼付(カーソルのある行にコピーバッファの内容を挿入)
+        [F 9]           Paste (insert the copy buffer at the cursor line)
 
-[SHIFT]+[F 9]           反転貼付(カーソルのある行にコピーバッファの内容を
-                        前後を反転して挿入)
+[SHIFT]+[F 9]           Reverse paste (insert the copy buffer at the cursor line,
+                        reversed front to back)
 
-        [F10]           カーソルのある行を二重化する。
+        [F10]           Duplicate the line at the cursor.
 
-[SHIFT]+[F 1]           ベロシティを連続設定する・ST/GTを操作する。
+[SHIFT]+[F 1]           Set velocity across a range, and edit ST/GT.
 
-                                [F 6]で設定した範囲のベロシティを連続設定します。
-                                モード(Line/Random/Ofs.Rnd/ST,GT Ofs.Rnd)と先頭の
-                                数値と最後の数値を入力して下さい。
-                                (R.時は、最低値と最高値を入力する)
-                                (O./S.時は、オフセットの下限と上限値を入力する)
+                                Sets velocity across the range set with [F 6].
+                                Choose a mode (Line/Random/Ofs.Rnd/ST,GT Ofs.Rnd)
+                                and enter the first value and the last value.
+                                (For R, enter the minimum and the maximum.)
+                                (For O and S, enter the lower and upper offset.)
 
-                                モード
+                                Modes
 
-                                [L]     Vel.ライン
-                                [R]     Vel.ランダム
-                                [O]     Vel.オフセットランダム
-                                [S]     ST,GTオフセットランダム
-                                        (和音は考慮してない(^^;))
+                                [L]     Vel. line
+                                [R]     Vel. random
+                                [O]     Vel. offset random
+                                [S]     ST,GT offset random
+                                        (Chords are not taken into account. (^^;))
 
 
-[SHIFT]+[F 2]           データを最適化する
-                                休符/PITCH/VOLUME/EXPRESSION/タイを最適化します。
+[SHIFT]+[F 2]           Optimize the data
+                                Optimizes rests/PITCH/VOLUME/EXPRESSION/ties.
 
-                                [F 6]で範囲が設定されていれば、その範囲のデータを、
-                                最適化します。
-                                (設定されてない時はカーソルのある行から最後の行まで)
+                                If [F 6] has set a range, that range is optimized.
+                                (Otherwise, from the cursor line to the last line.)
 
-[SHIFT]+[F 4]           コード(和音)を並べ替える・ノートをシフトする
+[SHIFT]+[F 4]           Sort a chord, or shift notes
 
-                                [F 6]で範囲が設定されていれば、その範囲のコードを、
-                                ソートまたはシフトします。
-                                (設定されてない時はカーソルのある行から最後の行まで)
+                                If [F 6] has set a range, chords in that range are
+                                sorted or shifted.
+                                (Otherwise, from the cursor line to the last line.)
 
-                                モードを聞いてきますので、[U]/[D]/[G]/[S]で選択して
-                                ください。
+                                It asks for a mode. Choose [U], [D], [G], or [S].
 
-                                [ U ] = 低い音から並べる。
-                                [ D ] = 高い音から並べる。
+                                [ U ] = Sort from the lowest note.
+                                [ D ] = Sort from the highest note.
 
-                                [ G ] = 和音のタイミング(ST/GTを)をずらす。
-                                [ S ] = 和音のタイミング(ST値のみ)をずらす。
+                                [ G ] = Shift the chord timing (ST and GT).
+                                [ S ] = Shift the chord timing (ST only).
 
-[SHIFT]+[F 6]           UNDOバッファに現在のトラックデータを登録する。
+[SHIFT]+[F 6]           Store the current track data in the undo buffer.
 
-                                置換/指定削除/範囲削除/貼付/スペシャルコントローラ分割
-                                /VEL連続設定/SAME MEAS変換/ワンタッチコード入力/コント
-                                ローラビジュアルエディット、等の実行前には、自動的に登
-                                録します。
-                                (UNDOバッファは、リズムトラックエディタのコピーバッファ
-                                と共用)
+                                It is stored automatically before replace, delete-
+                                by-spec, range delete, paste, special-controller
+                                split, a velocity ramp, SAME MEAS conversion,
+                                one-touch chord entry, controller visual edit,
+                                and similar commands.
+                                (The undo buffer is shared with the rhythm track
+                                editor's copy buffer.)
 
-[SHIFT]+[F 7]           UNDOバッファのデータと現在のトラックデータを入れ替える。
+[SHIFT]+[F 7]           Swap the undo buffer with the current track data.
 
-[OPT.1]+[F 1]〜[F10]    ワンタッチST,GT &amp; VEL入力
+[OPT.1]+[F 1] to [F10] One-touch ST, GT, and VEL entry
 
-                                カーソルがST,GTの位置にある時は数値を入力します
+                                When the cursor is on ST or GT, this enters a number.
 
-                                カーソルが、GTの位置の時はGTのみ、それ以外の時は
-                                ST/GTを変更し、VELの位置の時はVELを変更します。
+                                On GT, only GT changes. Otherwise ST and GT change.
+                                On VEL, VEL changes.
 
-                                値の変更後に、次のST値のあるノートにカーソルを進
-                                めます。
+                                After the value changes, the cursor moves to the
+                                next note that has an ST value.
 
-        [ R ]           コピー(Riplicate)
-                                数値で指定した範囲のトラックデータをコピーします。
-                                (コピー先はカーソルの位置になります)
-                                コピーされる元のデータのSAME MEASを展開してコピー
-                                します。(コピーバッファにも転送されます)
+        [ R ]           Replicate
+                                Copy a range of track data given by numbers.
+                                (The destination is the cursor position.)
+                                SAME MEAS in the source is expanded as it is
+                                copied. (It is also sent to the copy buffer.)
 
-                                コピー元のTR.,TOP,ENDと、TIMES,BIASを入力して下さい。
+                                Enter the source TR., TOP, and END, and TIMES, BIAS.
 
-                                "TR."   トラックナンバー
+                                "TR."   Track number
 
-                                "TOP"   開始小節番号
+                                "TOP"   First measure
 
-                                "END"   終了小節番号
+                                "END"   Last measure
 
-                                "TIMES" コピー回数(1〜255)
+                                "TIMES" Copy count (1 to 255)
 
-                                "BIAS"  キーナンバーのシフト値(-24〜24)
+                                "BIAS"  Key-number shift (-24 to 24)
 
-[SHIFT]+[ R ]           全トラックコピー(Riplicate)
-                                数値で指定した範囲のトラックデータをコピーします。
-                                (コピー先はカーソルが有る小節の先頭になります)
-                                コピーされる元のデータのSAME MEASを展開してコピー
-                                します。(コピーバッファにも転送されます)
+[SHIFT]+[ R ]           Replicate every track
+                                Copy a range of track data given by numbers.
+                                (The destination is the start of the measure at
+                                the cursor.)
+                                SAME MEAS in the source is expanded as it is
+                                copied. (It is also sent to the copy buffer.)
 
-                                コピー元のTOP,ENDと、TIMES,BIASを入力して下さい。
+                                Enter the source TOP and END, and TIMES, BIAS.
 
-        [ Q ]           クォンタイズ
-                                レコーディングしたデータ等のSTがバラバラになっている
-                                いるデータの発音タイミングを揃えます。
+        [ Q ]           Quantize
+                                Line up the timing of data whose ST values are
+                                uneven, such as a recording.
 
-                                [F 6]で範囲が設定されていれば、その範囲のデータに、
-                                クォンタイズを実行します。
-                                (設定されてない時はカーソルのある行から最後の行まで)
+                                If [F 6] has set a range, that range is quantized.
+                                (Otherwise, from the cursor line to the last line.)
 
-                                "RESOLUTION"    解像度  揃える基本ST (2〜48)
+                                "RESOLUTION"    Resolution  basic ST to align to (2 to 48)
 
-                                "RATE"          レート  揃える度合(%)(50〜100)
+                                "RATE"          Rate  how far to align (%) (50 to 100)
 
-        [ @ ]           トラック上にコメントを書き込む(20文字まで)
+        [ @ ]           Write a comment on the track (up to 20 characters)
 [SHIFT]+[ @ ]
-                                コメント上で[@]を使った場合は、変更モードに入ります。
-                                (コメント上の場合でも[SHIFT]+[@]の時は新規入力になり
-                                ます)
+                                [@] on an existing comment enters change mode.
+                                (Even on a comment, [SHIFT]+[@] starts a new entry.)
 
-        [ K ]           キースケールを設定・変更する。(小節単位)
+        [ K ]           Set or change the key scale. (Per measure.)
 
-                                設定した小節内にのみ作用します。
-                                小節の最初以外には、書き込まないで下さい。
+                                It affects only the measure it is written on.
+                                Do not write it anywhere but the start of the measure.
 
-                                設定の仕方は、メイン画面の"KEY"と同じです。
-                                再設定する場合も、[K]を使用して下さい。
+                                Set it the same way as "KEY" on the main screen.
+                                Use [K] to set it again as well.
 
-        [ / ]           スペシャルコントローラの入力
+        [ / ]           Enter a special controller
 
-                                カーソルのある行にスペシャルコントローラを書き込む。
-                                [ / ]を押して、続けてコントローラシンボルを入力する
-                                か、カーソルで選択して、[RETURN]を押して下さい。
-                                [↓]でセレクタが出ます。
-                                後はそのコントローラに必要なパラメーターを入力して
-                                下さい。
+                                Write a special controller on the cursor line.
+                                Press [ / ], then type a controller symbol, or
+                                move the cursor to one and press [RETURN].
+                                [down] opens the selector.
+                                Then enter the parameters that controller needs.
 
-                            コントローラシンボル(全て文字で指定して下さい)
+                            Controller symbols (type each one as letters)
 
-                                'G'  PROGRAM    プログラム・チェンジ
-                                'G@' BankProg   バンク＆プログラム・チェンジ
-                                'M'  MIDI CH.   MIDIチャンネル・チェンジ
-                                'T'  TEMPO      テンポ・チェンジ
-                                'P'  PITCH      ピッチ・ベンド
-                                'C'  AFTER C.   チャンネル・アフタータッチ
-                                'K'  AFTER K.   ポリフォニック・アフタータッチ
+                                'G'  PROGRAM    Program change
+                                'G@' BankProg   Bank and program change
+                                'M'  MIDI CH.   MIDI channel change
+                                'T'  TEMPO      Tempo change
+                                'P'  PITCH      Pitch bend
+                                'C'  AFTER C.   Channel aftertouch
+                                'K'  AFTER K.   Polyphonic aftertouch
 
-                                'L'  CONTROL    コントロール・チェンジ
-                                'D'  MODULAT    モジュレーション
-                                'V'  VOLUME     ヴォリューム
-                                'N'  PANPOT     パンポット
-                                'E'  EXPRESS    エクスプレッション
-                                'H'  HOLD1      ホールド1(ダンパーペダル)
-                                'A'  RES.ALL    リセット・オール・コントローラーズ
+                                'L'  CONTROL    Control change
+                                'D'  MODULAT    Modulation
+                                'V'  VOLUME     Volume
+                                'N'  PANPOT     Panpot
+                                'E'  EXPRESS    Expression
+                                'H'  HOLD1      Hold 1 (damper pedal)
+                                'A'  RES.ALL    Reset All Controllers
 
-                                '@'  BANK MSB   バンク・セレクト(MSB)
-                                '@@' BANK LSB   バンク・セレクト(LSB)
-                                'F1' REVERB     エフェクト1(リバーブ・センドレベル)
-                                'F3' CHORUS     エフェクト3(コーラス・センドレベル)
-                                'F4' DELAY      エフェクト4(ディレイ・センドレベル)
-                                'PT' PORTA.TM   ポルタメント・タイム
-                                'PO' PORTAMEN   ポルタメント・スイッチ
-                                'PC' POR.CONT   ポルタメント・コントロール
-                                'SS' SOSTENUT   ソステヌート
-                                'ST' SOFT       ソフトペダル
-                                'BR' BREATH     ブレスコントロール
+                                '@'  BANK MSB   Bank select (MSB)
+                                '@@' BANK LSB   Bank select (LSB)
+                                'F1' REVERB     Effect 1 (reverb send level)
+                                'F3' CHORUS     Effect 3 (chorus send level)
+                                'F4' DELAY      Effect 4 (delay send level)
+                                'PT' PORTA.TM   Portamento time
+                                'PO' PORTAMEN   Portamento switch
+                                'PC' POR.CONT   Portamento control
+                                'SS' SOSTENUT   Sostenuto
+                                'ST' SOFT       Soft pedal
+                                'BR' BREATH     Breath control
 
-                                'EM' DATA MSB   データ・エントリ(MSB)
-                                'EL' DATA LSB   データ・エントリ(LSB)
-                                'NM' NRPN MSB   ノン・レジスタード・パラメータ・ナンバー(MSB)
-                                'NL' NRPN LSB   ノン・レジスタード・パラメータ・ナンバー(LSB)
-                                'RM' RPN MSB    レジスタード・パラメータ・ナンバー(MSB)
-                                'RL' RPN LSB    レジスタード・パラメータ・ナンバー(LSB)
+                                'EM' DATA MSB   Data entry (MSB)
+                                'EL' DATA LSB   Data entry (LSB)
+                                'NM' NRPN MSB   Non-registered parameter number (MSB)
+                                'NL' NRPN LSB   Non-registered parameter number (LSB)
+                                'RM' RPN MSB    Registered parameter number (MSB)
+                                'RL' RPN LSB    Registered parameter number (LSB)
 
-                          'U0'〜'U7' UserExc*   ユーザー定義エクスクルーシブ
-                                'X'  Tr.Exclu   トラックエクスクルーシブ
+                          'U0' to 'U7' UserExc*   User-defined exclusive
+                                'X'  Tr.Exclu   Track exclusive
 
-                                'B'  Rol.Base   ローランド・ベースアドレス
-                                'R'  Rol.Para   ローランド・アドレス&amp;パラメータ
-                                'I'  Rol.Dev#   ローランド・デバイスNo.&amp;モデルID
+                                'B'  Rol.Base   Roland base address
+                                'R'  Rol.Para   Roland address &amp; parameter
+                                'I'  Rol.Dev#   Roland device No. &amp; model ID
 
                                 'S4' MKS-7      Roland MKS-7 Exclusive  (Roland MKS-7)
                                 'S5' FB-01 P    Parameter Change        (YAMAHA FB-01)
                                 'S6' FB-01 S    System Parameter Change (YAMAHA FB-01)
 
-[SHIFT]+[ ] ]           ワンタッチST/GT入力の値を変更する
+[SHIFT]+[ ] ]           Change the one-touch ST/GT values
 
-                [RET]   カーソルのある位置の数値の変更
+                [RET]   Change the number at the cursor
 
-          [ + ]/[ &gt; ]   カーソルのある位置の数値を+1する。
+          [ + ]/[ &gt; ]   Add 1 to the value at the cursor.
 
-          [ - ]/[ &lt; ]   カーソルのある位置の数値を-1する。
+          [ - ]/[ &lt; ]   Subtract 1 from the value at the cursor.
 
-[SHIFT]+[ [ ]           パートアサインを呼び出す
+[SHIFT]+[ [ ]           Open part assign
 
-[SHIFT]+[ / ]           ユーザ定義エクスクルーシブ・エディタを呼び出す
+[SHIFT]+[ / ]           Open the user-defined exclusive editor
 
-                                UserExc上で呼び出した場合はそのUserExcの位置に移動する
+                                Called on a UserExc, it moves to that UserExc.
 
-        [ _ ]           トラックエクスクルーシブ・エディタを呼び出す
-[SHIFY]+[ _ ]
-                                トラックにExclusiveデータを直接書き込みます。
+        [ _ ]           Open the track exclusive editor
+[SHIFT]+[ _ ]
+                                Write exclusive data directly onto the track.
 
-                                "Tr.Exclu"上で起動した場合には、そのエクスクルーシブ
-                                の内容を編集します。
-                                (それ以外か、[SHIFT]+[_]で起動した場合は、新規入力に
-                                なります。)
+                                Started on "Tr.Exclu", it edits that exclusive.
+                                (Otherwise, or started with [SHIFT]+[_], it is
+                                a new entry.)
 
-                                エディタの使い方と設定出来るコマンドは、[UNDO]での送信
-                                が追加されている事の他はユーザーエクスクルーシブエディ
-                                タと殆ど同じです。
-
-
-                [UNDO]  Exclusiveデータ送信
-
-                                編集中のExclusiveデータを送信します。
-
-        [SHIFT]+[UNDO]  Exclusiveデータ送信&amp;パネルモニター
-
-                                編集中のExclusiveデータを送信します。
-
-                                SC-55等のパネルへのデータの場合は、画面にパネルを
-                                表示します。その場合は[ESC]でedit modeに戻ります。
-
-                [F 9]   Track Exclusiveファイルロード(*.EXC)
-
-                                テキスト形式で書かれたExclusiveファイルをロードします。
-                                (8Kbyteまで)
-
-                                ファイルネーム設定ウインドウが開くので、ファイルネームを
-                                入力・選択して下さい。(拡張子は省略出来ます)
-
-                [F10]   Track Exclusiveファイルセーブ(*.EXC)
-
-                                Exclusiveをテキスト形式ファイルでセーブします。
-
-                                ファイルネーム設定ウインドウが開くので、ファイルネームを
-                                入力・選択して下さい。(拡張子は省略出来ます)
+                                The editor, and the commands it can set, are
+                                almost the same as the user exclusive editor,
+                                except that sending with [UNDO] is added.
 
 
-        [ \ ]           コントローラ分割
-                                (分割する数を入力して下さい。(2〜ST値))
+                [UNDO]  Send exclusive data
+
+                                Sends the exclusive being edited.
+
+        [SHIFT]+[UNDO]  Send exclusive data, and the panel monitor
+
+                                Sends the exclusive being edited.
+
+                                Data aimed at an SC-55 panel or similar is shown
+                                on screen as a panel. [ESC] then returns to edit mode.
+
+                [F 9]   Load a track exclusive file (*.EXC)
+
+                                Load an exclusive written as text.
+                                (Up to 8 Kbytes.)
+
+                                A filename window opens. Enter or select a
+                                filename. (The extension may be omitted.)
+
+                [F10]   Save a track exclusive file (*.EXC)
+
+                                Save the exclusive as a text file.
+
+                                A filename window opens. Enter or select a
+                                filename. (The extension may be omitted.)
+
+
+        [ \ ]           Split a controller
+                                (Enter how many pieces to split it into. (2 to the ST value))
 
                         PITCH
-                                カーソルのある行と次の行の音程をピッチベンドで
-                                現在の行のSTを分割して、次の行の値まで繋ぎます。
-                                (ノートでもピッチベンドでも可能です。)
+                                Join the pitch of the cursor line to the next
+                                line with pitch bend, dividing this line's ST
+                                up to the next line's value.
+                                (Works on a note or on a pitch bend.)
 
                         VOLUME/MODULATION/EXPRESSION/PANPOT/Rol.Para/etc...
-                                カーソルのある行と次の行で指定した値を、現在の
-                                行のSTを分割して、次の行の値まで繋ぎます。
+                                Join the value on the cursor line to the value
+                                on the next line, dividing this line's ST.
 
-[SHIFT]+[ \ ]           ノート分割
+[SHIFT]+[ \ ]           Split a note
 
-                                カーソルのある行と次の行の音程を現在の行のSTを
-                                分割して、次の行の音程までノートで繋ぎます。
+                                Join the pitch of the cursor line to the next
+                                line's pitch with notes, dividing this line's ST.
 
-                                        Mode 1 = 白鍵のみ
-                                        Mode 2 = 白鍵+黒鍵
+                                        Mode 1 = white keys only
+                                        Mode 2 = white keys and black keys
 
-[OPT.1]+[ A ]〜[ Z ]    オプション直接選択・実行
-                                "OPTION"に設定されているコマンドを直接選択・
-                                実行する。
+[OPT.1]+[ A ] to [ Z ]  Run an option command directly
+                                Choose and run a command set under "OPTION".
 
-        [ [ ]           カーソルのある行にリピート開始の記号を挿入する。
+        [ [ ]           Insert a repeat-start mark on the cursor line.
 
-        [ ] ]           カーソルのある行にリピート終了の記号を挿入する。
-                                リピート回数を聞いてくるので入力して下さい。(2〜256)
+        [ ] ]           Insert a repeat-end mark on the cursor line.
+                                It asks for the repeat count. Enter it. (2 to 256)
 
- [CTRL]+[ ] ]           対リピート検索
+ [CTRL]+[ ] ]           Find the matching repeat
 
-        [ * ]           メジャーエンド
-                                カーソルのある行に小節線を引く。
+        [ * ]           Measure end
+                                Draw a bar line on the cursor line.
 
-        [ ^ ]           セームメジャー
-                                カーソルのある行に小節複写を設定する。
+        [ ^ ]           Same measure
+                                Set a same-measure copy on the cursor line.
 
-                                演奏時に、指定した小節(1〜1024)を演奏する。
-                                (指定する小節番号は、設定する小節より小さい番号
-                                を指定して下さい。)
+                                During playback, the measure you name (1 to 1024)
+                                is played.
+                                (Name a measure number lower than the measure
+                                where you set this.)
 
-                                (64k byte(16372step)を越えた部分に対してはSAME
-                                MEASを設定出来ません)
+                                (SAME MEAS cannot be set past 64 Kbytes
+                                (16372 steps).)
 
-                                小節線が挿入/削除された場合には、それに合わせて
-                                小節の指定を、自動的にシフトします。
+                                If a bar line is inserted or deleted, the measure
+                                number is shifted to match.
 
-                                SAME MEASの値をシフトする時に、指定している小節が
-                                削除されるか、ナンバーが1024を越える場合はそのSAME
-                                MEASを展開します。
-                                (トラックに余裕が無い場合は、展開はしないで、SAME
-                                MEASに1を設定しますので注意してください)
+                                If shifting a SAME MEAS would delete the measure
+                                it names, or push the number past 1024, that
+                                SAME MEAS is expanded.
+                                (If the track has no room it is not expanded, and
+                                SAME MEAS is set to 1. Be careful.)
 
-[SHIFT]+[ ^ ]           オート・セームメジャー
-                                トラックデータの重複をチェックして、小節複写に置き換える。
+[SHIFT]+[ ^ ]           Auto same-measure
+                                Find duplicate measures and replace them with
+                                same-measure copies.
 
- [CTRL]+[ ^ ]           セームメジャー・エクストラクト
-                                編集中のトラックの小節複写を展開する
+ [CTRL]+[ ^ ]           Same-measure extract
+                                Expand same-measure copies on the track being edited.
 
-                                [F 6]で範囲が設定されている場合は、その範囲のデータを展
-                                開します。
+                                If [F 6] has set a range, that range is expanded.
 
-        [ + ]/[ &gt; ]     カーソルのある位置の数値を+1する。
-                                (ノートの場合は半音上げる)
+        [ + ]/[ &gt; ]     Add 1 to the value at the cursor.
+                                (A note goes up one semitone.)
 
-        [ - ]/[ &lt; ]     カーソルのある位置の数値を-1する。
-                                (ノートの場合は半音下げる)
+        [ - ]/[ &lt; ]     Subtract 1 from the value at the cursor.
+                                (A note goes down one semitone.)
 
-[SHIFT]+[ &gt; ]           カーソルのある位置の数値を+10する。
-                                (ST/GTの場合は+12する)
-                                (ノートの場合はオクターブを+1する)
+[SHIFT]+[ &gt; ]           Add 10 to the value at the cursor.
+                                (ST/GT: add 12.)
+                                (A note goes up one octave.)
 
-[SHIFT]+[ &lt; ]           カーソルのある位置の数値を-10する。
-                                (ST/GTの場合は-12する)
-                                (ノートの場合はオクターブを-1する)
+[SHIFT]+[ &lt; ]           Subtract 10 from the value at the cursor.
+                                (ST/GT: subtract 12.)
+                                (A note goes down one octave.)
 
-        [ = ]           カーソルのある位置の数値の+/-を反転。
-                                (ピッチベンドのパラメータの場合のみ)
-                                (チャンネルのパラメータの場合は、'A'/'B'の切り替え)
-                                (パンポットのパラメータの場合は、左右の反転)
-                                (MusicKeyのパラメータの場合は、MAJOR/minarの反転)
+        [ = ]           Flip the sign of the value at the cursor.
+                                (Pitch-bend parameters only.)
+                                (A channel parameter toggles 'A'/'B'.)
+                                (A panpot parameter swaps left and right.)
+                                (A MusicKey parameter toggles MAJOR/minor.)
 
-        [ 0 ]〜[ 9 ]    カーソルのある位置のデータを変更する。
-                                (ノートの位置にカーソルがある時は、ノートネーム
-                                も書けます)
+        [ 0 ] to [ 9 ]  Change the data at the cursor.
+                                (On a note, you can also type a note name.)
 
-        [ A ]〜[ G ]    カーソルがある行の、NOTEを変更する。
-                                (ノートの位置にカーソルが移動します)
-                                (ピッチベンドのパラメータの場合は現在の位置)
+        [ A ] to [ G ]  Change the NOTE on the cursor line.
+                                (The cursor moves to the note.)
+                                (On a pitch-bend parameter, it stays where it is.)
 
-        [RET]           カーソルのある行にノートデータを挿入する。
-                                (小節線、トラックエンド上にカーソルがある時は、
-                                [RET]を打たずに、入力を始めることも出来ます。)
+        [RET]           Insert note data on the cursor line.
+                                (On a bar line or the track end, you can start
+                                typing without pressing [RET].)
 
-                                データを、NOTE(K#),ST,GT,VEL の順番で、入力して下さい。
-                                キャンセルする時は、[ESC]を押して下さい。
+                                Enter NOTE (K#), ST, GT, VEL, in that order.
+                                Press [ESC] to cancel.
 
-                                NOTE は、ノートネームか数値で入力します。
-                                (音程(A〜G)の指定が無い時は数値と判断します)
+                                NOTE is a note name or a number.
+                                (With no pitch A to G, it is taken as a number.)
 
-                                [数値(0〜127)]  数値で直接指定する。
+                                [number (0 to 127)]     Enter the number directly.
 
-                                [ A ]〜[ G ]    音程
+                                [ A ] to [ G ]          Pitch
 
-                                [ &lt; ]/[ &gt; ]     一つ前のノートのオクターブに対して
-                                                1オクターブ上げ下げする。
+                                [ &lt; ]/[ &gt; ]             Raise or lower one octave
+                                                        from the previous note's octave.
 
-                                [#]/[+]/[-]     半音上げ下げする。
-                                                (音程の直後の'b'はフラット扱いします)
+                                [#]/[+]/[-]             Raise or lower a semitone.
+                                                        ('b' just after the pitch is a flat.)
 
-                                [ N ]/[ = ]     キースケール設定時でも元のままで設定
-                                                します。(ナチュナル扱いします)
+                                [ N ]/[ = ]             Keep the pitch as entered, even
+                                                        when a key scale is set. (Natural.)
 
-                                [ 0 ]〜[ 8 ]    オクターブ
-                                                省略すると一つ前のノートのオクター
-                                                ブを使用します。
+                                [ 0 ] to [ 8 ]          Octave
+                                                        If omitted, the previous note's
+                                                        octave is used.
 
 
-                        ST,GT は数値で入力します。
+                        Enter ST and GT as numbers.
 
-                                [数値(0〜240)]  直接指定する。
-                                                (4分音符の時、48)
+                                [number (0 to 240)]     Enter it directly.
+                                                        (48 is a quarter note.)
 
-                                [F 1]〜[F10]    ワンタッチST/GT入力
-                                                ST/GTを一度に入力します。シフトキーを
-                                                押しながらの場合は休符が入力されます。
-                                                (STを入力する時に使用出来ます。)
+                                [F 1] to [F10]          One-touch ST/GT entry
+                                                        Enters ST and GT together. With
+                                                        the shift key, a rest is entered.
+                                                        (Available while entering ST.)
 
-                                (タイは、GTをSTより1以上大きくする。)
-                                (和音は、和音の最後の音以外のSTを0にする。)
-                                (休符は、GTを0に設定して下さい)
+                                (A tie: make GT at least 1 greater than ST.)
+                                (A chord: set ST to 0 on every note but the last.)
+                                (A rest: set GT to 0.)
 
-                        VEL は数値で入力します。
+                        Enter VEL as a number.
 
-                                [数値(0〜127)]
+                                [number (0 to 127)]
 
-                                [F 1]〜[F10]    ワンタッチVEL入力
-                                                VELを入力します。
+                                [F 1] to [F10]          One-touch VEL entry
+                                                        Enters VEL.
 
-        [ U ]           カーソルのある行にノートデータをMML形式で入力する。
-                                キャンセルする時は、[ESC]を押して下さい。
+        [ U ]           Enter note data on the cursor line as MML.
+                                Press [ESC] to cancel.
 
-                            MMLに指定できるコマンド
+                            Commands MML accepts
 
-                                [A]〜[G]+{1〜64}        音程
+                                [A] to [G]+{1 to 64}    Pitch
 
-                                     [R]+{1〜64}        休符
+                                     [R]+{1 to 64}      Rest
 
-                                [ &lt; ]/[ &gt; ]     1オクターブ上げ下げする。
+                                [ &lt; ]/[ &gt; ]     Raise or lower one octave.
 
-                                [#]/[+]/[-]     半音上げ下げする。
+                                [#]/[+]/[-]     Raise or lower a semitone.
 
-                                [ N ]/[ = ]     キースケール設定時でも元のままで設定
-                                                します。(ナチュナル扱いします)
+                                [ N ]/[ = ]     Keep the pitch as entered, even
+                                                when a key scale is set. (Natural.)
 
-                                [O]+[0〜9]      オクターブ
+                                [O]+[0 to 9]    Octave
 
-                                [L]+[1〜64]     基本音長指定
-                                                        (4分音符の時、4)
+                                [L]+[1 to 64]   Default note length
+                                                        (4 is a quarter note.)
 
-                                [V]+[1〜127]    Vel指定
+                                [V]+[1 to 127]  Velocity
 
-        [ X ]           ワンタッチコード入力
-                                カーソルのある行のノートをコードに展開する
+        [ X ]           One-touch chord entry
+                                Expand the note on the cursor line into a chord.
 
-                                        ルート音になるノートデータを入力した後で、[↑]
-                                        [X]とキーを押すと、(MEAS END/TRACK ENDの直前に
-                                        入力している場合は[X]だけでも、出来ます)
-                                        コード入力モードに入るので、そこでコードネーム
-                                        を設定して下さい。
+                                        After you enter the note that will be the
+                                        root, press [up] and then [X].
+                                        (If you entered it just before MEAS END or
+                                        TRACK END, [X] alone is enough.)
+                                        Chord-entry mode opens. Set the chord name there.
 
-                                        MEAS END/TRACK ENDの上で[X]を押すと、1行前の
-                                        ノートをコードに展開します。
+                                        [X] on MEAS END or TRACK END expands the
+                                        note on the previous line into a chord.
 
-                                        コードの構成音を表示しているので、設定したい
-                                        コードが表示されたら[RETURN]を押して下さい。
+                                        The chord tones are shown. When the chord
+                                        you want appears, press [RETURN].
 
-                                        [F 1]〜[F10]    メジャー系コード
+                                        [F 1] to [F10]          Major-family chords
 
-                                [SHIFT]+[F 1]〜[F10]    マイナー系コード
+                                [SHIFT]+[F 1] to [F10]          Minor-family chords
 
-                                        [→]/[←]       コードを切り替える
+                                        [right]/[left]          Change the chord
 
-                                        [↑]/[↓]       ローテーション
+                                        [up]/[down]             Rotate the voicing
 
-                                        [R.UP]/[R.DW]   ルート音を切り替える
+                                        [R.UP]/[R.DW]           Change the root
 
-                                 [UNDO]/[XF1]/[ M ]     コードを演奏する
+                                 [UNDO]/[XF1]/[ M ]             Play the chord
 
-                                 [CTRL]+[ G ]           グラフィック表示モードのオン／オフ
+                                 [CTRL]+[ G ]                   Graphic display on/off
 
-        [ V ]           コントローラビジュアルエディット([SHIFT]+でワイドモード)
-                                (PITCH BEND/VOLUME/EXPRESSION/MODULATION/...対応)
+        [ V ]           Controller visual edit ([SHIFT]+ is wide mode)
+                                (PITCH BEND/VOLUME/EXPRESSION/MODULATION/... )
 
-                                モードとトータルのSTと分割数を入力して下さい。
-                                その後でエディタが起動します。
-                                (グラフ表示はステップ数に合わせて拡大します)
+                                Enter the mode, the total ST, and the division
+                                count. The editor then starts.
+                                (The graph is scaled to the number of steps.)
 
-                                (401〜の時は分解能を落とします)
+                                (From 401 steps up, the resolution is reduced.)
 
-                                範囲を指定してから起動した場合は、範囲内の
-                                コントローラの値を読み込んで起動します。
+                                Started with a range set, it loads the controller
+                                values inside that range.
 
-                                エディタはパラメータの上げ下げとサブカーソル
-                                の設定・解除にのみマウスを使用出来ます。
-                                (枠内で左クリックする)
+                                The mouse is used only to raise or lower a
+                                parameter, and to set or clear the sub-cursor.
+                                (Left-click inside the frame.)
 
-                                書き出しでは、同じ値のデータはまとめて書き出
-                                されます。
+                                On write-out, runs of the same value are combined.
 
-                                "MODE"  モード
+                                "MODE"  Mode
 
-                                        'P' ピッチベンド(16単位)
-                                        'C' チャンネル・アフタータッチ
-                                        'K' ポリフォニック・アフタータッチ
-                                        'U' ユーザー定義エクスクルーシブ
-                                        'R' ローランド・アドレス＆パラメータ
-                                        'T' テンポ・チェンジ
-                                        'V' ヴォリューム
-                                        'E' エクスプレッション
-                                        'M' モジュレーション
-                                        'N' パンポット
-                                 '1'〜'127' 任意のコントロールチェンジ
+                                        'P' Pitch bend (steps of 16)
+                                        'C' Channel aftertouch
+                                        'K' Polyphonic aftertouch
+                                        'U' User-defined exclusive
+                                        'R' Roland address and parameter
+                                        'T' Tempo change
+                                        'V' Volume
+                                        'E' Expression
+                                        'M' Modulation
+                                        'N' Panpot
+                                 '1' to '127' Any control change
 
-                                "TOTAL ST" 合計ST(2〜192)
+                                "TOTAL ST" Total ST (2 to 192)
 
-                                "COUNT"    分割数(2〜トータルST値)
+                                "COUNT"    Divisions (2 to the total ST)
 
 
-                                [→]/[←]       カーソルの移動
+                                [right]/[left]      Move the cursor
 
-                         [CTRL]+[→]/[←]       カーソルの移動(6step)
-                        [OPT.1]+[→]/[←]               (count&gt;192の時は12step)
+                         [CTRL]+[right]/[left]      Move the cursor (6 steps)
+                        [OPT.1]+[right]/[left]              (12 steps when count&gt;192)
 
-                                [↑]/[↓]       パラメータを上げ下げする
+                                [up]/[down]         Raise or lower the parameter
 
-                         [CTRL]+[↑]/[↓]       パラメータを上げ下げする(*10)
-                        [OPT.1]+[↑]/[↓]               (pitch時は682.5相当)
+                         [CTRL]+[up]/[down]         Raise or lower the parameter (x10)
+                        [OPT.1]+[up]/[down]                 (about 682.5 for pitch)
 
-                                [ 0 ]〜[ 9 ]    ピッチベンド以外の時に直接数値
-                                                を設定する(固定値)
+                                [ 0 ] to [ 9 ]      Set a number directly, except
+                                                    for pitch bend (a fixed value)
 
-                                [ Y ]           グラフを縦を拡大します
+                                [ Y ]               Expand the graph vertically
 
-                                [SPACE]         サブカーソルの設定と解除
+                                [SPACE]             Set or clear the sub-cursor
 
-                                        サブカーソル(破線)が設定されている時には
-                                        [F 3]〜[F10]はカーソルとサブカーソル間の
-                                        データに作用します。
+                                        While the sub-cursor (dashed) is set,
+                                        [F 3] to [F10] act on the data between
+                                        the cursor and the sub-cursor.
 
-                                        マウスでグラフの上のボックス内をクリック
-                                        することでも設定出来ます。
+                                        Clicking the box above the graph sets
+                                        it too.
 
-                         [UNDO]/[XF1]/[ M ]     コントローラを設定した状態でター
-                                                ゲットの小節を演奏する
+                         [UNDO]/[XF1]/[ M ]         Play the target measure with
+                                                    the controller applied
 
-                 [SHIFT]+[UNDO]/[XF1]/[ M ]     コントローラをミックスした状態で
-                                                ターゲットの小節を演奏する
+                 [SHIFT]+[UNDO]/[XF1]/[ M ]         Play the target measure with
+                                                    the controller mixed in
 
-                                [CLR]           カーソルの位置の値を0にする
+                                [CLR]               Set the value at the cursor to 0
 
-                         [CTRL]+[CLR]           全パラメータを初期化する
+                         [CTRL]+[CLR]               Initialize every parameter
 
-                                [TAB]           カーソルの位置を指定して移動する
+                                [TAB]               Move the cursor to a given position
 
-                                [F 1]           最初の値の位置に移動する
+                                [F 1]               Move to the first value
 
-                                [F 2]           最後の値の位置に移動する
+                                [F 2]               Move to the last value
 
-                        [SHIFT]+[F 1]           波形を上下反転します。
+                        [SHIFT]+[F 1]               Flip the waveform vertically.
 
-                        [SHIFT]+[F 2]           波形を左右反転します。
+                        [SHIFT]+[F 2]               Flip the waveform horizontally.
 
-                                [F 3]           最初の値と最後の値を直線で繋ぐ
+                                [F 3]               Join the first value to the last
+                                                    with a straight line
 
-                        [SHIFT]+[F 3]           最大値と最小値の間のランダムな
-                                                値で描きます。
+                        [SHIFT]+[F 3]               Draw random values between the
+                                                    maximum and the minimum.
 
-                                [F 5]           最初の値と最後の値を曲線で繋ぐ
-                                                (TYPE I(山))
+                                [F 5]               Join the first value to the last
+                                                    with a curve (TYPE I, hill)
 
-                        [SHIFT]+[F 5]           最初の値と最後の値を曲線で繋ぐ
-                                                (TYPE I(谷))
+                        [SHIFT]+[F 5]               Join the first value to the last
+                                                    with a curve (TYPE I, valley)
 
-                                [F 6]           最初の値と最後の値を曲線で繋ぐ
-                                                (TYPE III(山))
+                                [F 6]               Join the first value to the last
+                                                    with a curve (TYPE III, hill)
 
-                        [SHIFT]+[F 6]           最初の値と最後の値を曲線で繋ぐ
-                                                (TYPE III(谷))
+                        [SHIFT]+[F 6]               Join the first value to the last
+                                                    with a curve (TYPE III, valley)
 
-                                [F 7]           最大値と最小値の間に山形のカーブ
-                                                を描きます。
+                                [F 7]               Draw a hill between the maximum
+                                                    and the minimum.
 
-                        [SHIFT]+[F 7]           最大値と最小値の間に谷形のカーブ
-                                                を描きます。
+                        [SHIFT]+[F 7]               Draw a valley between the maximum
+                                                    and the minimum.
 
-                                [F 8]           最大値と最小値の間にサインカーブ
-                                                を描きます。
+                                [F 8]               Draw a sine curve between the
+                                                    maximum and the minimum.
 
-                        [SHIFT]+[F 8]           最大値と最小値の間に指定した数の
-                                                サインカーブを描きます。
+                        [SHIFT]+[F 8]               Draw the given number of sine
+                                                    curves between the maximum and
+                                                    the minimum.
 
-                                [F 9]           最大値と最小値の間に三角波を描き
-                                                ます。
+                                [F 9]               Draw a triangle wave between the
+                                                    maximum and the minimum.
 
-                        [SHIFT]+[F 9]           最大値と最小値の間に指定した数の
-                                                三角波を描きます。
+                        [SHIFT]+[F 9]               Draw the given number of triangle
+                                                    waves between the maximum and
+                                                    the minimum.
 
-                                [F10]           最大値と最小値の間に矩形波を描き
-                                                ます。
+                                [F10]               Draw a square wave between the
+                                                    maximum and the minimum.
 
-                        [SHIFT]+[F10]           最大値と最小値の間に指定した数の
-                                                矩形波を描きます。
+                        [SHIFT]+[F10]               Draw the given number of square
+                                                    waves between the maximum and
+                                                    the minimum.
 
-                                [RET]           トラックに書き出します。
+                                [RET]               Write it out to the track.
 
-                        [SHIFT]+[RET]           トラックのデータとミックスします。
+                        [SHIFT]+[RET]               Mix it with the track data.
 
-                                [ X ]           グラフのステップを指定した最小値で
-                                                分割します。
+                                [ X ]               Split the graph's steps at the
+                                                    minimum you specify.
 
-                                [ C ]           グラフの同じ値が続く場合にステップ
-                                                をまとめます。
+                                [ C ]               Where the same value continues,
+                                                    combine the steps.
 
- [CTRL]+[ Y ]           行削除
-        [DEL]                   カーソルのある行を削除行バッファに移動する。
+ [CTRL]+[ Y ]           Delete a line
+        [DEL]                   Move the cursor line into the delete-line buffer.
 
- [CTRL]+[ L ]           行復活
-        [UNDO]                  カーソルのある行に削除行バッファの内容を挿入する。
+ [CTRL]+[ L ]           Restore a line
+        [UNDO]                  Insert the delete-line buffer on the cursor line.
 
- [CTRL]+[ T ]           トラック番号を指定して移動する。
-                                (指定したトラックの移動前と同じ番号の小節に移動)
+ [CTRL]+[ T ]           Move to a track number.
+                                (To the same measure number as before the move.)
 
- [CTRL]+[→]            次のトラックに移動する。(移動前と同じMEAS/ST.TIMEに移動)
- [CTRL]+[←]            前のトラックに移動する。(移動前と同じMEAS/ST.TIMEに移動)
-[OPT.1]+[→]            次のトラックに移動する。(移動前と同じMEAS/STEP No.に移動)
-[OPT.1]+[←]            前のトラックに移動する。(移動前と同じMEAS/STEP No.に移動)
+ [CTRL]+[right]         Move to the next track. (Same MEAS/ST.TIME as before.)
+ [CTRL]+[left]          Move to the previous track. (Same MEAS/ST.TIME as before.)
+[OPT.1]+[right]         Move to the next track. (Same MEAS/STEP No. as before.)
+[OPT.1]+[left]          Move to the previous track. (Same MEAS/STEP No. as before.)
 
-                                移動前の小節を記憶するので、小節数が満たないトラックを
-                                通過しても小節を移動しません。
-                                ([CTRL]/[OPT.1]を放した時点で、小節番号の記憶を消します)
+                                The measure before the move is remembered, so
+                                passing through a shorter track does not change
+                                the measure.
+                                (Releasing [CTRL]/[OPT.1] forgets that measure number.)
 
-        [TAB]           小節番号を指定して移動する。
+        [TAB]           Move to a measure number.
 
-[SHIFT]+[TAB]           タグジャンプ
-                                タグリストに登録されているメジャーに移動する
+[SHIFT]+[TAB]           Tag jump
+                                Move to a measure registered in the tag list.
 
- [CTRL]+[TAB]           タグセット
-                                現在のトラックナンバーとメジャーナンバーをタグリストに
-                                登録する(22箇所まで)
+ [CTRL]+[TAB]           Set a tag
+                                Register the current track number and measure
+                                number in the tag list. (Up to 22.)
 
-        [記号]          リズムトラックエディット(現在位置の小節で起動)
-                                リズムトラック("TRK.SET."で"RHY"がONになっているトラ
-                                ック)の場合のみ、リズムパターン編集モードに移行する。
-                                画面がパターン形式のトラックエディタに切り変わります。
+        [記号]          Rhythm track edit (start at the current measure)
+                                Only on a rhythm track ("RHY" is ON in "TRK.SET.").
+                                The screen changes to a pattern-style track editor.
 
-        [登録]          リズムトラックエディット(新しい小節で起動)
+        [登録]          Rhythm track edit (start on a new measure)
 
-[SHIFT]+[登録]          リズムトラックエディット(新しい小節で基本ステップを変更して起動)
-                                1STEP当たりのSTを聞いてくるので入力して下さい。
-                                (6〜96,192)
+[SHIFT]+[登録]          Rhythm track edit (new measure, after changing the basic step)
+                                It asks for the ST per step. Enter it.
+                                (6 to 96, or 192)
 
-        [ S ]           パートデータのセーブ(*.PRT)
-                                [F 6]で指定した範囲のトラックデータをセーブする。
+        [ S ]           Save part data (*.PRT)
+                                Save the track data in the range set with [F 6].
 
-                                ファイルネーム設定ウインドウが開くので、ファイルネームを
-                                入力・選択して下さい。(拡張子は省略出来ます)
+                                A filename window opens. Enter or select a
+                                filename. (The extension may be omitted.)
 
-                                実行後に、パートディレクトリは、セーブしたパスに移動しま
-                                す。
+                                Afterwards, the part directory moves to the
+                                path you saved.
 
-        [ L ]           パートデータのロード(*.PRT)
-                                [ S ]でセーブしたデータを現在の位置に挿入する。
+        [ L ]           Load part data (*.PRT)
+                                Insert data saved with [ S ] at the current position.
 
-                                ファイルネーム設定ウインドウが開くので、ファイルネームを
-                                入力・選択して下さい。(拡張子は省略出来ます)
+                                A filename window opens. Enter or select a
+                                filename. (The extension may be omitted.)
 
-                                実行後に、パートディレクトリは、ロードしたパスに移動しま
-                                す。
+                                Afterwards, the part directory moves to the
+                                path you loaded.
 
-        [ O ]           パートデータのテキスト出力(*.TXT)
-                                [F 6]で指定した範囲のトラックデータを表示と同じ形式のテ
-                                キストファイルとして書き出す。
+        [ O ]           Export part data as text (*.TXT)
+                                Write the track data in the range set with [F 6]
+                                to a text file in the same form as the display.
 
-                                ファイルネーム設定ウインドウが開くので、ファイルネームを
-                                入力・選択して下さい。(拡張子は省略出来ます)
+                                A filename window opens. Enter or select a
+                                filename. (The extension may be omitted.)
 
-        [ : ]           入力モードの切り替え
+        [ : ]           Switch the input mode
 
-                                EDIT            普通のエディットモード
+                                EDIT            Normal edit mode
 
-                                EDIT SOUND      サウンドエディットモード
-                                        1ステップ入力する度にそのデータを発音する。
+                                EDIT SOUND      Sound edit mode
+                                        Each step you enter is played.
 
                                 EDIT MIDI IN(MONO)
-                                        MIDI INからの信号で、一音ずつ入力
+                                        Enter one note at a time from MIDI IN.
 
                                 EDIT MIDI IN(POLY)
-                                        MIDI INからの信号で、和音を入力
-                                        (キーオンしたキーが、全てキーオフされるまで待ち
-                                        ます)(ハングアップ時は[ESC]で解除出来ます)
+                                        Enter chords from MIDI IN.
+                                        (Waits until every key that was keyed on
+                                        has been keyed off.)
+                                        (If it hangs, [ESC] clears it.)
 
                                 EDIT MIDI IN(STEP)
-                                        MIDI INからの信号で、二音入力して
-                                        最初のデータをノートにして、続きのデータをST/GT
-                                        に変換します。
-                                        (ファンクションキーでも音長を指定出来ます)
-                                        (STed2.cnfで変換テーブルを設定します。)
+                                        Two events from MIDI IN: the first becomes
+                                        the note, and the following data is
+                                        converted to ST/GT.
+                                        (Function keys can also set the length.)
+                                        (The conversion table is set in STed2.cnf.)
 
                                 EDIT MIDI IN(P/ST)
-                                        MIDI INからの信号で和音を入力した後で、
-                                        続きのデータをST/GTに変換します。
-                                        (ファンクションキーでも音長を指定出来ます)
-                                        (STed2.cnfで変換テーブルを設定します。)
+                                        After a chord is entered from MIDI IN,
+                                        the following data is converted to ST/GT.
+                                        (Function keys can also set the length.)
+                                        (The conversion table is set in STed2.cnf.)
 
-                                MIDI INモードの指定時でも、[SHIFT]を押して
-                                いる時は、入力を無視します。
+                                Even in a MIDI IN mode, input is ignored while
+                                [SHIFT] is held.
 
- [CTRL]+[ G ]           グラフィック表示モードのオン/オフ
+ [CTRL]+[ G ]           Graphic display on/off
 
-                                カーソル付近のデータを、グラフィック表示する。
-                                (上半分は音符で、下半分はスペシャルコントローラ)
+                                Draw the data near the cursor.
+                                (The upper half is notes. The lower half is
+                                special controllers.)
 
-                                        1.音符を表示する。
-                                        2.コントローラを表示する。(縦2倍表示)
-                                        3.音符/コントローラを同時に表示する。
-                                        4.グラフィックを表示しない
+                                        1. Show notes.
+                                        2. Show controllers. (Twice as tall.)
+                                        3. Show notes and controllers together.
+                                        4. Show no graphic.
 
-                                以上、4種類のモードを順番に切り替えます。
-
-
-                                コントローラの表示色
-
-                                        白      ベロシティ
-                                        黄      ピッチベンド
-                                        緑      モジュレーション
-                                        暗黄    ヴォリューム
-                                        暗緑    エクスプレッション
-                                        水破線  Data Entry MSB
-                                        緑破線  パンポット
-
-        [ I ]           ポイントインフォメーション
-                                現在位置のコントローラ/TOTAL STの値を表示します。
-                                                (範囲指定中は、範囲内のTOTAL ST)
-
-                                小節番号の右の値は、実際に演奏した場合の値です。
-                                テンポ値の右の値は、実際に演奏した場合の値です。
-
-        [ W ]           ダブルトラックエディット
-                                トラックエデッタのウインドウをもう一つ開く
-
-                                [SHIFT]+[W]では同じ編集位置で開きます。
-                                [CTRL]+[W]ではセームメジャーの指定先の位置に移動
-                                して開きます。
-
-                                押す度に、2つのエディットエリアを切り替えます。
-
-                                右側のエディットエリアでは使用出来ないコマンドが
-                                多少有ります。([CTRL]+[G]/[V])
-
- [CTRL]+[ V ]           セームメジャービュー
-                                セームメジャーで指定されている小節をもう一つのエ
-                                ディットエリアに表示する
-                                (セームメジャー上でのみ有効)
-
-        [CLR]           編集トラック以外の全てのグラフィックをOFFにする
-
-        [HELP]          コマンドヘルプを表示する。
-
-        [ESC]           トラックセレクタに戻る
-                                (範囲設定中には、範囲設定解除になります)
+                                These four modes cycle in order.
 
 
+                                Controller colors
 
-  リズムトラックエデッタ
+                                        White           Velocity
+                                        Yellow          Pitch bend
+                                        Green           Modulation
+                                        Dim yellow      Volume
+                                        Dim green       Expression
+                                        Cyan, dashed    Data Entry MSB
+                                        Green, dashed   Panpot
 
-        [←]            カーソルを一つ左に動かす。
-                                左端にカーソルがある時は、右端に移動します。
+        [ I ]           Point information
+                                Show the controller values and TOTAL ST at the
+                                current position.
+                                                (While a range is set, TOTAL ST
+                                                inside the range.)
 
-        [→]            カーソルを一つ右に動かす。
-                                右端にカーソルがある時は、左端に移動します。
+                                The value to the right of the measure number is
+                                the value when actually played.
+                                The value to the right of the tempo is the value
+                                when actually played.
 
-        [↑]            カーソルを一つ上に動かす。
-                                上端にカーソルがある時は、下端に移動します。
+        [ W ]           Double-track edit
+                                Open a second track-editor window.
 
-        [↓]            カーソルを一つ下に動かす。
-                                下端にカーソルがある時は、上端に移動します。
+                                [SHIFT]+[W] opens it at the same edit position.
+                                [CTRL]+[W] opens it at the measure a same-measure
+                                event points to.
 
-        [R.UP]          次の小節のパターンを表示する。
+                                Each press switches between the two edit areas.
+
+                                A few commands cannot be used in the right edit
+                                area. ([CTRL]+[G] / [V])
+
+ [CTRL]+[ V ]           Same-measure view
+                                Show the measure named by a same-measure event
+                                in the other edit area.
+                                (Valid only on a same-measure event.)
+
+        [CLR]           Turn off graphics on every track except the one being edited
+
+        [HELP]          Show command help.
+
+        [ESC]           Return to the track selector
+                                (While a range is set, this clears the range.)
+
+
+
+  Rhythm track editor
+
+        [left]          Move the cursor left one column.
+                                At the left edge, it moves to the right edge.
+
+        [right]         Move the cursor right one column.
+                                At the right edge, it moves to the left edge.
+
+        [up]            Move the cursor up one line.
+                                At the top, it moves to the bottom.
+
+        [down]          Move the cursor down one line.
+                                At the bottom, it moves to the top.
+
+        [R.UP]          Show the next measure's pattern.
  [CTRL]+[ C ]
 
-        [R.DW]          前の小節のパターンを表示する。
+        [R.DW]          Show the previous measure's pattern.
  [CTRL]+[ R ]
 
-[SHIFT]+[R.UP]          パターン設定画面の残り半分を表示する。
-                                (リズムアサインで設定した32音の内、表示して無い方
-                                の16音を表示する)
-                                (この切り換えはデータ内に記憶されます。)
+[SHIFT]+[R.UP]          Show the other half of the pattern screen.
+                                (Of the 32 sounds set in rhythm assign, show the
+                                16 that are not on screen.)
+                                (This switch is stored in the song.)
 
-[SHIFT]+[R.DW]          パターン設定画面の残り半分を表示する。
-                                (リズムアサインで設定した32音の内、表示して無い方
-                                の16音を表示する)
-                                (この切り換えはデータ内に記憶されます。)
+[SHIFT]+[R.DW]          Show the other half of the pattern screen.
+                                (Of the 32 sounds set in rhythm assign, show the
+                                16 that are not on screen.)
+                                (This switch is stored in the song.)
 
-        [HOME]          カーソルをホームポジションに移動する。
+        [HOME]          Move the cursor to the home position.
 
-[SHIFT]+[HOME]          演奏位置ジャンプ
-                                カーソルを演奏中の小節に移動する。
+[SHIFT]+[HOME]          Jump to the play position
+                                Move the cursor to the measure being played.
 
-        [かな]          演奏位置トレース
-                                オンになっている間は、演奏位置を追い掛けて表示する。
+        [かな]          Play-position trace
+                                While this is on, the display follows the play
+                                position.
 
-                                [かな]をオフにするか、[ESC]で解除
-                                [XF3]/[XF4]/[XF5]での演奏制御も使用出来ます。
+                                Turn [かな] off, or press [ESC], to cancel.
+                                Transport with [XF3]/[XF4]/[XF5] can be used too.
 
-[SHIFT]+[ / ]           リズムアサインを呼び出す
+[SHIFT]+[ / ]           Open rhythm assign
 
-                                リズムトラックエディタで使用する32音のキーナンバーと
-                                音色名を設定します。
+                                Set the 32 key numbers and tone names used by
+                                the rhythm track editor.
 
-        [登録]          新しい小節でパターンを作る。
+        [登録]          Create a pattern on a new measure.
 
-[SHIFT]+[登録]          新しい小節で基本ステップを変更してパターンを作る。
-                                1STEP当たりのSTを聞いてくるので入力して下さい。
-                                (6〜96,192)
+[SHIFT]+[登録]          Create a pattern on a new measure, after changing the basic step.
+                                It asks for the ST per step. Enter it.
+                                (6 to 96, or 192)
 
-        [F 1]           先頭小節のパターンを表示する。
+        [F 1]           Show the first measure's pattern.
 
-        [F 2]           最終小節のパターンを表示する。
+        [F 2]           Show the last measure's pattern.
 
-        [F 7]           パターンを削除(コピーバッファに移動)
+        [F 7]           Cut the pattern (move it into the copy buffer)
 
-        [F 8]           複写(コピーバッファに複写)
+        [F 8]           Copy (copy into the copy buffer)
 
-        [F 9]           貼付(編集中のパターンの位置にコピーバッファの内容を挿入)
+        [F 9]           Paste (insert the copy buffer at the pattern being edited)
 
-        [F10]           カーソルのある行を二重化する。
+        [F10]           Duplicate the line at the cursor.
 
- [CTRL]+[ Y ]           行削除
-        [DEL]                   カーソルのある行を削除行バッファに移動する。
+ [CTRL]+[ Y ]           Delete a line
+        [DEL]                   Move the cursor line into the delete-line buffer.
 
- [CTRL]+[ L ]           行復活
-        [UNDO]                  カーソルのある行に削除行バッファの内容を挿入する。
+ [CTRL]+[ L ]           Restore a line
+        [UNDO]                  Insert the delete-line buffer on the cursor line.
 
-        [SPACE]         音の強さを変更する。(-,1,2,3,4,5,6,7,8,9･･･ を繰り返す)
+        [SPACE]         Change the velocity level. (Cycles -,1,2,3,4,5,6,7,8,9... )
 
-        [ 0 ]〜[ 9 ]    音の強さを指定する。
-                                STの位置にカーソルがある場合はSTを変更する。
+        [ 0 ] to [ 9 ]  Set the velocity level.
+                                If the cursor is on ST, this changes ST.
 
-                                (マウスでも値の設定ができます。その場合は画面上部
-                                のVELの枠からマウスで値を選択してください。)
+                                (The mouse can set the value too. Pick it from
+                                the VEL frame at the top of the screen.)
 
-        [RET]           ベロシティ(0〜127)の直接指定、又は、ステップタイム(ST)を
-                        変更する。
+        [RET]           Enter velocity directly (0 to 127), or change the
+                        step time (ST).
 
-        [ + ]/[ &gt; ]     カーソルのある位置の数値を+1する。
+        [ + ]/[ &gt; ]     Add 1 to the value at the cursor.
 
-        [ - ]/[ &lt; ]     カーソルのある位置の数値を-1する。
+        [ - ]/[ &lt; ]     Subtract 1 from the value at the cursor.
 
-[SHIFT]+[ &gt; ]           カーソルのある位置の数値を+10する。
+[SHIFT]+[ &gt; ]           Add 10 to the value at the cursor.
 
-[SHIFT]+[ &lt; ]           カーソルのある位置の数値を-10する。
+[SHIFT]+[ &lt; ]           Subtract 10 from the value at the cursor.
 
-        [TAB]           小節番号を指定して移動する。
+        [TAB]           Move to a measure number.
 
-        [ESC]           トラックエディタに戻る。
+        [ESC]           Return to the track editor.
 
 
 
-  トラックエディタ/リズムトラックエディタ共通のコマンド
+  Commands shared by the track editor and the rhythm track editor
 
-        [XF1]/[ M ]     メジャープレイ
-                                編集中のトラックのカーソルのある小節を演奏する
-                                (小節線にカーソルがある場合は、前後の小節)
+        [XF1]/[ M ]     Measure play
+                                Play the measure at the cursor on the track
+                                being edited.
+                                (If the cursor is on a bar line, the measures
+                                before and after it.)
 
-              [ N ]     ノートプレイ
-                                カーソルのある位置の音のみ発音する。
-                                (トラックエディタのみ)
+              [ N ]     Note play
+                                Sound only the note at the cursor.
+                                (Track editor only.)
 
-[SHIFT]+[XF1]           ポイントプレイ
-[SHIFT]+[ M ]                   カーソルのある小節から、編集中のトラックのみ演奏する。
+[SHIFT]+[XF1]           Point play
+[SHIFT]+[ M ]                   From the measure at the cursor, play only the
+                                track being edited.
 
- [CTRL]+[XF1]           ポイントプレイ
-                                指定した小節から、編集中のトラックのみ演奏する。
+ [CTRL]+[XF1]           Point play
+                                From a measure you specify, play only the track
+                                being edited.
 
-        [XF2]/[ P ]     ポイントプレイ
-                                カーソルのある小節から、全トラックの演奏する。
+        [XF2]/[ P ]     Point play
+                                From the measure at the cursor, play every track.
 
-[SHIFT]+[XF2]           ポイントプレイ
-[SHIFT]+[ P ]                   指定した小節から、全トラックの演奏する。
+[SHIFT]+[XF2]           Point play
+[SHIFT]+[ P ]                   From a measure you specify, play every track.
 
-        [XF3]           演奏再開
+        [XF3]           Continue
 
-        [XF4]           演奏一時停止
+        [XF4]           Pause
 
-[SHIFT]+[XF5]           演奏停止
+[SHIFT]+[XF5]           Stop
 
-        [ Z ]           音源の初期化(CM-64/SC-55)
-                                コントロールデータのファイル名が設定してあれば、
-                                CM-64/SC-55に転送します。
+        [ Z ]           Initialize the sound module (CM-64/SC-55)
+                                If a control-data filename is set, send it to
+                                the CM-64/SC-55.
 
 
 
-  データ入力時のキー操作
+  Keys while entering data
 
-        [←]            カーソルを一つ左に動かす。
-                                ノートデータの入力時は入力を終了して
-                                カーソルを左に移動
+        [left]          Move the cursor left one column.
+                                During note entry, finish the entry and move left.
 
-        [→]            カーソルを一つ右に動かす。
-                                ノートデータの入力時は入力を終了して
-                                カーソルを右に移動
+        [right]         Move the cursor right one column.
+                                During note entry, finish the entry and move right.
 
-        [↑]            ノートデータの入力時は入力を終了して
-                                カーソルを上に移動
+        [up]            During note entry, finish the entry and move up.
 
-        [↓]            ノートデータの入力時は入力を終了して
-                                カーソルを下に移動
+        [down]          During note entry, finish the entry and move down.
 
- [CTRL]+[ Q ]           行頭に移動する
+ [CTRL]+[ Q ]           Move to the start of the line
 
- [CTRL]+[ P ]           行末に移動する
+ [CTRL]+[ P ]           Move to the end of the line
 
-        [BS]            カーソルの左にある文字を消す。
+        [BS]            Delete the character to the left of the cursor.
 
-        [DEL]           カーソル位置の文字を消す。
+        [DEL]           Delete the character at the cursor.
 
-        [INS]           インサートモードの切り替え
+        [INS]           Toggle insert mode
 
- [CTRL]+[ K ]           カーソル以降の文字を消去する
+ [CTRL]+[ K ]           Delete from the cursor to the end of the line
 
- [CTRL]+[ U ]           カーソル以前の文字を消去する
+ [CTRL]+[ U ]           Delete from the start of the line up to the cursor
 
-        [UNDO]          入力前のデータに戻す。
+        [UNDO]          Restore the data from before the entry.
 
-        [CLR]           入力行をクリアする。
+        [CLR]           Clear the input line.
 
-        [RET]           入力を終了する。
-                                ノートデータの入力時は入力を終了して
-                                カーソルを下に移動(デフォルト)
+        [RET]           Finish the entry.
+                                During note entry, finish and move down (default).
 
-        [SPACE]         ノートデータの入力時は入力を終了して
-                                カーソルを右に移動(デフォルト)
+        [SPACE]         During note entry, finish and move right (default).
 
-        [ESC]           入力を中止する。
+        [ESC]           Abort the entry.
 
-        [↓]            セレクタの呼び出し
-                                ファイル名/音色番号入力時のみ
+        [down]          Open the selector
+                                Only while entering a filename or a tone number.
 
-        (カーソルの移動は、[CTRL]+[E]/[S]/[D]/[X]でもできます。)
+        (The cursor can also be moved with [CTRL]+[E]/[S]/[D]/[X].)
 
 
-《スペシャルコントローラ》
+《Special controllers》
 
-    スペシャルコントローラで、指定するパラメーター
+    Parameters set by a special controller
 
                                         DATA1           DATA2           DATA3
 
-        MIDIチャンネル・チェンジ        STEP TIME       CHANNLE NO.
-                        そのトラックのデータを出力するチャンネルを変更する。
+        MIDI channel change             STEP TIME       CHANNEL NO.
+                        Change the channel this track's data is sent on.
 
-                DATA2 = チャンネル(A1〜A16,B1〜B16)
-
-
-        プログラムチェンジ              STEP TIME       PROGRAM NO.
-                        そのトラックで使用する音色を変更する。
-
-                DATA2 = プログラムナンバー(0〜127)
-
-                                設定したい音色番号
+                DATA2 = channel (A1 to A16, B1 to B16)
 
 
-        バンク＆プログラムチェンジ      STEP TIME       PROGRAM NO.     BANK NO.
-                        そのトラックで使用する音色を変更する。
-                        (トーンセレクタでPROGRAMとBANK(MSB)を同時に設定出来ます)
+        Program change                  STEP TIME       PROGRAM NO.
+                        Change the tone this track uses.
 
-                DATA2 = プログラムナンバー(0〜127)
+                DATA2 = program number (0 to 127)
 
-                                設定したい音色番号
-
-                DATA3 = バンクナンバー(0〜127)
-
-                                設定したいバンク(MSB)
+                                The tone number to set
 
 
-        コントロールチェンジ            STEP TIME       CONTROL NO.     CONTROL VALUE
+        Bank &amp; program change           STEP TIME       PROGRAM NO.     BANK NO.
+                        Change the tone this track uses.
+                        (The tone selector can set PROGRAM and BANK (MSB) together.)
 
-                DATA2 = コントロールナンバー(0〜127)
+                DATA2 = program number (0 to 127)
 
-                              1 = モジュレーション
-                              7 = ヴォリューム
-                             10 = パンポット
-                             11 = エクスプレッション
-                             64 = ホールド1(ダンパーペダル)
+                                The tone number to set
 
-                              0 = バンク・セレクト(上位)
-                             32 = バンク・セレクト(下位)
-                              5 = ポルタメント・タイム
-                             65 = ポルタメント・スイッチ
-                             84 = ポルタメント・コントロール
-                             66 = ソステヌート
-                             67 = ソフトペダル
-                             91 = エフェクト1(リバーブ・センドレベル)
-                             93 = エフェクト3(コーラス・センドレベル)
-                             94 = エフェクト4(ディレイ・センドレベル)
-                              6 = データ・エントリ MSB
-                             38 = データ・エントリ LSB
-                          98,99 = NRPN LSB,MSB(ノン・レジスタード・パラメータ・ナンバー)
-                        100,101 = RPN LSB,MSB (レジスタード・パラメータ・ナンバー)
-                            120 = オール・サウンド・オフ
-                            123 = オール・ノート・オフ
-                            121 = リセット・オール・コントローラーズ
+                DATA3 = bank number (0 to 127)
 
-                DATA3 = パラメータ(0〜127)
+                                The bank (MSB) to set
 
 
-        テンポ・チェンジ                STEP TIME       TEMPO           GRADATION
-                        曲のテンポを変更する。
+        Control change                  STEP TIME       CONTROL NO.     CONTROL VALUE
 
-                DATA2 = TEMPO(1〜255)
+                DATA2 = control number (0 to 127)
 
-                                設定したいテンポ÷初期設定テンポ×64
+                              1 = Modulation
+                              7 = Volume
+                             10 = Panpot
+                             11 = Expression
+                             64 = Hold 1 (damper pedal)
 
-                DATA3 = GRADATION(0〜255)
+                              0 = Bank select (MSB)
+                             32 = Bank select (LSB)
+                              5 = Portamento time
+                             65 = Portamento switch
+                             84 = Portamento control
+                             66 = Sostenuto
+                             67 = Soft pedal
+                             91 = Effect 1 (reverb send level)
+                             93 = Effect 3 (chorus send level)
+                             94 = Effect 4 (delay send level)
+                              6 = Data entry MSB
+                             38 = Data entry LSB
+                          98,99 = NRPN LSB, MSB (non-registered parameter number)
+                        100,101 = RPN LSB, MSB (registered parameter number)
+                            120 = All Sound Off
+                            123 = All Notes Off
+                            121 = Reset All Controllers
 
-                                テンポ変化の速さ
-
-                                        0の時、瞬時に変化し、1〜255の時、数値が大きく
-                                        なるに従って、テンポは速く変化します。
-
-
-        アフタータッチ(CH.)             STEP TIME       PARAMETER
-
-
-        アフタータッチ(POLY)            STEP TIME       KEY NO.         PARAMETER
-
-
-        ピッチ・ベンド                  STEP TIME       PARAMETER
-
-                DATA2 = ベンド値(-8192〜+8191)
-                                (CM-64の場合は、デフォルト(ベンターレンジが12)で、
-                                1オクターブ=8192/半音=約683になります。)
-
-                                数値の代わりにノートネームを書けば、一つ前のノート
-                                との差を計算して、設定します。
+                DATA3 = parameter (0 to 127)
 
 
-        ローランド・デバイスNo.&amp;モデルID
-                                        STEP TIME       DEVICE No.      MODEL ID
+        Tempo change                    STEP TIME       TEMPO           GRADATION
+                        Change the tempo of the song.
 
-                        そのトラックでのエクスクルーシブで指定するデバイスNo.と
-                        モデルIDを設定する。
+                DATA2 = TEMPO (1 to 255)
 
-                DATA2 = デバイスナンバー        (0〜127)
+                                (tempo you want) / (initial tempo) x 64
 
-                                ユニットナンバーから、1引いた値を指定する
+                DATA3 = GRADATION (0 to 255)
 
-                                デフォルトは16(10H)です。
+                                How fast the tempo changes
 
-                DATA3 = モデルID                (0〜127)
+                                        0 changes it instantly. From 1 to 255, a
+                                        larger value makes the tempo change faster.
 
-                                デフォルトは22(16H)です。
+
+        Aftertouch (CH.)                STEP TIME       PARAMETER
+
+
+        Aftertouch (POLY)               STEP TIME       KEY NO.         PARAMETER
+
+
+        Pitch bend                      STEP TIME       PARAMETER
+
+                DATA2 = bend value (-8192 to +8191)
+                                (On the CM-64, the default bender range is 12,
+                                so one octave = 8192 and a semitone is about 683.)
+
+                                A note name, instead of a number, is set to the
+                                interval from the previous note.
+
+
+        Roland device No. &amp; model ID    STEP TIME       DEVICE No.      MODEL ID
+
+                        Set the device number and model ID used by exclusives
+                        on this track.
+
+                DATA2 = device number          (0 to 127)
+
+                                Specify the unit number minus 1.
+
+                                The default is 16 (10H).
+
+                DATA3 = model ID                (0 to 127)
+
+                                The default is 22 (16H).
 
                                 22(16H) = CM-64/CM-32x/MT-32/D110/D10/D20 (default)
                                 43(2BH) = U220/U20
@@ -2349,24 +2325,24 @@
                                 69(45H) = SC-55/SC-155(DISPLAY)
 
 
-        ローランド・ベースアドレス      STEP TIME       BASE AD.(high)  BASE AD.(low)
-                        そのトラックでのエクスクルーシブで指定するアドレスの
-                        上位2バイトを設定する。
+        Roland base address             STEP TIME       BASE AD.(high)  BASE AD.(low)
+                        Set the upper two bytes of the address used by
+                        exclusives on this track.
 
-                DATA2 = アドレス(base address+offset)の上位1バイト(0〜127)
+                DATA2 = high byte of (base address + offset) (0 to 127)
 
-                DATA3 = アドレス(base address+offset)の中位1バイト(0〜127)
+                DATA3 = middle byte of (base address + offset) (0 to 127)
 
 
-        ローランド・アドレス&amp;パラメータ STEP TIME       OFFSET ADDRESS  PARAMETER
-                        エクスクルーシブで指定するアドレスの下位1バイトと、パラ
-                        メータを指定して音源のメモリに書き込む。
+        Roland address &amp; parameter      STEP TIME       OFFSET ADDRESS  PARAMETER
+                        Write the low byte of the exclusive address, and the
+                        parameter, into the module's memory.
 
-                DATA2 = アドレス(base address+offset)の下位1バイト(0〜127)
+                DATA2 = low byte of (base address + offset) (0 to 127)
 
-                DATA3 = パラメータ(0〜127)
+                DATA3 = parameter (0 to 127)
 
-                (アドレス等の、詳しいことは、音源のマニュアルをご覧下さい。)
+                (For addresses and further detail, see the module's manual.)
 
 
         MKS-7(Roland MKS-7 Exclusive)   Step            Parameter       Data
@@ -2378,7 +2354,7 @@
 
         FB-01 P(Parameter Change)       Step            Parameter       Data
 
-                DATA2 = Configration Parameter Number(00-3FH)
+                DATA2 = Configuration Parameter Number(00-3FH)
 
                 DATA3 = Data(00-7FH)
 
@@ -2392,16 +2368,16 @@
 
 ======================================================================================
 
-        (パラメータの後ろに'H'、または前に'$'を付ければ、16進数として扱います)
+        (Append 'H' after a parameter, or '$' before it, to treat it as hex.)
 
-        (Y/Nの入力で[RETURN]は[Y]と同じ動作になります)
+        (In a Y/N prompt, [RETURN] does the same as [Y].)
 
-        (ファイルセレクタなどでの指定で、パスの区切りに'/'を使えます)
+        (In the file selector and similar prompts, '/' may separate a path.)
 
 ======================================================================================
 
-<a href="#top">[ページの先頭へ]</a>
-<a href="index.html">[目次へ]</a>
+<a href="#top">[Top of this page]</a>
+<a href="index.html">[Contents]</a>
 </pre>
 
 </body>

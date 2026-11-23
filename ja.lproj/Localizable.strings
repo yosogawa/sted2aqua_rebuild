@@ -1,4 +1,4 @@
-/* View → Fonts… panel accessory */
+/* View → Fonts… menu and font panel */
 "Fonts…" = "フォント…";
 "Apply" = "適用";
 "Monospace fonts" = "等幅フォント";
@@ -507,6 +507,9 @@ OTHER DEALINGS IN THE FONT SOFTWARE.\n\nCopyright (c) Keitarou Hiraki, Font Silo
 "Pitch bend" = "ピッチベンド";
 "Frame 1" = "枠1";
 "Velocity" = "ベロシティ";
+
+/* Help menu */
+"STed2 Help" = "STed2 ヘルプ";
 
 /* Help → Keyboard Viewer */
 "Keyboard Viewer" = "キーボードビューア";
