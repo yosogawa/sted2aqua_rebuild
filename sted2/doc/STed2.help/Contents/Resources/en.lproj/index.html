@@ -9,7 +9,7 @@
 </head>
 <body style="font-size:14pt">
 
-<h1>STed2 plus for Mac - Restore & Feature expansion </h1>
+<h1>STed2 plus for Mac — Restoration & Feature Expansion</h1>
 
 <p>
 STed2 plus for Mac is a port of the classic MIDI sequencer "STed2"—originally designed for the Sharp X68000 series—to macOS. It also includes several enhancements beyond the original feature set. To distinguish it from the original version, it is referred to as the "STed2 plus" version.</p>
@@ -18,27 +18,28 @@ STed2 plus for Mac is a port of the classic MIDI sequencer "STed2"—originally 
 <p>
 The original STed2 was created by the late Takayuki Toda (known as TURBO). Mr. Toda passed away in 1997 at the age of 27. Subsequently, thanks to the efforts of his family and various volunteers, the source code for his works—including STed2—was made publicly available.</p>
 <p>
-「<a href="tuitou_doc.html">STED2 最終版のソース公開にあたって --- 追悼の言葉と皆様へのお願い</a>」（ゆい工房 山本裕一郎氏）
+「<a href="tuitou_doc.html">STED2 最終版のソース公開にあたって --- 追悼の言葉と皆様へのお願い</a>」（ゆい工房 山本裕一郎氏）<br>
+Yuichiro Yamamoto, Yui Kobo: “On releasing the source of the final STed2 — words in memory of the author, and a request.”
 </p>
 <p>
 Based on this source code, Daisuke Nagano created a port for the UNIX & X Window System, which was subsequently used by Toshi Nagata to develop a version for Mac OS X (PPC & i386).
 Nagata’s final version is archived in a digital archive repository on GitHub, maintained by Misty De Méo: <a href="https://github.com/mistydemeo/sted2aqua">https://github.com/mistydemeo/sted2aqua</a>.
 I, Ogawa, have created a fork of this repository. My work includes restoring and implementing features present in the original Human68k version that were missing from the Mac version, as well as adding enhancements necessary for a modern-day DTM (desktop music) application.
-This software holds significant historical importance within the context of "musical sequence programming" was called "uchikomi" in japanese in Japanese electronic music. My goal is to ensure it does not remain buried in a digital archive—nor require the cumbersome setup of a Human68k emulator just to use the original TURBO version. Instead, I aim to restore and revive it, making it an accessible, functional "vintage tool" that anyone can easily download and use.</p>
+This software holds a significant place in the history of Japanese electronic music, in the practice of sequencer programming known as “uchikomi.” My goal is to ensure it does not remain buried in a digital archive—nor require the cumbersome setup of a Human68k emulator just to use the original TURBO version. Instead, I aim to restore and revive it, making it an accessible, functional "vintage tool" that anyone can easily download and use.</p>
 
-<h2>Original version of the document</h2>
+<h2>Original documentation</h2>
 <ul>
 <li><a href="sted2_doc.html">Overview</a></li>
 <li><a href="sted2_man.html">Manual</a></li>
 <li><a href="sted2_hlp.html">Quick Reference</a></li>
-<li><a href="sted2def_doc.html">Sound Source Definition File Specification</a></li>
-<li><a href="sted2_his.html">Change History(up to 2.06) (japanese)</a></li>
-<li><a href="sted207m_his.html">Change History(2.07) (japanese)</a></li>
+<li><a href="sted2def_doc.html">Module Define File Specification</a></li>
+<li><a href="sted2_his.html">Change History (up to 2.06) (Japanese)</a></li>
+<li><a href="sted207m_his.html">Change History (2.07) (Japanese)</a></li>
 </ul>
 
-<h2>Documentation for the legacy Mac OS version by Mr. Nagata</h2>
+<h2>Documentation for Mr. Nagata’s earlier Mac OS X version</h2>
 <ul>
-<li><a href="readme_mac_old.html">STed2 for Mac (japanese)</a></li>
+<li><a href="readme_mac_old.html">STed2 for Mac (Japanese)</a></li>
 </ul>
 
 <h2>Details and feature enhancements for the Plus version</h2>
@@ -52,30 +53,30 @@ This software holds significant historical importance within the context of "mus
     It includes presets compatible with the DX7, as well as virtual-analog presets modeled after the JUNO-6/106. Given its multi-timbral capabilities, it has the potential to serve as a substitute for units like the TX816 or MKS-7; however, because it is an open-source project that is still maturing—and due to some unique quirks in its system integration—support is currently limited to preset selection. We plan to expand this functionality in the future.</li>
 <li>I have connected three mastering-oriented effects in series following the stereo mix of the two synthesizers: an EQ (high/low), a reverb, and a limiter.
     This setup is particularly useful, as some SoundFonts have inconsistent volume levels that can be harsh to the ears. You can also bypass the entire effects chain if you prefer.</li>
-<li>Regarding the MIDI functionality issues in the previous Mac version, I have gone through and verified each feature one by one. I have also added real-time updates—such as those in the EDIT screen—that synchronize with playback, a feature that was previously missing. I believe the software’s behavior is now much closer to that of "ReComposer".</li>
-<li>Following a layout change to the main screen, I have added a locator in the space previously occupied by the credits and implemented transport controls; this includes support for MIDI RTC and Song Position Pointer.</li>
+<li>Regarding the MIDI functionality issues in the previous Mac version, I have gone through and verified each feature one by one. I have also added real-time updates—such as those in the EDIT screen—that synchronize with playback, a feature that was previously missing. I believe the software’s behavior is now much closer to that of Recomposer.</li>
+<li>Following a layout change to the main screen, I have added a locator in the space previously occupied by the credits and implemented transport controls; this includes support for MIDI Timing Clock and Song Position Pointer.</li>
 <li>I have continued work on features that TURBO had begun implementing. This includes support for MIDI SYNC EXT (allowing for slave operation), the addition of function key labels for the "one-touch ST/GT" feature, and the inclusion of SYNC/THRU mode settings in the blank lines on the main screen.</li>
-<li>I have updated the internal MIDI sound engine specifications, which had previously remained at the level of mid-90s Roland products. The update primarily adds support for bank selection for the GM1, GM2, and XG standards.
-    GM1 serves as the default configuration for the SoundFont player. I have created and included sound engine definition files for each of these standards.
-    Additionally, I have provided a definition file for the <a href="https://docs.dream.fr/items.php?item=4">SAM2695</a> chip from DREAM—a manufacturer that continues to produce GM (GS)-compatible chips to this day, which remain popular in the hobbyist hardware and DIY electronics communities.</li>
-<li>Since collecting SoundFonts without an accompanying patch list makes selecting instrument sounds in STed2 difficult, I have added a new menu command that parses SF2 files and automatically generates STed2 instrument definition files. By placing these generated files in the designated `deffile` folder, you can load them for each MIDI A/B port using the "UNIT SEL" function. This feature utilizes the open-source <a href="https://github.com/schellingb/TinySoundFont">TinySoundFont</a> package as an SF2 file parser.
+<li>I have updated the supported sound-module specifications, which had remained at the level of mid-1990s Roland products. The update adds bank select for the GM1, GM2, and XG standards.
+    GM1 is the default setup for the SoundFont player. A module define file for each of these standards is included.
+    A module define file is also included for the <a href="https://docs.dream.fr/items.php?item=4">SAM2695</a> chip from DREAM—a manufacturer that continues to produce GM (GS)-compatible chips to this day, which remain popular in the hobbyist hardware and DIY electronics communities.</li>
+<li>Since collecting SoundFonts without an accompanying patch list makes selecting instrument sounds in STed2 difficult, I have added a new menu command that parses SF2 files and automatically generates STed2 module define files. By placing these generated files in the designated `deffile` folder, you can load them for each MIDI A/B port using the "UNIT SEL" function. This feature utilizes the open-source <a href="https://github.com/schellingb/TinySoundFont">TinySoundFont</a> package as an SF2 file parser.
 </li>
-<li>The Apple DLS synthesizer is designed to ignore all incoming System Exclusive (SysEx) messages. Since some musical pieces rely on commands such as "GM System On," "GS Reset," "GM2 System On," or "XG System On" to reset the sound engine, failing to process these would cause the instrument balance from a previous track to persist, leading to poor playback consistency. To address this, we implemented an external MIDI message-parsing layer that specifically detects these reset commands and translates them into equivalent Control Change messages that the DLS synthesizer can interpret, thereby ensuring the sound engine is reset correctly.</li>
-<li>In macOS, switching the output device via "Sound" or "Audio MIDI Setup" triggers an initialization of the internal sound engine, as per the specifications of `AVAudioEngine`. STed2 is designed to respond to notifications of such device changes; if a track is playing, it will stop playback and rewind to the beginning of the track.</li>
+<li>The Apple DLS synthesizer is designed to ignore all incoming System Exclusive (SysEx) messages. Since some musical pieces rely on commands such as "GM System On," "GS Reset," "GM2 System On," or "XG System On" to reset the sound engine, failing to process these would leave the previous song’s instrument balance in place, so playback is inconsistent. To address this, we implemented an external MIDI message-parsing layer that specifically detects these reset commands and translates them into equivalent Control Change messages that the DLS synthesizer can interpret, thereby ensuring the sound engine is reset correctly.</li>
+<li>In macOS, switching the output device via "Sound" or "Audio MIDI Setup" triggers an initialization of the internal sound engine, as per the specifications of `AVAudioEngine`. STed2 is designed to respond to notifications of such device changes; if a song is playing, it will stop playback and rewind to the beginning of the song.</li>
 <li>The font has been updated, and a font panel has been added. The default font is "KH-Dot-Kodenmacho-16"—a typeface with ties to the X68000—which is included as a TTF file within the application bundle.
     Upon launch, if this font is not already present on the macOS system, it will be installed automatically. You may also replace it with a different monospaced font if you prefer.</li>
 <li>A color panel has been added. You can invoke the standard macOS color panel to adjust colors—with changes reflected immediately on the STed screen—and then save only the final settings to `sted2.cnf`.
     Up to five configuration sets can be stored in the Preferences. Additionally, the classic, traditional STed color scheme is included as a default option.</li>
 <li>I have added a Keyboard Viewer window. Since the X68000 keyboard is being emulated, certain keys—which do not exist on a standard macOS keyboard—are mapped to substitutes via the `#key_` fields in `sted2.cnf`; this window provides a visual representation of those mappings. When you press the Control or Option keys on your Mac, the display updates accordingly, changing both the key colors and the labels shown on the keycaps.</li>
-<li>We have added a "Command Cheat Sheet" window. It displays only the relevant keyboard shortcuts for the current page or for specific special control inputs—from among the vast number of shortcuts available in STed—eliminating the need to repeatedly refer back to the full documentation.</li>
-<li>The screen resolution can be scaled up by adjusting the scaling factor for `NSView` in macOS. Furthermore, an appropriate image interpolation algorithm is selected based on the scaling ratio, ensuring that any blurring of the display is kept to a minimum.</li>
+<li>We have added a "Command Cheat Sheet" window. It displays only the keyboard shortcuts for the current screen, and those used when entering a Special controller, out of the many shortcuts in STed. You no longer need to keep going back to the full documentation.</li>
+<li>The display can be enlarged by changing the NSView scale factor in macOS. An interpolation algorithm is chosen for that scale, so the picture stays as sharp as possible.</li>
 <li>Mouse scroll events are supported (including two-finger scrolling on Mac touchpads and using a mouse scroll wheel). These actions are currently mapped to the UP/DOWN key codes, allowing them to be used in the Edit screen, when selecting main functions, and when navigating lists of instrument sounds (patches).</li>
 <li>In addition to RCP, R36, and MID formats, the file import/export feature now supports the <a href="https://abcnotation.com/">ABC notation</a> format. This format is widely used in tools such as the music-generation AI "YuE2" and the "music21" library. Furthermore, it is a format that general-purpose generative AIs (like Gemini, ChatGPT, and Grok) can produce when asked to compose music; you can simply save the AI's output as a text file with an ".abc" extension to import it. The system can export scores that include multiple tracks and GM-compliant instrument mappings.</li>
 
 <h2>Future Roadmap</h2>
 <ul>
 	<li>Short-term goal: Our immediate objective is to squash the major bugs in the current macOS version and release an initial, fully functional version—a revived and expanded iteration of the sequencer that is ready for practical use.</li>
-	<li>Medium- to long-term goals: Once the core macOS version is stabilized, I plan to port the application to the SDL3 framework—which utilizes a GPU-based renderer—to further enhance the smooth, responsive performance characteristic of STed2. Since this framework also serves as a hardware abstraction layer, it will facilitate the replacement of macOS-specific code—starting with rendering, and extending to keyboard input, timers, threading, and audio systems. Once the dependency on macOS is largely eliminated, the path will be open for porting to other operating systems. The next target is Windows. Following a successful port there, I intend to explore expansion to platforms such as Linux or Android-based systems (like ChromeOS). Looking further ahead, I hope to extend support to embedded environments, such as the ESP32 microcontroller—a platform rumored to be compatible with SDL3.
+	<li>Medium- to long-term goals: Once the core macOS version is stabilized, I plan to port the application to the SDL3 framework—which utilizes a GPU-based renderer—to further enhance the smooth, responsive performance characteristic of STed2. Since this framework also serves as a hardware abstraction layer, it will facilitate the replacement of macOS-specific code—starting with rendering, and extending to keyboard input, timers, threading, and audio systems. Once the dependency on macOS is largely eliminated, the path will be open for porting to other operating systems. The next target is Windows. Following a successful port there, I intend to explore Linux, Android, and ChromeOS. Looking further ahead, I hope to extend support to embedded environments, such as the ESP32 microcontroller—a platform rumored to be compatible with SDL3.
 	</li>
 </ul>
 
@@ -95,7 +96,7 @@ The following are the license declarations applicable to the individual modules�
 <li>TinySoundFont is licensed under the MIT License.<br>
 
 
-<li>For the display of text, the bitmap font has been changed to "Kodenmacho 16-dot Gothic"—a font included in the <a href="http://jikasei.me/font/kh-dotfont/">KH Dot Font</a> collection. This collection consists of TrueType versions of bitmap fonts originally released in 2015 by Keitaro Hiraki for the Sharp X68000 personal computer. The license is...<br>
+<li>For the display of text, the bitmap font has been changed to "Kodenmacho 16-dot Gothic"—a font included in the <a href="http://jikasei.me/font/kh-dotfont/">KH Dot Font</a> collection. This collection consists of TrueType versions of bitmap fonts originally released in 2015 by Keitaro Hiraki for the Sharp X68000 personal computer. The license is<br>
 SIL Open Font License 1.1<br>
 <a href="https://openfontlicense.org/documents/OFL.txt">https://openfontlicense.org/documents/OFL.txt</a></li>
 
@@ -109,7 +110,7 @@ SIL Open Font License 1.1<br>
 <ul>
 <li>2026.XX.XX. Yoshinori Ogawa (Plus Version)</li>
 <li>2015.3.29. Mr. Nagata releases final version</li>
-<li><a href="changelog_old.html">Development record for the X Window version (japanese)</a>(Mr. Daisuke Nagano)</li>
+<li><a href="changelog_old.html">Development record for the X Window version (Japanese)</a> (Mr. Daisuke Nagano)</li>
 </ul>
 
 <hr>
