@@ -59,6 +59,7 @@
 		A1RAS0032F0A4B0100E0E203 /* mt32.ras in Resources */ = {isa = PBXBuildFile; fileRef = A1RAS0042F0A4B0100E0E204 /* mt32.ras */; };
 		A1SF2D012F0A4B0100SF2D01 /* Sf2DefGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = A1SF2B012F0A4B0100SF2B01 /* Sf2DefGenerator.m */; };
 		A1SF2D022F0A4B0100SF2D02 /* sf2_def_gen.c in Sources */ = {isa = PBXBuildFile; fileRef = A1SF2B022F0A4B0100SF2B02 /* sf2_def_gen.c */; };
+		A1SPN0D12F0A4B0100SPN0D1 /* spawncmd.c in Sources */ = {isa = PBXBuildFile; fileRef = A1SPN0C12F0A4B0100SPN0C1 /* spawncmd.c */; };
 		A1TR00042F0A4B0100E0E004 /* RcpTransport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1TR00012F0A4B0100E0E001 /* RcpTransport.cpp */; };
 		A1TR00072F0A4B0100E0E007 /* rcp_transport_cmd.c in Sources */ = {isa = PBXBuildFile; fileRef = A1TR00052F0A4B0100E0E005 /* rcp_transport_cmd.c */; };
 		A1TUI0011B01000100TUIT01 /* tuitou.doc in Resources */ = {isa = PBXBuildFile; fileRef = A1TUI0021B01000100TUIT01 /* tuitou.doc */; };
@@ -215,6 +216,8 @@
 		A1SF2B012F0A4B0100SF2B01 /* Sf2DefGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Sf2DefGenerator.m; sourceTree = "<group>"; };
 		A1SF2B022F0A4B0100SF2B02 /* sf2_def_gen.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sf2_def_gen.c; sourceTree = "<group>"; };
 		A1SF2B032F0A4B0100SF2B03 /* sf2_def_gen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sf2_def_gen.h; sourceTree = "<group>"; };
+		A1SPN0C12F0A4B0100SPN0C1 /* spawncmd.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = spawncmd.c; sourceTree = "<group>"; };
+		A1SPN0H12F0A4B0100SPN0H1 /* spawncmd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spawncmd.h; sourceTree = "<group>"; };
 		A1TR00012F0A4B0100E0E001 /* RcpTransport.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RcpTransport.cpp; sourceTree = "<group>"; };
 		A1TR00022F0A4B0100E0E002 /* RcpTransport.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = RcpTransport.hpp; sourceTree = "<group>"; };
 		A1TR00032F0A4B0100E0E003 /* rcp_transport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rcp_transport.h; sourceTree = "<group>"; };
@@ -542,6 +545,8 @@
 				A1DLS0B12F0A4B0100DLS0B1 /* DLSSynthPanel.m */,
 				A1COL0C12F0A4B0100COL0C1 /* colorpanel.h */,
 				A1COL0B12F0A4B0100COL0B1 /* colorpanel.c */,
+				A1SPN0H12F0A4B0100SPN0H1 /* spawncmd.h */,
+				A1SPN0C12F0A4B0100SPN0C1 /* spawncmd.c */,
 			);
 			path = macos;
 			sourceTree = "<group>";
@@ -1002,6 +1007,7 @@
 				A1CMD012F0A4B0100CMD001 /* CommandReference.m in Sources */,
 				A1DLS0D12F0A4B0100DLS0D1 /* DLSSynthPanel.m in Sources */,
 				A1COL0D12F0A4B0100COL0D1 /* colorpanel.c in Sources */,
+				A1SPN0D12F0A4B0100SPN0D1 /* spawncmd.c in Sources */,
 				A1SF2D022F0A4B0100SF2D02 /* sf2_def_gen.c in Sources */,
 				A1SF2D012F0A4B0100SF2D01 /* Sf2DefGenerator.m in Sources */,
 				E4F8616F1AC7D306007DF49E /* main.m in Sources */,
