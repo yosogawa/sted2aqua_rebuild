@@ -15,6 +15,7 @@
 STed2 plus for Mac is a port of the classic MIDI sequencer "STed2"—originally designed for the Sharp X68000 series—to macOS. It also includes several enhancements beyond the original feature set. To distinguish it from the original version, it is referred to as the "STed2 plus" version.</p>
 
 <h2>The Origins of This Software</h2>
+<ul>
 <p>
 The original STed2 was created by the late Takayuki Toda (known as TURBO). Mr. Toda passed away in 1997 at the age of 27. Subsequently, thanks to the efforts of his family and various volunteers, the source code for his works—including STed2—was made publicly available.</p>
 <p>
@@ -24,8 +25,9 @@ Yuichiro Yamamoto, Yui Kobo: “On releasing the source of the final STed2 — w
 <p>
 Based on this source code, Daisuke Nagano created a port for the UNIX & X Window System, which was subsequently used by Toshi Nagata to develop a version for Mac OS X (PPC & i386).
 Nagata’s final version is archived in a digital archive repository on GitHub, maintained by Misty De Méo: <a href="https://github.com/mistydemeo/sted2aqua">https://github.com/mistydemeo/sted2aqua</a>.
-I, Ogawa, have created a fork of this repository. My work includes restoring and implementing features present in the original Human68k version that were missing from the Mac version, as well as adding enhancements necessary for a modern-day DTM (desktop music) application.
-This software holds a significant place in the history of Japanese electronic music, in the practice of sequencer programming known as “uchikomi.” My goal is to ensure it does not remain buried in a digital archive—nor require the cumbersome setup of a Human68k emulator just to use the original TURBO version. Instead, I aim to restore and revive it, making it an accessible, functional "vintage tool" that anyone can easily download and use.</p>
+I, Ogawa, have created a fork of this repository. My work includes restoring and implementing features present in the original X68000 version that were missing from the Mac version, as well as adding enhancements necessary for a modern-day DTM (desktop music) application.
+This software holds a significant place in the history of Japanese electronic music, in the practice of sequencer programming known as “uchikomi.” My goal is to ensure it does not remain buried in a digital archive—nor require the cumbersome setup of a X68000 emulator just to use the original TURBO version. Instead, I aim to restore and revive it, making it an accessible, functional "vintage tool" that anyone can easily download and use.</p>
+</ul>
 
 <h2>Original documentation</h2>
 <ul>
@@ -47,7 +49,7 @@ This software holds a significant place in the history of Japanese electronic mu
 <li>Compatible with macOS 12 Monterey or later. It supports both Intel 64-bit and Apple Silicon architectures. 
 	The minimum system requirements are: macOS 12 Monterey, 4GB of RAM, a display resolution of 1366x768, and a Core i5 processor. 
 	It has been verified to work on a MacBook Air A1465 (11-inch, Early 2015). It should also run without any issues on Macs equipped with Apple Silicon.</li>
-<li>Using modern AI-driven analysis, we conducted a thorough process of identifying, tracking, and eliminating vulnerabilities. Key measures included standardizing variable sizes—primarily by replacing numerous `long` types in the C source code with `int32_t`—and modifying memory-copy functions (which are prone to causing buffer overflows) to incorporate safeguards that limit the number of bytes copied. Furthermore, as file systems have evolved, the maximum length for file paths has increased; we identified and expanded several long-neglected arrays—dating back to the Human68k era—that had hard-coded, overly restrictive path size limits. Such an undertaking would have been impossible to analyze without the aid of AI.</li>
+<li>Using modern AI-driven analysis, we conducted a thorough process of identifying, tracking, and eliminating vulnerabilities. Key measures included standardizing variable sizes—primarily by replacing numerous `long` types in the C source code with `int32_t`—and modifying memory-copy functions (which are prone to causing buffer overflows) to incorporate safeguards that limit the number of bytes copied. Furthermore, as file systems have evolved, the maximum length for file paths has increased; we identified and expanded several long-neglected arrays—dating back to the X68000 era—that had hard-coded, overly restrictive path size limits. Such an undertaking would have been impossible to analyze without the aid of AI.</li>
 <li>The "Internal Synth" originally implemented by Mr. Nagata—which utilizes the Apple DLS Music Device—has been renamed "Apple DLS Synth" to distinguish it from another synthesizer mentioned later. Additionally, I (Ogawa) have added a menu option that allows users to load arbitrary DLS files or SoundFonts (in the `.sf2` format).</li>
 <li>As a second synthesizer option, we have integrated the open-source <a href="https://github.com/shorepine/amy">AMY synthesizer</a>, which can be loaded in place of one of the two available DLS synth instances.
     It includes presets compatible with the DX7, as well as virtual-analog presets modeled after the JUNO-6/106. Given its multi-timbral capabilities, it has the potential to serve as a substitute for units like the TX816 or MKS-7; however, because it is an open-source project that is still maturing—and due to some unique quirks in its system integration—support is currently limited to preset selection. We plan to expand this functionality in the future.</li>
@@ -72,6 +74,7 @@ This software holds a significant place in the history of Japanese electronic mu
 <li>The display can be enlarged by changing the NSView scale factor in macOS. An interpolation algorithm is chosen for that scale, so the picture stays as sharp as possible.</li>
 <li>Mouse scroll events are supported (including two-finger scrolling on Mac touchpads and using a mouse scroll wheel). These actions are currently mapped to the UP/DOWN key codes, allowing them to be used in the Edit screen, when selecting main functions, and when navigating lists of instrument sounds (patches).</li>
 <li>In addition to RCP, R36, and MID formats, the file import/export feature now supports the <a href="https://abcnotation.com/">ABC notation</a> format. This format is widely used in tools such as the music-generation AI "YuE2" and the "music21" library. Furthermore, it is a format that general-purpose generative AIs (like Gemini, ChatGPT, and Grok) can produce when asked to compose music; you can simply save the AI's output as a text file with an ".abc" extension to import it. The system can export scores that include multiple tracks and GM-compliant instrument mappings.</li>
+</ul>
 
 <h2>Future Roadmap</h2>
 <ul>
@@ -81,6 +84,7 @@ This software holds a significant place in the history of Japanese electronic mu
 </ul>
 
 <h2>Copyright and Licensing</h2>
+<ul>
 <p>
 The STed2 software, in its entirety, is governed by the GPLv2 license. This is because certain modules are licensed under the GPLv2, a requirement that extends to the software as a whole.<br>
 The following are the license declarations applicable to the individual modules—as specified by their respective authors—or to the third-party open-source software (OSS) libraries included. Where components can be clearly separated, the license declared for each specific component applies.
@@ -99,11 +103,8 @@ The following are the license declarations applicable to the individual modules�
 <li>For the display of text, the bitmap font has been changed to "Kodenmacho 16-dot Gothic"—a font included in the <a href="http://jikasei.me/font/kh-dotfont/">KH Dot Font</a> collection. This collection consists of TrueType versions of bitmap fonts originally released in 2015 by Keitaro Hiraki for the Sharp X68000 personal computer. The license is<br>
 SIL Open Font License 1.1<br>
 <a href="https://openfontlicense.org/documents/OFL.txt">https://openfontlicense.org/documents/OFL.txt</a></li>
+</ul>
 
-
-
-
-</p>
 
 <h2>
 <h2>Update History</h2>
