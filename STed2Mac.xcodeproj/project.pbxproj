@@ -205,6 +205,7 @@
 		A1F0E0431AC55B8700A70D33 /* key_sub.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = key_sub.h; sourceTree = "<group>"; };
 		A1F0E0441AC55B8700A70D34 /* redit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = redit.h; sourceTree = "<group>"; };
 		A1F0E0511AC55B8700A70D51 /* X68kWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = X68kWindow.h; sourceTree = "<group>"; };
+		A1ITORH12F0A4B0100ITORH /* itor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = itor.h; sourceTree = "<group>"; };
 		A1KBD022F0A4B0100KBD002 /* KeyboardViewer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeyboardViewer.m; sourceTree = "<group>"; };
 		A1KBD032F0A4B0100KBD003 /* KeyboardViewer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeyboardViewer.h; sourceTree = "<group>"; };
 		A1KBD052F0A4B0100KBD005 /* x68000-keymap.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "x68000-keymap.png"; sourceTree = "<group>"; };
@@ -269,7 +270,6 @@
 		E40E95411ABA41ED0072AA0B /* file.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = file.c; sourceTree = "<group>"; };
 		E40E95421ABA41ED0072AA0B /* graphic.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = graphic.c; sourceTree = "<group>"; };
 		E40E95461ABA41ED0072AA0B /* itor.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = itor.c; sourceTree = "<group>"; };
-		A1ITORH12F0A4B0100ITORH /* itor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = itor.h; sourceTree = "<group>"; };
 		E40E95471ABA41ED0072AA0B /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
 		E40E95481ABA41ED0072AA0B /* rcddef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rcddef.h; sourceTree = "<group>"; };
 		E40E95491ABA41ED0072AA0B /* rcpdef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rcpdef.h; sourceTree = "<group>"; };
