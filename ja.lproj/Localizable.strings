@@ -7,6 +7,16 @@
 "Could not save sted2.cnf" = "sted2.cnf を保存できませんでした";
 "Could not write the font setting." = "フォント設定を書き込めませんでした。";
 
+/* Playback menu. Key names stay in the item title, not as key equivalents. */
+"Playback" = "再生";
+"Play" = "再生";
+"Pause" = "一時停止";
+"Resume" = "演奏再開";
+"Stop" = "演奏停止";
+"Measure Play" = "メジャープレイ";
+"Point Play (This Track)" = "ポイントプレイ(単独トラック)";
+"Point Play (All Tracks)" = "ポイントプレイ(全トラック)";
+
 "About STed2" = "STed2について";
 "Authors" = "作成者";
 "License" = "ライセンス";
@@ -449,11 +459,13 @@ DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
 OTHER DEALINGS IN THE FONT SOFTWARE.\n\nCopyright (c) Keitarou Hiraki, Font Silo. 1990-2015\n";
 
-/* MIDI & Audio メニュー */
+/* MIDI メニューと、そこから分けたオーディオメニュー */
 "MIDI Port Settings..." = "MIDI Port 設定";
+"MIDI Input Monitor" = "MIDI入力モニター";
+"Audio" = "オーディオ";
 "SoundFont, FX, Mixer Setting" = "SoundFont, FX, Mixer設定";
 
-/* MIDI & Audio メニュー */
+/* オーディオメニュー */
 "Generate DEF file from SF2" = "SF2 から音源定義ファイル生成";
 
 /* MIDI → SF2 から DEF を作成 */

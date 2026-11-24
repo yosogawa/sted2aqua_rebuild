@@ -84,6 +84,34 @@ extern int sted_finder_take_pending( char *dst, size_t n );
 extern void sted_finder_set_confirming( int on );
 extern void sted_main_idle_set( int on );
 extern int sted_main_idle_waiting( void );
+/* Depth of screens whose command keys are live. Nested prompts add a block. */
+extern void sted_cmdkey_push( void );
+extern void sted_cmdkey_pop( void );
+extern void sted_cmdkey_block_push( void );
+extern void sted_cmdkey_block_pop( void );
+extern int sted_cmdkey_waiting( void );
+
+static inline void sted_cmdkey_pop_cleanup(int *unused)
+{
+  (void)unused;
+  sted_cmdkey_pop();
+}
+/* Hold for the whole screen, including follow and redraw, not only the inner wait. */
+#define STED_CMDKEY() \
+  int sted_cmdkey_scope __attribute__((unused, cleanup(sted_cmdkey_pop_cleanup))) = \
+    (sted_cmdkey_push(), 0)
+
+static inline void sted_cmdkey_block_pop_cleanup(int *unused)
+{
+  (void)unused;
+  sted_cmdkey_block_pop();
+}
+/* Y/N, text, and number entry. The screen id does not change, so block the menu. */
+#define STED_CMDKEY_BLOCK() \
+  int sted_cmdkey_block_scope __attribute__((unused, cleanup(sted_cmdkey_block_pop_cleanup))) = \
+    (sted_cmdkey_block_push(), 0)
+/* Low 16 bits are the X68k key. with_shift is the B_SFTSNS just after it is read. */
+extern void XSTed_post_command_key( unsigned int ch, int with_shift );
 extern int XSTed_appkit_request_busy( void );
 /* MIDI menu posts this. The emulator thread runs timtra() on its next wait. */
 extern void sted_reset_sysex_post( void );

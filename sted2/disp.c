@@ -89,6 +89,7 @@ re_vinp:
   */
 void	sinput(char *sb,int ln)
 {
+  STED_CMDKEY_BLOCK();
   int	a,x,y,xx,p=0,o=0,exc,im,sln;
   char	ke[4],st[256],tmp0[256];
 

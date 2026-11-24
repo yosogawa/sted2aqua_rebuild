@@ -99,6 +99,7 @@ void	trk_no_dis()
 void	trk_set(int md)
 {
   STED_SCREEN(STED_SCR_TRACK_SET);
+  STED_CMDKEY();
   int	ke,sh,cx,i,y;
 
   edfield(-1);edit_scr=0;logo(-1);i=track;

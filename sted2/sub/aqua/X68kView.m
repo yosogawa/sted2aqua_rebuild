@@ -65,6 +65,9 @@ static unsigned int sModifierFlags;
 /* Ctrl (2) / Opt.1 (4) used to select the binding of the key just taken.
    The next B_SFTSNS hides those bits once, then clears this. */
 static unsigned int sKeySenseSuppress;
+/* Shift for a menu-posted key. Armed when that key is taken, reported by the
+   next B_SFTSNS, then cleared. Polls before the take do not see it. */
+static int sSynthShiftOnce;
 static uint16_t sLastKeyDown;  //  The last getKeyWithOptions: return value
 /* Group 7 bits that follow keyUp: ROLL DOWN, ROLL UP, UNDO, UP, DOWN.
    Other scans stay on sLastKeyDown. */
@@ -860,6 +863,20 @@ s_RegisterKeyDown(uint32_t ch)
 //	printf("registerKeyDown %04x\n", ch);
 }
 
+/* Same queue as keyDown. with_shift is visible only to the B_SFTSNS that
+   follows the read, which is where com_sel / edit / rhythm sample Shift. */
+void
+XSTed_post_command_key(unsigned int ch, int with_shift)
+{
+	if (sLock == nil)
+		return;
+	[sLock lock];
+	if (with_shift)
+		ch |= 0x10000u;
+	s_RegisterKeyDown(ch);
+	[sLock unlock];
+}
+
 - (void)keyDown: (NSEvent *)theEvent
 {
 	uint32_t keyInfo;
@@ -1129,8 +1146,11 @@ static CGFloat sWheelAccumY;
 		}
 		if (pt < sKeyBufferCount) {
 			if ((optionFlags & kGetKeyKeepInBufferOption) == 0) {
-				/* Hide the binding's Ctrl/Opt on the next B_SFTSNS. */
+				/* Hide the binding's Ctrl/Opt on the next B_SFTSNS.
+				   Bit 16 is a one-shot Shift from the Playback menu. */
 				sKeySenseSuppress = (raw >> 16) & 6;
+				if ((raw & 0x10000) != 0)
+					sSynthShiftOnce = 1;
 				sKeyBufferCount -= pt + 1;
 				sKeyBufferBase = (sKeyBufferBase + pt + 1) % kKeyBufferMax;
 			}
@@ -3508,14 +3528,17 @@ int
 XSTed_sftsns(void)
 {
 	unsigned int modifiers, suppress;
+	int synth;
 	uint16_t ch;
 	[sLock lock];
 	modifiers = sModifierFlags;
 	suppress = sKeySenseSuppress;
 	sKeySenseSuppress = 0;
+	synth = sSynthShiftOnce;
+	sSynthShiftOnce = 0;
 	[sLock unlock];
 	ch = 0;
-	if (modifiers & NSEventModifierFlagShift)
+	if ((modifiers & NSEventModifierFlagShift) || synth)
 		ch |= 1;
 	if (modifiers & NSEventModifierFlagControl)
 		ch |= 2;
@@ -4034,6 +4057,7 @@ MacErrorBox(const char *mes, int icon)
 void
 line_input(char *buf, int len)
 {
+	STED_CMDKEY_BLOCK();
 	void *args[] = {(void *)s_line_input, (void *)buf, (void *)(intptr_t)len, (void *)(intptr_t)1};
 	sRequestAppKitArgs = args;
 	sRequestAppKitCall = 3;

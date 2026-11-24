@@ -46,6 +46,7 @@ void CommandReferenceShow(void);
 void STedScreenPush(int id);
 void STedScreenPop(void);
 void STedScreenLayer(int layer);
+int STedScreenCurrent(void);
 
 static inline void STedScreenPopCleanup(int *unused) __attribute__((unused));
 static inline void STedScreenPopCleanup(int *unused)

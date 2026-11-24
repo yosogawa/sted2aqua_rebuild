@@ -104,7 +104,7 @@ ApplySyncModeMenuTitle(NSMenuItem *item)
 	NSMenu *menu = [item menu];
 	NSFont *font = [NSFont menuFontOfSize:0];
 	NSDictionary *measure = @{ NSFontAttributeName: font };
-	NSString *label = @"Sync Mode";
+	NSString *label = @"SYNC MODE";
 	NSString *mode = rcp_clock_get_source() ? @"EXT" : @"INT";
 	CGFloat tabX = [label sizeWithAttributes:measure].width + 28.0
 		+ [mode sizeWithAttributes:measure].width;
@@ -128,7 +128,7 @@ ApplySyncModeMenuTitle(NSMenuItem *item)
 			tabX = w;
 	}
 
-	/* Right tab: "Sync Mode" stays put, INT/EXT sits on the title column's edge. */
+	/* Right tab: "SYNC MODE" stays put, INT/EXT sits on the title column's edge. */
 	tab = [[NSTextTab alloc] initWithTextAlignment:NSTextAlignmentRight
 					      location:tabX
 					       options:@{}];
@@ -152,13 +152,16 @@ ApplySyncModeMenuTitle(NSMenuItem *item)
 - (void)localizeMenuItemWithAction:(SEL)action title:(NSString *)title;
 - (void)localizeAboutMenuItem;
 - (void)installViewMenu;
+- (void)installPlaybackMenu;
+- (IBAction)playbackCommand:(id)sender;
 - (void)installKeyboardViewerMenu;
 - (void)installCommandReferenceMenu;
-- (void)installDLSSynthMenu;
+- (void)installAudioMenu;
 - (void)installGmSystemOnMenu;
-- (void)installSf2DefMenu;
 - (void)installThruModeMenu;
 - (void)installSyncModeMenu;
+- (void)installMidiInputMonitorMenu;
+- (IBAction)midiInputMonitor:(id)sender;
 @end
 
 @implementation AppController
@@ -280,13 +283,14 @@ sted_argv_with_launch_file(int *argcIO, char **argv)
 	XSTed_init_window();
 	[self localizeAboutMenuItem];
 	[self installViewMenu];
+	[self installPlaybackMenu];
 	[self installKeyboardViewerMenu];
 	[self installCommandReferenceMenu];
 	[self installGmSystemOnMenu];
 	[self installThruModeMenu];
 	[self installSyncModeMenu];
-	[self installDLSSynthMenu];
-	[self installSf2DefMenu];
+	[self installMidiInputMonitorMenu];
+	[self installAudioMenu];
 	{
 		NSUserDefaults *def = [NSUserDefaults standardUserDefaults];
 		NSInteger percent = [def integerForKey:@"DisplayScalePercent"];
@@ -363,7 +367,7 @@ sted_argv_with_launch_file(int *argcIO, char **argv)
 	n = [mainMenu numberOfItems];
 	for (i = 0; i < n; i++) {
 		NSMenuItem *top = [mainMenu itemAtIndex:i];
-		if ([[top title] isEqualToString:@"MIDI & Audio"]) {
+		if ([[top title] isEqualToString:@"MIDI"]) {
 			midiMenu = [top submenu];
 			break;
 		}
@@ -385,61 +389,45 @@ sted_argv_with_launch_file(int *argcIO, char **argv)
 	[item release];
 }
 
-- (void)installDLSSynthMenu
+- (void)installAudioMenu
 {
 	NSMenu *mainMenu = [NSApp mainMenu];
-	NSMenu *midiMenu = nil;
-	NSMenuItem *item;
-	NSInteger i, n;
+	NSMenu *audioMenu;
+	NSMenuItem *top, *item;
+	NSInteger i, n, insertAt;
+	NSString *title;
 
 	if (mainMenu == nil)
 		return;
+	title = NSLocalizedString(@"Audio", @"Audio menu");
 	n = [mainMenu numberOfItems];
+	insertAt = n;
 	for (i = 0; i < n; i++) {
-		NSMenuItem *top = [mainMenu itemAtIndex:i];
-		if ([[top title] isEqualToString:@"MIDI & Audio"]) {
-			midiMenu = [top submenu];
+		if ([[[mainMenu itemAtIndex:i] title] isEqualToString:@"MIDI"]) {
+			insertAt = i + 1;
 			break;
 		}
 	}
-	if (midiMenu == nil)
-		return;
+	audioMenu = [[NSMenu alloc] initWithTitle:title];
 	item = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(
-					@"SoundFont, FX, Mixer Setting", @"MIDI menu")
+					@"SoundFont, FX, Mixer Setting", @"Audio menu")
 					  action:@selector(dlsSynthDialog:)
 				   keyEquivalent:@""];
 	[item setTarget:self];
-	[midiMenu addItem:[NSMenuItem separatorItem]];
-	[midiMenu addItem:item];
+	[audioMenu addItem:item];
 	[item release];
-}
-
-- (void)installSf2DefMenu
-{
-	NSMenu *mainMenu = [NSApp mainMenu];
-	NSMenu *midiMenu = nil;
-	NSMenuItem *item;
-	NSInteger i, n;
-
-	if (mainMenu == nil)
-		return;
-	n = [mainMenu numberOfItems];
-	for (i = 0; i < n; i++) {
-		NSMenuItem *top = [mainMenu itemAtIndex:i];
-		if ([[top title] isEqualToString:@"MIDI & Audio"]) {
-			midiMenu = [top submenu];
-			break;
-		}
-	}
-	if (midiMenu == nil)
-		return;
 	item = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(
-					@"Generate DEF file from SF2", @"MIDI menu")
+					@"Generate DEF file from SF2", @"Audio menu")
 					  action:@selector(generateDefFromSf2:)
 				   keyEquivalent:@""];
 	[item setTarget:self];
-	[midiMenu addItem:item];
+	[audioMenu addItem:item];
 	[item release];
+	top = [[NSMenuItem alloc] initWithTitle:title action:nil keyEquivalent:@""];
+	[top setSubmenu:audioMenu];
+	[mainMenu insertItem:top atIndex:insertAt];
+	[audioMenu release];
+	[top release];
 }
 
 - (void)installThruModeMenu
@@ -454,7 +442,7 @@ sted_argv_with_launch_file(int *argcIO, char **argv)
 	n = [mainMenu numberOfItems];
 	for (i = 0; i < n; i++) {
 		NSMenuItem *top = [mainMenu itemAtIndex:i];
-		if ([[top title] isEqualToString:@"MIDI & Audio"]) {
+		if ([[top title] isEqualToString:@"MIDI"]) {
 			midiMenu = [top submenu];
 			break;
 		}
@@ -491,7 +479,7 @@ sted_argv_with_launch_file(int *argcIO, char **argv)
 	n = [mainMenu numberOfItems];
 	for (i = 0; i < n; i++) {
 		NSMenuItem *top = [mainMenu itemAtIndex:i];
-		if ([[top title] isEqualToString:@"MIDI & Audio"]) {
+		if ([[top title] isEqualToString:@"MIDI"]) {
 			midiMenu = [top submenu];
 			break;
 		}
@@ -499,7 +487,7 @@ sted_argv_with_launch_file(int *argcIO, char **argv)
 	if (midiMenu == nil)
 		return;
 
-	item = [[NSMenuItem alloc] initWithTitle:@"Sync Mode"
+	item = [[NSMenuItem alloc] initWithTitle:@"SYNC MODE"
 					  action:@selector(setSyncMode:)
 				   keyEquivalent:@""];
 	[item setTarget:self];
@@ -524,6 +512,61 @@ sted_argv_with_launch_file(int *argcIO, char **argv)
 		ApplySyncModeMenuTitle((NSMenuItem *)sender);
 }
 
+/* X68000 scan for R, from sKeyTable. inkey3 keeps the ASCII and reads shift
+   from B_SFTSNS, which the synthetic shift bit satisfies. */
+enum { kScanR = 0x14 };
+
+- (void)installMidiInputMonitorMenu
+{
+	NSMenu *mainMenu = [NSApp mainMenu];
+	NSMenu *midiMenu = nil;
+	NSMenuItem *item;
+	NSInteger i, n, at;
+	NSString *title;
+
+	if (mainMenu == nil)
+		return;
+	n = [mainMenu numberOfItems];
+	for (i = 0; i < n; i++) {
+		NSMenuItem *top = [mainMenu itemAtIndex:i];
+		if ([[top title] isEqualToString:@"MIDI"]) {
+			midiMenu = [top submenu];
+			break;
+		}
+	}
+	if (midiMenu == nil)
+		return;
+	/* Shift+R is a label in the key column, same as ⌘M and Z. The menu
+	   delegate returns NO from menuHasKeyEquivalent:, so the emulator
+	   still receives the key. */
+	title = NSLocalizedString(@"MIDI Input Monitor", @"MIDI menu");
+	item = [[NSMenuItem alloc] initWithTitle:title
+					  action:@selector(midiInputMonitor:)
+				   keyEquivalent:@"r"];
+	[item setKeyEquivalentModifierMask:NSEventModifierFlagShift];
+	[item setTarget:self];
+	at = NSNotFound;
+	n = [midiMenu numberOfItems];
+	for (i = 0; i < n; i++) {
+		if ([[midiMenu itemAtIndex:i] action] == @selector(setSyncMode:)) {
+			at = i;
+			break;
+		}
+	}
+	if (at != NSNotFound)
+		[midiMenu insertItem:item atIndex:at + 1];
+	else
+		[midiMenu addItem:item];
+	[item release];
+}
+
+- (IBAction)midiInputMonitor:(id)sender
+{
+	(void)sender;
+	/* Same path as SHIFT+R: com_sel reverses the RECORD row, then inpmon. */
+	XSTed_post_command_key((kScanR << 8) | 'R', 1);
+}
+
 - (void)menuNeedsUpdate:(NSMenu *)menu
 {
 	NSInteger i, n = [menu numberOfItems];
@@ -532,6 +575,21 @@ sted_argv_with_launch_file(int *argcIO, char **argv)
 		NSMenuItem *item = [menu itemAtIndex:i];
 		if ([item action] == @selector(setSyncMode:))
 			ApplySyncModeMenuTitle(item);
+	}
+}
+
+- (void)menu:(NSMenu *)menu willHighlightItem:(NSMenuItem *)item
+{
+	NSInteger i, n = [menu numberOfItems];
+
+	for (i = 0; i < n; i++) {
+		NSMenuItem *other = [menu itemAtIndex:i];
+		int on;
+
+		if ([other action] != @selector(playbackCommand:))
+			continue;
+		on = [other isEnabled];
+		ApplyPlaybackItemTitle(other, on, other == item && on);
 	}
 }
 
@@ -590,7 +648,7 @@ sted_argv_with_launch_file(int *argcIO, char **argv)
 	insertAt = n;
 	for (i = 0; i < n; i++) {
 		NSString *title = [[mainMenu itemAtIndex:i] title];
-		if ([title isEqualToString:@"MIDI & Audio"] || [title isEqualToString:@"Help"]) {
+		if ([title isEqualToString:@"MIDI"] || [title isEqualToString:@"Help"]) {
 			insertAt = i;
 			break;
 		}
@@ -623,6 +681,219 @@ sted_argv_with_launch_file(int *argcIO, char **argv)
 	[mainMenu insertItem:viewTop atIndex:insertAt];
 	[viewMenu release];
 	[viewTop release];
+}
+
+enum {
+	kPbPlay = 1,
+	kPbPause,
+	kPbResume,
+	kPbStop,
+	kPbMeasure,
+	kPbPointOne,
+	kPbPointAll
+};
+
+/* X68000 scans. P is sKeyTable['P']. XF keys have no ASCII byte. */
+enum {
+	kScanP = 0x1a,
+	kScanXF1 = 0x55,
+	kScanXF2 = 0x56,
+	kScanXF5 = 0x59
+};
+
+/* Right edge of every shortcut. XF keys are not AppKit key equivalents, so
+   the column is a tab in the title. A real key equivalent would swallow P. */
+static CGFloat sPlaybackKeyTab;
+
+static NSColor *
+PlaybackTitleColor(int enabled, int highlighted)
+{
+	if (highlighted)
+		return [NSColor selectedMenuItemTextColor];
+	if (!enabled)
+		return [NSColor disabledControlTextColor];
+	return [NSColor labelColor];
+}
+
+static void
+ApplyPlaybackItemTitle(NSMenuItem *item, int enabled, int highlighted)
+{
+	NSArray *parts = [item representedObject];
+	NSString *label, *keyName;
+	NSFont *font;
+	NSTextTab *tab;
+	NSMutableParagraphStyle *style;
+	NSAttributedString *title;
+
+	if (![parts isKindOfClass:[NSArray class]] || [parts count] < 2)
+		return;
+	label = [parts objectAtIndex:0];
+	keyName = [parts objectAtIndex:1];
+	font = [NSFont menuFontOfSize:0];
+	tab = [[NSTextTab alloc] initWithTextAlignment:NSTextAlignmentRight
+					      location:sPlaybackKeyTab
+					       options:@{}];
+	style = [[NSMutableParagraphStyle alloc] init];
+	[style setTabStops:[NSArray arrayWithObject:tab]];
+	[style setLineBreakMode:NSLineBreakByClipping];
+	[tab release];
+	title = [[NSAttributedString alloc] initWithString:
+		[NSString stringWithFormat:@"%@\t%@", label, keyName]
+		attributes:@{
+			NSFontAttributeName: font,
+			NSForegroundColorAttributeName: PlaybackTitleColor(enabled, highlighted),
+			NSParagraphStyleAttributeName: style
+		}];
+	[style release];
+	[item setTitle:[NSString stringWithFormat:@"%@ %@", label, keyName]];
+	[item setAttributedTitle:title];
+	[title release];
+}
+
+static void
+LayoutPlaybackMenu(NSMenu *menu)
+{
+	NSFont *font = [NSFont menuFontOfSize:0];
+	NSDictionary *measure = @{ NSFontAttributeName: font };
+	NSInteger i, n = [menu numberOfItems];
+	CGFloat maxLabel = 0, maxKey = 0;
+
+	for (i = 0; i < n; i++) {
+		NSArray *parts = [[menu itemAtIndex:i] representedObject];
+		CGFloat w;
+
+		if (![parts isKindOfClass:[NSArray class]] || [parts count] < 2)
+			continue;
+		w = [[parts objectAtIndex:0] sizeWithAttributes:measure].width;
+		if (w > maxLabel)
+			maxLabel = w;
+		w = [[parts objectAtIndex:1] sizeWithAttributes:measure].width;
+		if (w > maxKey)
+			maxKey = w;
+	}
+	sPlaybackKeyTab = maxLabel + 28.0 + maxKey;
+	for (i = 0; i < n; i++) {
+		NSMenuItem *item = [menu itemAtIndex:i];
+		if ([item action] == @selector(playbackCommand:))
+			ApplyPlaybackItemTitle(item, 1, 0);
+	}
+}
+
+static NSMenuItem *
+PlaybackItem(NSString *label, NSString *keyName, NSInteger tag, id target)
+{
+	NSMenuItem *item = [[NSMenuItem alloc] initWithTitle:label
+						      action:@selector(playbackCommand:)
+					       keyEquivalent:@""];
+	[item setTag:tag];
+	[item setTarget:target];
+	[item setRepresentedObject:[NSArray arrayWithObjects:label, keyName, nil]];
+	return item;
+}
+
+static int
+playbackItemEnabled(NSInteger tag)
+{
+	int screen;
+
+	if (!sted_cmdkey_waiting())
+		return 0;
+	screen = STedScreenCurrent();
+	/* P on the edit screens is point play, the same key the editor reads. */
+	if (tag == kPbPlay)
+		return screen == STED_SCR_COMMAND
+			|| screen == STED_SCR_TRACK_EDIT
+			|| screen == STED_SCR_RHYTHM_EDIT;
+	return screen == STED_SCR_COMMAND
+		|| screen == STED_SCR_TRACK_EDIT
+		|| screen == STED_SCR_RHYTHM_EDIT
+		|| screen == STED_SCR_TRACK_SET;
+}
+
+- (void)installPlaybackMenu
+{
+	NSMenu *mainMenu = [NSApp mainMenu];
+	NSMenu *menu;
+	NSMenuItem *top, *item;
+	NSInteger i, n, insertAt;
+
+	if (mainMenu == nil)
+		return;
+	n = [mainMenu numberOfItems];
+	insertAt = n;
+	for (i = 0; i < n; i++) {
+		if ([[[mainMenu itemAtIndex:i] title] isEqualToString:@"View"]) {
+			insertAt = i;
+			break;
+		}
+	}
+	menu = [[NSMenu alloc] initWithTitle:NSLocalizedString(@"Playback", @"Playback menu")];
+	item = PlaybackItem(NSLocalizedString(@"Play", @"Playback menu"), @"P", kPbPlay, self);
+	[menu addItem:item];
+	[item release];
+	item = PlaybackItem(NSLocalizedString(@"Pause", @"Playback menu"), @"XF4", kPbPause, self);
+	[menu addItem:item];
+	[item release];
+	item = PlaybackItem(NSLocalizedString(@"Resume", @"Playback menu"), @"XF3", kPbResume, self);
+	[menu addItem:item];
+	[item release];
+	item = PlaybackItem(NSLocalizedString(@"Stop", @"Playback menu"), @"XF5", kPbStop, self);
+	[menu addItem:item];
+	[item release];
+	[menu addItem:[NSMenuItem separatorItem]];
+	item = PlaybackItem(NSLocalizedString(@"Measure Play", @"Playback menu"), @"XF1/M", kPbMeasure, self);
+	[menu addItem:item];
+	[item release];
+	item = PlaybackItem(NSLocalizedString(@"Point Play (This Track)", @"Playback menu"),
+			    @"SHIFT+XF1", kPbPointOne, self);
+	[menu addItem:item];
+	[item release];
+	item = PlaybackItem(NSLocalizedString(@"Point Play (All Tracks)", @"Playback menu"),
+			    @"XF2/P", kPbPointAll, self);
+	[menu addItem:item];
+	[item release];
+	LayoutPlaybackMenu(menu);
+	[menu setDelegate:self];
+	top = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"Playback", @"Playback menu")
+					action:nil keyEquivalent:@""];
+	[top setSubmenu:menu];
+	[mainMenu insertItem:top atIndex:insertAt];
+	[menu release];
+	[top release];
+}
+
+- (IBAction)playbackCommand:(id)sender
+{
+	/* No key equivalent: the editor must still receive P / XF. The item
+	   posts that same key, so the button reverse runs in the key handler.
+	   XF3/XF4 are not queued; keyDown calls the transport directly. */
+	switch ([sender tag]) {
+	case kPbPlay:
+		XSTed_post_command_key((kScanP << 8) | 'P', 0);
+		break;
+	case kPbPause:
+		if (rcd != NULL)
+			rcp_transport_stop();
+		break;
+	case kPbResume:
+		if (rcd != NULL)
+			rcp_transport_continue();
+		break;
+	case kPbStop:
+		XSTed_post_command_key(kScanXF5 << 8, 0);
+		break;
+	case kPbMeasure:
+		XSTed_post_command_key(kScanXF1 << 8, 0);
+		break;
+	case kPbPointOne:
+		XSTed_post_command_key(kScanXF1 << 8, 1);
+		break;
+	case kPbPointAll:
+		XSTed_post_command_key(kScanXF2 << 8, 0);
+		break;
+	default:
+		break;
+	}
 }
 
 - (void)installKeyboardViewerMenu
@@ -1009,6 +1280,13 @@ objectValueForTableColumn:(NSTableColumn *)tableColumn
 	}
 	if ([menuItem action] == @selector(sendResetSysEx:))
 		return !rcp_transport_is_active();
+	if ([menuItem action] == @selector(playbackCommand:)) {
+		int on = playbackItemEnabled([menuItem tag]);
+		ApplyPlaybackItemTitle(menuItem, on, 0);
+		return on;
+	}
+	if ([menuItem action] == @selector(midiInputMonitor:))
+		return sted_cmdkey_waiting() && STedScreenCurrent() == STED_SCR_COMMAND;
 	return YES;
 }
 

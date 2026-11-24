@@ -9,6 +9,16 @@
 "Could not save sted2.cnf" = "Could not save sted2.cnf";
 "Could not write the font setting." = "Could not write the font setting.";
 
+/* Playback menu. Key names stay in the item title, not as key equivalents. */
+"Playback" = "Playback";
+"Play" = "Play";
+"Pause" = "Pause";
+"Resume" = "Resume";
+"Stop" = "Stop";
+"Measure Play" = "Measure Play";
+"Point Play (This Track)" = "Point Play (This Track)";
+"Point Play (All Tracks)" = "Point Play (All Tracks)";
+
 "About STed2" = "About STed2";
 "Authors" = "Authors";
 "License" = "License";
@@ -451,11 +461,13 @@ DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
 OTHER DEALINGS IN THE FONT SOFTWARE.\n\nCopyright (c) Keitarou Hiraki, Font Silo. 1990-2015\n";
 
-/* MIDI & Audio menu */
+/* MIDI menu, and the Audio menu split from it */
 "MIDI Port Settings..." = "MIDI Port Settings...";
+"MIDI Input Monitor" = "MIDI Input Monitor";
+"Audio" = "Audio";
 "SoundFont, FX, Mixer Setting" = "SoundFont, FX, Mixer Setting";
 
-/* MIDI & Audio menu */
+/* Audio menu */
 "Generate DEF file from SF2" = "Generate DEF file from SF2";
 
 /* MIDI → Generate DEF from SF2 */

@@ -66,6 +66,7 @@ void	pinfo_refresh(int ad)
 void	trk_ed()
 {
   STED_SCREEN(STED_SCR_TRACK_EDIT);
+  STED_CMDKEY();
   int	po,ad,cx,cy,i,j,ke,kc,sh,rc,cs,xx,mdc,mdiv=0,tcp=0,tcs=0;
   int	r_ad,r_ln;
   char	tmp0[256];

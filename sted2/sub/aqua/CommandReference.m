@@ -612,6 +612,17 @@ STedScreenPop(void)
 	publish();
 }
 
+int
+STedScreenCurrent(void)
+{
+	int ident;
+
+	pthread_mutex_lock(&sLock);
+	ident = (sDepth > 0) ? sId[sDepth - 1] : STED_SCR_NONE;
+	pthread_mutex_unlock(&sLock);
+	return ident;
+}
+
 void
 STedScreenLayer(int layer)
 {

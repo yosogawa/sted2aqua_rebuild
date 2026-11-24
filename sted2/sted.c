@@ -1006,6 +1006,7 @@ static void sted_finder_offer(void)
 void	com_sel()
 {
   STED_SCREEN(STED_SCR_COMMAND);
+  STED_CMDKEY();
   int	ke,sh,cy=0,i;
   char	tmp0[PATHLEN * 2 + PATH_DRIVE_EXTRA],tmp1[PATHLEN * 2 + PATH_DRIVE_EXTRA],path2[PATHLEN * 2 + PATH_DRIVE_EXTRA];
 
@@ -1622,6 +1623,7 @@ void	key_pause()
 /***************************/
 int	yn_sel()
 {
+  STED_CMDKEY_BLOCK();
   int	ke,ec=0;
   int y,n;
 

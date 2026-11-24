@@ -236,7 +236,8 @@ void key_mouse_wait( void ) {
        so follow can start. Already active on entry means ESC left follow
        while playback continues. */
     was_active = rcp_transport_is_active();
-    while ( XSTed_keyin(0xfe) == 0 ) {
+    /* keyin(0xfe) drops scan-only keys (XF). A peek leaves them for B_KEYINP. */
+    while ( key_input_ready() == 0 ) {
       /* Drain EXT FA/FB/FC; same need as EDIT key_midi_wait. */
       locator_refresh(0);
       sted_reset_sysex_poll();
@@ -626,4 +627,41 @@ int
 sted_main_idle_waiting(void)
 {
   return atomic_load(&sFinderIdle);
+}
+
+static atomic_int sCmdKeyDepth;
+static atomic_int sCmdKeyBlock;
+
+void
+sted_cmdkey_push(void)
+{
+  atomic_fetch_add(&sCmdKeyDepth, 1);
+}
+
+void
+sted_cmdkey_pop(void)
+{
+  int prev = atomic_fetch_sub(&sCmdKeyDepth, 1);
+  if (prev <= 1)
+    atomic_store(&sCmdKeyDepth, 0);
+}
+
+void
+sted_cmdkey_block_push(void)
+{
+  atomic_fetch_add(&sCmdKeyBlock, 1);
+}
+
+void
+sted_cmdkey_block_pop(void)
+{
+  int prev = atomic_fetch_sub(&sCmdKeyBlock, 1);
+  if (prev <= 1)
+    atomic_store(&sCmdKeyBlock, 0);
+}
+
+int
+sted_cmdkey_waiting(void)
+{
+  return atomic_load(&sCmdKeyDepth) > 0 && atomic_load(&sCmdKeyBlock) == 0;
 }

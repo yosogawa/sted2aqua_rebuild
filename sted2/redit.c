@@ -32,6 +32,7 @@ static void disp_vels( void );
 void rtrk_ed(int md,int sh)
 {
   STED_SCREEN(STED_SCR_RHYTHM_EDIT);
+  STED_CMDKEY();
   int	no,pg=0,ke,kc,cx,cy,i,j,py,yy,rc=5999;
   int	msf=-1;
 
