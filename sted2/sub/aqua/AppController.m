@@ -152,6 +152,7 @@ ApplySyncModeMenuTitle(NSMenuItem *item)
 - (void)localizeMenuItemWithAction:(SEL)action title:(NSString *)title;
 - (void)localizeAboutMenuItem;
 - (void)installViewMenu;
+- (void)localizeHelpMenuTitle;
 - (void)installPlaybackMenu;
 - (IBAction)playbackCommand:(id)sender;
 - (void)installKeyboardViewerMenu;
@@ -283,6 +284,7 @@ sted_argv_with_launch_file(int *argcIO, char **argv)
 	XSTed_init_window();
 	[self localizeAboutMenuItem];
 	[self installViewMenu];
+	[self localizeHelpMenuTitle];
 	[self installPlaybackMenu];
 	[self installKeyboardViewerMenu];
 	[self installCommandReferenceMenu];
@@ -653,7 +655,7 @@ enum { kScanR = 0x14 };
 			break;
 		}
 	}
-	viewMenu = [[NSMenu alloc] initWithTitle:@"View"];
+	viewMenu = [[NSMenu alloc] initWithTitle:NSLocalizedString(@"View", @"View menu")];
 	for (i = 0; i < (int)(sizeof scales / sizeof scales[0]); i++) {
 		item = [[NSMenuItem alloc] initWithTitle:[NSString stringWithUTF8String:scales[i].title]
 						  action:@selector(setDisplayScale:)
@@ -676,11 +678,31 @@ enum { kScanR = 0x14 };
 	[item setTarget:self];
 	[viewMenu addItem:item];
 	[item release];
-	viewTop = [[NSMenuItem alloc] initWithTitle:@"View" action:nil keyEquivalent:@""];
+	viewTop = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"View", @"View menu")
+					action:nil keyEquivalent:@""];
 	[viewTop setSubmenu:viewMenu];
 	[mainMenu insertItem:viewTop atIndex:insertAt];
 	[viewMenu release];
 	[viewTop release];
+}
+
+- (void)localizeHelpMenuTitle
+{
+	NSMenu *help = [NSApp helpMenu];
+	NSMenu *bar;
+	NSString *title;
+	NSInteger at;
+
+	if (help == nil)
+		return;
+	title = NSLocalizedString(@"Help", @"Help menu");
+	[help setTitle:title];
+	bar = [help supermenu];
+	if (bar == nil)
+		return;
+	at = [bar indexOfItemWithSubmenu:help];
+	if (at != NSNotFound)
+		[[bar itemAtIndex:at] setTitle:title];
 }
 
 enum {
@@ -822,7 +844,8 @@ playbackItemEnabled(NSInteger tag)
 	n = [mainMenu numberOfItems];
 	insertAt = n;
 	for (i = 0; i < n; i++) {
-		if ([[[mainMenu itemAtIndex:i] title] isEqualToString:@"View"]) {
+		if ([[[mainMenu itemAtIndex:i] title] isEqualToString:
+				NSLocalizedString(@"View", @"View menu")]) {
 			insertAt = i;
 			break;
 		}

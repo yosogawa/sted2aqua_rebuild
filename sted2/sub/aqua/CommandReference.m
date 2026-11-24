@@ -91,7 +91,7 @@ static const Row kRows[] = {
 	{ STED_SCR_COMMAND, 0, "U", "ユーザーエクスクルーシブ", "User exclusive" },
 	{ STED_SCR_COMMAND, 0, "C", "CM64 コンソール。Shift では SC55", "CM64 console. Shift opens SC55" },
 	{ STED_SCR_COMMAND, 0, "O", "オプション", "Option" },
-	{ STED_SCR_COMMAND, 0, "D", "定義ファイルを読み込む", "Load a define file" },
+	{ STED_SCR_COMMAND, 0, "D", "音源定義ファイルを読み込む", "Load a module define file" },
 	{ STED_SCR_COMMAND, 0, "I", "全データを初期化する", "Initialize all data" },
 	{ STED_SCR_COMMAND, 0, "X", "終了する。Shift では確認なし", "Quit. Shift skips the confirmation" },
 	{ STED_SCR_COMMAND, 0, "Z", "音源へコントロールデータを送る", "Send control data to the module" },

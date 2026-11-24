@@ -3903,7 +3903,12 @@ s_MacSelectFile(void **args)
 				[extHint appendFormat:@".%@", one];
 			}
 		}
-		if ([extHint length] > 0)
+		if (!is_save && mes != NULL && strcmp(mes, "DEFINE") == 0) {
+			/* Help calls this a module define file / 音源定義ファイル. */
+			title = NSLocalizedString(
+				@"LOAD Module define file(def, dfb)...",
+				@"UNIT SEL open panel");
+		} else if ([extHint length] > 0)
 			title = [NSString stringWithFormat:@"%@ %@ FILE... (%@)",
 				(is_save ? @"SAVE" : @"LOAD"), UTF8CString(mes), extHint];
 		else

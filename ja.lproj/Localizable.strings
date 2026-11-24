@@ -459,6 +459,10 @@ DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
 OTHER DEALINGS IN THE FONT SOFTWARE.\n\nCopyright (c) Keitarou Hiraki, Font Silo. 1990-2015\n";
 
+/* メニューバー */
+"View" = "表示";
+"Help" = "ヘルプ";
+
 /* MIDI メニューと、そこから分けたオーディオメニュー */
 "MIDI Port Settings..." = "MIDI Port 設定";
 "MIDI Input Monitor" = "MIDI入力モニター";
@@ -467,19 +471,20 @@ OTHER DEALINGS IN THE FONT SOFTWARE.\n\nCopyright (c) Keitarou Hiraki, Font Silo
 
 /* オーディオメニュー */
 "Generate DEF file from SF2" = "SF2 から音源定義ファイル生成";
+"LOAD Module define file(def, dfb)..." = "音源定義ファイル(def, dfb)のロード";
 
-/* MIDI → SF2 から DEF を作成 */
-"Generate DEF from SF2..." = "SF2 から DEF を作成...";
-"Generate DEF from SF2" = "SF2 から DEF を作成";
+/* MIDI → SF2 から音源定義ファイルを作成 */
+"Generate DEF from SF2..." = "SF2 から音源定義ファイルを作成...";
+"Generate DEF from SF2" = "SF2 から音源定義ファイルを作成";
 "Choose a SoundFont under ~/Library/Audio/Sounds/Banks" = "~/Library/Audio/Sounds/Banks の SoundFont を選んでください";
-"SF2 → DEF failed" = "SF2 から DEF を作成できませんでした";
+"SF2 → DEF failed" = "音源定義ファイルを作成できませんでした";
 "Could not build output path." = "出力先のパスを作れませんでした。";
-"Replace existing DEF?" = "既存の DEF を置き換えますか？";
+"Replace existing DEF?" = "既存の音源定義ファイルを置き換えますか？";
 "A file with this name already exists and may have been edited.\n\n%@\n\nReplace it?" = "同じ名前のファイルが既にあり、編集されている可能性があります。\n\n%@\n\n置き換えますか？";
 "Replace" = "置き換え";
 "Cancel" = "キャンセル";
 "OK" = "OK";
-"SF2 → DEF" = "SF2 → DEF";
+"SF2 → DEF" = "音源定義ファイル";
 "Wrote %d preset(s).\n\n%@" = "プリセットを %d 個書き出しました。\n\n%@";
 "Unknown error" = "不明なエラー";
 "invalid arguments" = "引数が不正です";
