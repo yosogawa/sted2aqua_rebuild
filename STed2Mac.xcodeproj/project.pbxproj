@@ -53,6 +53,7 @@
 		A1F0E0121AC55B8700A70D02 /* OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = A1F0E0141AC55B8700A70D04 /* OFL.txt */; };
 		A1F0E0311AC55B8700A70D21 /* AVFAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1F0E0321AC55B8700A70D22 /* AVFAudio.framework */; };
 		A1KBD012F0A4B0100KBD001 /* KeyboardViewer.m in Sources */ = {isa = PBXBuildFile; fileRef = A1KBD022F0A4B0100KBD002 /* KeyboardViewer.m */; };
+		A1KBD042F0A4B0100KBD004 /* x68000-keymap.png in Resources */ = {isa = PBXBuildFile; fileRef = A1KBD052F0A4B0100KBD005 /* x68000-keymap.png */; };
 		A1L10C011B01000100L10C01 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = A1L10C041B01000100L10C01 /* Localizable.strings */; };
 		A1OUT0B12F0A4B0100OUT0B1 /* OutputPort.m in Sources */ = {isa = PBXBuildFile; fileRef = A1OUT0M12F0A4B0100OUT0M1 /* OutputPort.m */; };
 		A1RAS0012F0A4B0100E0E201 /* gm.ras in Resources */ = {isa = PBXBuildFile; fileRef = A1RAS0022F0A4B0100E0E202 /* gm.ras */; };
@@ -206,6 +207,7 @@
 		A1F0E0511AC55B8700A70D51 /* X68kWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = X68kWindow.h; sourceTree = "<group>"; };
 		A1KBD022F0A4B0100KBD002 /* KeyboardViewer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeyboardViewer.m; sourceTree = "<group>"; };
 		A1KBD032F0A4B0100KBD003 /* KeyboardViewer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeyboardViewer.h; sourceTree = "<group>"; };
+		A1KBD052F0A4B0100KBD005 /* x68000-keymap.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "x68000-keymap.png"; sourceTree = "<group>"; };
 		A1L10C021B01000100L10C01 /* en */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		A1L10C031B01000100L10C01 /* ja */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
 		A1OUT0H12F0A4B0100OUT0H1 /* OutputPort.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OutputPort.h; sourceTree = "<group>"; };
@@ -818,6 +820,7 @@
 				A1AB0D041B01000100ABOUT1 /* AboutPanelController.m */,
 				A1KBD032F0A4B0100KBD003 /* KeyboardViewer.h */,
 				A1KBD022F0A4B0100KBD002 /* KeyboardViewer.m */,
+				A1KBD052F0A4B0100KBD005 /* x68000-keymap.png */,
 				A1CMD032F0A4B0100CMD003 /* CommandReference.h */,
 				A1CMD022F0A4B0100CMD002 /* CommandReference.m */,
 				AF9D4CF53094456D00846A7F /* MIDISettingsController.h */,
@@ -919,6 +922,7 @@
 				A1F0E0121AC55B8700A70D02 /* OFL.txt in Resources */,
 				A1TUI0011B01000100TUIT01 /* tuitou.doc in Resources */,
 				E44B2A4E1AC6B44C00910C7B /* STed2.help in Resources */,
+				A1KBD042F0A4B0100KBD004 /* x68000-keymap.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

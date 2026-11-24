@@ -4,6 +4,8 @@
  * The drawn shape is ANSI, ISO, or JIS from KBGetLayoutType, with a
  * navigation cluster and numeric pad when the connected keyboard is not
  * a laptop or a known compact board.
+ * Under the map, a disclosure row folds a photo of the X68000 keyboard.
+ * It stays closed until that row is clicked.
  */
 #import "KeyboardViewer.h"
 #import "X68kView.h"
@@ -879,6 +881,315 @@ missing_line(const Cap *c, int n, int modMask, int commandDown)
 
 @end
 
+static const CGFloat kToggleH = 26;
+static const CGFloat kPhotoSide = 10;
+static const CGFloat kPhotoBottom = 8;
+static const CGFloat kPhotoTop = 4;
+static const CGFloat kMinMapH = 160;
+
+/* The panel never becomes key, so the first click must still reach the row. */
+@interface KeyboardDisclosureButton : NSButton
+@end
+
+@implementation KeyboardDisclosureButton
+
+- (BOOL)acceptsFirstMouse:(NSEvent *)event
+{
+	(void)event;
+	return YES;
+}
+
+- (void)resetCursorRects
+{
+	[self addCursorRect:[self bounds] cursor:[NSCursor pointingHandCursor]];
+}
+
+/* The viewer panel cannot become key, so track the click here. */
+- (void)mouseDown:(NSEvent *)event
+{
+	NSPoint p;
+
+	[self highlight:YES];
+	do {
+		event = [[self window] nextEventMatchingMask:
+			(NSEventMaskLeftMouseDragged | NSEventMaskLeftMouseUp)];
+	} while (event != nil && [event type] != NSEventTypeLeftMouseUp);
+	[self highlight:NO];
+	if (event == nil)
+		return;
+	p = [self convertPoint:[event locationInWindow] fromView:nil];
+	if (NSPointInRect(p, [self bounds]))
+		[self sendAction:[self action] to:[self target]];
+}
+
+@end
+
+@interface KeyboardViewerRoot : NSView
+{
+	KeyboardMapView *map;
+	NSButton *toggle;
+	NSImageView *photo;
+	NSImage *photoImage;
+	BOOL open;
+	CGFloat mapFloor;
+}
+- (KeyboardMapView *)mapView;
+- (CGFloat)chromeHeight;
+- (BOOL)isPhotoOpen;
+- (CGFloat)preferredPhotoHeightForWidth:(CGFloat)width;
+- (void)noteShowMapHeight:(CGFloat)height;
+@end
+
+@implementation KeyboardViewerRoot
+
+- (id)initWithFrame:(NSRect)frame
+{
+	self = [super initWithFrame:frame];
+	if (self == nil)
+		return nil;
+	map = [[KeyboardMapView alloc] initWithFrame:frame];
+	[self addSubview:map];
+	[map release];
+
+	toggle = [[KeyboardDisclosureButton alloc] initWithFrame:NSMakeRect(0, 0, 200, kToggleH)];
+	[toggle setButtonType:NSButtonTypeMomentaryLight];
+	[toggle setBordered:NO];
+	[toggle setTarget:self];
+	[toggle setAction:@selector(togglePhoto:)];
+	[toggle setAlignment:NSTextAlignmentLeft];
+	[toggle setFocusRingType:NSFocusRingTypeNone];
+	[[toggle cell] setDrawsBackground:NO];
+	[self addSubview:toggle];
+	[toggle release];
+
+	photo = [[NSImageView alloc] initWithFrame:NSZeroRect];
+	[photo setImageScaling:NSImageScaleProportionallyUpOrDown];
+	[photo setImageAlignment:NSImageAlignCenter];
+	[photo setImageFrameStyle:NSImageFrameNone];
+	[photo setEditable:NO];
+	[photo setAnimates:NO];
+	[photo setHidden:YES];
+	[self addSubview:photo];
+	[photo release];
+
+	[self loadPhoto];
+	[self applyToggleTitle];
+	[self layoutParts];
+	return self;
+}
+
+- (void)dealloc
+{
+	[photoImage release];
+	[super dealloc];
+}
+
+- (KeyboardMapView *)mapView
+{
+	return map;
+}
+
+- (BOOL)photoAvailable
+{
+	return photoImage != nil && [photoImage size].width > 1 && [photoImage size].height > 1;
+}
+
+- (CGFloat)chromeHeight
+{
+	return [self photoAvailable] ? kToggleH : 0;
+}
+
+- (BOOL)isPhotoOpen
+{
+	return open && [self photoAvailable];
+}
+
+- (CGFloat)preferredPhotoHeightForWidth:(CGFloat)width
+{
+	CGFloat inner;
+	NSSize sz;
+
+	if (![self photoAvailable])
+		return 0;
+	inner = width - kPhotoSide * 2;
+	if (inner < 1)
+		return 0;
+	sz = [photoImage size];
+	return inner * (sz.height / sz.width) + kPhotoBottom + kPhotoTop;
+}
+
+- (void)noteShowMapHeight:(CGFloat)height
+{
+	mapFloor = (height > 1) ? height : 1;
+}
+
+- (void)loadPhoto
+{
+	NSString *path = [[NSBundle mainBundle] pathForResource:@"x68000-keymap" ofType:@"png"];
+
+	if (path == nil)
+		return;
+	photoImage = [[NSImage alloc] initWithContentsOfFile:path];
+	[photo setImage:photoImage];
+}
+
+- (BOOL)isDark
+{
+	if (@available(macOS 10.14, *)) {
+		NSAppearanceName match = [self.effectiveAppearance
+			bestMatchFromAppearancesWithNames:@[NSAppearanceNameAqua, NSAppearanceNameDarkAqua]];
+		return [match isEqualToString:NSAppearanceNameDarkAqua];
+	}
+	return NO;
+}
+
+- (void)applyToggleTitle
+{
+	NSString *base = NSLocalizedString(@"original x68000 keymap", @"Keyboard viewer photo");
+	NSString *title = [NSString stringWithFormat:@"%@ %@", base, open ? @"v" : @">"];
+	NSMutableParagraphStyle *para;
+	NSDictionary *attr;
+	NSAttributedString *rich;
+	NSColor *color;
+
+	color = [self isDark] ? [NSColor whiteColor] : [NSColor blackColor];
+	para = [[[NSMutableParagraphStyle alloc] init] autorelease];
+	[para setAlignment:NSTextAlignmentLeft];
+	[para setLineBreakMode:NSLineBreakByTruncatingTail];
+	[para setFirstLineHeadIndent:10];
+	attr = [NSDictionary dictionaryWithObjectsAndKeys:
+		[NSFont systemFontOfSize:13], NSFontAttributeName,
+		color, NSForegroundColorAttributeName,
+		para, NSParagraphStyleAttributeName, nil];
+	rich = [[NSAttributedString alloc] initWithString:title attributes:attr];
+	[toggle setAttributedTitle:rich];
+	[rich release];
+}
+
+- (void)viewDidChangeEffectiveAppearance
+{
+	[super viewDidChangeEffectiveAppearance];
+	[self applyToggleTitle];
+	[self setNeedsDisplay:YES];
+}
+
+- (void)drawRect:(NSRect)dirty
+{
+	BOOL dark;
+	NSRect band;
+
+	(void)dirty;
+	dark = [self isDark];
+	if (dark)
+		[[NSColor colorWithCalibratedWhite:0.12 alpha:1] setFill];
+	else
+		[[NSColor colorWithCalibratedWhite:0.90 alpha:1] setFill];
+	NSRectFill([self bounds]);
+	if (![self photoAvailable] || [toggle isHidden])
+		return;
+	band = [toggle frame];
+	if (dark)
+		[[NSColor colorWithCalibratedWhite:0.16 alpha:1] setFill];
+	else
+		[[NSColor colorWithCalibratedWhite:0.84 alpha:1] setFill];
+	NSRectFill(band);
+	[[NSColor colorWithCalibratedWhite:dark ? 0.32 : 0.70 alpha:1] setFill];
+	NSRectFill(NSMakeRect(0, NSMaxY(band) - 1, NSWidth([self bounds]), 1));
+}
+
+- (void)layoutParts
+{
+	NSRect b = [self bounds];
+	CGFloat room, photoH, mapH, floor, innerH;
+
+	if (![self photoAvailable]) {
+		[toggle setHidden:YES];
+		[photo setHidden:YES];
+		[map setFrame:b];
+		return;
+	}
+	[toggle setHidden:NO];
+	room = b.size.height - kToggleH;
+	if (room < 0)
+		room = 0;
+	floor = (mapFloor > 1.0) ? mapFloor : kMinMapH;
+	photoH = 0;
+	if (open) {
+		photoH = [self preferredPhotoHeightForWidth:b.size.width];
+		if (floor >= room || room - photoH < floor)
+			photoH = (floor >= room) ? 0 : room - floor;
+		if (photoH < 1)
+			photoH = 0;
+	}
+	mapH = room - photoH;
+	if (mapH < 0) {
+		mapH = 0;
+		photoH = room;
+	}
+	innerH = photoH - kPhotoBottom - kPhotoTop;
+	[toggle setFrame:NSMakeRect(0, photoH, b.size.width, kToggleH)];
+	[map setFrame:NSMakeRect(0, photoH + kToggleH, b.size.width, mapH)];
+	if (!open || photoH < 1) {
+		[photo setHidden:YES];
+		[photo setFrame:NSZeroRect];
+	} else if (innerH < 24) {
+		[photo setFrame:NSMakeRect(kPhotoSide, 0, b.size.width - kPhotoSide * 2, photoH)];
+		[photo setHidden:NO];
+	} else {
+		[photo setFrame:NSMakeRect(kPhotoSide, kPhotoBottom,
+			b.size.width - kPhotoSide * 2, innerH)];
+		[photo setHidden:NO];
+	}
+	[self setNeedsDisplay:YES];
+}
+
+- (void)resizeSubviewsWithOldSize:(NSSize)oldSize
+{
+	NSWindow *win = [self window];
+
+	(void)oldSize;
+	if (win != nil && [win inLiveResize])
+		mapFloor = 0;
+	[self layoutParts];
+}
+
+- (void)togglePhoto:(id)sender
+{
+	NSWindow *win;
+	CGFloat before, after, delta;
+	NSRect frame, vis;
+
+	(void)sender;
+	if (![self photoAvailable])
+		return;
+	win = [self window];
+	before = open ? NSMinY([toggle frame]) : 0;
+	open = !open;
+	[self applyToggleTitle];
+	if (win == nil) {
+		[self layoutParts];
+		return;
+	}
+	after = open ? [self preferredPhotoHeightForWidth:NSWidth([self bounds])] : 0;
+	delta = after - before;
+	mapFloor = NSHeight([map frame]);
+	frame = [win frame];
+	frame.size.height += delta;
+	frame.origin.y -= delta;
+	if (delta > 0) {
+		vis = [[win screen] visibleFrame];
+		if (NSHeight(vis) > 1 && NSMinY(frame) < NSMinY(vis)) {
+			CGFloat cut = NSMinY(vis) - NSMinY(frame);
+			frame.origin.y += cut;
+			frame.size.height -= cut;
+		}
+	}
+	[win setFrame:frame display:YES animate:NO];
+	[self layoutParts];
+}
+
+@end
+
 /* A click on the title bar must not take the key window from STed2,
    or the emulator stays in its key wait. */
 @interface KeyboardViewerPanel : NSPanel
@@ -896,7 +1207,7 @@ missing_line(const Cap *c, int n, int modMask, int commandDown)
 static void
 ensure_panel(void)
 {
-	KeyboardMapView *view;
+	KeyboardViewerRoot *root;
 	NSRect frame;
 
 	if (sPanel != nil)
@@ -917,12 +1228,12 @@ ensure_panel(void)
 	[sPanel setCollectionBehavior:NSWindowCollectionBehaviorCanJoinAllSpaces |
 		NSWindowCollectionBehaviorFullScreenAuxiliary];
 	[sPanel setReleasedWhenClosed:NO];
-	[sPanel setMinSize:NSMakeSize(520, 200)];
-	view = [[KeyboardMapView alloc] initWithFrame:frame];
-	[view setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
-	[sPanel setContentView:view];
-	sMap = view;
-	[view release];
+	[sPanel setMinSize:NSMakeSize(520, 220)];
+	root = [[KeyboardViewerRoot alloc] initWithFrame:frame];
+	[root setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
+	[sPanel setContentView:root];
+	sMap = [root mapView];
+	[root release];
 	/* MRC: the monitor is removed when this object is released. */
 	sMonitor = [[NSEvent addLocalMonitorForEventsMatchingMask:
 		(NSEventMaskFlagsChanged | NSEventMaskKeyDown)
@@ -945,19 +1256,36 @@ KeyboardViewerShow(void)
 {
 	float key = 48;
 	NSRect vis;
+	KeyboardViewerRoot *root;
+	CGFloat mapH, chrome;
 
 	ensure_panel();
+	root = (KeyboardViewerRoot *)[sPanel contentView];
 	[sPanel setTitle:NSLocalizedString(@"Keyboard Viewer", @"Help menu")];
 	[sMap noteModifiers:[NSEvent modifierFlags]];
 	[sMap refreshHardware];
 	if (![sPanel isVisible]) {
 		NSSize unit = [sMap unitSize];
-		NSSize sz = NSMakeSize(unit.width * key + 28, unit.height * key + 92);
+		NSSize sz;
+		mapH = unit.height * key + 92;
+		chrome = [root chromeHeight];
+		sz = NSMakeSize(unit.width * key + 28, mapH);
 		vis = [[NSScreen mainScreen] visibleFrame];
 		if (sz.width > vis.size.width * 0.92)
 			sz.width = vis.size.width * 0.92;
 		if (sz.height > vis.size.height * 0.55)
 			sz.height = vis.size.height * 0.55;
+		mapH = sz.height;
+		sz.height = mapH + chrome;
+		if ([root isPhotoOpen]) {
+			CGFloat photo = [root preferredPhotoHeightForWidth:sz.width];
+			CGFloat limit = vis.size.height * 0.92;
+			if (sz.height + photo > limit)
+				sz.height = limit;
+			else
+				sz.height += photo;
+		}
+		[root noteShowMapHeight:mapH];
 		[sPanel setContentSize:sz];
 		[sPanel center];
 	}

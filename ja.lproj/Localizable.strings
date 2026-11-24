@@ -529,3 +529,4 @@ OTHER DEALINGS IN THE FONT SOFTWARE.\n\nCopyright (c) Keitarou Hiraki, Font Silo
 "Active: Shift+Option (GT)" = "いま有効: Shift+Option（GT）";
 "Active: Shift+Option (VEL)" = "いま有効: Shift+Option（VEL）";
 "Not on this keyboard: %@" = "このキーボードには無い: %@";
+"original x68000 keymap" = "X68000 オリジナルキーマップ";
