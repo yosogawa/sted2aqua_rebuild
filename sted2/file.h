@@ -16,6 +16,8 @@ char *sread(int a, int b);
 int  exc_load(char *fna);
 int  exc_save(char *fna, int mo);
 
+/* Tail of the name is .mid or .midi, any ASCII case. */
+int  filename_is_smf(const char *fna);
 int  dload(char *fna, int md);
 int  dsave(char *fna);
 int  part_load(char *fna);

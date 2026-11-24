@@ -555,7 +555,7 @@ void	trk_set(int md)
 	strcpy(path2,trk_path);fsel(trk_file,path2,0x005);
 	if( es==0 && trk_file[0]!=0 ){
 	  strcpy(tmp0,path2);strcat(tmp0,trk_file);
-	  if(str_search(trk_file,".mid")>0 || str_search(trk_file,".MID")>0){
+	  if(filename_is_smf(trk_file)){
 	    msg("Loading track data ...");
 	    if(trk_load_mid(tmp0)==0){
 	      if(!(cnfflag&0x0008)){strcpy(trk_path,path2);}
@@ -582,7 +582,7 @@ void	trk_set(int md)
 	strcpy(path2,trk_path);fsel(trk_file,path2,0x105);
 	if( es==0 && trk_file[0]!=0 ){
 	  strcpy(tmp0,path2);strcat(tmp0,trk_file);
-	  if(str_search(trk_file,".mid")>0 || str_search(trk_file,".MID")>0){
+	  if(filename_is_smf(trk_file)){
 	    msg("MIDI track save is not yet implemented.");
 	  }else{
 	    msg("Saving track data ...");

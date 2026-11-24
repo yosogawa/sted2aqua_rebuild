@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "itor.h"
 #include "rcpfile.h"
 #include "rcpdef.h"
 #include "rcddef.h"

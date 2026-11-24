@@ -1,6 +1,5 @@
-/* About panel. The three texts are placeholders for a later edit.
-   License text will come from sted2/doc/STed2_help/gpl.html (GPL 2)
-   and sted2/fonts/OFL.txt, with the font copyright from the TTF name table. */
+/* About panel. License text comes from the localized about.license string
+   (GPL 2 and the font license). */
 /* Copyright 2026 Yoshinori Ogawa */
 
 #import "AboutPanelController.h"
@@ -32,7 +31,6 @@
 	[[self window] setTitle:NSLocalizedString(@"About STed2", @"About window title")];
 	[self.authorsButton setTitle:NSLocalizedString(@"Authors", @"About page button")];
 	[self.licenseButton setTitle:NSLocalizedString(@"License", @"About page button")];
-	[self.thanksButton setTitle:NSLocalizedString(@"Thanks", @"About page button")];
 	[self.memorialButton setTitle:NSLocalizedString(@"RIP", @"Memorial notice button")];
 	[[self window] center];
 
@@ -51,7 +49,6 @@
 
 	[self.authorsButton setButtonType:NSButtonTypePushOnPushOff];
 	[self.licenseButton setButtonType:NSButtonTypePushOnPushOff];
-	[self.thanksButton setButtonType:NSButtonTypePushOnPushOff];
 	[self.memorialButton setButtonType:NSButtonTypePushOnPushOff];
 	[[self.bodyText textContainer] setWidthTracksTextView:YES];
 	[self.bodyText setEditable:NO];
@@ -82,7 +79,6 @@
 
 	[self.authorsButton setState:NSControlStateValueOff];
 	[self.licenseButton setState:NSControlStateValueOff];
-	[self.thanksButton setState:NSControlStateValueOff];
 	[self.memorialButton setState:NSControlStateValueOff];
 	[button setState:NSControlStateValueOn];
 
@@ -103,12 +99,6 @@
 {
 	(void)sender;
 	[self showText:NSLocalizedString(@"about.license", @"About license page") button:self.licenseButton];
-}
-
-- (IBAction)showThanks:(id)sender
-{
-	(void)sender;
-	[self showText:NSLocalizedString(@"about.thanks", @"About thanks page") button:self.thanksButton];
 }
 
 - (IBAction)showMemorial:(id)sender

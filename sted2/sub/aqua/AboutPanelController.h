@@ -10,13 +10,11 @@
 @property (assign) IBOutlet NSTextView *bodyText;
 @property (assign) IBOutlet NSButton *authorsButton;
 @property (assign) IBOutlet NSButton *licenseButton;
-@property (assign) IBOutlet NSButton *thanksButton;
 @property (assign) IBOutlet NSButton *memorialButton;
 
 + (void)showPanel;
 - (IBAction)showAuthors:(id)sender;
 - (IBAction)showLicense:(id)sender;
-- (IBAction)showThanks:(id)sender;
 - (IBAction)showMemorial:(id)sender;
 
 @end

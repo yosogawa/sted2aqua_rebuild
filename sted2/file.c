@@ -132,6 +132,37 @@ static int ends_with_abc(const char *fna)
     (s[3] == 'c' || s[3] == 'C');
 }
 
+/* Tail compare. str_search walks UTF-8 names as Shift_JIS and can step over the dot. */
+static int ends_with_ci(const char *fna, const char *suf)
+{
+  const char *s;
+  int n, m, i;
+
+  if (fna == NULL || suf == NULL)
+    return 0;
+  n = (int)strlen(fna);
+  m = (int)strlen(suf);
+  if (m <= 0 || n < m)
+    return 0;
+  s = fna + n - m;
+  for (i = 0; i < m; i++) {
+    unsigned char a = (unsigned char)s[i];
+    unsigned char b = (unsigned char)suf[i];
+    if (a >= 'A' && a <= 'Z')
+      a = (unsigned char)(a - 'A' + 'a');
+    if (b >= 'A' && b <= 'Z')
+      b = (unsigned char)(b - 'A' + 'a');
+    if (a != b)
+      return 0;
+  }
+  return 1;
+}
+
+int filename_is_smf(const char *fna)
+{
+  return ends_with_ci(fna, ".midi") || ends_with_ci(fna, ".mid");
+}
+
 /* %%MIDI channel 10 is an in-track 0xE6. Track key 128 skips play bias. */
 static int track_has_channel_10(const uint8_t *p, int n)
 {
@@ -291,8 +322,8 @@ int	dload(char *fna,int md)
   int	i,j,size,size2,ln,md2=0,stra=0,max;
   FILE	*fp;
 
-  if(str_search(fna,".MID")>0 || str_search(fna,".mid")>0 )
-    {return(smfload(fna));}
+  if (filename_is_smf(fna))
+    return smfload(fna);
 
   if (ends_with_abc(fna))
     return abcload(fna);
@@ -394,8 +425,8 @@ int	dsave(char *fna)
   FILE	*fp;
 
   dclr();
-  if(str_search(fna,".MID")>0 || str_search(fna,".mid")>0 )
-    {return(smfsave(fna));}
+  if (filename_is_smf(fna))
+    return smfsave(fna);
 
   if (ends_with_abc(fna))
     return abcsave(fna);

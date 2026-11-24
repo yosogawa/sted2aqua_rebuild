@@ -269,6 +269,7 @@
 		E40E95411ABA41ED0072AA0B /* file.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = file.c; sourceTree = "<group>"; };
 		E40E95421ABA41ED0072AA0B /* graphic.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = graphic.c; sourceTree = "<group>"; };
 		E40E95461ABA41ED0072AA0B /* itor.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = itor.c; sourceTree = "<group>"; };
+		A1ITORH12F0A4B0100ITORH /* itor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = itor.h; sourceTree = "<group>"; };
 		E40E95471ABA41ED0072AA0B /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
 		E40E95481ABA41ED0072AA0B /* rcddef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rcddef.h; sourceTree = "<group>"; };
 		E40E95491ABA41ED0072AA0B /* rcpdef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rcpdef.h; sourceTree = "<group>"; };
@@ -628,7 +629,7 @@
 				A1ABC0112F0A4B0100ABC011 /* abc2rcp */,
 				E40E951E1ABA41ED0072AA0B /* conf */,
 				E40E95291ABA41ED0072AA0B /* doc */,
-				E40E95431ABA41ED0072AA0B /* itor */,
+				E40E95431ABA41ED0072AA0B /* rc_converters */,
 				E40E95521ABA41ED0072AA0B /* sayleen */,
 				E40E95681ABA41ED0072AA0B /* sub */,
 				E40E951C1ABA41ED0072AA0B /* assign.c */,
@@ -736,17 +737,18 @@
 			path = sted207;
 			sourceTree = "<group>";
 		};
-		E40E95431ABA41ED0072AA0B /* itor */ = {
+		E40E95431ABA41ED0072AA0B /* rc_converters */ = {
 			isa = PBXGroup;
 			children = (
 				E40E95461ABA41ED0072AA0B /* itor.c */,
+				A1ITORH12F0A4B0100ITORH /* itor.h */,
 				E40E95471ABA41ED0072AA0B /* Makefile */,
 				E40E95481ABA41ED0072AA0B /* rcddef.h */,
 				E40E95491ABA41ED0072AA0B /* rcpdef.h */,
 				E40E954A1ABA41ED0072AA0B /* rcpfile.h */,
 				E40E954B1ABA41ED0072AA0B /* rcpstruct.h */,
 			);
-			path = itor;
+			path = rc_converters;
 			sourceTree = "<group>";
 		};
 		E40E95521ABA41ED0072AA0B /* sayleen */ = {

@@ -12,7 +12,6 @@
 "About STed2" = "About STed2";
 "Authors" = "Authors";
 "License" = "License";
-"Thanks" = "Thanks";
 "RIP" = "追悼/RIP";
 
 "about.authors" = "Copyright 1990-1997 TURBO\nCopyright 1998-1999 Daisuke Nagano\nCopyright 2000-2015 Toshi Nagata\nCopyright 2026 Yoshinori Ogawa\n";
@@ -451,8 +450,6 @@ INCLUDING ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL
 DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
 OTHER DEALINGS IN THE FONT SOFTWARE.\n\nCopyright (c) Keitarou Hiraki, Font Silo. 1990-2015\n";
-
-"about.thanks" = "(draft)\nOriginal: TURBO (Takayuki Toda)\nUNIX port: Daisuke Nagano\nMac(Aqua) port: Toshi Nagata\nPlus version: Yoshinori Ogawa\n\nThe description of each person's work will be summarized later from README_unix.jp and README.md.\n";
 
 /* MIDI & Audio menu */
 "MIDI Port Settings..." = "MIDI Port Settings...";

@@ -964,7 +964,7 @@ void	fsel(char *fna,char *pth,int w)
 
 	/*  2015.3.27. Toshi Nagata  */
 	{
-#if 0
+#if 1
 		cc = (w >> 8) & 0xff;
 		w = (w & 0xff);
 		if (w >= 64) {
@@ -975,10 +975,14 @@ void	fsel(char *fna,char *pth,int w)
 		{
 			int scope = def_sel_scope;
 			int *pscope = NULL;
+			const char *ext = fsel_ext[w];
 			/* DEFINE open (not save): accessory A / B / A&B */
 			if (w == 4 && (cc & 1) == 0)
 				pscope = &scope;
-			MacSelectFile(fna, pth, (cc & 1), fsel_title[w], fsel_ext[w],
+			/* One-track MIDI save is not implemented. Load still offers TRK:MID. */
+			if ((cc & 1) != 0 && w == 5)
+				ext = "TRK";
+			MacSelectFile(fna, pth, (cc & 1), fsel_title[w], ext,
 				      pscope);
 			if (pscope != NULL)
 				def_sel_scope = scope;

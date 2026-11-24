@@ -13,7 +13,6 @@
                 <outlet property="iconView" destination="icon" id="out-icon"/>
                 <outlet property="licenseButton" destination="btn-license" id="out-license"/>
                 <outlet property="memorialButton" destination="btn-rip" id="out-rip"/>
-                <outlet property="thanksButton" destination="btn-thanks" id="out-thanks"/>
                 <outlet property="versionField" destination="version" id="out-version"/>
                 <outlet property="window" destination="window" id="out-window"/>
             </connections>
@@ -94,18 +93,8 @@
                             <action selector="showLicense:" target="-2" id="act-license"/>
                         </connections>
                     </button>
-                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="btn-thanks">
-                        <rect key="frame" x="286" y="16" width="119" height="24"/>
-                        <buttonCell key="cell" type="push" title="謝辞" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="cell-thanks">
-                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="system"/>
-                        </buttonCell>
-                        <connections>
-                            <action selector="showThanks:" target="-2" id="act-thanks"/>
-                        </connections>
-                    </button>
                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="btn-rip">
-                        <rect key="frame" x="417" y="16" width="119" height="24"/>
+                        <rect key="frame" x="286" y="16" width="250" height="24"/>
                         <buttonCell key="cell" type="push" title="追悼/RIP" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="cell-rip">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
@@ -127,7 +116,7 @@
                     <constraint firstItem="btn-license" firstAttribute="leading" secondItem="btn-authors" secondAttribute="trailing" constant="12" id="c-lic-lead"/>
                     <constraint firstItem="btn-license" firstAttribute="width" secondItem="btn-authors" secondAttribute="width" id="c-lic-w"/>
                     <constraint firstItem="btn-license" firstAttribute="centerY" secondItem="btn-authors" secondAttribute="centerY" id="c-lic-y"/>
-                    <constraint firstItem="btn-rip" firstAttribute="leading" secondItem="btn-thanks" secondAttribute="trailing" constant="12" id="c-rip-lead"/>
+                    <constraint firstItem="btn-rip" firstAttribute="leading" secondItem="btn-license" secondAttribute="trailing" constant="12" id="c-rip-lead"/>
                     <constraint firstAttribute="trailing" secondItem="btn-rip" secondAttribute="trailing" constant="24" id="c-rip-trail"/>
                     <constraint firstItem="btn-rip" firstAttribute="width" secondItem="btn-authors" secondAttribute="width" id="c-rip-w"/>
                     <constraint firstItem="btn-rip" firstAttribute="centerY" secondItem="btn-authors" secondAttribute="centerY" id="c-rip-y"/>
@@ -135,9 +124,6 @@
                     <constraint firstItem="scroll" firstAttribute="height" relation="greaterThanOrEqual" constant="120" id="c-scroll-min"/>
                     <constraint firstItem="scroll" firstAttribute="top" secondItem="icon" secondAttribute="bottom" constant="16" id="c-scroll-top"/>
                     <constraint firstAttribute="trailing" secondItem="scroll" secondAttribute="trailing" constant="24" id="c-scroll-trail"/>
-                    <constraint firstItem="btn-thanks" firstAttribute="leading" secondItem="btn-license" secondAttribute="trailing" constant="12" id="c-thx-lead"/>
-                    <constraint firstItem="btn-thanks" firstAttribute="width" secondItem="btn-authors" secondAttribute="width" id="c-thx-w"/>
-                    <constraint firstItem="btn-thanks" firstAttribute="centerY" secondItem="btn-authors" secondAttribute="centerY" id="c-thx-y"/>
                     <constraint firstItem="title" firstAttribute="leading" secondItem="icon" secondAttribute="trailing" constant="16" id="c-title-lead"/>
                     <constraint firstItem="title" firstAttribute="top" secondItem="icon" secondAttribute="top" constant="8" id="c-title-top"/>
                     <constraint firstAttribute="trailing" secondItem="title" secondAttribute="trailing" constant="24" id="c-title-trail"/>
