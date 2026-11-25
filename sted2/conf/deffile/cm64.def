@@ -1,35 +1,35 @@
 *--------------------------------------------------------------------------------------
-* cm64.def : STed v2.07 ‰¹Œ¹’è‹`ƒtƒ@ƒCƒ‹(Roland CM-64‘Î‰)		1996-11-17
+* cm64.def : STed v2.07 éŸ³æºå®šç¾©ãƒ•ã‚¡ã‚¤ãƒ«(Roland CM-64å¯¾å¿œ)		1996-11-17
 *--------------------------------------------------------------------------------------
 
-* g—p‚·‚é‰¹Œ¹‚Ì‹@í–¼(•\¦—p=module/“à•”ˆ——p=id)
-*       [ 22•¶š‚Ü‚Å         ]
+* ä½¿ç”¨ã™ã‚‹éŸ³æºã®æ©Ÿç¨®å(è¡¨ç¤ºç”¨=module/å†…éƒ¨å‡¦ç†ç”¨=id)
+*       [ 22æ–‡å­—ã¾ã§         ]
 #module= MODULE: Roland CM-64
 
 #id=CM64
 *#mute=SC55
 
-* g—p‚·‚éƒJ[ƒh‚Ìİ’è
+* ä½¿ç”¨ã™ã‚‹ã‚«ãƒ¼ãƒ‰ã®è¨­å®š
 #card_no=7
 
-* ‰‰‘t‚Ìƒ‰ƒXƒgƒpƒ‰ƒ[ƒ^‘—M‚ÌƒEƒGƒCƒg
-#lsp_wait=1	* (0`16= wait~0`16 / -1=ƒpƒ‰ƒ[ƒ^‚ğ‘—M‚µ‚È‚¢)
+* æ¼”å¥æ™‚ã®ãƒ©ã‚¹ãƒˆãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿é€ä¿¡ã®ã‚¦ã‚¨ã‚¤ãƒˆ
+#lsp_wait=1	* (0ï½16= waitÃ—0ï½16 / -1=ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã‚’é€ä¿¡ã—ãªã„)
 
 *======================================================================================
-* ƒŒƒR[ƒfƒBƒ“ƒO‚Ìİ’è
+* ãƒ¬ã‚³ãƒ¼ãƒ‡ã‚£ãƒ³ã‚°ã®è¨­å®š
 
-* ƒƒgƒƒm[ƒ€‚Åg—p‚·‚éƒm[ƒg(click&bell)
+* ãƒ¡ãƒˆãƒ­ãƒãƒ¼ãƒ ã§ä½¿ç”¨ã™ã‚‹ãƒãƒ¼ãƒˆ(click&bell)
 *        ch prg  key gt vel  key gt vel
 #rec_met=10,  0,  37, 2,106,  37, 2,120
 
 *======================================================================================
-* ƒ†[ƒU[’è‹`ƒGƒNƒXƒNƒ‹[ƒVƒu‚Ì‰Šúƒf[ƒ^(0`7)
+* ãƒ¦ãƒ¼ã‚¶ãƒ¼å®šç¾©ã‚¨ã‚¯ã‚¹ã‚¯ãƒ«ãƒ¼ã‚·ãƒ–ã®åˆæœŸãƒ‡ãƒ¼ã‚¿(0ï½7)
 
 * gt : SEND GATE POSITION DATA   cs : CLEAR CHECK SUM
 * ve : SEND VELO POSITION DATA   ss : SEND CHECK SUM
 * ch : SEND CHANNLE No.
 
-	[no][data(24byte) f0h f7h ‚ğÈ‚¢‚Äİ’è‚µ‚Ä‰º‚³‚¢B ]-[comment(24byte)       ]
+	[no][data(24byte) f0h f7h ã‚’çœã„ã¦è¨­å®šã—ã¦ä¸‹ã•ã„ã€‚ ]-[comment(24byte)       ]
 #user_exc=0,
 #user_exc=1,
 #user_exc=2,
@@ -40,17 +40,17 @@
 #user_exc=7,
 
 *======================================================================================
-* ‰¹FƒŠƒXƒg‚ÌŠ„‚è“–‚Ä(0=NoUse/1`15=part1`part15)
+* éŸ³è‰²ãƒªã‚¹ãƒˆã®å‰²ã‚Šå½“ã¦(0=NoUse/1ï½15=part1ï½part15)
 
-* ƒ`ƒƒƒ“ƒlƒ‹–ˆ‚Ì‰¹FƒŠƒXƒg‚ÌŠ„‚è“–‚Ä
-#group_a=0,1,1,1,1,1,1,1,1,2,3,3,3,3,3,3 * (ch.A1-16) CM-64—p
-#group_b=7,7,7,7,7,7,7,7,7,8,7,7,7,7,7,7 * (ch.B1-16) SC-55—p
+* ãƒãƒ£ãƒ³ãƒãƒ«æ¯ã®éŸ³è‰²ãƒªã‚¹ãƒˆã®å‰²ã‚Šå½“ã¦
+#group_a=0,1,1,1,1,1,1,1,1,2,3,3,3,3,3,3 * (ch.A1-16) CM-64ç”¨
+#group_b=7,7,7,7,7,7,7,7,7,8,7,7,7,7,7,7 * (ch.B1-16) SC-55ç”¨
 
 *======================================================================================
-* ƒŠƒYƒ€ƒAƒTƒCƒ“‚Ì‰Šúƒf[ƒ^(1`32) (ƒŠƒYƒ€ƒl[ƒ€‚Í14•¶š‚Ü‚Å)
+* ãƒªã‚ºãƒ ã‚¢ã‚µã‚¤ãƒ³ã®åˆæœŸãƒ‡ãƒ¼ã‚¿(1ï½32) (ãƒªã‚ºãƒ ãƒãƒ¼ãƒ ã¯14æ–‡å­—ã¾ã§)
 
-* ƒTƒEƒ“ƒhƒeƒXƒg—p‚Ìİ’è
-#rhy_as=10,-1,-1,,127	* ch.(1`16),prog.(0`127,-1=off),bank_l(0`127,-1=off),,vel
+* ã‚µã‚¦ãƒ³ãƒ‰ãƒ†ã‚¹ãƒˆç”¨ã®è¨­å®š
+#rhy_as=10,-1,-1,,127	* ch.(1ï½16),prog.(0ï½127,-1=off),bank_l(0ï½127,-1=off),,vel
 *--------------------------------------------------------------------------------------
 *[RHYTHM NAME][KEY,GT][RHYTHM NAME]-[KEY,GT][RHYTHM NAME]-[KEY,GT][RHYTHM NAME]-[KEY,GT]
 Hand Clap     , 39, 1,Mt HiConga    , 62, 1,High Conga    , 63, 1,Low Conga     , 64, 1
@@ -65,10 +65,10 @@ Cabasa        , 69, 1,Quijada       , 73, 1,              ,  0, 1,              
 #defoff
 
 *======================================================================================
-* ‰¹F–¼’è‹`(part1`400) (‰¹F–¼‚Í12•¶š‚Ü‚Å)
+* éŸ³è‰²åå®šç¾©(part1ï½400) (éŸ³è‰²åã¯12æ–‡å­—ã¾ã§)
 
 * [No.]-[Title(16byte) ][header][offset]
-#part=1,CM-64 LA PART   ,   LA:		* CM-64 LA PART“à‘ ‰¹F(tone 1`128)
+#part=1,CM-64 LA PART   ,   LA:		* CM-64 LA PARTå†…è”µéŸ³è‰²(tone 1ï½128)
 *--------------------------------------------------------------------------------------
 AcouPiano1,AcouPiano2,AcouPiano3,ElecPiano1,ElecPiano2,ElecPiano3,ElecPiano4,HonkyTonk
 Elec Org 1,Elec Org 2,Elec Org 3,Elec Org 4,Pipe Org 1,Pipe Org 2,Pipe Org 3,Accordion
@@ -89,7 +89,7 @@ Castanets ,Triangle  ,Orche Hit ,Telephone ,Bird Tweet,OneNoteJam,WaterBells,Jun
 *--------------------------------------------------------------------------------------
 #defoff
 
-#part=2,CM-64 RHYTHM&SE			* CM-64 RHYTHM&SE PART“à‘ ‰¹F(tone 1`64)
+#part=2,CM-64 RHYTHM&SE			* CM-64 RHYTHM&SE PARTå†…è”µéŸ³è‰²(tone 1ï½64)
 *--------------------------------------------------------------------------------------
 Acou BD   ,Acou SD   ,Acou HiTom,AcouMidTom,AcouLowTom,Elec SD   ,Clsd HiHat,OpenHiHat1
 Crash Cym ,Ride Cym  ,Rim Shot  ,Hand Clap ,Cowbell   ,Mt HiConga,High Conga,Low Conga
@@ -102,7 +102,7 @@ Birds     ,Rain      ,Thunder   ,Wind      ,Waves     ,Stream    ,Bubble    ,OFF
 *--------------------------------------------------------------------------------------
 #defoff
 
-#part=3,CM-64 PCM PART  ,  PCM:		* CM-64 PCM PART“à‘ ‰¹F(tone 1`128)
+#part=3,CM-64 PCM PART  ,  PCM:		* CM-64 PCM PARTå†…è”µéŸ³è‰²(tone 1ï½128)
 *--------------------------------------------------------------------------------------
 A.Piano 1 ,A.Piano 2 ,A.Piano 3 ,A.Piano 4 ,A.Piano 5 ,A.Piano 6 ,A.Piano 7 ,A.Piano 8
 A.Piano 9 ,A.Piano 10,E.Piano 1 ,E.Piano 2 ,E.Piano 3 ,E.Piano 4 ,E.Piano 5 ,A.Guitar 1
@@ -119,9 +119,9 @@ Brass 3   ,Brass 4   ,Brass 5   ,Orche Hit
 #defoff
 
 *-------- PCM CARD SOUND LIST ---------------------------------------------------------
-* PCMƒJ[ƒh‚Ì‰¹FƒŠƒXƒg(card 1`16)	* CM-64 PCM PARTŠg’£‰¹F (tone 1`128)
+* PCMã‚«ãƒ¼ãƒ‰ã®éŸ³è‰²ãƒªã‚¹ãƒˆ(card 1ï½16)	* CM-64 PCM PARTæ‹¡å¼µéŸ³è‰² (tone 1ï½128)
 
-#card=1,SN-U110-01 Pipe Organ & Harpsichord (1`20)	* 1991-06-10 by ™‹I
+#card=1,SN-U110-01 Pipe Organ & Harpsichord (1ï½20)	* 1991-06-10 by â˜†ç´€
 *--------------------------------------------------------------------------------------
 HARPSI 1  ,HARPSI 2  ,HARPSI 3  ,HARPSI 4  ,HARPSI 5  ,HARPSI 6  ,POSITIVE 1,POSITIVE 2
 POSITIVE 3,POSITIVE 4,POSITIVE 5,POSITIVE 6,CHURCH 1  ,CHURCH 2  ,CHURCH 3  ,CHURCH 4
@@ -129,7 +129,7 @@ CHURCH 5  ,CHURCH 6  ,CHURCH 7  ,CHURCH RVB
 *--------------------------------------------------------------------------------------
 #defoff
 
-#card=2,SN-U110-02 Latin & F.X. Percussions (1`52)	* 1991-03-10 by ‚g‚n‚q‚x
+#card=2,SN-U110-02 Latin & F.X. Percussions (1ï½52)	* 1991-03-10 by ï¼¨ï¼¯ï¼²ï¼¹
 *--------------------------------------------------------------------------------------
 LATIN 1   ,LATIN 2   ,LATIN 3   ,F.X. 1    ,F.X. 2    ,F.X. 3    ,F.X. 4    ,CONGA 1
 CONGA 2   ,CONGA 3   ,BONGO     ,CLAVES    ,TIMBALE   ,TAMBOURINE,WOOD BLOCK,WHISTLE
@@ -141,7 +141,7 @@ INTERFACE ,SCRATCH   ,STAKE     ,ZAPPU
 *--------------------------------------------------------------------------------------
 #defoff
 
-#card=3,SN-U110-03 Ethnic                   (1`38)	* 1991-06-27 by Ganba
+#card=3,SN-U110-03 Ethnic                   (1ï½38)	* 1991-06-27 by Ganba
 *--------------------------------------------------------------------------------------
 TABLA     ,TABLA-GA  ,TABLA-TE  ,TABLA-NA  ,TABLA-TRKT,TABLA-TUN ,TSUZUMI 1 ,TSUZUMI 2
 TSUZUMI 3 ,HYOSHIGI  ,GENDER 1  ,GENDER 2  ,SANZA 1   ,SANZA 2   ,BARAFON 1 ,BARAFON 2
@@ -151,21 +151,21 @@ KOTO TREMO,SICU 1    ,SICU 2    ,SHANAI 1  ,SHANAI 2  ,SHANAI 3
 *--------------------------------------------------------------------------------------
 #defoff
 
-#card=4,SN-U110-04 Electric Grand & Clavi   (1`12)	* 1991-09-01 by ¬WAIEN¬
+#card=4,SN-U110-04 Electric Grand & Clavi   (1ï½12)	* 1991-09-01 by ã€“WAIENã€“
 *--------------------------------------------------------------------------------------
 E.GRAND 1 ,E.GRAND 2 ,E.GRAND 3 ,E.GRAND 4 ,E.GRAND 5 ,E.GRAND 6 ,E.GRAND 7 ,E.GRAND 8
 CLAVI 1   ,CLAVI 2   ,CLAVI 3   ,CLAVI 4
 *--------------------------------------------------------------------------------------
 #defoff
 
-#card=5,SN-U110-05 Orchestral Strings       (1`11)	* 1991-04-25 by ƒ~ƒjƒJ
+#card=5,SN-U110-05 Orchestral Strings       (1ï½11)	* 1991-04-25 by ãƒŸãƒ‹ã‚«
 *--------------------------------------------------------------------------------------
 VIOLIN 1  ,VIOLIN 2  ,VIOLIN 3  ,CELLO 1   ,CELLO 2   ,CELLO 3   ,CELLO/VLN ,CB/CELLO
 PIZZICATO ,HARP 1    ,HARP 2
 *--------------------------------------------------------------------------------------
 #defoff
 
-#card=6,SN-U110-06 Orchestral Winds         (1`36)	* 1991-04-25 by ƒ~ƒjƒJ
+#card=6,SN-U110-06 Orchestral Winds         (1ï½36)	* 1991-04-25 by ãƒŸãƒ‹ã‚«
 *--------------------------------------------------------------------------------------
 OBOE 1    ,OBOE 2    ,OBOE 3    ,OBOE 4    ,OBOE 5    ,OBOE 6    ,BASSOON 1 ,BASSOON 2
 BASSOON 3 ,BASSOON 4 ,BASSOON 5 ,CLARINET 1,CLARINET 2,CLARINET 3,CLARINET 4,CLARINET 5
@@ -175,7 +175,7 @@ TUBA 5    ,TIMPANI 1 ,TIMPANI 2
 *--------------------------------------------------------------------------------------
 #defoff
 
-#card=7,SN-U110-07 Electric Guitar          (1`71)	* 1990-08-01 by õ”V‰î
+#card=7,SN-U110-07 Electric Guitar          (1ï½71)	* 1990-08-01 by æŸ“ä¹‹ä»‹
 *--------------------------------------------------------------------------------------
 JZG SW 1  ,JZG SW 2  ,JZG SW 3  ,JZG piano ,JZG forte ,JZG DT pi ,JZG DT fo ,JZG OCT P1
 JZG OCT P2,JZG OCT F1,JZG OCT F2,JZG SW S/F,JZG COMP 1,JZG COMP 2,JZG COMP 3,ODG fuzzy
@@ -189,7 +189,7 @@ DSG FB 7  ,DSG FB 8  ,DSG FB 9  ,DSG FB 10 ,DSG FB 11 ,DSG FB 12 ,PICKING HM
 *--------------------------------------------------------------------------------------
 #defoff
 
-#card=8,SN-U110-08 Synthesizer              (1`28)	* 1991-07-14 by TURBO
+#card=8,SN-U110-08 Synthesizer              (1ï½28)	* 1991-07-14 by TURBO
 *--------------------------------------------------------------------------------------
 FANTASIA  ,BELL PAD  ,SYN.CHOIR ,BREATH VOX,L.CALLIOPE,CALLIOPE  ,METAL HIT ,RICH BRASS
 BRASTRINGS,STRINGPAD1,STRINGPAD2,PIZZAGOGO ,FANTA BELL,SPECT BELL,BELL DRUM ,SYN.HARP
@@ -198,20 +198,20 @@ NAILS     ,SPECTRUM 1,SPECTRUM 2,N.DANCE
 *--------------------------------------------------------------------------------------
 #defoff
 
-#card=9,SN-U110-09 Guitar & Keyboads        (1`16)	* 1991-05-29 by õ”V‰î
+#card=9,SN-U110-09 Guitar & Keyboads        (1ï½16)	* 1991-05-29 by æŸ“ä¹‹ä»‹
 *--------------------------------------------------------------------------------------
 BRIGHT EP1,BRIGHT EP2,SYN.VOX 1 ,SYN.VOX 2 ,SYN.BASS 4,SYN.BASS 5,SYN.BASS 6,SYN.BASS 7
 SYN.BASS 8,HEAVY.EG 1,HEAVY.EG 2,JP.STRINGS,JP.BRASS 1,JP.BRASS 2,R.ORGAN 1 ,R.ORGAN 2
 *--------------------------------------------------------------------------------------
 #defoff
 
-#card=10,SN-U110-10 Rock Drums               (1` 2)	*            by TURBO
+#card=10,SN-U110-10 Rock Drums               (1ï½ 2)	*            by TURBO
 *--------------------------------------------------------------------------------------
 ROCK DRUMS,ELEC DRUMS
 *--------------------------------------------------------------------------------------
 #defoff
 
-#card=11,SN-U110-11 Sound Effects            (1`34)	* 1991-06-06 by ‚Ä‚©‚Ä‚©
+#card=11,SN-U110-11 Sound Effects            (1ï½34)	* 1991-06-06 by ã¦ã‹ã¦ã‹
 *--------------------------------------------------------------------------------------
 CREAKING  ,DOOR      ,FOOTSTEPS ,WATERPHONE,S-STRINGS ,SCREAMING ,LAUGHING  ,DOG
 WAVE      ,STREAM    ,BIRDS     ,DROP      ,RAIN      ,THUNDER   ,CAR DOOR  ,CAR STOP
@@ -221,7 +221,7 @@ S-SET     ,C-SET
 *--------------------------------------------------------------------------------------
 #defoff
 
-#card=12,SN-U110-12 Sax & Trombone           (1`20)	* 1991-08-25 by ¬WAIEN¬
+#card=12,SN-U110-12 Sax & Trombone           (1ï½20)	* 1991-08-25 by ã€“WAIENã€“
 *--------------------------------------------------------------------------------------
 SAX SW 1  ,SAX SW 2  ,SAX SW 3  ,SAX SW 4  ,SAX P 1   ,SAX P 2   ,SAX P 3   ,SAX MF 1
 SAX MF 2  ,SAX FF    ,TRB SW 1  ,TRB SW 2  ,TRB P     ,TRB MF    ,TRB FF    ,TP/TRB SW1
@@ -229,14 +229,14 @@ TP/TRB SW2,TP/TRB P  ,TP/TRB MF ,TP/TRB FF
 *--------------------------------------------------------------------------------------
 #defoff
 
-#card=13,SN-U110-13 Super Strings            (1`12)	* 1991-12-21 by ‚­‚Ü‚ ‚é‚«
+#card=13,SN-U110-13 Super Strings            (1ï½12)	* 1991-12-21 by ãã¾ã‚ã‚‹ã
 *--------------------------------------------------------------------------------------
 SUP STR 1 ,SUP STR 1L,SUP STR 1R,SUP STR 2 ,SUP STR 2L,SUP STR 2R,SUP STR 3 ,SUP STR 3L
 SUP STR 3R,SUP STR 4 ,SUP STR 4L,SUP STR 4R
 *--------------------------------------------------------------------------------------
 #defoff
 
-#card=14,SN-U110-14 Super Ac Guitar          (1`19)	* 1992-01-07 by FATMAN
+#card=14,SN-U110-14 Super Ac Guitar          (1ï½19)	* 1992-01-07 by FATMAN
 *--------------------------------------------------------------------------------------
 STEEL GTR1,STEEL SOFT,STEEL HARD,STEEL GTR2,STEEL (L) ,STEEL (R) ,NYLON GTR1,NYLON SOFT
 NYLON HARD,NYLON GTR2,NYLON (L) ,NYLON (R) ,12STR GTR1,12STR GTR2,12STR GTR3,12STR GTR4
@@ -244,16 +244,16 @@ NYLON HARD,NYLON GTR2,NYLON (L) ,NYLON (R) ,12STR GTR1,12STR GTR2,12STR GTR3,12S
 *--------------------------------------------------------------------------------------
 #defoff
 
-#card=15,SN-U110-15 Super Brass              (1`13)	* 1993-08-29 by –‚—‚Ì‘î‹}•Ö
+#card=15,SN-U110-15 Super Brass              (1ï½13)	* 1993-08-29 by é­”å¥³ã®å®…æ€¥ä¾¿
 *--------------------------------------------------------------------------------------
 HI BRASS 1,HI BRASS 2,HI BRS SF ,LO BRASS 1,LO BRASS 2,LO BRS SF ,BRS CMB 1 ,BRS CMB 1L
 BRS CMB 1R,BRS CMB 2 ,BRS CMB 2L,BRS CMB 2R,BRS CMB SF
 *--------------------------------------------------------------------------------------
 #defoff
 
-*#card=16,CM-500/64e CM-64 Emulate Mode(prog.65`128)	* 1991-12-26 by TURBO
+*#card=16,CM-500/64e CM-64 Emulate Mode(prog.65ï½128)	* 1991-12-26 by TURBO
 **--------------------------------------------------------------------------------------
-** CM-500 >> CM-64 Emulate Mode(CM-64ƒ‚[ƒh‚Å‚ÌPCMƒJ[ƒhƒGƒŠƒA‚Ì‰¹F‚ÌƒŠƒXƒg)
+** CM-500 >> CM-64 Emulate Mode(CM-64ãƒ¢ãƒ¼ãƒ‰ã§ã®PCMã‚«ãƒ¼ãƒ‰ã‚¨ãƒªã‚¢ã®éŸ³è‰²ã®ãƒªã‚¹ãƒˆ)
 **
 *Harpsi    ,CoupledHps,Church 1  ,Church 2  ,TinkleBell,SteelDrums,Celesta   ,Sitar
 *Santur    ,Koto      ,Pan Flute ,Piano 3   ,Clav.     ,Violin 1  ,Violin 2  ,Cello 1
@@ -266,9 +266,9 @@ BRS CMB 1R,BRS CMB 2 ,BRS CMB 2L,BRS CMB 2R,BRS CMB SF
 **--------------------------------------------------------------------------------------
 *#defoff
 
-#part=5,<<< Roland U220 , U220:		* ‰¹FƒŠƒXƒg(prog.0`127)
+#part=5,<<< Roland U220 , U220:		* éŸ³è‰²ãƒªã‚¹ãƒˆ(prog.0ï½127)
 *--------------------------------------------------------------------------------------
-* Roland U220 sound list(prog.0`127)
+* Roland U220 sound list(prog.0ï½127)
 *
 A.Piano 1 ,A.Piano 4 ,A.Piano 10,E.Piano 1 ,E.Piano 5 ,Bright EP ,Vib 1     ,Marimba
 Bell      ,Fanta Bell,A.Guitar 1,E.Guitar 1,Heavy EG 1,E.Organ 1 ,E.Organ 3 ,E.Organ 5
@@ -289,7 +289,7 @@ Catastrp 5,Pizz      ,Breath    ,Nails     ,Spectrum 1,Spectrum 2,N.Dance   ,Dru
 *--------------------------------------------------------------------------------------
 #defoff
 
-#part=7,Roland GS format,   GS:		* GS format‚Ì‰¹FƒŠƒXƒg(bank0`127/prog.0`127)
+#part=7,Roland GS format,   GS:		* GS formatã®éŸ³è‰²ãƒªã‚¹ãƒˆ(bank0ï½127/prog.0ï½127)
 *--------------------------------------------------------------------------------------
 * Roland GS format sound list for SC-55			* 1994-05-17 by TURBO
 *
@@ -329,7 +329,7 @@ Telephone 1 ,Helicopter  ,Applause    ,Gun Shot
 *--------------------------------------------------
 #defoff
 
-#part=8,Roland GS drums , GSds:		* GS drums ‚ÌƒŠƒYƒ€ƒZƒbƒgƒŠƒXƒg(prog.0`127)
+#part=8,Roland GS drums , GSds:		* GS drums ã®ãƒªã‚ºãƒ ã‚»ãƒƒãƒˆãƒªã‚¹ãƒˆ(prog.0ï½127)
 *--------------------------------------------------------------------------------------
 * Roland GS drums sound list for SC-55			* 1991-12-21 by Ext
 *
@@ -357,4 +357,3 @@ SFX       ,          ,          ,          ,          ,          ,          ,
 *--------------------------------------------------------------------------------------
 * cm64.def : end of file
 *--------------------------------------------------------------------------------------
-
