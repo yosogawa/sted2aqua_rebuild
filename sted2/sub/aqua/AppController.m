@@ -153,6 +153,8 @@ ApplySyncModeMenuTitle(NSMenuItem *item)
 - (void)localizeAboutMenuItem;
 - (void)installViewMenu;
 - (void)localizeHelpMenuTitle;
+- (void)installFileMenu;
+- (IBAction)fileCommand:(id)sender;
 - (void)installPlaybackMenu;
 - (IBAction)playbackCommand:(id)sender;
 - (void)installKeyboardViewerMenu;
@@ -283,6 +285,7 @@ sted_argv_with_launch_file(int *argcIO, char **argv)
 	[xview setNeedsDisplay:YES];
 	XSTed_init_window();
 	[self localizeAboutMenuItem];
+	[self installFileMenu];
 	[self installViewMenu];
 	[self localizeHelpMenuTitle];
 	[self installPlaybackMenu];
@@ -580,6 +583,10 @@ enum { kScanR = 0x14 };
 	}
 }
 
+static CGFloat sPlaybackKeyTab;
+static CGFloat sFileKeyTab;
+static void ApplyKeyedItemTitle(NSMenuItem *item, CGFloat tab, int enabled, int highlighted);
+
 - (void)menu:(NSMenu *)menu willHighlightItem:(NSMenuItem *)item
 {
 	NSInteger i, n = [menu numberOfItems];
@@ -587,11 +594,21 @@ enum { kScanR = 0x14 };
 	for (i = 0; i < n; i++) {
 		NSMenuItem *other = [menu itemAtIndex:i];
 		int on;
+		CGFloat tab;
+		int keyed;
 
-		if ([other action] != @selector(playbackCommand:))
+		if ([other action] == @selector(playbackCommand:)) {
+			keyed = 1;
+			tab = sPlaybackKeyTab;
+		} else if ([other action] == @selector(fileCommand:)) {
+			keyed = 1;
+			tab = sFileKeyTab;
+		} else
+			keyed = 0;
+		if (!keyed)
 			continue;
 		on = [other isEnabled];
-		ApplyPlaybackItemTitle(other, on, other == item && on);
+		ApplyKeyedItemTitle(other, tab, on, other == item && on);
 	}
 }
 
@@ -715,17 +732,108 @@ enum {
 	kPbPointAll
 };
 
-/* X68000 scans. P is sKeyTable['P']. XF keys have no ASCII byte. */
+/* X68000 scans. P, L, and S are sKeyTable letters. XF keys have no ASCII byte. */
 enum {
 	kScanP = 0x1a,
+	kScanL = 0x26,
+	kScanS = 0x1f,
 	kScanXF1 = 0x55,
 	kScanXF2 = 0x56,
 	kScanXF5 = 0x59
 };
 
-/* Right edge of every shortcut. XF keys are not AppKit key equivalents, so
-   the column is a tab in the title. A real key equivalent would swallow P. */
-static CGFloat sPlaybackKeyTab;
+enum {
+	kFileLoad = 1,
+	kFileSave
+};
+
+static NSMenuItem *
+FileItem(NSString *label, NSString *keyName, NSInteger tag, id target)
+{
+	NSMenuItem *item = [[NSMenuItem alloc] initWithTitle:label
+						      action:@selector(fileCommand:)
+					       keyEquivalent:@""];
+	[item setTag:tag];
+	[item setTarget:target];
+	[item setRepresentedObject:[NSArray arrayWithObjects:label, keyName, nil]];
+	return item;
+}
+
+- (void)installFileMenu
+{
+	NSMenu *mainMenu = [NSApp mainMenu];
+	NSMenu *menu;
+	NSMenuItem *top, *item;
+	NSInteger i, n, insertAt;
+
+	if (mainMenu == nil)
+		return;
+	n = [mainMenu numberOfItems];
+	insertAt = 1;
+	for (i = 0; i < n; i++) {
+		if ([[[mainMenu itemAtIndex:i] title] isEqualToString:@"Edit"]) {
+			insertAt = i;
+			break;
+		}
+	}
+	menu = [[NSMenu alloc] initWithTitle:NSLocalizedString(@"File", @"File menu")];
+	item = FileItem(NSLocalizedString(@"LOAD", @"File menu"), @"L", kFileLoad, self);
+	[menu addItem:item];
+	[item release];
+	item = FileItem(NSLocalizedString(@"SAVE", @"File menu"), @"S", kFileSave, self);
+	[menu addItem:item];
+	[item release];
+	sFileKeyTab = 0;
+	{
+		NSFont *font = [NSFont menuFontOfSize:0];
+		NSDictionary *measure = @{ NSFontAttributeName: font };
+		CGFloat maxLabel = 0, maxKey = 0;
+
+		n = [menu numberOfItems];
+		for (i = 0; i < n; i++) {
+			NSArray *parts = [[menu itemAtIndex:i] representedObject];
+			CGFloat w;
+
+			if (![parts isKindOfClass:[NSArray class]] || [parts count] < 2)
+				continue;
+			w = [[parts objectAtIndex:0] sizeWithAttributes:measure].width;
+			if (w > maxLabel)
+				maxLabel = w;
+			w = [[parts objectAtIndex:1] sizeWithAttributes:measure].width;
+			if (w > maxKey)
+				maxKey = w;
+		}
+		sFileKeyTab = maxLabel + 28.0 + maxKey;
+		for (i = 0; i < n; i++) {
+			NSMenuItem *row = [menu itemAtIndex:i];
+			if ([row action] == @selector(fileCommand:))
+				ApplyKeyedItemTitle(row, sFileKeyTab, 1, 0);
+		}
+	}
+	[menu setDelegate:self];
+	top = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"File", @"File menu")
+					action:nil keyEquivalent:@""];
+	[top setSubmenu:menu];
+	[mainMenu insertItem:top atIndex:insertAt];
+	[menu release];
+	[top release];
+}
+
+- (IBAction)fileCommand:(id)sender
+{
+	/* No key equivalent. The command screen still owns plain L and S.
+	   Shift stays on the keyboard: load into tracks 18+, or swap RCP/R36. */
+	switch ([sender tag]) {
+	case kFileLoad:
+		XSTed_post_command_key((kScanL << 8) | 'L', 0);
+		break;
+	case kFileSave:
+		XSTed_post_command_key((kScanS << 8) | 'S', 0);
+		break;
+	default:
+		break;
+	}
+}
 
 static NSColor *
 PlaybackTitleColor(int enabled, int highlighted)
@@ -738,7 +846,7 @@ PlaybackTitleColor(int enabled, int highlighted)
 }
 
 static void
-ApplyPlaybackItemTitle(NSMenuItem *item, int enabled, int highlighted)
+ApplyKeyedItemTitle(NSMenuItem *item, CGFloat keyTab, int enabled, int highlighted)
 {
 	NSArray *parts = [item representedObject];
 	NSString *label, *keyName;
@@ -753,7 +861,7 @@ ApplyPlaybackItemTitle(NSMenuItem *item, int enabled, int highlighted)
 	keyName = [parts objectAtIndex:1];
 	font = [NSFont menuFontOfSize:0];
 	tab = [[NSTextTab alloc] initWithTextAlignment:NSTextAlignmentRight
-					      location:sPlaybackKeyTab
+					      location:keyTab
 					       options:@{}];
 	style = [[NSMutableParagraphStyle alloc] init];
 	[style setTabStops:[NSArray arrayWithObject:tab]];
@@ -770,6 +878,12 @@ ApplyPlaybackItemTitle(NSMenuItem *item, int enabled, int highlighted)
 	[item setTitle:[NSString stringWithFormat:@"%@ %@", label, keyName]];
 	[item setAttributedTitle:title];
 	[title release];
+}
+
+static void
+ApplyPlaybackItemTitle(NSMenuItem *item, int enabled, int highlighted)
+{
+	ApplyKeyedItemTitle(item, sPlaybackKeyTab, enabled, highlighted);
 }
 
 static void
@@ -1306,6 +1420,12 @@ objectValueForTableColumn:(NSTableColumn *)tableColumn
 	if ([menuItem action] == @selector(playbackCommand:)) {
 		int on = playbackItemEnabled([menuItem tag]);
 		ApplyPlaybackItemTitle(menuItem, on, 0);
+		return on;
+	}
+	if ([menuItem action] == @selector(fileCommand:)) {
+		int on = sted_cmdkey_waiting()
+			&& STedScreenCurrent() == STED_SCR_COMMAND;
+		ApplyKeyedItemTitle(menuItem, sFileKeyTab, on, 0);
 		return on;
 	}
 	if ([menuItem action] == @selector(midiInputMonitor:))

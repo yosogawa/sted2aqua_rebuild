@@ -7,6 +7,11 @@
 "Could not save sted2.cnf" = "sted2.cnf を保存できませんでした";
 "Could not write the font setting." = "フォント設定を書き込めませんでした。";
 
+/* ファイルメニュー。項目名は MAIN 画面の LOAD / SAVE に合わせ、L と S は表示だけ。 */
+"File" = "ファイル";
+"LOAD" = "LOAD";
+"SAVE" = "SAVE";
+
 /* Playback menu. Key names stay in the item title, not as key equivalents. */
 "Playback" = "再生";
 "Play" = "再生";
@@ -472,6 +477,8 @@ OTHER DEALINGS IN THE FONT SOFTWARE.\n\nCopyright (c) Keitarou Hiraki, Font Silo
 /* オーディオメニュー */
 "Generate DEF file from SF2" = "SF2 から音源定義ファイル生成";
 "LOAD Module define file(def, dfb)..." = "音源定義ファイル(def, dfb)のロード";
+"LOAD SONG FILE (rcp, r36, mid, abc)..." = "曲データファイル(rcp, r36, mid, abc)のロード";
+"SAVE SONG FILE (rcp, r36, mid, abc)..." = "曲データファイル(rcp, r36, mid, abc)のセーブ";
 
 /* MIDI → SF2 から音源定義ファイルを作成 */
 "Generate DEF from SF2..." = "SF2 から音源定義ファイルを作成...";

@@ -9,6 +9,11 @@
 "Could not save sted2.cnf" = "Could not save sted2.cnf";
 "Could not write the font setting." = "Could not write the font setting.";
 
+/* File menu. LOAD and SAVE match the MAIN screen. L and S are labels. */
+"File" = "File";
+"LOAD" = "LOAD";
+"SAVE" = "SAVE";
+
 /* Playback menu. Key names stay in the item title, not as key equivalents. */
 "Playback" = "Playback";
 "Play" = "Play";
@@ -474,6 +479,8 @@ OTHER DEALINGS IN THE FONT SOFTWARE.\n\nCopyright (c) Keitarou Hiraki, Font Silo
 /* Audio menu */
 "Generate DEF file from SF2" = "Generate Module define file from SF2";
 "LOAD Module define file(def, dfb)..." = "LOAD Module define file(def, dfb)...";
+"LOAD SONG FILE (rcp, r36, mid, abc)..." = "LOAD SONG FILE (rcp, r36, mid, abc)...";
+"SAVE SONG FILE (rcp, r36, mid, abc)..." = "SAVE SONG FILE (rcp, r36, mid, abc)...";
 
 /* MIDI → Generate DEF from SF2 */
 "Generate DEF from SF2..." = "Generate Module define file from SF2...";

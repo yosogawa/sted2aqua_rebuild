@@ -3903,7 +3903,17 @@ s_MacSelectFile(void **args)
 				[extHint appendFormat:@".%@", one];
 			}
 		}
-		if (!is_save && mes != NULL && strcmp(mes, "DEFINE") == 0) {
+		if (mes != NULL && strcmp(mes, "COMPOSE") == 0) {
+			/* Song data: RCP / R36 / MID / ABC. JA uses 曲データファイル. */
+			if (is_save)
+				title = NSLocalizedString(
+					@"SAVE SONG FILE (rcp, r36, mid, abc)...",
+					@"Song save panel");
+			else
+				title = NSLocalizedString(
+					@"LOAD SONG FILE (rcp, r36, mid, abc)...",
+					@"Song open panel");
+		} else if (!is_save && mes != NULL && strcmp(mes, "DEFINE") == 0) {
 			/* Help calls this a module define file / 音源定義ファイル. */
 			title = NSLocalizedString(
 				@"LOAD Module define file(def, dfb)...",
