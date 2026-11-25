@@ -1,6 +1,8 @@
 /*
  * sf2_def_gen.c — SF2 → DEF skeleton generator (C).
  * #rhy_as comes from the first bank 128 kit that has per-key names.
+ * The directive is omitted when that kit has no names; an empty block
+ * clears STed2's rhythm assign and leaves it inoperable.
  */
 
 #include "sf2_def_gen.h"
@@ -832,22 +834,12 @@ sf2_write_rhy_block(FILE *fp, const struct Sf2RhyMap *rhy)
 {
 	int i, n;
 
-	fprintf(fp, "#rhy_as=10,0,-1,,127\r\n");
-	if (rhy == NULL || rhy->count <= 0) {
-		fprintf(fp,
-			"*--------------------------------------------------------------------------------------\r\n"
-			"              ,  0, 1,              ,  0, 1,              ,  0, 1,              ,  0, 1\r\n"
-			"              ,  0, 1,              ,  0, 1,              ,  0, 1,              ,  0, 1\r\n"
-			"              ,  0, 1,              ,  0, 1,              ,  0, 1,              ,  0, 1\r\n"
-			"              ,  0, 1,              ,  0, 1,              ,  0, 1,              ,  0, 1\r\n"
-			"              ,  0, 1,              ,  0, 1,              ,  0, 1,              ,  0, 1\r\n"
-			"              ,  0, 1,              ,  0, 1,              ,  0, 1,              ,  0, 1\r\n"
-			"              ,  0, 1,              ,  0, 1,              ,  0, 1,              ,  0, 1\r\n"
-			"              ,  0, 1,              ,  0, 1,              ,  0, 1,              ,  0, 1\r\n"
-			"*--------------------------------------------------------------------------------------\r\n"
-			"#defoff\r\n");
+	/* No per-key names: omit the directive. An empty #rhy_as replaces
+	 * STed2's rhythm assign with blanks and the screen cannot be edited. */
+	if (rhy == NULL || rhy->count <= 0)
 		return;
-	}
+
+	fprintf(fp, "#rhy_as=10,0,-1,,127\r\n");
 	fprintf(fp,
 		"* Rhythm assign from SF2 bank 128 program %d (%d keys). Gate is 1.\r\n"
 		"*--------------------------------------------------------------------------------------\r\n",
@@ -911,7 +903,7 @@ sf2_write_def(const char *outPath, const char *moduleLabel, const char *idLabel,
 		"*--------------------------------------------------------------------------------------\r\n"
 		"* Auto-generated from SoundFont2 by STed2.07(%s).\r\n"
 		"* Melodic banks map via #gs_pbank; percussion bank 128 is listed as kits.\r\n"
-		"* #rhy_as is filled from the first bank 128 kit when per-key names exist.\r\n"
+		"* #rhy_as is written only when the first bank 128 kit has per-key names.\r\n"
 		"*--------------------------------------------------------------------------------------\r\n"
 		"\r\n"
 		"#module= A: %.*s\r\n"
