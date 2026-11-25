@@ -21,6 +21,14 @@ static char sInName[256];
 static char sOutName[2][256];
 static int sOutClock[2];
 
+int
+MIDISettingsOutputClock(int port)
+{
+	if (port < 0 || port > 1)
+		return 0;
+	return sOutClock[port] ? 1 : 0;
+}
+
 const char *
 MIDISettingsSavedInputName(void)
 {

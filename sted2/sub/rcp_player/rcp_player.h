@@ -17,6 +17,8 @@
 
 double rcpplayer_step_to_microseconds(int32_t step);
 int32_t rcpplayer_microseconds_to_step(uint32_t micros);
+/* 0 when the play image has no timebase yet. */
+int rcpplayer_timebase(void);
 int rcpplayer_next_midi_event(int32_t *step, uint8_t **ptr, int *length, int *port);
 int rcpplayer_init(uint8_t *data_ptr, size_t data_length);
 /* Re-init from the current image and advance to the first event at or

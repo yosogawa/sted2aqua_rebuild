@@ -54,6 +54,7 @@ public:
 	/* Step at which this play image's step 0 sits in the song.
 	   0 when the image starts at the top. Callers do not read it back. */
 	void setPlayOrigin(int32_t step);
+	int32_t playOrigin() const;
 	/* 14-bit SPP for origin + stepcount. Same quantum as an incoming F2. */
 	uint16_t locateSpp() const;
 	/* Engine entry: consume the elapsed µs prepared by SPP / start(). */

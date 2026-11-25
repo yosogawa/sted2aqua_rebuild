@@ -531,6 +531,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.\n\nCopyright (c) Keitarou Hiraki, Font Silo
 
 /* Help menu */
 "STed2 Help" = "STed2 ヘルプ";
+"STed2 plus Features" = "STed2 plus 独自の機能";
+"About the DLS Synth" = "DLSシンセについて";
+"About the AMY Synth" = "AMYシンセについて";
+"About ABC Files" = "ABCファイルについて";
 
 /* Help → Keyboard Viewer */
 "Keyboard Viewer" = "キーボードビューア";

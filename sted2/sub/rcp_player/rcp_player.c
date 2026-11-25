@@ -209,6 +209,12 @@ rcpplayer_microseconds_to_step(uint32_t micros)
 	return step;
 }
 
+int
+rcpplayer_timebase(void)
+{
+	return sPlayer.rcp.timebase;
+}
+
 static void
 decrement_step(int delta_step, int *min_track, int *min_note, int *min_step)
 {

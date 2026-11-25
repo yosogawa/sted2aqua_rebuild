@@ -36,6 +36,8 @@ void rcp_transport_song_position(uint16_t spp);
 /* Song step where the current play image starts. 0 starts at the top.
    There is no getter: locate_spp() is the value MIDI out and the locator use. */
 void rcp_transport_set_play_origin(int32_t step);
+/* Song step of the current image's time 0. 0 starts at the top. */
+int32_t rcp_transport_play_origin(void);
 /* Current location as a 14-bit Song Position Pointer.
    (play origin + stepcount) * 4 / tbase. Safe to send as F2. */
 uint16_t rcp_transport_locate_spp(void);

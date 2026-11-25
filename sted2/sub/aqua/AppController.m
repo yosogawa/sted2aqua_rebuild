@@ -20,6 +20,10 @@
 #include "rcp_transport.h"
 #include "sted.h"
 
+/* Help.framework. bookname is CFBundleHelpBookName / AppleTitle. path is
+ * relative to the localized folder, so Help Viewer picks ja or en. */
+extern int AHGotoPage(CFStringRef bookname, CFStringRef path, CFStringRef anchor);
+
 // prototype added
 void  XSTed_init_window(void);
 void  XSTed_start_main(int (*)(int, char **), int, char **);
@@ -159,6 +163,8 @@ ApplySyncModeMenuTitle(NSMenuItem *item)
 - (IBAction)playbackCommand:(id)sender;
 - (void)installKeyboardViewerMenu;
 - (void)installCommandReferenceMenu;
+- (void)installPlusHelpMenu;
+- (IBAction)showHelpPage:(id)sender;
 - (void)installAudioMenu;
 - (void)installGmSystemOnMenu;
 - (void)installThruModeMenu;
@@ -291,6 +297,7 @@ sted_argv_with_launch_file(int *argcIO, char **argv)
 	[self installPlaybackMenu];
 	[self installKeyboardViewerMenu];
 	[self installCommandReferenceMenu];
+	[self installPlusHelpMenu];
 	[self installGmSystemOnMenu];
 	[self installThruModeMenu];
 	[self installSyncModeMenu];
@@ -1073,6 +1080,62 @@ playbackItemEnabled(NSInteger tag)
 {
 	(void)sender;
 	CommandReferenceShow();
+}
+
+- (void)installPlusHelpMenu
+{
+	NSMenu *help = [NSApp helpMenu];
+	NSMenu *sub;
+	NSMenuItem *top, *item;
+	NSInteger i, n, at;
+	NSString *titles[4];
+	NSString *pages[4];
+
+	if (help == nil)
+		return;
+	titles[0] = NSLocalizedString(@"STed2 plus Features", @"Help menu");
+	titles[1] = NSLocalizedString(@"About the DLS Synth", @"Help menu");
+	titles[2] = NSLocalizedString(@"About the AMY Synth", @"Help menu");
+	titles[3] = NSLocalizedString(@"About ABC Files", @"Help menu");
+	pages[0] = @"plus.html";
+	pages[1] = @"dls.html";
+	pages[2] = @"amy.html";
+	pages[3] = @"abc.html";
+	sub = [[NSMenu alloc] initWithTitle:titles[0]];
+	for (i = 0; i < 4; i++) {
+		item = [[NSMenuItem alloc] initWithTitle:titles[i]
+						  action:@selector(showHelpPage:)
+					   keyEquivalent:@""];
+		[item setTarget:self];
+		[item setRepresentedObject:pages[i]];
+		[sub addItem:item];
+		[item release];
+	}
+	top = [[NSMenuItem alloc] initWithTitle:titles[0]
+					action:nil keyEquivalent:@""];
+	[top setSubmenu:sub];
+	at = [help numberOfItems];
+	n = [help numberOfItems];
+	for (i = 0; i < n; i++) {
+		if ([[help itemAtIndex:i] action] == @selector(showHelp:)) {
+			at = i + 1;
+			break;
+		}
+	}
+	[help insertItem:top atIndex:at];
+	[sub release];
+	[top release];
+}
+
+- (IBAction)showHelpPage:(id)sender
+{
+	NSString *page, *book;
+
+	page = [sender representedObject];
+	book = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleHelpBookName"];
+	if (![page isKindOfClass:[NSString class]] || [page length] == 0 || book == nil)
+		return;
+	AHGotoPage((CFStringRef)book, (CFStringRef)page, NULL);
 }
 
 - (IBAction)showColorPanel:(id)sender

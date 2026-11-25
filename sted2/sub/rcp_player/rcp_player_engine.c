@@ -1,6 +1,7 @@
 #include "rcp_player_engine.h"
 #include "rcp_player.h"
 #include "rcp_transport.h"
+#include "rcp_clock_out.h"
 #include "OutputPort.h"
 
 #include "sted.h"
@@ -194,6 +195,7 @@ rcpplayer_hold_if_stopped(void)
 			rcpplayer_update_clock();
 			if (sRestoreHeldNotesOnContinue)
 				rcpplayer_restore_held_notes();
+			rcp_clock_out_continue();
 		}
 		return 0;
 	}
@@ -201,7 +203,9 @@ rcpplayer_hold_if_stopped(void)
 		sHoldActive = 1;
 		rcpplayer_release_held_notes();
 		rcpplayer_update_clock();
+		rcp_clock_out_end();
 	}
+	rcp_clock_out_flush_spp();
 	return 1;
 }
 
@@ -212,6 +216,7 @@ rcpplayer_wait_prefetch(MIDITimeStamp nextEventTime, MIDITimeStamp prefetchTime)
 	while (!sStopPlaying && !rcpplayer_is_stop()) {
 		MIDITimeStamp now = AudioGetCurrentHostTime();
 		rcpplayer_update_clock();
+		rcp_clock_out_service();
 		if (nextEventTime <= now + prefetchTime)
 			return 0;
 		usleep(5000);
@@ -246,6 +251,8 @@ rcpplayer_engine(void)
 	}
 	if (rcp_transport_get_phase() == RCP_TRANSPORT_HELD)
 		rcp_sequence_clock_stop();
+	else
+		rcp_clock_out_begin();
 	sHoldActive = 0;
 	sParked = 0;
 	memset(sHeldCount, 0, sizeof sHeldCount);
@@ -263,6 +270,7 @@ rcpplayer_engine(void)
 			usleep(5000);
 			continue;
 		}
+		rcp_clock_out_service();
 		currentTime = AudioGetCurrentHostTime();
 
 		if (!sParked) {
@@ -279,6 +287,7 @@ rcpplayer_engine(void)
 						continue;
 					}
 					rcpplayer_update_clock();
+					rcp_clock_out_service();
 					usleep(5000);
 				}
 				break;
@@ -352,6 +361,7 @@ rcpplayer_engine(void)
 		sParked = 0;
 		(void)sts;
 	}
+	rcp_clock_out_end();
 	rcp_sequence_clock_stop();
 	/* Prefetch leaves the sample about 100ms before the final event.
 	   A natural end reports that event. Stop in the middle keeps the sample. */

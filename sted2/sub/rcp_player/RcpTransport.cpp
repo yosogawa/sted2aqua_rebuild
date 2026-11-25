@@ -7,6 +7,7 @@ extern "C" {
 #include "rcp_transport.h"
 #include "rcp_player.h"
 #include "rcp_player_engine.h"
+#include "rcp_clock_out.h"
 
 int STed_InitMeasureConversion(void);
 int is_coremidi_playing(void);
@@ -248,6 +249,7 @@ RcpTransport::returnToStart()
 	setPhase(Phase::Stopped);
 	*(volatile int32_t *)&rcd->sts = 1;
 	rcpplayer_invalidate_park();
+	rcp_clock_out_position_changed();
 }
 
 void
@@ -283,6 +285,7 @@ RcpTransport::songPosition(uint16_t spp)
 		return;
 
 	applySongPositionLocate(spp);
+	rcp_clock_out_position_changed();
 }
 
 uint16_t
@@ -297,6 +300,12 @@ RcpTransport::setPlayOrigin(int32_t step)
 	if (step < 0)
 		step = 0;
 	play_origin_.store(step, std::memory_order_release);
+}
+
+int32_t
+RcpTransport::playOrigin() const
+{
+	return play_origin_.load(std::memory_order_acquire);
 }
 
 uint16_t
@@ -416,6 +425,12 @@ void
 rcp_transport_set_play_origin(int32_t step)
 {
 	gTransport.setPlayOrigin(step);
+}
+
+int32_t
+rcp_transport_play_origin(void)
+{
+	return gTransport.playOrigin();
 }
 
 uint16_t
