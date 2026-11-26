@@ -53,6 +53,7 @@
 		A1F0E0111AC55B8700A70D01 /* KH-Dot-Kodenmachou-16.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A1F0E0131AC55B8700A70D03 /* KH-Dot-Kodenmachou-16.ttf */; };
 		A1F0E0121AC55B8700A70D02 /* OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = A1F0E0141AC55B8700A70D04 /* OFL.txt */; };
 		A1F0E0311AC55B8700A70D21 /* AVFAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1F0E0321AC55B8700A70D22 /* AVFAudio.framework */; };
+		A1GTORC12F0A4B0100GTOR01 /* gtor.c in Sources */ = {isa = PBXBuildFile; fileRef = A1GTORC22F0A4B0100GTOR02 /* gtor.c */; };
 		A1KBD012F0A4B0100KBD001 /* KeyboardViewer.m in Sources */ = {isa = PBXBuildFile; fileRef = A1KBD022F0A4B0100KBD002 /* KeyboardViewer.m */; };
 		A1KBD042F0A4B0100KBD004 /* x68000-keymap.png in Resources */ = {isa = PBXBuildFile; fileRef = A1KBD052F0A4B0100KBD005 /* x68000-keymap.png */; };
 		A1L10C011B01000100L10C01 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = A1L10C041B01000100L10C01 /* Localizable.strings */; };
@@ -208,6 +209,9 @@
 		A1F0E0431AC55B8700A70D33 /* key_sub.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = key_sub.h; sourceTree = "<group>"; };
 		A1F0E0441AC55B8700A70D34 /* redit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = redit.h; sourceTree = "<group>"; };
 		A1F0E0511AC55B8700A70D51 /* X68kWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = X68kWindow.h; sourceTree = "<group>"; };
+		A1G36SH12F0A4B0100G36SH1 /* g36struct.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = g36struct.h; sourceTree = "<group>"; };
+		A1GTORC22F0A4B0100GTOR02 /* gtor.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = gtor.c; sourceTree = "<group>"; };
+		A1GTORH12F0A4B0100GTORH1 /* gtor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gtor.h; sourceTree = "<group>"; };
 		A1ITORH12F0A4B0100ITORH /* itor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = itor.h; sourceTree = "<group>"; };
 		A1KBD022F0A4B0100KBD002 /* KeyboardViewer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeyboardViewer.m; sourceTree = "<group>"; };
 		A1KBD032F0A4B0100KBD003 /* KeyboardViewer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeyboardViewer.h; sourceTree = "<group>"; };
@@ -747,6 +751,9 @@
 			children = (
 				E40E95461ABA41ED0072AA0B /* itor.c */,
 				A1ITORH12F0A4B0100ITORH /* itor.h */,
+				A1GTORC22F0A4B0100GTOR02 /* gtor.c */,
+				A1GTORH12F0A4B0100GTORH1 /* gtor.h */,
+				A1G36SH12F0A4B0100G36SH1 /* g36struct.h */,
 				E40E95471ABA41ED0072AA0B /* Makefile */,
 				E40E95481ABA41ED0072AA0B /* rcddef.h */,
 				E40E95491ABA41ED0072AA0B /* rcpdef.h */,
@@ -966,6 +973,7 @@
 				E40E95E31ABA41ED0072AA0B /* file.c in Sources */,
 				E40E95E41ABA41ED0072AA0B /* graphic.c in Sources */,
 				E40E95E61ABA41ED0072AA0B /* itor.c in Sources */,
+				A1GTORC12F0A4B0100GTOR01 /* gtor.c in Sources */,
 				A1ABC0512F0A4B0100ABC051 /* abc_import.c in Sources */,
 				A1ABC0612F0A4B0100ABC061 /* abc_export.c in Sources */,
 				E40E95E81ABA41ED0072AA0B /* key_sub.c in Sources */,
