@@ -39,6 +39,7 @@
 		A1AMY2012F0A4B0100E00023 /* amy_platform.c in Sources */ = {isa = PBXBuildFile; fileRef = A1AMY1012F0A4B0100E00023 /* amy_platform.c */; };
 		A1AMY3032F0A4B0100E0E033 /* AmySynth.m in Sources */ = {isa = PBXBuildFile; fileRef = A1AMY3012F0A4B0100E0E031 /* AmySynth.m */; };
 		A1CK00032F0A4B0100E0E003 /* RcpClock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1CK00012F0A4B0100E0E001 /* RcpClock.cpp */; };
+		A1CLK0B12F0A4B0100CLK0B1 /* rcp_clock_out.c in Sources */ = {isa = PBXBuildFile; fileRef = A1CLK0C12F0A4B0100CLK0C1 /* rcp_clock_out.c */; };
 		A1CMD012F0A4B0100CMD001 /* CommandReference.m in Sources */ = {isa = PBXBuildFile; fileRef = A1CMD022F0A4B0100CMD002 /* CommandReference.m */; };
 		A1COL0D12F0A4B0100COL0D1 /* colorpanel.c in Sources */ = {isa = PBXBuildFile; fileRef = A1COL0B12F0A4B0100COL0B1 /* colorpanel.c */; };
 		A1DEF0012F0A4B0100E0E101 /* amy.def in Resources */ = {isa = PBXBuildFile; fileRef = A1DEF0022F0A4B0100E0E102 /* amy.def */; };
@@ -182,6 +183,8 @@
 		A1AMY3022F0A4B0100E0E032 /* AmySynth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AmySynth.h; sourceTree = "<group>"; };
 		A1CK00012F0A4B0100E0E001 /* RcpClock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RcpClock.cpp; sourceTree = "<group>"; };
 		A1CK00022F0A4B0100E0E002 /* RcpClock.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = RcpClock.hpp; sourceTree = "<group>"; };
+		A1CLK0C12F0A4B0100CLK0C1 /* rcp_clock_out.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = rcp_clock_out.c; sourceTree = "<group>"; };
+		A1CLK0H12F0A4B0100CLK0H1 /* rcp_clock_out.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rcp_clock_out.h; sourceTree = "<group>"; };
 		A1CMD022F0A4B0100CMD002 /* CommandReference.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CommandReference.m; sourceTree = "<group>"; };
 		A1CMD032F0A4B0100CMD003 /* CommandReference.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CommandReference.h; sourceTree = "<group>"; };
 		A1COL0B12F0A4B0100COL0B1 /* colorpanel.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 4; path = colorpanel.c; sourceTree = "<group>"; };
@@ -561,6 +564,8 @@
 				E40E95881ABA41ED0072AA0B /* rcp_player.h */,
 				A1E0E0012F0A4B0100E0E001 /* rcp_player_engine.c */,
 				A1E0E0022F0A4B0100E0E002 /* rcp_player_engine.h */,
+				A1CLK0C12F0A4B0100CLK0C1 /* rcp_clock_out.c */,
+				A1CLK0H12F0A4B0100CLK0H1 /* rcp_clock_out.h */,
 				A1TR00012F0A4B0100E0E001 /* RcpTransport.cpp */,
 				A1TR00022F0A4B0100E0E002 /* RcpTransport.hpp */,
 				A1TR00032F0A4B0100E0E003 /* rcp_transport.h */,
@@ -978,6 +983,7 @@
 				E40E96111ABA41ED0072AA0B /* CoreMIDIRCPPlayer.m in Sources */,
 				E40E96121ABA41ED0072AA0B /* rcp_player.c in Sources */,
 				A1E0E0032F0A4B0100E0E003 /* rcp_player_engine.c in Sources */,
+				A1CLK0B12F0A4B0100CLK0B1 /* rcp_clock_out.c in Sources */,
 				A1TR00042F0A4B0100E0E004 /* RcpTransport.cpp in Sources */,
 				A1TR00072F0A4B0100E0E007 /* rcp_transport_cmd.c in Sources */,
 				A1CK00032F0A4B0100E0E003 /* RcpClock.cpp in Sources */,

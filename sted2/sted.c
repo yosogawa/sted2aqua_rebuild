@@ -1768,27 +1768,38 @@ locator_refresh(int force)
 }
 
 /* Transport chip, column 87, 3 cells. Running is PLY, Held is PSE.
-   Stopped and Search stay blank. Drawn from the UI poll, not from the
-   clock or the MIDI callback. */
+   Realtime recording while the engine is active is REC in palette 6
+   (RECORD MODE). Stopped and Search stay blank. Drawn from the UI poll,
+   not from the clock or the MIDI callback. The recording flag is part of
+   the redraw key: it can change while phase and active stay put. */
 void
 transport_chip_refresh(int force)
 {
   static int last_phase = -1;
   static int last_active = -1;
+  static int last_rec = -1;
   char label[8];
   int phase;
   int active;
+  int rec;
   int col=15;
 
   phase = rcp_transport_get_phase();
   active = rcp_transport_is_active() ? 1 : 0;
-  if (!force && phase == last_phase && active == last_active)
+  rec = rcpplayer_is_realtime_recording() ? 1 : 0;
+  if (!force && phase == last_phase && active == last_active && rec == last_rec)
     return;
   last_phase = phase;
   last_active = active;
-  /* Natural end clears active but may leave phase Running; show blank then. */
+  last_rec = rec;
+  /* Natural end clears active but may leave phase Running; show blank then.
+     REC only while that engine is the realtime-recording session. */
   if (!active)
      label[0] = 0;
+  else if (rec) {
+      strcpy(label, "REC");
+      col = 6;
+  }
   else if (phase == RCP_TRANSPORT_RUNNING) {
       strcpy(label, "PLY");
       col = 10;
