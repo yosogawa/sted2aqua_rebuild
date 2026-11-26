@@ -103,6 +103,43 @@ ApplyMidiSyncMode(int ext)
 }
 
 static void
+sted_set_sync_mode_now(int ext)
+{
+	NSUserDefaults *def = [NSUserDefaults standardUserDefaults];
+
+	ext = ext ? 1 : 0;
+	ApplyMidiSyncMode(ext);
+	[def setBool:(ext != 0) forKey:kMidiSyncExtKey];
+}
+
+void
+sted_set_sync_mode(int ext)
+{
+	if ([NSThread isMainThread]) {
+		sted_set_sync_mode_now(ext);
+		return;
+	}
+	/* TIME&KEY runs on the X68k thread. The preference write stays on main. */
+	dispatch_sync(dispatch_get_main_queue(), ^{
+		sted_set_sync_mode_now(ext);
+	});
+}
+
+void
+sted_toggle_thru_mode(void)
+{
+	int on = thrumode ? 0 : 1;
+
+	if ([NSThread isMainThread]) {
+		XSTed_save_thrumode(on);
+		return;
+	}
+	dispatch_sync(dispatch_get_main_queue(), ^{
+		XSTed_save_thrumode(on);
+	});
+}
+
+static void
 ApplySyncModeMenuTitle(NSMenuItem *item)
 {
 	NSMenu *menu = [item menu];
@@ -515,10 +552,8 @@ sted_argv_with_launch_file(int *argcIO, char **argv)
 - (IBAction)setSyncMode:(id)sender
 {
 	int ext = rcp_clock_get_source() ? 0 : 1;
-	NSUserDefaults *def = [NSUserDefaults standardUserDefaults];
 
-	[def setBool:(ext != 0) forKey:kMidiSyncExtKey];
-	ApplyMidiSyncMode(ext);
+	sted_set_sync_mode(ext);
 	sted_redraw_sync_mode();
 	if ([sender isKindOfClass:[NSMenuItem class]])
 		ApplySyncModeMenuTitle((NSMenuItem *)sender);

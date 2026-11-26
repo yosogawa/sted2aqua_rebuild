@@ -1941,22 +1941,66 @@ sted_redraw_thru_mode(void)
   rcp_dat2(10, 0);
 }
 
+/* TIME&KEY cursor. Right column: TIMEBASE, THRU, SYNC.
+   MIDI IN is not a field. While the engine is active (PLY, PSE, REC,
+   and play-from-measure, whose chip stays blank), TIMEBASE and SYNC
+   are closed. */
+static int *beat_cx;
+static int *beat_row;
+
+static int
+beat_field(int cx, int row)
+{
+  if(cx==1 && row==0){return 7;}
+  if(cx==1 && row==1){return 10;}
+  if(cx==1 && row==2){return 9;}
+  if(row==0){return 3;}
+  if(row==1){return 4;}
+  if(row==2){return 5;}
+  return 6;
+}
+
+static int
+beat_closed(int cx, int row)
+{
+  return rcp_transport_is_active() && cx==1 && (row==0 || row==2);
+}
+
+/* inkey3 is waiting. Play can start with the highlight already on a
+   closed cell. Slide to the same row on the left and redraw here. */
+static void
+beat_idle(void)
+{
+  int	cx,row,from,to;
+
+  if(beat_cx==NULL || beat_row==NULL){return;}
+  cx=*beat_cx;
+  row=*beat_row;
+  if(!beat_closed(cx,row)){return;}
+  from=beat_field(cx,row);
+  *beat_cx=0;
+  to=beat_field(0,row);
+  rcp_dat2(from,0);
+  rcp_dat2(to,1);
+}
+
 /***************************/
 void	beat_set()
 {
   STED_SCREEN(STED_SCR_TIMEKEY);
-  int	ke,sh,ex,cx=0,i=0,mm=0;
+  int	ke,sh,ex,cx=0,i=0,mm=0,ocx,oi;
 
+  beat_cx=&cx;
+  beat_row=&i;
+  inkey_set_idle(beat_idle);
   while(1){
-
-    if(cx==0 && i==0){mm=3;}
-    if(         i==1){mm=4;}
-    if(         i==2){mm=5;}
-    if(         i==3){mm=6;}
-    if(cx==1 && i==0){mm=7;}
+    if(beat_closed(cx,i)){cx=0;}
+    mm=beat_field(cx,i);
 
     rcp_dat2(mm,1);
     ke=inkey3();sh=ke>>8;ke=ke&0xff;
+    /* The idle hook may already have slid off a closed cell. */
+    mm=beat_field(cx,i);
     rcp_dat2(mm,0);
 
     if( ke==27 ){break;}
@@ -1985,9 +2029,15 @@ void	beat_set()
 	B_LOCATE(26,9);ex=vinput(beat2,0x802);
 	if(es==0 && ex>1 && ex<=8){beat2=ex;}
       }
-      if( mm==7 ){
+      if( mm==7 && !rcp_transport_is_active() ){
 	B_LOCATE(45,6);ex=vinput(tbase,0x803);
 	if(es==0 && ex>=48 && ex<=480){tbase=ex;}
+      }
+      if( mm==10 ){
+	sted_toggle_thru_mode();
+      }
+      if( mm==9 && !rcp_transport_is_active() ){
+	sted_set_sync_mode(rcp_clock_get_source() ? 0 : 1);
       }
       B_LOCATE(0,2);C_CLS_ED();
     }
@@ -2011,7 +2061,7 @@ void	beat_set()
 	B_LOCATE(26,9);ex=vinput(beat2,0x802);
 	if(es==0 && ex>1 && ex<=8){beat2=ex;}
       }
-      if( mm==7 ){
+      if( mm==7 && !rcp_transport_is_active() ){
 	B_LOCATE(45,6);ex=vinput(ke-'0',0x403);
 	if(es==0 && ex>=48 && ex<=480){tbase=ex;}
       }
@@ -2031,7 +2081,7 @@ void	beat_set()
 	}
       }
       if( mm==5 ){bkey++;if(bkey>31){bkey=0;}}
-      if( mm==7 ){
+      if( mm==7 && !rcp_transport_is_active() ){
 	int j;
 	for(j=0;j<10;j++){
 	  if(tbase<tbase_tbl[j]){tbase=tbase_tbl[j];break;}
@@ -2051,7 +2101,7 @@ void	beat_set()
 	}
       }
       if( mm==5 ){bkey--;if(bkey<0){bkey=31;}}
-      if( mm==7 ){
+      if( mm==7 && !rcp_transport_is_active() ){
 	int j;
 	for(j=10-1;j>=0;j--){
 	  if(tbase>tbase_tbl[j]){tbase=tbase_tbl[j];break;}
@@ -2064,15 +2114,20 @@ void	beat_set()
       if( mm==4 ){pbias=0;}
       if( mm==5 ){bkey=0;}
       if( mm==6 ){beat1=4;beat2=4;}
-      if( mm==7 ){tbase=48;}
+      if( mm==7 && !rcp_transport_is_active() ){tbase=48;}
     }
+    ocx=cx;oi=i;
     if( ke==0x0b ){i=0;}
 
     if( ke==0x05 ){i--;if(i<0){i=3;}}
     if( ke==0x18 ){i++;if(i>3){i=0;}}
     if( ke==0x13 ){cx--;if(cx<0){cx=1;}}
     if( ke==0x04 ){cx++;if(cx>1){cx=0;}}
+    if(beat_closed(cx,i)){cx=ocx;i=oi;}
   }
+  inkey_set_idle(NULL);
+  beat_cx=NULL;
+  beat_row=NULL;
 }
 
 /***************************/

@@ -39,6 +39,8 @@ int  vinput(int default_val, int mode);
 void sinput(char *buf, int mode);
 int  inkey2(void);
 int  inkey3(void);
+/* Called from inkey3's wait, on that same thread. NULL clears it. */
+void inkey_set_idle(void (*fn)(void));
 void snsclr(void);
 void spcut(char *st);
 int  knck(const char *st, int p);

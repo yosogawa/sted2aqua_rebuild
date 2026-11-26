@@ -53,6 +53,14 @@ char	hex_code[16]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','
 
 int isinputmode=0;
 
+static void (*sInkeyIdle)(void);
+
+void
+inkey_set_idle(void (*fn)(void))
+{
+  sInkeyIdle = fn;
+}
+
 /***************************/
 int	vinput(int l,int ln)
 {
@@ -202,6 +210,8 @@ int	inkey3(void)
   while(INPOUT(0xfe)!=0){INPOUT(0xff);}
   while(ke==0){
     locator_refresh(0);
+    if (sInkeyIdle != NULL)
+      sInkeyIdle();
     /* Finder open is handled by com_sel only. Other inkey3 callers leave
        the idle flag clear, so this does not load from those screens. */
     if (sted_main_idle_waiting() && sted_finder_request_pending())

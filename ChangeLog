@@ -1,6 +1,8 @@
 2026-11-26
 
 	REALTIME RECORDING 中にトランスポート状態表示に [REC] を出すようにした
+	[TIME & KEY] に増設した、SYNC MODE, THRU MODE のEDITを可能にした。
+	EDITできそうでEDIT出来ないのはストレスになってUX の低下に繋がる。なお MIDI メニューからの変更も今まで通り可能
 
 2026-11-25
 

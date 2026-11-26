@@ -281,9 +281,9 @@ static const Row kRows[] = {
 	{ STED_SCR_MEMO, 0, "clr", "メモをすべて消す", "Clear the memo" },
 	{ STED_SCR_MEMO, 0, "esc", "抜ける", "Leave" },
 
-	{ STED_SCR_TIMEKEY, 0, "up | down | left | right", "テンポ、バイアス、キー、拍子、タイムベースを移動する", "Move among tempo, bias, key, beat, and timebase" },
+	{ STED_SCR_TIMEKEY, 0, "up | down | left | right", "テンポ、バイアス、キー、拍子、タイムベース、スルー、シンクを移動する。再生中はタイムベースとシンクには乗らない", "Move among tempo, bias, key, beat, timebase, thru, and sync. While the sequencer is running, timebase and sync are skipped" },
 	{ STED_SCR_TIMEKEY, 0, "home", "各列の先頭へ戻る", "Back to the first item in the column" },
-	{ STED_SCR_TIMEKEY, 0, "ret | 0-9", "数値を入力する。キーでは Return でスケール選択が開く", "Type a value. On Key, Return opens the scale list" },
+	{ STED_SCR_TIMEKEY, 0, "ret | 0-9", "数値を入力する。キーでは Return でスケール選択が開く。スルーとシンクは Return で切り替える", "Type a value. On Key, Return opens the scale list. Thru and Sync toggle on Return" },
 	{ STED_SCR_TIMEKEY, 0, "plus | greater", "+1。テンポの Shift は +10、バイアスは +12。タイムベースは次の段階", "Add 1. Shift adds 10 to tempo or 12 to bias. Timebase steps up" },
 	{ STED_SCR_TIMEKEY, 0, "minus | less", "-1。テンポの Shift は -10、バイアスは -12。タイムベースは前の段階", "Subtract 1. Shift subtracts 10 from tempo or 12 from bias" },
 	{ STED_SCR_TIMEKEY, 0, "space", "その項目を初期値に戻す", "Reset the current item" },

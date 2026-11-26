@@ -349,6 +349,10 @@ char *mdinport(void);
 void sted_redraw_midi_in(void);
 void sted_redraw_sync_mode(void);
 void sted_redraw_thru_mode(void);
+/* INT/EXT for the clock, the recording mirror, and MidiSyncExt. */
+void sted_set_sync_mode(int ext);
+/* ON/OFF in thrumode and #thrumode= in sted2.cnf. */
+void sted_toggle_thru_mode(void);
 void save_sub(int sh);
 int  option_read(char *env_option);
 void form(void);
