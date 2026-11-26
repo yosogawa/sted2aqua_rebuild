@@ -478,7 +478,8 @@ sted_finder_path_ok(const char *path)
   base = strrchr(path, '/');
   base = (base != NULL) ? base + 1 : path;
   return sted_finder_ext_is(base, "rcp") || sted_finder_ext_is(base, "r36") ||
-    sted_finder_ext_is(base, "mid") || sted_finder_ext_is(base, "abc");
+    sted_finder_ext_is(base, "mid") || sted_finder_ext_is(base, "abc") ||
+    sted_finder_ext_is(base, "g36") || sted_finder_ext_is(base, "g18");
 }
 
 int

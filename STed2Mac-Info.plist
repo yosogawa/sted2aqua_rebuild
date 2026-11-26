@@ -44,6 +44,30 @@
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
+			<string>G36</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.github.STed2.g36</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeName</key>
+			<string>G18</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.github.STed2.g18</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeName</key>
 			<string>ABC</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
@@ -179,6 +203,40 @@
 				<key>public.filename-extension</key>
 				<array>
 					<string>abc</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>G36</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.github.STed2.g36</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>g36</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>G18</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.github.STed2.g18</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>g18</string>
 				</array>
 			</dict>
 		</dict>

@@ -479,7 +479,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.\n\nCopyright (c) Keitarou Hiraki, Font Silo
 /* Audio menu */
 "Generate DEF file from SF2" = "Generate Module define file from SF2";
 "LOAD Module define file(def, dfb)..." = "LOAD Module define file(def, dfb)...";
-"LOAD SONG FILE (rcp, r36, mid, abc)..." = "LOAD SONG FILE (rcp, r36, mid, abc)...";
+"LOAD SONG FILE (rcp, r36, mid, abc, g36, g18)..." = "LOAD SONG FILE (rcp, r36, mid, abc, g36, g18)...";
 "SAVE SONG FILE (rcp, r36, mid, abc)..." = "SAVE SONG FILE (rcp, r36, mid, abc)...";
 
 /* MIDI → Generate DEF from SF2 */

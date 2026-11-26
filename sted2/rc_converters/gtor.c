@@ -2,10 +2,10 @@
 /* *.G36 (Recomposer/98 v2.5g) converter / player  */
 /***************************************************/
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif /* HAVE_CONFIG_H */
-
+/*
+ This code is brought from Takayuki Toda's 'rc_converters'.
+ Modified 2026 by Yoshinori Ogawa
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,38 +13,31 @@
 #include "gtor.h"
 #include "rcpfile.h"
 #include "g36struct.h"
-#include "rcpdef.h"
 #include "rcddef.h"
-//#include "x68funcs.h"
-//#include "gettext_wrapper.h"
-#include "../sub/encoding.h"
+
+/* The standalone converter used gettext. This build keeps the English text. */
+#define _(s) (s)
 
 #define TRACK_LEN 65536
-
-extern void rcd_check( void );
-extern struct RCD_HEAD	*rcd;
-extern char version[5];
 
 static int tai_compres( int );
 static int same_compres( int );
 static int add_set( int ,int * );
 static int meas_len( int ,int );
 
-static FILE *fpi,*fpo;
-static int opt, comment, stop;
+static int comment;
 static int sameflag;
-static int stamp,stampflag;
 
-static uint8_t *rcpptr, *lastptr, *dataptr;
+static uint8_t *rcpptr, *lastptr;
 static uint8_t *inptr, *buf;
 static uint8_t *note_data, *note;
 
+static size_t insize;
 static int incount;
+static int get_error;		/* set if get_data would run past insize */
 static int tc;
 static int trk_len,trk_max;
 static int ptr;
-
-static char g36_name[256], rcp_name[256];
 
 static const char memoinit[] = "                                    ";
 static const char ttlinit[] = "                                                                ";
@@ -59,9 +52,10 @@ static int len;
 
 static int nbuf[16], vbuf[16], gbuf[16], cbuf[16];
 
-static char	rc_path[256];
+static void same_cluc(int);
 
-void	same_cluc(int );
+static G36HEAD G36_HEAD;
+static G36TRACK G36_TRACK;
 
 static int alloc_mem( void )
 {
@@ -74,53 +68,40 @@ static int alloc_mem( void )
   note_data = ( uint8_t * )work;
   buf = ( uint8_t * )( work + TRACK_LEN * 2 );
 
-  if( opt == 3 ) {
-    if( ( work = malloc( rcd->totalcount ) ) == NULL ) {
-      fprintf( stderr, "Memory exhausted.\n" );
-      return 1;
-    }
-    inptr = ( uint8_t * )work;
-  }
+  return 0;
 }
 
-static void move_buf( void )
+static void destroy_mem( void )
 {
-  movedata( ( char * )rcpptr, ( char *)inptr, rcd->totalcount );
+  if ( note_data != NULL )
+    free( note_data );
+
+  note_data = NULL;
+  buf = NULL;
+  note = NULL;
 }
 
 static void get_data( uchar *s, int bc )
 {
-  if( opt != 3 ) {
-    if( fread( s, 1, bc, fpi ) != bc ) {
-      fprintf( stderr, _("Cannot read file.\n") );
-      exit(16);
-    }
-  } else {
-    movedata( ( char *)( inptr + incount ), ( char * )s, bc );
-    incount += bc;
+  if( get_error )
+    return;
+
+  if( bc < 0 || (size_t)incount + (size_t)bc > insize ) {
+    get_error = 1;
+    return;
   }
+  memmove( s, inptr + incount, (size_t)bc );
+  incount += bc;
 }
 
 static void put_data( uchar *s, int bc )
 {
-  if( opt ) {
-
-    if( lastptr <= rcpptr + bc ) {
-      fprintf( stderr, _("Buffer exhausted.\n") );
-      exit(16);
-    }
-    movedata( ( char * )s, ( char * )rcpptr, bc );
-    rcpptr += bc;
-
-  } else {
-
-    if( fwrite( s, 1, bc, fpo ) != bc ) {
-      fprintf( stderr, _("Cannot write file.\n") );
-      fclose(fpo);unlink((char *)rcp_name);
-      exit(16);
-    }
-
+  if( lastptr <= rcpptr + bc ) {
+    fprintf( stderr, _("Buffer exhausted.\n") );
+    return;
   }
+  memmove( rcpptr, s, (size_t)bc );
+  rcpptr += bc;
 }
 
 static void strncpy0( uchar *dst, uchar *src, int n )
@@ -140,48 +121,6 @@ static void strpaste( uchar *dst, uchar *src )
   }
 }
 
-static void strnpaste( uchar *dst, uchar *src, int n )
-{
-  while( n-- ) {
-    *dst++ = *src++;
-  }
-}
-
-static void pickfile( char *dst, char *src )
-{
-  char *p, *p1;
-
-  p = src;
-
-  if( p <= ( p1 = ( char * )jstrrchr( ( uchar * )src, '\\' ) ) ) {
-    p = p1 + 1;
-  }
-  if( p <= ( p1 = ( char * )jstrrchr( ( uchar * )src, '/' ) ) ) {
-    p = p1 + 1;
-  }
-  if( p <= ( p1 = ( char * )jstrrchr( ( uchar * )src, ':' ) ) ) {
-    p = p1 + 1;
-  }
-
-  strcpy( dst, p );
-
-}
-
-static char *extptr( char *s )
-{
-  char *p;
-
-  for( p = s + strlen( s ) - 1; p != s; p-- ) {
-    if( *p == '\\' || *p == '/' || *p == ':' ) {
-      return( 0 );
-    }
-    if( *p == '.' ) {
-      return( p );
-    }
-  }
-  return( 0 );
-}
-
 static void entry( uchar x0, uchar x1, uchar x2, uchar x3 )
 {
 
@@ -192,19 +131,12 @@ static void entry( uchar x0, uchar x1, uchar x2, uchar x3 )
 
   if( len >= 65492+65536 ) {
     fprintf( stderr, _("Track buffer filled.\n") );
-    exit(16);
+    len -= 4;
+    return;
   }
 
 }
 
-static int get_delta4( int p )
-{
-  register int val;
-
-  val = ((buf[p+3]*256+buf[p+2])*256+buf[p+1])*256+buf[p];
-
-  return( val );
-}
 static int get_delta2( int p )
 {
   register int val;
@@ -344,11 +276,6 @@ static void ent_buf( int nt, int vl, int gt )
     */
 }
 
-static void note_off( int p )
-{
-  /* do nothing */
-}
-
 static void note_on( int p )
 {
   int gt;
@@ -378,7 +305,7 @@ static void proc_next( void )
   length = trk_len;
   step = stepx = 0;
 
-  while(ptr<length) {
+  while( (size_t)ptr + 6 <= (size_t)length ) {
     code = buf[ptr];
     c1 = buf[ptr+1];c2 = buf[ptr+2];c3 = buf[ptr+3];c4 = buf[ptr+4];
     c5 = buf[ptr+5];
@@ -410,7 +337,9 @@ static void proc_next( void )
 	ptr += 6;
 	entry( code, 0x00, c4, c1 );
 
-	while( buf[ptr] == 0xf7 ){
+	while( cc <= ( int )sizeof( text ) - 6
+	       && (size_t)ptr + 6 <= (size_t)length
+	       && buf[ptr] == 0xf7 ){
 	  c1 = buf[ptr+1];c2 = buf[ptr+2];c3 = buf[ptr+3];
 	  c4 = buf[ptr+4];c5 = buf[ptr+5];
 	  ptr += 6;
@@ -432,7 +361,9 @@ static void proc_next( void )
 	text[cc++]=c4;text[cc++]=c5;
 	ptr += 6;
 
-	while( buf[ptr] == 0xf7 ){
+	while( cc <= ( int )sizeof( text ) - 6
+	       && (size_t)ptr + 6 <= (size_t)length
+	       && buf[ptr] == 0xf7 ){
 	  c1 = buf[ptr+1];c2 = buf[ptr+2];c3 = buf[ptr+3];
 	  c4 = buf[ptr+4];c5 = buf[ptr+5];
 	  ptr += 6;
@@ -513,36 +444,18 @@ static void proc_next( void )
 }
 
 
-static void proc_header( void )
+static int proc_header( void )
 {
   uchar ttl[128];
-  int	division;
+  int	division, i;
 
   get_data( ( uchar * )&G36_HEAD, 0xc98 );
+  if( get_error )
+    return 1;
 
   if( strncmp( ( char * )G36_HEAD.mark,"COME ON MUSIC RECOMPOSER RCP3.0",32-1 ) ) {
-    fprintf( stderr, 
-	     _("This file format is not a Recomposer/98 V2.5G (%s).\n"),
-	     g36_name );
-    fclose( fpi );
-    exit(16);
-  }
-
-  if( opt == 0 ) {
-    if(G36_HEAD.trkmax>18){
-      fprintf( stderr, _("This file is over 18 tracks. It is converted into .r36 file.\n") );
-      strmfe(rcp_name,rcp_name,"r36");
-    }
-
-    if( !( fpo = fopen( rcp_name, "wb" ) ) ) {
-      fprintf( stderr, _("Cannot create file ( %s ).\n"), rcp_name );
-      exit(16);
-    }
-  }
-
-  if( opt ) {
-    pickfile( rcd->filename, g36_name );
-    rcd->tonename[0] = 0;
+    fprintf( stderr, _("This file format is not a Recomposer/98 V2.5G.\n") );
+    return 1;
   }
 
   division = G36_HEAD.Timebaseh*256 + G36_HEAD.Timebase;
@@ -555,14 +468,12 @@ static void proc_header( void )
     printf( "Version 3.00 File\n" );
     printf( "division =%4d\n", division );
   }
+  strpaste( RCP_HEAD.title, ( uchar * )ttlinit );
   strpaste( RCP_HEAD.title, ttl );
 
-  strpaste( RCP_HEAD.memo +  28, ( uchar * )"  This file is converted " );
-  strpaste( RCP_HEAD.memo +  84, ( uchar * )"  from RecomposerV2.5G   " );
-  strpaste( RCP_HEAD.memo + 140, ( uchar * )"  by   GtoR.x (v1.00)により" );
-  strpaste( RCP_HEAD.memo + 151+5, ( uchar * )version );
-  strpaste( RCP_HEAD.memo + 196, ( uchar * )"                         " );
-  strpaste( RCP_HEAD.memo + 252, ( uchar * )"  Copyright 1996 TURBO" );
+  /* G36 memo is 12 lines of 30 Shift_JIS bytes. RCP stores 28. */
+  for( i = 0; i < 12; i++ )
+    memcpy( RCP_HEAD.memo + i * 28, G36_HEAD.memo + i * 30, 28 );
 
   RCP_HEAD.Tempo = G36_HEAD.Tempo;
   RCP_HEAD.Timebase = G36_HEAD.Timebase;
@@ -584,12 +495,6 @@ static void proc_header( void )
   }
 
   trk_max=G36_HEAD.trkmax;
-
-  /*
-    for(i=0;i<12;i++){
-    memcpy(&RCP_HEAD.memo+(i*30),&G36_HEAD.memo+(i*32),30);
-    }
-    */
 
   memcpy(&RCP_HEAD.Rhythm,&G36_HEAD.Rhythm,16*32 );
   memcpy(&RCP_HEAD.Exclusive,&G36_HEAD.Exclusive,48*8 );
@@ -624,6 +529,7 @@ static void proc_header( void )
 
   tc = 0x0586;
 
+  return 0;
 }
 
 static void track_end( void )
@@ -663,12 +569,14 @@ static void track_end( void )
 
 }
 
-static void proc_track( void )
+static int proc_track( void )
 {
   int i;
   uchar work[128];
 
   get_data( ( uchar * )&G36_TRACK, 46 );
+  if( get_error )
+    return 1;
 
   strncpy0( work, G36_TRACK.Memo, 36 );
 
@@ -700,7 +608,14 @@ static void proc_track( void )
   TRACK.ST_offset = G36_TRACK.ST_offset;
   TRACK.Mode = G36_TRACK.Mode;
 
+  /* buf is the second half of the alloc_mem block. */
+  if( trk_len < 0 || (size_t)trk_len > (size_t)TRACK_LEN * 2
+      || (size_t)incount + (size_t)trk_len > insize )
+    return 1;
+
   get_data( buf,trk_len );
+  if( get_error )
+    return 1;
   ptr=0;
 
   proc_next();
@@ -710,6 +625,8 @@ static void proc_track( void )
   put_data( ( uchar * )&TRACK.len_low, 44 );
   put_data( ( uchar * )note, len );
   tc += len + 44;
+
+  return 0;
 }
 
 static void dummy_track( void )
@@ -735,133 +652,6 @@ static void dummy_track( void )
   tc += len + 44;
 }
 
-static void set_valid( void )
-{
-  rcd->fmt = 1;
-  if(trk_max>18) {rcd->fmt = 2;}
-  rcd->data_valid = 1;
-  rcd->tone_valid = 0;
-  rcd->gsd_valid = 0;
-  rcd->word_valid = 0;
-
-}
-
-#if 0
-int exe( char *s1, char *s2, char *s3, char *s4, char *s5, char *s6 )
-{
-  /*
-  int rc;
-
-  char	tmp0[128];
-
-  strcpy(tmp0,rc_path);strcat(tmp0,s1);
-  if ( ( rc = execl( tmp0, s2, s3, s4, s5, s6 ) ) > 15 ) {
-    if(rc_path[0]==0 || rc>0){
-      fprintf( stderr, _("RCP が起動できません。\n") );
-    }else{
-      if ( ( rc = execl( s1, s2, s3, s4, s5, s6 ) ) > 15 ) {
-	fprintf( stderr, _("RCP が起動できません。\n") );
-      }
-    }
-  }
-  return( rc );
-  */
-}
-
-void usage( void )
-{
-  B_PRINT(_(
-	    "Usage: GtoR [-option...] <File Name>\n"
-	    "                         If extension omitted, *.g36 is added\n"
-	    "Option:  C : File conversion (*.g36 into *.rcp)\n"
-	    "	      T : Specifies max value of Timebase\n"
-	    "	      S : Compress with SAME MEAS\n"
-	    "	      N : Suppress all messages\n" ));
-  exit(20);
-}
-
-void option( char *s )
-{
-  char c;
-
-  opt = 0;
-  comment = 0;
-  stop = 0;
-  stampflag = 1;
-  sameflag = 0;
-  tb_mode = 0;
-  tb_max = 48;
-
-  if( !*s ) {
-    usage();
-  }
-
-  while( (c = *s++) ) {
-    switch( c ) {
-    case 'C' :
-    case 'c' :
-      opt = 0;
-      break;
-    case 'B' :
-    case 'b' :
-      opt = 1;
-      stop = 0;
-      break;
-    case 'P' :
-    case 'p' :
-      opt = 2;
-      stop = 0;
-      break;
-    case 'K' :
-    case 'k'  :
-      opt = 2;
-      stop = 1;
-      break;
-    case 'R' :
-    case 'r'  :
-      opt = 3;
-      break;
-    case 'X' :
-    case 'x' :
-      opt = 4;
-      stop = 0;
-      break;
-    case 'S' :
-    case 's' :
-      sameflag = 1;
-      break;
-    case 'T' :
-    case 't' :
-      tb_mode = 1;
-      tb_max = 0;
-      while(*s>='0' && *s<='9'){
-	tb_max=tb_max*10+((*s++)-'0');
-      }
-      if(tb_max<48){tb_max=240;}
-      break;
-
-    case 'N' :
-    case 'n' :
-      comment = 1;
-      break;
-      /*
-	case 'M' :
-	case 'm' :
-	stampflag = 1;
-	break;
-	*/
-    case ' ' :
-      opt = 0;
-      break;
-    default :
-      usage();
-      break;
-    }
-  }
-
-}
-#endif
-
 /*******************************************************************************
  *
  *
@@ -870,156 +660,53 @@ void option( char *s )
  **/
 int gtor( uint8_t *g36_data, size_t g36_size, uint8_t *rcp_buf )
 {
-}
+  int i;
 
-#if 0
-static int main( int argc, char **argv )
-{
-  char s[260];
-  char file_name[256], *p;
-  int rc;
+  note_data = NULL;
+  /* Keep a timebase up to 480. Leave SAME MEAS events as stored.
+     Progress messages stay off because this runs inside the app. */
+  comment = 1;
+  sameflag = 0;
+  tb_mode = 1;
+  tb_max = 480;
 
-#ifdef ENABLE_NLS
-  setlocale( LC_ALL, "" );
-  bindtextdomain( PACKAGE, LOCALEDIR );
-  textdomain( PACKAGE );
-#endif /* ENABLE_NLS */
-
-  fprintf( stderr,
-	   "X68k GtoR: Recomposer/98 V2.5G file converter v%s Copyright 1996 TURBO\n",
-	   version );
-
-  rc_path[0]=0;
-  if( !GETENV( ( uchar * )"RC_PATH", NULL, ( uchar * )s ) ) {
-    int	i;
-    strcpy(rc_path,s); 
-    i=strlen(rc_path)-1;
-    if(i>0 && rc_path[i]!='\\' && rc_path[i]!='/'){strcat(rc_path,"\\");}
+  if ( alloc_mem() != 0 )
+    return 0;
+  if ( g36_data == NULL || g36_size == 0 || rcp_buf == NULL ) {
+    destroy_mem();
+    return 0;
   }
 
-  file_name[0]=0;
-  switch( argc ) {
-  case 2 :
-    if( argv[1][0] == '-' ) {
-      option( &argv[1][1] );
-    } else {
-      option( " " );
-      strcpy( file_name, argv[1] );
-    }
-    break;
-  case 3 :
-    if( argv[1][0] != '-' ) {
-      usage();
-    }
-    option( &argv[1][1] );
-    strcpy( file_name, argv[2] );
-    break;
-  default :
-    usage();
-    break;
+  inptr   = g36_data;
+  insize  = g36_size;
+  get_error = 0;
+  rcpptr  = rcp_buf;
+  incount = 0;
+  lastptr = rcpptr + DATA_ADR_SIZE;
+
+  for ( i = 0; i < 16; i++ )
+    note_data[i] = 0xff;
+
+  note = note_data + 16;
+
+  if ( proc_header() != 0 ) {
+    destroy_mem();
+    return 0;
   }
 
-  if( opt ) {
-    rcd_check();
-
-    rcpptr = dataptr = ( uchar * )rcd->data_adr;
-    lastptr = rcpptr + rcd->bufcap;
-    if( rcd->act ) {
-      (*rcd->end)();
+  for ( trk = 0; trk < trk_max; trk++ ) {
+    if ( proc_track() != 0 ) {
+      destroy_mem();
+      return 0;
     }
   }
 
-  if( opt != 3 ) {
-
-    strcpy( g36_name, file_name );
-    /*
-      if( !stcgfe( ext, file_name ) ) {
-      strcat( g36_name, ".G36" );
-      }
-      */
-
-    if( (p = extptr( file_name )) ) {
-      *p = 0;
-    }
-
-    if( p == 0 ) {strcat( g36_name, ".g36" );}
-
-    strcpy( rcp_name, file_name );
-    strcat( rcp_name, ".rcp" );
-
-    if( !( fpi = fopen( g36_name, "rb" ) ) ) {
-      fprintf( stderr, _("Cannot read file ( %s ).\n"), g36_name );
-      exit(16);
-    }
-
-  } else {
-    strcpy( g36_name, rcd->filename );
-  }
-
-  alloc_mem();
-
-  if( opt == 3 ) {
-    move_buf();
-  }
-
-  proc_header();
-
-  for( trk = 0; trk < trk_max; trk++ ) {
-    proc_track();
-  }
-
-  for( trk = trk_max; trk < RCP_HEAD.trkmax ; trk++ ) {
+  for ( trk = trk_max; trk < RCP_HEAD.trkmax; trk++ )
     dummy_track();
-  }
 
-  if( opt != 3 ) {
-    stamp=getft(fileno(fpi));
-    fclose( fpi );
-  }
-
-  MFREE( 0 );
-
-  if( opt ) {
-    rcd->totalcount = tc;
-  }
-
-  rc = 0; /*warning*/
-
-  switch( opt ) {
-  case 0 :
-    fclose( fpo );
-    if(stampflag!=0){
-      fpo=fopen(rcp_name,"ab");chgft(fileno(fpo),stamp);fclose(fpo);
-    }
-    rc = 0;
-    break;
-  case 1 :
-    set_valid();
-    rc = exe( "rcp", "", "", "-B", ( char * ) 0, ( char * ) 0 );
-    break;
-  case 2 :
-    set_valid();
-    switch( stop ) {
-    case 0:
-      rc = exe( "rcp", "", "", "-PB", ( char * ) 0, ( char * ) 0 );
-      break;
-    case 1:
-      rc = exe( "rcp", "", "", "-KB", ( char * ) 0, ( char * ) 0 );
-      break;
-    }
-    break;
-  case 3 :
-    rc = 0;
-    set_valid();
-    break;
-  case 4 :
-    set_valid();
-    break;
-  }
-
-  exit( rc );
+  destroy_mem();
+  return (int)( rcpptr - rcp_buf );
 }
-#endif
 
 /***************************/
 static int tai_compres(int ln)

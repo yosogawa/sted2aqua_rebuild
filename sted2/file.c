@@ -18,6 +18,7 @@
 #include	"rcp_transport_cmd.h"
 
 #include        "rcpconv.h"
+#include        "rc_converters/gtor.h"
 #include        "abc2rcp/abc2rcp.h"
 
 /* 123456789012345678901234567890 */
@@ -112,6 +113,87 @@ static int smfload( char *fna ) {
   }
 
   free(rcpbuf);
+  return(0);
+}
+
+/* Recomposer 2.5G .g18/.g36. gtor() yields an RCP image. md==1 keeps the
+ * current song header and places the image's first 18 tracks at track 18. */
+static int g36load(char *fna, int md)
+{
+  int  i,j,size2,ln,md2=0,stra=0,max;
+  long size;
+  FILE *fp;
+  uint8_t *g36buf, *rcpbuf;
+  size_t ptr;
+  int rcpsize;
+
+  fp = fopen2(fna,"rb");
+  if ( fp == NULL ) {msg("File not found.");return(-1);}
+  fseek(fp,0,SEEK_END);
+  size=ftell(fp);
+  fseek(fp,0,SEEK_SET);
+  if ( size <= 0 ) {fclose(fp);msg("Invalid file.");return(-1);}
+
+  g36buf = (uint8_t *)malloc(sizeof(uint8_t)*size);
+  if ( g36buf==NULL ) {fclose(fp);return(-1);}
+  if ( fread(g36buf, 1, size, fp) != (size_t)size ) {
+    fclose(fp);free(g36buf);msg("Invalid file.");return(-1);
+  }
+  fclose(fp);
+
+  rcpbuf = (uint8_t *)malloc(sizeof(uint8_t)*DATA_ADR_SIZE);
+  if ( rcpbuf == NULL ) {free(g36buf);return(-1);}
+
+  if ( (rcpsize=gtor( g36buf, (size_t)size, rcpbuf )) == 0 ) {
+    msg("Invalid file.");
+    free(rcpbuf);free(g36buf);return(-1);
+  }
+  free(g36buf);
+
+  ptr=0;
+  memmove( hed, rcpbuf+ptr, RCP_FILE_HEADER_SIZE );
+  ptr+=RCP_FILE_HEADER_SIZE;
+  if ( strcmp(sread(0,30),rcp_id)!=0 ) {
+    msg("Invalid file format.");free(rcpbuf);return(-1);
+  }
+  if(hed[0x1e6]==36){md2=1;}else{md2=0;}
+  if(md2==0){max=18;}else{max=36;}
+  if(md==1){stra=18;max=36;}else{dinit();hedread();}
+
+  for(i=stra;i<max;i++){
+    if( ptr + RCP_TRACK_HEADER_SIZE > (size_t)rcpsize ){
+      if(i==18){break;}
+      msg("Invalid file.");break;
+    }
+    memmove(hed,rcpbuf+ptr,RCP_TRACK_HEADER_SIZE);size=thedread(i);size2=0;
+    ptr+=RCP_TRACK_HEADER_SIZE;
+    if( size<RCP_EVENT_SIZE ){msg("Invalid file.");break;}
+    if( size>TRACK_SIZE ){size2=(int)size;size=TRACK_SIZE;}
+
+    if(size_change(i,(int)size)){break;}
+    ln=(int)size;
+    memmove(trk[i],rcpbuf+ptr,size);
+    if( rcpsize<ptr+size ) ln=0;
+    ptr+=size;
+
+    if( ln!=size ){if(i==18){break;}msg("Invalid file.");size=ln;break;}
+
+    size=gomi_cut(trk[i],(int)size);
+    if( size<RCP_EVENT_SIZE ){msg("Invalid file.");break;}
+    tr_len[i]=(int)size;trk[i][size-RCP_EVENT_SIZE]=RCP_EOT;
+
+    if( size2>0){
+      msg("Track buffer exhausted.");size2-=(int)size;
+      while( size2>0 ){
+	if( size2>TRACK_SIZE ){j=TRACK_SIZE;}else{j=size2;}
+	memmove(dat,rcpbuf+ptr,j);ptr+=j;
+	size2=size2-j;
+      }
+    }
+  }
+
+  free(rcpbuf);
+  trksize_c();
   return(0);
 }
 
@@ -327,6 +409,9 @@ int	dload(char *fna,int md)
 
   if (ends_with_abc(fna))
     return abcload(fna);
+
+  if (ends_with_ci(fna, ".g18") || ends_with_ci(fna, ".g36"))
+    return g36load(fna, md);
 
   if(str_search(fna,".R36")>0 || str_search(fna,".r36")>0){md2=1;}
 

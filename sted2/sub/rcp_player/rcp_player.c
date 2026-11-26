@@ -383,6 +383,10 @@ rcpplayer_init(uint8_t *data_ptr, size_t data_length)
 	if (result == 0) {
 		rcp_midi_dump_tracks("after header");
 		sPlayer.total_step = -1;
+		/* 500000 µs is 120. Until a TEMPO event, play at the header tempo.
+		   Ratio 64 means the header value itself. */
+		if (sPlayer.rcp.tempo > 0)
+			sPlayer.last_tempo = 1000 * 1000 * 60 / sPlayer.rcp.tempo;
 		rcpplayer_next_midi_event(NULL, NULL, NULL, NULL);
 		rcp_clock_set_tempo_us(sPlayer.last_tempo, sPlayer.rcp.timebase);
 #if RCP_MIDI_PORT_DUMP

@@ -477,7 +477,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.\n\nCopyright (c) Keitarou Hiraki, Font Silo
 /* オーディオメニュー */
 "Generate DEF file from SF2" = "SF2 から音源定義ファイル生成";
 "LOAD Module define file(def, dfb)..." = "音源定義ファイル(def, dfb)のロード";
-"LOAD SONG FILE (rcp, r36, mid, abc)..." = "曲データファイル(rcp, r36, mid, abc)のロード";
+"LOAD SONG FILE (rcp, r36, mid, abc, g36, g18)..." = "曲データファイル(rcp, r36, mid, abc, g36, g18)のロード";
 "SAVE SONG FILE (rcp, r36, mid, abc)..." = "曲データファイル(rcp, r36, mid, abc)のセーブ";
 
 /* MIDI → SF2 から音源定義ファイルを作成 */

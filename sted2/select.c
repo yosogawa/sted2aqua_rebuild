@@ -982,6 +982,9 @@ void	fsel(char *fna,char *pth,int w)
 			/* One-track MIDI save is not implemented. Load still offers TRK:MID. */
 			if ((cc & 1) != 0 && w == 5)
 				ext = "TRK";
+			/* G36/G18 are import only. Song save keeps RCP/R36/MID/ABC. */
+			if ((cc & 1) == 0 && w == 1)
+				ext = "RCP:R36:MID:ABC:G36:G18";
 			MacSelectFile(fna, pth, (cc & 1), fsel_title[w], ext,
 				      pscope);
 			if (pscope != NULL)
