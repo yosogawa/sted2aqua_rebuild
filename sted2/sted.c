@@ -1125,7 +1125,9 @@ void	com_sel()
 	      if(cm6_file[0]==0){cminit();}
 	      if(gsd_file[0]==0){gsinit();}
 	      asin_init_scope(scope);
-	      if(rcp_file[0]==0){user_exc_init();}
+	      /* No song yet: publish the DEF rhythm template into the screen copy.
+	         A loaded RCP keeps the rhythm assign stored in that file. */
+	      if(rcp_file[0]==0){user_exc_init(); rhinit();}
 	      /* A and B write that port. A&B writes the same name on both. */
 	      {
 		int cnf_err = 0;
@@ -1133,7 +1135,9 @@ void	com_sel()
 		msg_clr();
 		if(cnf_err)
 		  msg("Could not update sted2.cnf.");
+		/* Main page and the PART/RHY (home2 512) header share these chips. */
 		module_chips_draw(0);
+		module_chips_draw(512);
 	      }
 	    }else{
 	      def_parts_finish_partial(-1, part_snap);
