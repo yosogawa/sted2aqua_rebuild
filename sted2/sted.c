@@ -1215,7 +1215,16 @@ void	save_sub(int sh)
   strcpy(tmp1,rcp_file);
 
   if(tmp1[0]==0 || (sh&1)==0){
-    if(cnfflag&0x0040){sh=1-(sh&1);}
+    /* G36/G18 are import-only: propose a writable song extension. */
+    if(tmp1[0]!=0 && filename_ends_with_ci(tmp1, ".g36")){
+      strmfe(tmp1, sizeof tmp1, tmp1, "R36");
+      sh = 0; /* fsel_ext[0] leads with R36 */
+    }else if(tmp1[0]!=0 && filename_ends_with_ci(tmp1, ".g18")){
+      strmfe(tmp1, sizeof tmp1, tmp1, "RCP");
+      sh = 1; /* fsel_ext[1] leads with RCP */
+    }else if(cnfflag&0x0040){
+      sh=1-(sh&1);
+    }
   }else{
     /* Tail checks: str_search() SJIS-steps over '.' in UTF-8 Japanese names. */
     if(filename_ends_with_ci(rcp_file, ".r36")){

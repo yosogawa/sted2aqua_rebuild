@@ -1279,15 +1279,28 @@ void	str_change(char *s)
 /***************************/
 void	path_cut(char *fpath,char *fname)
 {
-  int	j;
-  char	tmp0[PATHLEN * 2 + PATH_DRIVE_EXTRA];
+  char	*slash, *colon, *sep;
+  size_t	n;
 
-  fpath[0]=0;
-  while(1){
-    j=str_search(fname,"/");if(j==0){j=str_search(fname,":");if(j==0){break;}}
-    strcpy(tmp0,fname);tmp0[j]=0;strcat(fpath,tmp0);
-      memmove(fname, &fname[j], strlen(&fname[j]) + 1);
-  }
+  /* Split dir into fpath, basename into fname. Use strrchr — str_search()
+   * SJIS-steps can skip '/' after UTF-8 Japanese path bytes. */
+  fpath[0] = 0;
+  if (fname == NULL || fname[0] == '\0')
+    return;
+
+  slash = strrchr(fname, '/');
+  colon = strrchr(fname, ':');
+  if (slash != NULL && (colon == NULL || slash > colon))
+    sep = slash;
+  else
+    sep = colon;
+  if (sep == NULL)
+    return;
+
+  n = (size_t)(sep - fname) + 1;
+  memcpy(fpath, fname, n);
+  fpath[n] = '\0';
+  memmove(fname, sep + 1, strlen(sep + 1) + 1);
 }
 
 /***************************/
