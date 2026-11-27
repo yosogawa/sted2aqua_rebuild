@@ -42,11 +42,6 @@
 		A1CLK0B12F0A4B0100CLK0B1 /* rcp_clock_out.c in Sources */ = {isa = PBXBuildFile; fileRef = A1CLK0C12F0A4B0100CLK0C1 /* rcp_clock_out.c */; };
 		A1CMD012F0A4B0100CMD001 /* CommandReference.m in Sources */ = {isa = PBXBuildFile; fileRef = A1CMD022F0A4B0100CMD002 /* CommandReference.m */; };
 		A1COL0D12F0A4B0100COL0D1 /* colorpanel.c in Sources */ = {isa = PBXBuildFile; fileRef = A1COL0B12F0A4B0100COL0B1 /* colorpanel.c */; };
-		A1DEF0012F0A4B0100E0E101 /* amy.def in Resources */ = {isa = PBXBuildFile; fileRef = A1DEF0022F0A4B0100E0E102 /* amy.def */; };
-		A1DEF0032F0A4B0100E0E103 /* gm.def in Resources */ = {isa = PBXBuildFile; fileRef = A1DEF0042F0A4B0100E0E104 /* gm.def */; };
-		A1DEF0052F0A4B0100E0E105 /* gm2.def in Resources */ = {isa = PBXBuildFile; fileRef = A1DEF0062F0A4B0100E0E106 /* gm2.def */; };
-		A1DEF0072F0A4B0100E0E107 /* xg.def in Resources */ = {isa = PBXBuildFile; fileRef = A1DEF0082F0A4B0100E0E108 /* xg.def */; };
-		A1DEF00B2F0A4B0100E0E10B /* dream.def in Resources */ = {isa = PBXBuildFile; fileRef = A1DEF00C2F0A4B0100E0E10C /* dream.def */; };
 		A1DLS0D12F0A4B0100DLS0D1 /* DLSSynthPanel.m in Sources */ = {isa = PBXBuildFile; fileRef = A1DLS0B12F0A4B0100DLS0B1 /* DLSSynthPanel.m */; };
 		A1E0E0032F0A4B0100E0E003 /* rcp_player_engine.c in Sources */ = {isa = PBXBuildFile; fileRef = A1E0E0012F0A4B0100E0E001 /* rcp_player_engine.c */; };
 		A1E0E0132F0A4B0100E0E013 /* InternalSynth.m in Sources */ = {isa = PBXBuildFile; fileRef = A1E0E0112F0A4B0100E0E011 /* InternalSynth.m */; };
@@ -58,8 +53,6 @@
 		A1KBD042F0A4B0100KBD004 /* x68000-keymap.png in Resources */ = {isa = PBXBuildFile; fileRef = A1KBD052F0A4B0100KBD005 /* x68000-keymap.png */; };
 		A1L10C011B01000100L10C01 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = A1L10C041B01000100L10C01 /* Localizable.strings */; };
 		A1OUT0B12F0A4B0100OUT0B1 /* OutputPort.m in Sources */ = {isa = PBXBuildFile; fileRef = A1OUT0M12F0A4B0100OUT0M1 /* OutputPort.m */; };
-		A1RAS0012F0A4B0100E0E201 /* gm.ras in Resources */ = {isa = PBXBuildFile; fileRef = A1RAS0022F0A4B0100E0E202 /* gm.ras */; };
-		A1RAS0032F0A4B0100E0E203 /* mt32.ras in Resources */ = {isa = PBXBuildFile; fileRef = A1RAS0042F0A4B0100E0E204 /* mt32.ras */; };
 		A1SF2D012F0A4B0100SF2D01 /* Sf2DefGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = A1SF2B012F0A4B0100SF2B01 /* Sf2DefGenerator.m */; };
 		A1SF2D022F0A4B0100SF2D02 /* sf2_def_gen.c in Sources */ = {isa = PBXBuildFile; fileRef = A1SF2B022F0A4B0100SF2B02 /* sf2_def_gen.c */; };
 		A1SPN0D12F0A4B0100SPN0D1 /* spawncmd.c in Sources */ = {isa = PBXBuildFile; fileRef = A1SPN0C12F0A4B0100SPN0C1 /* spawncmd.c */; };
@@ -71,11 +64,6 @@
 		AFA1A099308ED36600F7328B /* sted.icns in Resources */ = {isa = PBXBuildFile; fileRef = AFA1A098308ED36600F7328B /* sted.icns */; };
 		E40E95C41ABA41ED0072AA0B /* assign.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E951C1ABA41ED0072AA0B /* assign.c */; };
 		E40E95C51ABA41ED0072AA0B /* cm6con.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E951D1ABA41ED0072AA0B /* cm6con.c */; };
-		E40E95C61ABA41ED0072AA0B /* cm64.def in Resources */ = {isa = PBXBuildFile; fileRef = E40E95201ABA41ED0072AA0B /* cm64.def */; };
-		E40E95C71ABA41ED0072AA0B /* sc55.def in Resources */ = {isa = PBXBuildFile; fileRef = E40E95211ABA41ED0072AA0B /* sc55.def */; };
-		E40E95C81ABA41ED0072AA0B /* sc55mk2.def in Resources */ = {isa = PBXBuildFile; fileRef = E40E95221ABA41ED0072AA0B /* sc55mk2.def */; };
-		E40E95C91ABA41ED0072AA0B /* sc88.def in Resources */ = {isa = PBXBuildFile; fileRef = E40E95231ABA41ED0072AA0B /* sc88.def */; };
-		E40E95CA1ABA41ED0072AA0B /* sted2.cnf in Resources */ = {isa = PBXBuildFile; fileRef = E40E95241ABA41ED0072AA0B /* sted2.cnf */; };
 		E40E95CB1ABA41ED0072AA0B /* sted2.fon in Resources */ = {isa = PBXBuildFile; fileRef = E40E95251ABA41ED0072AA0B /* sted2.fon */; };
 		E40E95CC1ABA41ED0072AA0B /* defload.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E95271ABA41ED0072AA0B /* defload.c */; };
 		E40E95CD1ABA41ED0072AA0B /* disp.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E95281ABA41ED0072AA0B /* disp.c */; };
@@ -249,7 +237,7 @@
 		E40E95221ABA41ED0072AA0B /* sc55mk2.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = sc55mk2.def; sourceTree = "<group>"; };
 		E40E95231ABA41ED0072AA0B /* sc88.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = sc88.def; sourceTree = "<group>"; };
 		E40E95241ABA41ED0072AA0B /* sted2.cnf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = sted2.cnf; sourceTree = "<group>"; };
-		E40E95251ABA41ED0072AA0B /* sted2.fon */ = {isa = PBXFileReference; lastKnownFileType = file; path = sted2.fon; sourceTree = "<group>"; };
+		E40E95251ABA41ED0072AA0B /* sted2.fon */ = {isa = PBXFileReference; lastKnownFileType = file; name = sted2.fon; path = sted2/fonts/sted2.fon; sourceTree = "<group>"; };
 		E40E95261ABA41ED0072AA0B /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
 		E40E95271ABA41ED0072AA0B /* defload.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = defload.c; sourceTree = "<group>"; };
 		E40E95281ABA41ED0072AA0B /* disp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = disp.c; sourceTree = "<group>"; };
@@ -452,6 +440,7 @@
 			children = (
 				E44B2A421AC6B44C00910C7B /* STed2.help */,
 				E47C19141AC55B8700A70D36 /* conf */,
+				E40E95251ABA41ED0072AA0B /* sted2.fon */,
 				A1F0E0131AC55B8700A70D03 /* KH-Dot-Kodenmachou-16.ttf */,
 				A1F0E0141AC55B8700A70D04 /* OFL.txt */,
 				A1TUI0021B01000100TUIT01 /* tuitou.doc */,
@@ -684,7 +673,6 @@
 				E40E951F1ABA41ED0072AA0B /* deffile */,
 				A1RAS0102F0A4B0100E0E210 /* partfile */,
 				E40E95241ABA41ED0072AA0B /* sted2.cnf */,
-				E40E95251ABA41ED0072AA0B /* sted2.fon */,
 			);
 			path = conf;
 			sourceTree = "<group>";
@@ -915,19 +903,7 @@
 				8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */,
 				A1L10C011B01000100L10C01 /* Localizable.strings in Resources */,
 				1DDD58160DA1D0A300B32029 /* MainMenu.xib in Resources */,
-				A1DEF0012F0A4B0100E0E101 /* amy.def in Resources */,
-				A1DEF0032F0A4B0100E0E103 /* gm.def in Resources */,
-				A1DEF0052F0A4B0100E0E105 /* gm2.def in Resources */,
-				A1DEF0072F0A4B0100E0E107 /* xg.def in Resources */,
-				A1DEF00B2F0A4B0100E0E10B /* dream.def in Resources */,
-				A1RAS0012F0A4B0100E0E201 /* gm.ras in Resources */,
-				A1RAS0032F0A4B0100E0E203 /* mt32.ras in Resources */,
 				AFA1A099308ED36600F7328B /* sted.icns in Resources */,
-				E40E95C61ABA41ED0072AA0B /* cm64.def in Resources */,
-				E40E95C71ABA41ED0072AA0B /* sc55.def in Resources */,
-				E40E95C81ABA41ED0072AA0B /* sc55mk2.def in Resources */,
-				E40E95C91ABA41ED0072AA0B /* sc88.def in Resources */,
-				E40E95CA1ABA41ED0072AA0B /* sted2.cnf in Resources */,
 				E40E95CB1ABA41ED0072AA0B /* sted2.fon in Resources */,
 				E44E7DDA1AC4C83B00F71120 /* MIDISettings.xib in Resources */,
 				A1AB0D021B01000100ABOUT1 /* AboutPanel.xib in Resources */,

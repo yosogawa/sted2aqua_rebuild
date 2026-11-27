@@ -813,7 +813,11 @@ int	main(int argc,char *argv[])
 
   fonread(fonbuf);
   if(fon_path[0]==0){
-    strmfe(fon_path, sizeof fon_path, argv[0], "fon");
+#if defined(__APPLE__)
+    /* No #fon_path=: ship data lives in the bundle, not Application Support. */
+    if(sted_bundled_fon_path(fon_path, sizeof fon_path)!=0)
+#endif
+      strmfe(fon_path, sizeof fon_path, argv[0], "fon");
   }else{
     str_change(fon_path);
     if(str_last(fon_path)!='/'){strcat(fon_path,"/");}

@@ -365,6 +365,8 @@ void tpl(int a);
 #if defined(__APPLE__)
 /* NSDocumentDirectory, including a Documents folder moved to iCloud. 0 on success. */
 int sted_default_documents_path(char *buf, size_t n);
+/* Contents/Resources/sted2.fon. 0 on success. */
+int sted_bundled_fon_path(char *buf, size_t n);
 #endif
 
 

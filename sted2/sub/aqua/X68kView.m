@@ -1214,6 +1214,25 @@ sted_default_documents_path(char *buf, size_t n)
 	return 0;
 }
 
+/* Bundled gaiji. Read-only; not the Application Support copy. 0 on success. */
+int
+sted_bundled_fon_path(char *buf, size_t n)
+{
+	NSString *path;
+
+	if (buf == NULL || n < 2)
+		return -1;
+	buf[0] = 0;
+	path = [[NSBundle mainBundle] pathForResource:@"sted2" ofType:@"fon"];
+	if (path == nil || [path length] == 0)
+		return -1;
+	if (![path getFileSystemRepresentation:buf maxLength:n - 1]) {
+		buf[0] = 0;
+		return -1;
+	}
+	return 0;
+}
+
 /* Glyph tables stay 16 rows until the text buffer itself is rebuilt.
    cellHeight is accepted so a later display size can call this again. */
 #define kFontCellHeight 16
