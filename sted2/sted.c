@@ -685,10 +685,11 @@ int	main(int argc,char *argv[])
   str_change(rcp_file);str_change(def_file);str_change(rc_path);
 
   if( rcp_file[0]!=0 ){
-    if(str_search(rcp_file,".MDF")>0 || str_search(rcp_file,".mdf")>0){
+    /* Tail checks: str_search() SJIS-steps over '.' in UTF-8 Japanese names. */
+    if(filename_ends_with_ci(rcp_file, ".mdf")){
       lzf=1;
     }else{
-      if(str_search(rcp_file,".")==0){
+      if(!filename_has_ext(rcp_file)){
 	/*
 	  strmfe(rcp_file, sizeof rcp_file, rcp_file, 'DEF");
 	  if(!(fp= fopen2(rcp_file,"rb"))){
@@ -1216,9 +1217,10 @@ void	save_sub(int sh)
   if(tmp1[0]==0 || (sh&1)==0){
     if(cnfflag&0x0040){sh=1-(sh&1);}
   }else{
-    if(str_search(rcp_file,".R36")>0){
+    /* Tail checks: str_search() SJIS-steps over '.' in UTF-8 Japanese names. */
+    if(filename_ends_with_ci(rcp_file, ".r36")){
       strmfe(tmp1, sizeof tmp1, tmp1, "RCP");sh=0;
-    }else if(str_search(rcp_file,".abc")>0 || str_search(rcp_file,".ABC")>0){
+    }else if(filename_ends_with_ci(rcp_file, ".abc")){
       sh=0;
     }else{
       strmfe(tmp1, sizeof tmp1, tmp1, "R36");sh=1;

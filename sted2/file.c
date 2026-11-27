@@ -215,7 +215,7 @@ static int ends_with_abc(const char *fna)
 }
 
 /* Tail compare. str_search walks UTF-8 names as Shift_JIS and can step over the dot. */
-static int ends_with_ci(const char *fna, const char *suf)
+int filename_ends_with_ci(const char *fna, const char *suf)
 {
   const char *s;
   int n, m, i;
@@ -240,9 +240,33 @@ static int ends_with_ci(const char *fna, const char *suf)
   return 1;
 }
 
+/* True if the final path component has a real extension (last '.' not leading). */
+int filename_has_ext(const char *fna)
+{
+  const char *slash, *dot, *p;
+
+  if (fna == NULL || fna[0] == 0)
+    return 0;
+  slash = strrchr(fna, '/');
+  p = strrchr(fna, '\\');
+  if (p != NULL && (slash == NULL || p > slash))
+    slash = p;
+  dot = strrchr(fna, '.');
+  if (dot == NULL)
+    return 0;
+  if (slash != NULL && dot < slash)
+    return 0;
+  /* Ignore "." / ".." and a trailing bare '.' */
+  if (dot == fna || (slash != NULL && dot == slash + 1))
+    return 0;
+  if (dot[1] == '\0')
+    return 0;
+  return 1;
+}
+
 int filename_is_smf(const char *fna)
 {
-  return ends_with_ci(fna, ".midi") || ends_with_ci(fna, ".mid");
+  return filename_ends_with_ci(fna, ".midi") || filename_ends_with_ci(fna, ".mid");
 }
 
 /* %%MIDI channel 10 is an in-track 0xE6. Track key 128 skips play bias. */
@@ -410,10 +434,12 @@ int	dload(char *fna,int md)
   if (ends_with_abc(fna))
     return abcload(fna);
 
-  if (ends_with_ci(fna, ".g18") || ends_with_ci(fna, ".g36"))
+  if (filename_ends_with_ci(fna, ".g18") || filename_ends_with_ci(fna, ".g36"))
     return g36load(fna, md);
 
-  if(str_search(fna,".R36")>0 || str_search(fna,".r36")>0){md2=1;}
+  /* Same probe as dsave; hed[0x1e6] overwrites md2 below. */
+  if (filename_ends_with_ci(fna, ".r36"))
+    md2 = 1;
 
   if(!(fp= fopen2(fna,"rb"))){msg("File not found.");return(-1);}
 
@@ -516,7 +542,9 @@ int	dsave(char *fna)
   if (ends_with_abc(fna))
     return abcsave(fna);
 
-  if(str_search(fna,".R36")>0 || str_search(fna,".r36")>0){md2=1;}
+  /* .R36 forces 36trk even when tracks 19-36 are empty. */
+  if (filename_ends_with_ci(fna, ".r36"))
+    md2 = 1;
 
   if(!(fp= fopen2(fna,"wb"))){msg("Cannot open file.");return(-1);}
 

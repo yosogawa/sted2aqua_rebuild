@@ -18,6 +18,9 @@ int  exc_save(char *fna, int mo);
 
 /* Tail of the name is .mid or .midi, any ASCII case. */
 int  filename_is_smf(const char *fna);
+/* UTF-8-safe suffix / extension checks (byte compare; no SJIS step-over). */
+int  filename_ends_with_ci(const char *fna, const char *suf);
+int  filename_has_ext(const char *fna);
 int  dload(char *fna, int md);
 int  dsave(char *fna);
 int  part_load(char *fna);

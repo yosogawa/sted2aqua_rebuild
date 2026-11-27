@@ -1238,7 +1238,8 @@ void	fsel(char *fna,char *pth,int w)
   }
   msg_clr();
 
-  spcut(fna);if( fna[0]!=0 && str_search(fna,".")==0){
+  /* Tail check: str_search() SJIS-steps over '.' in UTF-8 Japanese names. */
+  spcut(fna);if( fna[0]!=0 && !filename_has_ext(fna)){
     char etmp[4];
     strlcpy(etmp,exts,sizeof etmp);
     strmfe(fna, PATHLEN, fna, etmp);
@@ -1425,19 +1426,20 @@ void	frees(char *pth,int cx)
 /***************************/
 char	*dirs(char *s)
 {
-  int	a;
   static char	name[128];
   char	work[256];
   char	ext[8];
+  char	*dot;
 
   ext[0]=0;
   strncpy(work, s, sizeof(work) - 1);
   work[sizeof(work) - 1] = 0;
-  a =str_search(work,".");
-  a+=str_search(&work[a],".");
-  a+=str_search(&work[a],".");
-
-  if(a>0 && work[0]!='.'){strncpy(ext,&work[a-1], sizeof(ext) - 1);ext[sizeof(ext)-1]=0;work[a-1]=0;}
+  /* Last '.' via strrchr: str_search() misses dots after UTF-8 Japanese bytes. */
+  dot = strrchr(work, '.');
+  if (dot != NULL && work[0] != '.' && dot != work && dot[1] != '\0') {
+    strlcpy(ext, dot, sizeof(ext));
+    *dot = 0;
+  }
 
   strlcpy(name, spadd(work, 18), sizeof name);
   strlcat(name, spadd(ext, 4), sizeof name);
@@ -1498,16 +1500,17 @@ int	fdir(char *pth,char *exts,X68_DIR *dir,int w)
   a=FILES(buffer,file,atr);if( a!=0 ){return(a);}
   if(w<0){return(0);}
   do{
-    int as;
+    char *dot;
     strcpy(tmp1,buffer->name);jstrupr(tmp1);
 
     if(tmp1[0]!='.' || tmp1[1]!=0){
 
-      as =str_search(tmp1,".");
-      as+=str_search(&tmp1[as],".");
-      as+=str_search(&tmp1[as],".");
-
-      if(as>0){strcpy(tmp1,spadd(&tmp1[as],3));}else{tmp1[0]=0;}
+      /* Extension after last '.'; str_search() skips UTF-8 Japanese tails. */
+      dot = strrchr(tmp1, '.');
+      if (dot != NULL && dot[1] != '\0')
+	strcpy(tmp1, spadd(dot + 1, 3));
+      else
+	tmp1[0] = 0;
 
       if( buffer->atr&0x10 || (buffer->atr&0x20 && str_search(tmp0,tmp1)>0) ){
 	if(nm>=512){msg("Too many files.");break;}
