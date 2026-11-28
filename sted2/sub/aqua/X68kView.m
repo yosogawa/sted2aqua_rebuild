@@ -3651,7 +3651,13 @@ XSTed_key_readable(void)
 void
 XSTed_key_wait(void)
 {
-	while (XSTed_keyin(0xfe) == 0) {
+	/* Replaces while(B_KEYSNS()==0). XSTed_keyin(0xfe) is a character
+	   peek: F1-F10 expand through fnc_func, which stays empty, so the
+	   peek returns 0 and then deletes the key. USER EXC and track exclusive
+	   read the scan code with B_KEYINP afterwards. The chord selector waits
+	   on B_KEYSNS so Shift make/break can switch its guide.
+	   Modifier make/break (0x70xx / 0xf0xx) stays out of this wait. */
+	while (XSTed_key_readable() == 0) {
 		sted_reset_sysex_poll();
 		usleep(50000);
 	}

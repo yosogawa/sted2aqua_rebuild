@@ -98,6 +98,7 @@ redis:
       }else{
 	if(mm==0){
 		B_LOCATE(15,yy);/*sinput(user_exc_memo[nn],24);*/ line_input(user_exc_memo[nn], 24); /* 2015.3.27. Toshi Nagata sinput->line_input */
+	  tdis(15,yy,user_exc_memo[nn],24,3);
 	  fnc_dis(4+3);
 	}else{
 	  int	c;

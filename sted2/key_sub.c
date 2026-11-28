@@ -449,8 +449,13 @@ int	chord_sel(int key,int ad)
       }
     }
 
-    /*while(B_KEYSNS()==0){}*/ /* Jun.28.1998 Daisuke Nagano */
-    key_wait();
+    /* Shift make/break (0x70 / 0xf0) switches the function-key guide.
+       key_wait() leaves those events queued, so this screen waits on
+       B_KEYSNS, which already reports them. Other screens stay on key_wait(). */
+    while(B_KEYSNS()==0){
+      sted_reset_sysex_poll();
+      usleep(50000);
+    }
     ke=B_KEYINP();kc=ke&0xff;ke=ke>>8;sh=B_SFTSNS();
 
     if( ke==0x70 ){chord_dis(10);}
