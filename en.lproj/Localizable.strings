@@ -479,8 +479,28 @@ OTHER DEALINGS IN THE FONT SOFTWARE.\n\nCopyright (c) Keitarou Hiraki, Font Silo
 /* Audio menu */
 "Generate DEF file from SF2" = "Generate Module define file from SF2";
 "LOAD Module define file(def, dfb)..." = "LOAD Module define file(def, dfb)...";
+"Apply Part To:" = "Apply Part To:";
 "LOAD SONG FILE (rcp, r36, mid, g36, g18, abc)..." = "LOAD SONG FILE (rcp, r36, mid, g36, g18, abc)...";
 "SAVE SONG FILE (rcp, r36, mid, abc)..." = "SAVE SONG FILE (rcp, r36, mid, abc)...";
+/* File panels. Same shape as the song panel: name (ext) then ... */
+"LOAD TRACK FILE (%@)..." = "LOAD TRACK FILE (%@)...";
+"SAVE TRACK FILE (%@)..." = "SAVE TRACK FILE (%@)...";
+"LOAD PART FILE (%@)..." = "LOAD PART FILE (%@)...";
+"SAVE PART FILE (%@)..." = "SAVE PART FILE (%@)...";
+"LOAD RHYTHM ASSIGN FILE (%@)..." = "LOAD RHYTHM ASSIGN FILE (%@)...";
+"SAVE RHYTHM ASSIGN FILE (%@)..." = "SAVE RHYTHM ASSIGN FILE (%@)...";
+"LOAD CM-CONTROL FILE (%@)..." = "LOAD CM-CONTROL FILE (%@)...";
+"SAVE CM-CONTROL FILE (%@)..." = "SAVE CM-CONTROL FILE (%@)...";
+"LOAD GS-CONTROL FILE (%@)..." = "LOAD GS-CONTROL FILE (%@)...";
+"SAVE GS-CONTROL FILE (%@)..." = "SAVE GS-CONTROL FILE (%@)...";
+"LOAD TEXT FILE (%@)..." = "LOAD TEXT FILE (%@)...";
+"SAVE TEXT FILE (%@)..." = "SAVE TEXT FILE (%@)...";
+"LOAD EXCLUSIVE(TEXT) FILE (%@)..." = "LOAD EXCLUSIVE(TEXT) FILE (%@)...";
+"SAVE EXCLUSIVE(TEXT) FILE (%@)..." = "SAVE EXCLUSIVE(TEXT) FILE (%@)...";
+"LOAD User Exclusive(ALL) FILE (%@)..." = "LOAD User Exclusive(ALL) FILE (%@)...";
+"SAVE User Exclusive(ALL) FILE (%@)..." = "SAVE User Exclusive(ALL) FILE (%@)...";
+"LOAD User Exclusive(ONE) FILE (%@)..." = "LOAD User Exclusive(ONE) FILE (%@)...";
+"SAVE User Exclusive(ONE) FILE (%@)..." = "SAVE User Exclusive(ONE) FILE (%@)...";
 
 /* MIDI → Generate DEF from SF2 */
 "Generate DEF from SF2..." = "Generate Module define file from SF2...";

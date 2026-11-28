@@ -3823,6 +3823,107 @@ XSTed_defchr(int type, int code, const void *buff)
     access directly to the Application Kit. So it 'throws' message to the main
     thread, which is handled in -[X68kView timerHandler:].  */
 
+/* Open/save panel title. Japanese is 名前(ext, ext)のロード / のセーブ.
+ * English keeps "..." after the extension list. extHint is "trk, mid"
+ * with no leading dots, the same shape as the song panel. COMPOSE and
+ * DEFINE keep a fixed list because load and save do not share one. */
+static NSString *
+STedFilePanelTitle(int is_save, const char *mes, NSString *extHint)
+{
+	NSString *fmt;
+
+	if (mes == NULL)
+		return @"";
+	if (strcmp(mes, "COMPOSE") == 0) {
+		if (is_save)
+			return NSLocalizedString(
+				@"SAVE SONG FILE (rcp, r36, mid, abc)...",
+				@"Song save panel");
+		return NSLocalizedString(
+			@"LOAD SONG FILE (rcp, r36, mid, g36, g18, abc)...",
+			@"Song open panel");
+	}
+	if (strcmp(mes, "DEFINE") == 0 && !is_save)
+		return NSLocalizedString(
+			@"LOAD Module define file(def, dfb)...",
+			@"UNIT SEL open panel");
+
+	fmt = nil;
+	if (strcmp(mes, "TRACK") == 0) {
+		if (is_save)
+			fmt = NSLocalizedString(@"SAVE TRACK FILE (%@)...",
+				@"Track save panel");
+		else
+			fmt = NSLocalizedString(@"LOAD TRACK FILE (%@)...",
+				@"Track open panel");
+	} else if (strcmp(mes, "PART") == 0) {
+		if (is_save)
+			fmt = NSLocalizedString(@"SAVE PART FILE (%@)...",
+				@"Part save panel");
+		else
+			fmt = NSLocalizedString(@"LOAD PART FILE (%@)...",
+				@"Part open panel");
+	} else if (strcmp(mes, "RHYTHM ASSIGN") == 0) {
+		if (is_save)
+			fmt = NSLocalizedString(@"SAVE RHYTHM ASSIGN FILE (%@)...",
+				@"Rhythm assign save panel");
+		else
+			fmt = NSLocalizedString(@"LOAD RHYTHM ASSIGN FILE (%@)...",
+				@"Rhythm assign open panel");
+	} else if (strcmp(mes, "CM-CONTROL") == 0) {
+		if (is_save)
+			fmt = NSLocalizedString(@"SAVE CM-CONTROL FILE (%@)...",
+				@"CM-64 control save panel");
+		else
+			fmt = NSLocalizedString(@"LOAD CM-CONTROL FILE (%@)...",
+				@"CM-64 control open panel");
+	} else if (strcmp(mes, "GS-CONTROL") == 0) {
+		if (is_save)
+			fmt = NSLocalizedString(@"SAVE GS-CONTROL FILE (%@)...",
+				@"SC-55 control save panel");
+		else
+			fmt = NSLocalizedString(@"LOAD GS-CONTROL FILE (%@)...",
+				@"SC-55 control open panel");
+	} else if (strcmp(mes, "TEXT") == 0) {
+		if (is_save)
+			fmt = NSLocalizedString(@"SAVE TEXT FILE (%@)...",
+				@"Part text save panel");
+		else
+			fmt = NSLocalizedString(@"LOAD TEXT FILE (%@)...",
+				@"Part text open panel");
+	} else if (strcmp(mes, "EXCLUSIVE(TEXT)") == 0) {
+		if (is_save)
+			fmt = NSLocalizedString(@"SAVE EXCLUSIVE(TEXT) FILE (%@)...",
+				@"Track exclusive save panel");
+		else
+			fmt = NSLocalizedString(@"LOAD EXCLUSIVE(TEXT) FILE (%@)...",
+				@"Track exclusive open panel");
+	} else if (strcmp(mes, "User Exclusive(ALL)") == 0) {
+		if (is_save)
+			fmt = NSLocalizedString(@"SAVE User Exclusive(ALL) FILE (%@)...",
+				@"User exclusive bulk save panel");
+		else
+			fmt = NSLocalizedString(@"LOAD User Exclusive(ALL) FILE (%@)...",
+				@"User exclusive bulk open panel");
+	} else if (strcmp(mes, "User Exclusive(ONE)") == 0) {
+		if (is_save)
+			fmt = NSLocalizedString(@"SAVE User Exclusive(ONE) FILE (%@)...",
+				@"User exclusive single save panel");
+		else
+			fmt = NSLocalizedString(@"LOAD User Exclusive(ONE) FILE (%@)...",
+				@"User exclusive single open panel");
+	}
+	if (fmt != nil && [extHint length] > 0)
+		return [NSString stringWithFormat:fmt, extHint];
+	if ([extHint length] > 0)
+		return [NSString stringWithFormat:@"%@ %@ FILE (%@)...",
+			(is_save ? @"SAVE" : @"LOAD"),
+			[NSString stringWithUTF8String:mes], extHint];
+	return [NSString stringWithFormat:@"%@ %@ FILE...",
+		(is_save ? @"SAVE" : @"LOAD"),
+		[NSString stringWithUTF8String:mes]];
+}
+
 static void
 s_MacSelectFile(void **args)
 {
@@ -3914,35 +4015,15 @@ s_MacSelectFile(void **args)
 		NSString *one;
 		/* Title is often hidden on modern open/save panels; message shows
 		 * inside the sheet. The open panel has no format menu, so the
-		 * extension list is the guide (e.g. LOAD RHYTHM ASSIGN FILE... (.ras)). */
+		 * extension list is the guide (e.g. リズムアサインファイル(ras)のロード). */
 		if (filetypes != nil) {
 			for (one in filetypes) {
 				if ([extHint length] > 0)
 					[extHint appendString:@", "];
-				[extHint appendFormat:@".%@", one];
+				[extHint appendString:one];
 			}
 		}
-		if (mes != NULL && strcmp(mes, "COMPOSE") == 0) {
-			/* Song data. G36/G18 are load only. JA uses 曲データファイル. */
-			if (is_save)
-				title = NSLocalizedString(
-					@"SAVE SONG FILE (rcp, r36, mid, abc)...",
-					@"Song save panel");
-			else
-				title = NSLocalizedString(
-					@"LOAD SONG FILE (rcp, r36, mid, abc, g36, g18)...",
-					@"Song open panel");
-		} else if (!is_save && mes != NULL && strcmp(mes, "DEFINE") == 0) {
-			/* Help calls this a module define file / 音源定義ファイル. */
-			title = NSLocalizedString(
-				@"LOAD Module define file(def, dfb)...",
-				@"UNIT SEL open panel");
-		} else if ([extHint length] > 0)
-			title = [NSString stringWithFormat:@"%@ %@ FILE... (%@)",
-				(is_save ? @"SAVE" : @"LOAD"), UTF8CString(mes), extHint];
-		else
-			title = [NSString stringWithFormat:@"%@ %@ FILE...",
-				(is_save ? @"SAVE" : @"LOAD"), UTF8CString(mes)];
+		title = STedFilePanelTitle(is_save, mes, extHint);
 		[panel setTitle:title];
 		[panel setMessage:title];
 	}
@@ -3973,19 +4054,30 @@ s_MacSelectFile(void **args)
 	if (!is_save && def_scope_out != NULL) {
 		NSView *acc;
 		NSTextField *lab;
+		NSString *scopeLabel;
+		NSRect labFrame, segFrame;
 		NSInteger sel;
+		CGFloat accW;
 
+		scopeLabel = NSLocalizedString(@"Apply Part To:",
+			@"UNIT SEL open panel accessory");
 		acc = [[[NSView alloc] initWithFrame:NSMakeRect(0, 0, 360, 36)] autorelease];
-		lab = [[[NSTextField alloc] initWithFrame:NSMakeRect(8, 8, 100, 20)] autorelease];
-		[lab setStringValue:@"Apply Part To:"];
+		lab = [[[NSTextField alloc] initWithFrame:NSMakeRect(8, 8, 400, 20)] autorelease];
+		[lab setStringValue:scopeLabel];
+		[lab setFont:[NSFont systemFontOfSize:13]];
 		[lab setBezeled:NO];
 		[lab setDrawsBackground:NO];
 		[lab setEditable:NO];
 		[lab setSelectable:NO];
+		[lab sizeToFit];
+		labFrame = [lab frame];
+		labFrame.origin.x = 8;
+		labFrame.origin.y = 18 - labFrame.size.height / 2;
+		[lab setFrame:labFrame];
 		[acc addSubview:lab];
 
-		scopeSeg = [[[NSSegmentedControl alloc]
-			initWithFrame:NSMakeRect(112, 6, 220, 24)] autorelease];
+		segFrame = NSMakeRect(NSMaxX(labFrame) + 8, 6, 220, 24);
+		scopeSeg = [[[NSSegmentedControl alloc] initWithFrame:segFrame] autorelease];
 		[scopeSeg setSegmentCount:3];
 		[scopeSeg setLabel:@"A" forSegment:0];
 		[scopeSeg setLabel:@"B" forSegment:1];
@@ -3995,6 +4087,10 @@ s_MacSelectFile(void **args)
 		if (sel >= 0 && sel <= 2)
 			[scopeSeg setSelectedSegment:sel];
 		[acc addSubview:scopeSeg];
+		accW = NSMaxX(segFrame) + 12;
+		if (accW < 360)
+			accW = 360;
+		[acc setFrameSize:NSMakeSize(accW, 36)];
 		[panel setAccessoryView:acc];
 		if ([panel respondsToSelector:@selector(setAccessoryViewDisclosed:)])
 			[(NSOpenPanel *)panel setAccessoryViewDisclosed:YES];

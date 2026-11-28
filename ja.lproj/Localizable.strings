@@ -477,8 +477,28 @@ OTHER DEALINGS IN THE FONT SOFTWARE.\n\nCopyright (c) Keitarou Hiraki, Font Silo
 /* オーディオメニュー */
 "Generate DEF file from SF2" = "SF2 から音源定義ファイル生成";
 "LOAD Module define file(def, dfb)..." = "音源定義ファイル(def, dfb)のロード";
+"Apply Part To:" = "パートの適用先:";
 "LOAD SONG FILE (rcp, r36, mid, g36, g18, abc)..." = "曲データファイル(rcp, r36, mid, g36, g18, abc)のロード";
 "SAVE SONG FILE (rcp, r36, mid, abc)..." = "曲データファイル(rcp, r36, mid, abc)のセーブ";
+/* ファイルパネル。曲データと同じく 名前(拡張子)のロード / のセーブ。 */
+"LOAD TRACK FILE (%@)..." = "トラックファイル(%@)のロード";
+"SAVE TRACK FILE (%@)..." = "トラックファイル(%@)のセーブ";
+"LOAD PART FILE (%@)..." = "パートデータファイル(%@)のロード";
+"SAVE PART FILE (%@)..." = "パートデータファイル(%@)のセーブ";
+"LOAD RHYTHM ASSIGN FILE (%@)..." = "リズムアサインファイル(%@)のロード";
+"SAVE RHYTHM ASSIGN FILE (%@)..." = "リズムアサインファイル(%@)のセーブ";
+"LOAD CM-CONTROL FILE (%@)..." = "コントロールファイル(%@)のロード";
+"SAVE CM-CONTROL FILE (%@)..." = "コントロールファイル(%@)のセーブ";
+"LOAD GS-CONTROL FILE (%@)..." = "SC-55コントロールファイル(%@)のロード";
+"SAVE GS-CONTROL FILE (%@)..." = "SC-55コントロールファイル(%@)のセーブ";
+"LOAD TEXT FILE (%@)..." = "パートデータテキストファイル(%@)のロード";
+"SAVE TEXT FILE (%@)..." = "パートデータテキストファイル(%@)のセーブ";
+"LOAD EXCLUSIVE(TEXT) FILE (%@)..." = "トラックエクスクルーシブファイル(%@)のロード";
+"SAVE EXCLUSIVE(TEXT) FILE (%@)..." = "トラックエクスクルーシブファイル(%@)のセーブ";
+"LOAD User Exclusive(ALL) FILE (%@)..." = "ユーザーエクスクルーシブファイル(%@)の一括ロード";
+"SAVE User Exclusive(ALL) FILE (%@)..." = "ユーザーエクスクルーシブファイル(%@)の一括セーブ";
+"LOAD User Exclusive(ONE) FILE (%@)..." = "ユーザーエクスクルーシブファイル(%@)の個別ロード";
+"SAVE User Exclusive(ONE) FILE (%@)..." = "ユーザーエクスクルーシブファイル(%@)の個別セーブ";
 
 /* MIDI → SF2 から音源定義ファイルを作成 */
 "Generate DEF from SF2..." = "SF2 から音源定義ファイルを作成...";
