@@ -325,6 +325,8 @@ void MacSelectFile(char *fna, char *path, int is_save, const char *mes, const ch
 		   int *def_scope_out);
 void MacErrorBox(const char *mes, int icon);
 void line_input(char *buf, int len);
+/* down: pixels toward the bottom of the screen. 0 is the usual place. */
+void line_input_down(char *buf, int len, int down);
 /*  End Toshi Nagata  */
 
 extern int disp_conv;

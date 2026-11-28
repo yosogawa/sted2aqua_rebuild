@@ -4152,6 +4152,7 @@ s_line_input(void **args)
 	char *buf = (char *)args[0];
 	int len = (int)(intptr_t)args[1];
 	int flag = (int)(intptr_t)args[2];  /*  1 on first call, 0 otherwise  */
+	int down = (int)(intptr_t)args[3];  /*  pixels toward the bottom of the screen  */
 	int x, y, width;
 	NSRect frame;
 	NSTextField *tf;
@@ -4161,7 +4162,7 @@ s_line_input(void **args)
 	if (flag == 0)
 		return;
 	x = sCursorX * 8 - 2;
-	y = sTextHeight - 18 - sCursorY * 16;
+	y = sTextHeight - 18 - sCursorY * 16 - down;
 	width = (len & 0xff) * 8 + 4;
 	frame = NSMakeRect(x, y, width, 24);
 	tf = [[NSTextField alloc] initWithFrame:frame];
@@ -4232,16 +4233,29 @@ MacErrorBox(const char *mes, int icon)
 	}
 }
 
-void
-line_input(char *buf, int len)
+static void
+line_input_wait(char *buf, int len, int down)
 {
 	STED_CMDKEY_BLOCK();
-	void *args[] = {(void *)s_line_input, (void *)buf, (void *)(intptr_t)len, (void *)(intptr_t)1};
+	void *args[] = {(void *)s_line_input, (void *)buf, (void *)(intptr_t)len,
+		(void *)(intptr_t)1, (void *)(intptr_t)down};
 	sRequestAppKitArgs = args;
 	sRequestAppKitCall = 3;
 	while (sRequestAppKitCall == 3) {
 		usleep(100000);
 	}
+}
+
+void
+line_input(char *buf, int len)
+{
+	line_input_wait(buf, len, 0);
+}
+
+void
+line_input_down(char *buf, int len, int down)
+{
+	line_input_wait(buf, len, down);
 }
 
 @end

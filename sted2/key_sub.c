@@ -895,7 +895,11 @@ int	mml_inp(int ad)
 
   if( trrhy[track]&0x80 ){skey=0;skey2=0;}
 
-  msg("MML:");sinput(s,0x800+32);
+  s[0]=0;
+  es=0;
+  msg("MML:");
+  /* The 24px field hangs into the status row. Drop it onto the MML line. */
+  line_input_down(s, 33, 8);
   jstrupr(s);
 
   if(es==0){
