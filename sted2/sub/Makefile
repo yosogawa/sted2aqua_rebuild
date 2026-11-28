@@ -171,7 +171,6 @@ libx68funcs_a_SOURCES = \
 	iocs_key.c	\
 	iocs_mouse.c	\
 	iocs_tgraph.c	\
-	mcpy.c		\
 	midi_in.c	\
 	encoding.c	\
 	ongraph.c	\
@@ -208,7 +207,7 @@ libx68funcs_a_LIBADD =
 am_libx68funcs_a_OBJECTS = basic.$(OBJEXT) curses.$(OBJEXT) \
 	dos.$(OBJEXT) graph.$(OBJEXT) hprint.$(OBJEXT) iocs.$(OBJEXT) \
 	iocs_console.$(OBJEXT) iocs_graph.$(OBJEXT) iocs_key.$(OBJEXT) \
-	iocs_mouse.$(OBJEXT) iocs_tgraph.$(OBJEXT) mcpy.$(OBJEXT) \
+	iocs_mouse.$(OBJEXT) iocs_tgraph.$(OBJEXT) \
 	midi_in.$(OBJEXT) encoding.$(OBJEXT) ongraph.$(OBJEXT) \
 	rcdcheck.$(OBJEXT) scdsp.$(OBJEXT) x68funcs.$(OBJEXT) \
 	xwin.$(OBJEXT) xwin_col.$(OBJEXT) xwin_graph.$(OBJEXT) \
@@ -224,7 +223,7 @@ DEP_FILES = ./$(DEPDIR)/basic.Po ./$(DEPDIR)/curses.Po \
 	./$(DEPDIR)/iocs_console.Po \
 	./$(DEPDIR)/iocs_graph.Po ./$(DEPDIR)/iocs_key.Po \
 	./$(DEPDIR)/iocs_mouse.Po \
-	./$(DEPDIR)/iocs_tgraph.Po ./$(DEPDIR)/mcpy.Po \
+	./$(DEPDIR)/iocs_tgraph.Po \
 	./$(DEPDIR)/midi_in.Po ./$(DEPDIR)/encoding.Po \
 	./$(DEPDIR)/ongraph.Po ./$(DEPDIR)/rcdcheck.Po \
 	./$(DEPDIR)/scdsp.Po ./$(DEPDIR)/x68funcs.Po \
@@ -277,7 +276,6 @@ include ./$(DEPDIR)/iocs_graph.Po
 include ./$(DEPDIR)/iocs_key.Po
 include ./$(DEPDIR)/iocs_mouse.Po
 include ./$(DEPDIR)/iocs_tgraph.Po
-include ./$(DEPDIR)/mcpy.Po
 include ./$(DEPDIR)/midi_in.Po
 include ./$(DEPDIR)/encoding.Po
 include ./$(DEPDIR)/ongraph.Po

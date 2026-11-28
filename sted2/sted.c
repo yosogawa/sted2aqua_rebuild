@@ -498,7 +498,7 @@ int	main(int argc,char *argv[])
   strcpy(version_id, "2.07m");
 #endif /* VERSION_ID */
 
-  rcd_check();H_INIT();keyclr();
+  rcd_check();H_INIT();
 
   ErrorTrap_Old=NULL;ErrFlag=0;
 

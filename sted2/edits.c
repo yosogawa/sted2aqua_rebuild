@@ -351,7 +351,7 @@ top:
   /*if(li[0]==0){goto top;}*/
 
   rcvf=0;addf=0;
-  memcpy_l(dat2,ptr,tr_len[track]);
+  memmove(dat2,ptr,tr_len[track]);
 
   for(i=0;i<TRACK_SIZE;i++){dat[i]=0;}
   for(i=0;i<=7;i++){rep[i][0]=0;trg[i]=0;trg2[i]=0;ftg[i]=-1;ftg2[i]=0;}
@@ -690,7 +690,7 @@ skip2:
       if(addf!=0 && dat[i]!=0 && dat2[i+4]!=0xf7 ){
 
 	if(a>=TRACK_SIZE){msg("Track buffer exhausted.");
-	memcpy_l(ptr,dat2,tr_len[track]);goto ext;}
+	memmove(ptr,dat2,tr_len[track]);goto ext;}
 
 	cpbuf[a++]=dat2[i];cpbuf[a++]=0/*dat2[i+1]*/;
 	cpbuf[a++]=dat2[i+2];cpbuf[a++]=dat2[i+3];
@@ -698,7 +698,7 @@ skip2:
       ii=i;aa=a;
     loop1:
       if(a>=TRACK_SIZE){msg("Track buffer exhausted.");
-      memcpy_l(ptr,dat2,tr_len[track]);goto ext;}
+      memmove(ptr,dat2,tr_len[track]);goto ext;}
 
       cpbuf[a++]=ptr[i];cpbuf[a++]=ptr[i+1];
       cpbuf[a++]=ptr[i+2];cpbuf[a++]=ptr[i+3];
@@ -712,7 +712,7 @@ skip2:
 
 	while(ss>0){
 	  if(a>=TRACK_SIZE){msg("Track buffer exhausted.");
-	  memcpy_l(ptr,dat2,tr_len[track]);goto ext;}
+	  memmove(ptr,dat2,tr_len[track]);goto ext;}
 
 	  if(ss>240){
 	    cpbuf[a++]=0;cpbuf[a++]=240;
@@ -730,7 +730,7 @@ skip2:
     if(size_change(track,a)){goto ext;}
 
     tr_len[track]=a;
-    memcpy_l(ptr,cpbuf,tr_len[track]);
+    memmove(ptr,cpbuf,tr_len[track]);
 
   }
   if(ln2){ln=ln2;}
@@ -1309,7 +1309,7 @@ void	undobuf(int a)
   int	i,d;
 
   if(a==0){
-    memcpy_l(rcpbuf,trk[track],tr_len[track]);
+    memmove(rcpbuf,trk[track],tr_len[track]);
     undof[0]=track;undof[1]=tr_len[track];rcpf=-1;
   }else{
     if(rcpf>=0 || track!=undof[0]){
@@ -1390,7 +1390,7 @@ void	same_shift(int spo,int m,int cu)
   }
 
   if(size_change(tr,po)){return;}
-  if(po<=TRACK_SIZE){tr_len[tr]=po;memcpy_l(trk[tr],dat,po);}
+  if(po<=TRACK_SIZE){tr_len[tr]=po;memmove(trk[tr],dat,po);}
 
   ec=0;
   for(i=spo ;i< tr_len[tr];i=i+4){
@@ -1429,12 +1429,12 @@ int	same_meas_extr(int tr,int ad,int ln)
   undobuf(0);msg("Extracting SAME MEAS ...");po=same_ext_sub(tr,ad,ad+ln,1);
   
   if(ad>0 && trk[tr][ad]==0xfc && trk[tr][ad-4]<0xfc){
-    memcpy_l(&dat[4],dat,po);dat[0]=0xfd;po+=4;
+    memmove(&dat[4],dat,po);dat[0]=0xfd;po+=4;
   }
 
   if(size_change(tr,tr_len[tr]-ln+po)){return 1;}
   trk_delete(ad,ln);trk_shift(ad,po);
-  memcpy_l(&trk[tr][ad],dat,po);
+  memmove(&trk[tr][ad],dat,po);
 
   return(0);
 }
@@ -1447,10 +1447,10 @@ int	cpybuf_set(int tr,int ad,int ln)
   po=same_ext_sub(tr,ad,ad+ln,0);
 
   if(po<=TRACK_SIZE){
-    memcpy_l(cpbuf,dat,po);
+    memmove(cpbuf,dat,po);
   }else{
     msg("Copy buffer will be exhausted. Not extract.");
-    memcpy_l(cpbuf,&trk[track][ad],ln);
+    memmove(cpbuf,&trk[track][ad],ln);
     return(ln);
   }
   return(po);

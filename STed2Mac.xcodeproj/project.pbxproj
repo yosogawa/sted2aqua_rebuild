@@ -98,7 +98,6 @@
 		E40E961C1ABA41ED0072AA0B /* iocs_key.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E95951ABA41ED0072AA0B /* iocs_key.c */; };
 		E40E961D1ABA41ED0072AA0B /* iocs_mouse.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E95961ABA41ED0072AA0B /* iocs_mouse.c */; };
 		E40E961E1ABA41ED0072AA0B /* iocs_tgraph.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E95971ABA41ED0072AA0B /* iocs_tgraph.c */; };
-		E40E96201ABA41ED0072AA0B /* mcpy.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E959A1ABA41ED0072AA0B /* mcpy.c */; };
 		E40E96211ABA41ED0072AA0B /* midi_in.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E959B1ABA41ED0072AA0B /* midi_in.c */; };
 		E40E96221ABA41ED0072AA0B /* encoding.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E959D1ABA41ED0072AA0B /* encoding.c */; };
 		E40E96231ABA41ED0072AA0B /* ongraph.c in Sources */ = {isa = PBXBuildFile; fileRef = E40E959F1ABA41ED0072AA0B /* ongraph.c */; };
@@ -312,7 +311,6 @@
 		E40E95971ABA41ED0072AA0B /* iocs_tgraph.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = iocs_tgraph.c; sourceTree = "<group>"; };
 		E40E95981ABA41ED0072AA0B /* iocslib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iocslib.h; sourceTree = "<group>"; };
 		E40E95991ABA41ED0072AA0B /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
-		E40E959A1ABA41ED0072AA0B /* mcpy.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mcpy.c; sourceTree = "<group>"; };
 		E40E959B1ABA41ED0072AA0B /* midi_in.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = midi_in.c; sourceTree = "<group>"; };
 		E40E959C1ABA41ED0072AA0B /* midi_in.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = midi_in.h; sourceTree = "<group>"; };
 		E40E959D1ABA41ED0072AA0B /* encoding.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = encoding.c; sourceTree = "<group>"; };
@@ -792,7 +790,6 @@
 				E40E95971ABA41ED0072AA0B /* iocs_tgraph.c */,
 				E40E95981ABA41ED0072AA0B /* iocslib.h */,
 				E40E95991ABA41ED0072AA0B /* Makefile */,
-				E40E959A1ABA41ED0072AA0B /* mcpy.c */,
 				E40E959B1ABA41ED0072AA0B /* midi_in.c */,
 				E40E959C1ABA41ED0072AA0B /* midi_in.h */,
 				E40E959D1ABA41ED0072AA0B /* encoding.c */,
@@ -986,7 +983,6 @@
 				E40E961D1ABA41ED0072AA0B /* iocs_mouse.c in Sources */,
 				E40E961E1ABA41ED0072AA0B /* iocs_tgraph.c in Sources */,
 				AF9D4CF73094457700846A7F /* MIDISettingsController.m in Sources */,
-				E40E96201ABA41ED0072AA0B /* mcpy.c in Sources */,
 				E40E96211ABA41ED0072AA0B /* midi_in.c in Sources */,
 				E40E96221ABA41ED0072AA0B /* encoding.c in Sources */,
 				E40E96231ABA41ED0072AA0B /* ongraph.c in Sources */,

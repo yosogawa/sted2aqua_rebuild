@@ -37,7 +37,6 @@ int  same_ext_sub(int tr, int st, int ed, int flg);
 int  repeat_ext(uint8_t *obuf, int ln);
 
 int  size_change(int tr, int ln);
-void memcpy_l(uint8_t *dest, uint8_t *src, int len);
 char *nstr(int a);
 
 void size_ref(void);

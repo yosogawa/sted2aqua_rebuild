@@ -1051,7 +1051,7 @@ void rec_conv( int mm )
 {
   int i;
 
-  memcpy_l(dat2,dat,lastptr);
+  memmove(dat2,dat,lastptr);
 
   size_ref();
   /*	B_PRINT("ch.:");*/
@@ -1063,7 +1063,7 @@ void rec_conv( int mm )
 
     for(i=0;i<36;i++){
       if(trmod[i]&2){
-	memcpy_l(dat,dat2,lastptr);
+	memmove(dat,dat2,lastptr);
 	if(rec_ext(i)){break;}
       }
     }
@@ -1075,7 +1075,7 @@ void rec_conv( int mm )
 
       for(i=0;i<36;i++){
 	if((trmod[i]&2)!=0 && tr==((mch[i]-1)&15)){
-	  memcpy_l(dat,dat2,lastptr);
+	  memmove(dat,dat2,lastptr);
 	  if(rec_ext(i)){break;}
 	}
       }
@@ -1092,7 +1092,7 @@ int	rec_ext(int i)
   ln=trk_ext_sub(i,rcpbuf);if(ln==0){return 1;}
 
   if(size_change(i,ln)){return 1;}
-  memcpy_l(trk[i],rcpbuf,ln);tr_len[i]=ln;
+  memmove(trk[i],rcpbuf,ln);tr_len[i]=ln;
 
   if(topmeas>1){
     /*ad=meas_add(topmeas);if(ad<0){ad=tr_len[i]-4;}*/
@@ -1105,23 +1105,23 @@ int	rec_ext(int i)
     if(size_change(i,ad+ln+4)){return 1;}
 
     dat[ln]=0xfe;ln+=4;tr_len[i]=ad+ln;
-    memcpy_l(&trk[i][ad],dat,ln);
+    memmove(&trk[i][ad],dat,ln);
   }else{
     ad2=meas_add(btmmeas+1);if(ad2<0){ad2=tr_len[i]-4;}
 
     ln2=tr_len[i]-ad2;
-    memcpy_l(rcpbuf,&trk[i][ad2],ln2);
+    memmove(rcpbuf,&trk[i][ad2],ln2);
     if(ln2<=4){ln2=0;}
 
     if(size_change(i,ad+len+ln2)){return 1;}
 
     tr_len[i]=ad+len;
-    memcpy_l(&trk[i][ad],note,len);
+    memmove(&trk[i][ad],note,len);
 
     if(ln2>4){
       ad2=ad+len-4;
       tr_len[i]=ad+len+ln2;
-      memcpy_l(&trk[i][ad2],rcpbuf,ln2);
+      memmove(&trk[i][ad2],rcpbuf,ln2);
     }
 
   }
@@ -1152,7 +1152,7 @@ int	meas_adjust(int i,int topm)
       if(size_change(track,ad+ln)){return -1;}
 
       tr_len[track]=ad+ln;
-      memcpy_l(&trk[track][ad],dat,ln);
+      memmove(&trk[track][ad],dat,ln);
     }
     ad=meas_add(topm);if(ad<0){ad=tr_len[track]-4;}
 

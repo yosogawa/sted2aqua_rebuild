@@ -935,7 +935,7 @@ track_edit_top:
 	    ec=trk_mix_sub(trk[track]+ad,cpbuf);
 	    if(!size_change(track,ad+ec)){
 	      dat[ec]=0xfe;ec+=4;
-	      memcpy_l(&trk[track][ad],dat,ec);
+	      memmove(&trk[track][ad],dat,ec);
 	      tr_len[track]=ad+ec;
 	      trk_cluc();trk_dis(6,po,24);
 	    }

@@ -618,17 +618,17 @@ reis:
 				int cc;
 				cc=vis_bufset(po,co,para,step,vmo,0);
 				if(trk_shift(po,cc)==0){
-					memcpy_l(&ptr[po],dat2,cc);
+					memmove(&ptr[po],dat2,cc);
 					poplay(po,3);trk_delete(po,cc);
 				}
 			}else{
 				int ll;ll=tr_len[track];
 				cpleng=0;
-				memcpy_l(cpbuf,trk[track],ll);
+				memmove(cpbuf,trk[track],ll);
 				if(vis_ext_mix(po,co,para,step,vmo,ost)==0){
 				poplay(po,3);}
 
-				memcpy_l(trk[track],cpbuf,ll);
+				memmove(trk[track],cpbuf,ll);
 				tr_len[track]=ll;
 			}
 		}
@@ -653,7 +653,7 @@ if((cmdflag&0x200)==0){
 
 				if(trk_check(cc)==0){
 					line_ins_aft(po);trk_shift(po,cc);
-					memcpy_l(&ptr[po],dat2,cc);
+					memmove(&ptr[po],dat2,cc);
 					ad+=cc;
 				}
 				po=ad;
@@ -810,7 +810,7 @@ if(excget){
 	if(size_change(track,po+ec)){return 1;}
 
 	dat[ec]=0xfe;ec+=4;
-	memcpy_l(&trk[track][po],dat,ec);
+	memmove(&trk[track][po],dat,ec);
 	tr_len[track]=po+ec;
 	return(0);
 }

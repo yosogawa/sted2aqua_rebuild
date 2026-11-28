@@ -29,7 +29,6 @@ extern char fnc_key[12][6];
    CLR, HELP, HOME, UNDO */
 
 /* misc functions */
-extern void keyclr(void);
 extern void key_pause(void);
 
 extern void key_wait(void);

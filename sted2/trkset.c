@@ -687,9 +687,9 @@ void	ts_swap(int a,int b)
   if(size_change(a,tr_len[b])){return;}
   if(size_change(b,tr_len[a])){return;}
 
-  memcpy_l(dat,trk[a],tr_len[a]);
-  memcpy_l(trk[a],trk[b],tr_len[b]);
-  memcpy_l(trk[b],dat,tr_len[a]);
+  memmove(dat,trk[a],tr_len[a]);
+  memmove(trk[a],trk[b],tr_len[b]);
+  memmove(trk[b],dat,tr_len[a]);
 
   for(i=0;i<2;i++){for(j=0;j<4;j++){
     d=tr_pos[a][i][j];tr_pos[a][i][j]=tr_pos[b][i][j];tr_pos[b][i][j]=d;}}
@@ -739,7 +739,7 @@ void	ts_copy(int a,int b)
   size_ref();
   if(size_change(b,tr_len[a])){return;}
 
-  memcpy_l(trk[b],trk[a],tr_len[a]);
+  memmove(trk[b],trk[a],tr_len[a]);
 
   for(i=0;i<2;i++){for(j=0;j<4;j++){tr_pos[b][i][j]=tr_pos[a][i][j];}}
   tr_len[b]=tr_len[a];trmod[b]=trmod[a];
@@ -778,7 +778,7 @@ void	ts_mix(int tr1,int tr2,int tr3)
   po=trk_mix_sub(cpbuf,rcpbuf);
   if(size_change(tr3,po+4)){return;}
 
-  memcpy_l(trk[tr3],dat,po);trk[tr3][po]=0xfe;tr_len[tr3]=po+4;
+  memmove(trk[tr3],dat,po);trk[tr3][po]=0xfe;tr_len[tr3]=po+4;
 
   msg_clr();
 }
@@ -853,7 +853,7 @@ loopx:
 
   if(po>4 && dat[po-4]==0xfd && dat[po-8]==0xfd){po-=4;}
 
-  memcpy_l(trk[tr1],dat,po);
+  memmove(trk[tr1],dat,po);
   trk[tr1][po]=0xfe;tr_len[tr1]=po+4;
 
   trk_lin(tr1,-1,0);
@@ -876,7 +876,7 @@ void	ts_ext(int i)
   size_ref();
   if(size_change(i,po)){return;}
 
-  memcpy_l(trk[i],cpbuf,po);
+  memmove(trk[i],cpbuf,po);
   tr_len[i]=po;
   /*	trk_lin(i,-1,0);*/
 }

@@ -344,7 +344,7 @@ int	same_meas_conv(int tr)
 
   if(size_change(tr,co+4)){return(0);}
 
-  memcpy_l(trk[tr],dat,co);
+  memmove(trk[tr],dat,co);
   tr_len[tr]=co;
 
   if(count>0){
@@ -641,7 +641,7 @@ void	trk_quan(int tr,int po1,int po2)
     }
   }
 
-  memcpy_l(trk[tr],dat,ad2);tr_len[tr]=ad2;
+  memmove(trk[tr],dat,ad2);tr_len[tr]=ad2;
   msg_clr();
 }
 
@@ -875,7 +875,7 @@ static int	size_add(int tr,int size)
 
     for(i=35;i>tr;i--){
       ptr_s=trk[i];ptr_d=ptr_s+size;trk[i]=ptr_d;
-      memcpy_l(ptr_d,ptr_s,tr_len[i]);
+      memmove(ptr_d,ptr_s,tr_len[i]);
     }
   }
 
@@ -899,7 +899,7 @@ int	trk_check(int ln)
 int	trk_shift(int ad,int ln)
 {
   if(trk_check(ln)!=0){return(-1);}
-  memcpy_l(&trk[track][ad+ln],&trk[track][ad],tr_len[track]-ad);
+  memmove(&trk[track][ad+ln],&trk[track][ad],tr_len[track]-ad);
   tr_len[track]=tr_len[track]+ln;
   return(0);
 }
@@ -908,7 +908,7 @@ int	trk_shift(int ad,int ln)
 void	trk_delete(int ad,int ln)
 {
   tr_len[track]=tr_len[track]-ln;
-  memcpy_l(&trk[track][ad],&trk[track][ad+ln],tr_len[track]-ad);
+  memmove(&trk[track][ad],&trk[track][ad+ln],tr_len[track]-ad);
 }
 
 /***************************/
@@ -943,7 +943,7 @@ void	size_ref()
     if(left>0){
       ptr_s=trk[i];ptr_d=ptr_s-left;
       trk[i]=ptr_d;tr_alc[i-1]-=ln;
-      memcpy_l(ptr_d,ptr_s,tr_len[i]);
+      memmove(ptr_d,ptr_s,tr_len[i]);
     }
   }
   ln=tr_alc[35]-tr_len[35];

@@ -724,7 +724,7 @@ int	trk_load(char *fna)
   if( sz<RCP_EVENT_SIZE ){msg("Invalid file.");return(-1);}
   if(size_change(track,sz)){return -1;}
 
-  thedread(track);memcpy_l(trk[track],dat,ln);tr_len[track]=sz;
+  thedread(track);memmove(trk[track],dat,ln);tr_len[track]=sz;
   tr_pos[track][0][0]=0;tr_pos[track][0][1]=0;tr_pos[track][0][2]=0;
   tr_pos[track][1][0]=0;tr_pos[track][1][1]=0;tr_pos[track][1][2]=0;
 
@@ -2000,7 +2000,7 @@ int	rcp_buf_put(char *ptr,int po,int ln)
   char	*p;
   if((rcd->bufcap)<(po+ln)){return(po+ln);}
   p=rcd->data_adr;p+=po;
-  if(ln>RCP_FILE_HEADER_SIZE){memcpy_l(p,ptr,ln);}else{memcpy(p,ptr,ln);}
+  if(ln>RCP_FILE_HEADER_SIZE){memmove(p,ptr,ln);}else{memcpy(p,ptr,ln);}
   po=po+ln;return(po);
 }
 
@@ -2009,7 +2009,7 @@ int	rcp_buf_get(char *ptr,int po,int ln)
   char	*p;
   if((rcd->bufcap)<(po+ln)){return(po+ln);}
   p=rcd->data_adr;p+=po;
-  if(ln>RCP_FILE_HEADER_SIZE){memcpy_l(ptr,p,ln);}else{memcpy(ptr,p,ln);}
+  if(ln>RCP_FILE_HEADER_SIZE){memmove(ptr,p,ln);}else{memcpy(ptr,p,ln);}
   po=po+ln;return(po);
 }
 

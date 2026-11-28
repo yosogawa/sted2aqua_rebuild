@@ -1029,7 +1029,7 @@ int	mml_inp(int ad)
 
     if(co){
       if(trk_shift(ad,co)!=0){snsclr();return(0);}
-      memcpy_l(&trk[track][ad],dat,co);
+      memmove(&trk[track][ad],dat,co);
     }
   }
 
