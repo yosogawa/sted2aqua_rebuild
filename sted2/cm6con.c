@@ -375,7 +375,8 @@ void	pch_fld(int m)
   static	char	hd0[]="NO. TIMBRE NAME     ";
   static	char	hd1[]="KEY#   TIMBRE NAME   OUTPUT  PAN  REV   ";
 
-  fnc_dis(3);B_LOCATE(0,2);B_CLR_ED();fill(0,574,639,1023,0);keyd();
+  /* Row 31 is the F1-F10 guide. Clear the page through row 30 only. */
+  fnc_dis(3);B_LOCATE(0,2);txerase(0,2*16,768,29*16);fill(0,574,639,1023,0);keyd();
   sdis2(19,552,pch_title[m],19,15,8);
 
   if(m==0){
