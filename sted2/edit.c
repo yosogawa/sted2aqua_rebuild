@@ -86,7 +86,15 @@ track_edit_top:
   gra(po,0);
 
   while( 1){
-    if(rcp_transport_is_active() || (B_SFTSNS()&16)!=0){sttrc(&po,&cy,0);}
+    if(rcp_transport_is_active() || (B_SFTSNS()&16)!=0){
+      int was_active=rcp_transport_is_active();
+      sttrc(&po,&cy,0);
+      /* sttrc's full clear removes the function-key row. Draw it again
+         once follow has released transport. */
+      if(was_active && !rcp_transport_is_active()){
+	ed_fnc_guide(B_SFTSNS(), real_ad(po,cy), cx);
+      }
+    }
     ad=real_ad(po,cy);
     /*
       Stopped cursor: refresh the MEAS header when the moved span crosses
@@ -193,7 +201,13 @@ track_edit_top:
 
     if( (sh&6)==0 ){tcp=0;tcs=0;}
     if( ke==0x5a ){
-      if((sh&16)!=0 || rcp_transport_is_active()){sttrc(&po,&cy,0);}
+      if((sh&16)!=0 || rcp_transport_is_active()){
+	int was_active=rcp_transport_is_active();
+	sttrc(&po,&cy,0);
+	if(was_active && !rcp_transport_is_active()){
+	  ed_fnc_guide(B_SFTSNS(), real_ad(po,cy), cx);
+	}
+      }
     }
     if( ke==1 ){
       if( cplen<0 ){
@@ -792,7 +806,13 @@ track_edit_top:
     if( kc==0x1a ){roll_down(&po,&cy);kc=0;ke=0;}
 
     if( ke==0x36 ){
-      if((sh&1)==0){cx=0;cy=0;}else{sttrc(&po,&cy,1);}
+      if((sh&1)==0){cx=0;cy=0;}else{
+	int was_active=rcp_transport_is_active();
+	sttrc(&po,&cy,1);
+	if(was_active && !rcp_transport_is_active()){
+	  ed_fnc_guide(B_SFTSNS(), real_ad(po,cy), cx);
+	}
+      }
     }
 
     ad=real_ad(po,cy);
