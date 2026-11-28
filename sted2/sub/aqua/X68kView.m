@@ -4144,6 +4144,8 @@ s_line_input(void **args)
 	int x, y, width;
 	NSRect frame;
 	NSTextField *tf;
+	NSFont *font;
+	const char *psName;
 	if (flag == 0)
 		return;
 	x = sCursorX * 8 - 2;
@@ -4154,7 +4156,15 @@ s_line_input(void **args)
 	[tf setBackgroundColor:[NSColor colorWithCalibratedRed:0.8 green:0.8 blue:0.8 alpha:1.0]];
 	[tf setDrawsBackground:YES];
 	[tf setDelegate:sMainView];
-	[tf setFont:[NSFont userFixedPitchFontOfSize:16]];
+	/* Same face as the screen bitmap. Size 16 matches the text cell.
+	   The screen still squeezes glyphs into 8x16; this field does not. */
+	psName = sAppliedMacFont;
+	if (psName[0] == 0)
+		psName = kBundledFontPSName;
+	font = [NSFont fontWithName:[NSString stringWithUTF8String:psName] size:16];
+	if (font == nil)
+		font = [NSFont userFixedPitchFontOfSize:16];
+	[tf setFont:font];
 	[tf setStringValue:[NSString stringWithCString:buf encoding:NSShiftJISStringEncoding]];
 	[sMainView addSubview:tf];
 	[[sMainView window] makeFirstResponder:tf];
