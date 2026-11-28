@@ -4135,6 +4135,17 @@ s_MacErrorBox(void **args)
 	sRequestAppKitCall = 0;
 }
 
+/* Graphic palette chip, same expansion the screen bitmap uses. */
+static NSColor *
+PaletteChipColor(int index)
+{
+	uint32_t c = NSSwapBigIntToHost(sGraphPalette[index & 15]);
+	return [NSColor colorWithCalibratedRed:((c >> 24) & 0xff) / 255.0
+					  green:((c >> 16) & 0xff) / 255.0
+					   blue:((c >> 8) & 0xff) / 255.0
+					  alpha:1.0];
+}
+
 static void
 s_line_input(void **args)
 {
@@ -4146,6 +4157,7 @@ s_line_input(void **args)
 	NSTextField *tf;
 	NSFont *font;
 	const char *psName;
+	NSColor *fg, *bg;
 	if (flag == 0)
 		return;
 	x = sCursorX * 8 - 2;
@@ -4153,7 +4165,11 @@ s_line_input(void **args)
 	width = (len & 0xff) * 8 + 4;
 	frame = NSMakeRect(x, y, width, 24);
 	tf = [[NSTextField alloc] initWithFrame:frame];
-	[tf setBackgroundColor:[NSColor colorWithCalibratedRed:0.8 green:0.8 blue:0.8 alpha:1.0]];
+	/* Trial: ink is palette 0 (back), ground is palette 3 (cursor/message). */
+	fg = PaletteChipColor(0);
+	bg = PaletteChipColor(3);
+	[tf setTextColor:fg];
+	[tf setBackgroundColor:bg];
 	[tf setDrawsBackground:YES];
 	[tf setDelegate:sMainView];
 	/* Same face as the screen bitmap. Size 16 matches the text cell.
@@ -4168,6 +4184,22 @@ s_line_input(void **args)
 	[tf setStringValue:[NSString stringWithCString:buf encoding:NSShiftJISStringEncoding]];
 	[sMainView addSubview:tf];
 	[[sMainView window] makeFirstResponder:tf];
+	/* The field opens with the whole string selected. Paint that range
+	   with the same pair, or the system accent covers the glyphs. */
+	{
+		NSText *ed = [tf currentEditor];
+		if ([ed isKindOfClass:[NSTextView class]]) {
+			NSTextView *tv = (NSTextView *)ed;
+			NSMutableDictionary *attrs = [[tv selectedTextAttributes] mutableCopy];
+			if (attrs == nil)
+				attrs = [[NSMutableDictionary alloc] init];
+			[attrs setObject:bg forKey:NSBackgroundColorAttributeName];
+			[attrs setObject:fg forKey:NSForegroundColorAttributeName];
+			[tv setSelectedTextAttributes:attrs];
+			[attrs release];
+			[tv setInsertionPointColor:fg];
+		}
+	}
 	[tf selectText:nil];
 	[tf unregisterDraggedTypes];
 	args[2] = (void *)0;  /*  Avoid duplicate call  */
